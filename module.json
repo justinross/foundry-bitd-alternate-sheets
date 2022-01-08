@@ -1,21 +1,28 @@
 {
-  "name": "module",
-  "title": "New Module",
+  "name": "bitd-alternate-sheets",
+  "title": "Blades in the Dark Alternate Sheets",
   "description": "",
-  "version": "This is auto replaced",
+  "version": "0.0.1",
   "library": "false",
-  "manifestPlusVersion": "1.0.0",
-  "minimumCoreVersion": "0.8.8",
-  "compatibleCoreVersion": "0.8.8",
+  "manifestPlusVersion": "1.2.0",
+  "minimumCoreVersion": "0.8.9",
+  "compatibleCoreVersion": "0.8.9",
   "authors": [
     {
-      "name": "The League of Extraordinary FVTT Developers",
-      "url": "https://github.com/League-of-Foundry-Developers",
-      "discord": "discordID#0001"
+      "name": "Justin Ross",
+      "url": "https://github.com/justinross",
+      "discord": "thsjstin#5654"
     }
   ],
   "dependencies": [
-
+    {
+      "name": "blades-in-the-dark",
+      "manifest": "https://raw.githubusercontent.com/megastruktur/foundryvtt-blades-in-the-dark/master/system.json",
+      "type": "system"
+    },
+    {
+      "name": "lib-wrapper"
+    }
   ],
   "conflicts": [
     
@@ -24,10 +31,10 @@
     "/scripts/module.js"
   ],
   "scripts": [
-    "/scripts/lib/lib.js"
+    "scripts/lib/markdown-it.min.js"
   ],
   "styles": [
-    "/styles/module.css"
+    "/styles/css/bitd-alt.css"
   ],
   "languages": [
     {

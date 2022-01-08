@@ -1,0 +1,8 @@
+<div class="ability-block" data-ability-id="{{ability._id}}">
+    <input type="checkbox" class="ability-checkbox main-checkbox" id="character-{{actor._id}}-ability-{{ability._id}}-1" {{checked (owns-ability actor ability.name)}}>
+    <label for="character-{{actor._id}}-ability-{{ability._id}}-1">
+        <span class="ability-name {{#if actor.flags.bitd-alternate-sheets.allow-edit}}clickable-edit{{/if}}">{{clean-name ability.name}}:</span>
+        <span class="ability-description">{{{md ability.data.description}}}</span>
+    </label>
+    {{#if actor.flags.bitd-alternate-sheets.allow-edit}}{{#if ability.flags.bitd-alternate-sheets.custom_ability}}<a class="ability-delete delete-button" data-type="ability" data-id="{{ability._id}}"><i class="fas fa-trash"></i></a>{{/if}}{{/if}}
+</div>

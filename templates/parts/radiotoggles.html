@@ -1,0 +1,5 @@
+<input id="{{actor._id}}-crew-{{name}}-0" type="radio" name="{{field}}" value="0">
+{{#times_from_1 count}}
+  <input id="{{../actor._id}}-crew-{{../name}}-{{this}}" type="radio" name="{{../field}}" value="{{this}}">
+  <label for="{{../actor._id}}-crew-{{../name}}-{{this}}" class="{{#if (gte ../currentval this)}}on{{/if}} radio-toggle"></label>
+{{/times_from_1}}

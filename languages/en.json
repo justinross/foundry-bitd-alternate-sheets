@@ -1,3 +1,9 @@
 {
-    "MODULE.hello": "hello"
+    "bitd-alt.hello": "hello",
+    "bitd-alt.items": "Items",
+    "bitd-alt.AddNewItem": "Add New Item",
+    "bitd-alt.AddExistingItem": "Add Existing Item",
+    "bitd-alt.AddNewAbility": "Add New Ability",
+    "bitd-alt.AddExistingAbility": "Add Existing Ability",
+    "bitd-alt.DeleteAbility": "Delete Ability"
 }

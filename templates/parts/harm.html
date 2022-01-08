@@ -1,0 +1,18 @@
+<div class="character-harm harm">
+  <div class="grid-lines"></div>
+  <header class="harm">{{localize "BITD.Harm"}}</header><header class="effect">{{localize "BITD.Effect"}}</header><header class="healing">{{localize "BITD.Healing"}}</header>
+  <span class="rownum3">3</span><input class="heavy" type="text" id="character-{{actor._id}}-harm-3-1" name="data.harm.heavy.one" value="{{data.harm.heavy.one}}"><span class="effect-text heavy">{{localize "BITD.NeedHelp"}}</span>
+  <span class="rownum2">2</span><input class="medium1" type="text" id="character-{{actor._id}}-harm-2-1" name="data.harm.medium.one" value="{{data.harm.medium.one}}"><input class="medium2" type="text" id="character-{{actor._id}}-harm-2-2" name="data.harm.medium.two" value="{{data.harm.medium.two}}"><span class="effect-text medium">-1D</span>
+  <span class="rownum1">1</span><input class="light1" type="text" id="character-{{actor._id}}-harm-1-1" name="data.harm.light.one" value="{{data.harm.light.one}}"><input class="light2" type="text" id="character-{{actor._id}}-harm-1-2" name="data.harm.light.two" value="{{data.harm.light.two}}"><span class="effect-text light">Less Effect</span>
+  <div class="clocks clocks-4 healing-clock">
+    {{{blades-clock "data.healing-clock" 4 data.healing-clock (concat "healing-" actor._id)}}}
+  </div>
+  <div class="armor-use">
+    <label for="armor-use-armor-{{actor._id}}" class="armorlabel">Armor</label>
+    <input id="armor-use-armor-{{actor._id}}" type="checkbox" name="data.armor-uses.armor" {{checked data.armor-uses.armor}} class="armorinput">
+    <label for="armor-use-heavy-{{actor._id}}" class="heavylabel">Heavy</label>
+    <input id="armor-use-heavy-{{actor._id}}" type="checkbox" name="data.armor-uses.heavy" {{checked data.armor-uses.heavy}} class="heavyinput">
+    <label for="armor-use-special-{{actor._id}}" class="speciallabel">Special</label>
+    <input id="armor-use-special-{{actor._id}}" type="checkbox" name="data.armor-uses.special" {{checked data.armor-uses.special}} class="specialinput">
+  </div>
+</div>

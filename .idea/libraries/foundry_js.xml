@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="foundry.js" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://E:/FoundryVTT/resources/app/public/scripts/foundry.js" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://E:/FoundryVTT/resources/app/public/scripts/foundry.js" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
