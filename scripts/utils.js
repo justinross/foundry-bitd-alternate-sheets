@@ -295,25 +295,53 @@ export class Utils {
 
   static async getPlaybookName(id){
     let playbook = await this.getItemByType("class", id);
-    return playbook.name;
+    if(playbook){
+      return playbook.name;
+    }
+    else{
+      return "No Playbook";
+    }
   }
 
   static async toggleOwnership(state, actor, type, id){
-    if(state){
-      let all_of_type = await Utils.getSourcedItemsByType('ability');
-      let checked_item = all_of_type.find(item => item.id == id);
-      let added_item = await actor.createEmbeddedDocuments("Item", [checked_item.data]);
-    }
-    else{
-      if(actor.getEmbeddedDocument('Item', id)){
-        actor.deleteEmbeddedDocuments('Item', [id]);
+    console.log("toggling", type);
+    if(type == "ability"){
+      if(state){
+        let all_of_type = await Utils.getSourcedItemsByType(type);
+        let checked_item = all_of_type.find(item => item.id == id);
+        let added_item = await actor.createEmbeddedDocuments("Item", [checked_item.data]);
       }
       else{
-        let item_source = await Utils.getItemByType(type, id);
-        let item_source_name = item_source.name;
-        let matching_owned_item = actor.items.find(item => item.name == item_source_name);
-        await actor.deleteEmbeddedDocuments('Item', [matching_owned_item.id]);
+        if(actor.getEmbeddedDocument('Item', id)){
+          actor.deleteEmbeddedDocuments('Item', [id]);
+        }
+        else{
+          let item_source = await Utils.getItemByType(type, id);
+          let item_source_name = item_source.name;
+          let matching_owned_item = actor.items.find(item => item.name == item_source_name);
+          await actor.deleteEmbeddedDocuments('Item', [matching_owned_item.id]);
+        }
       }
+    }
+    else if(type == "item"){
+      // let item = actor.items.find(item => item.id === id);
+      let equipped_items = await actor.getFlag('bitd-alternate-sheets', 'equipped-items');
+      console.log(equipped_items);
+      if(equipped_items){
+        if(equipped_items.some(i => i === id )){
+          console.log("was equipped");
+          equipped_items = equipped_items.filter(i => i !== id);
+          // equipped_items.findSplice(i => i === id);
+        }
+        else{
+          console.log("was not equipped");
+          equipped_items.push(id);
+        }
+      }
+      else{
+        equipped_items = [id];
+      }
+      await actor.setFlag('bitd-alternate-sheets', 'equipped-items', equipped_items);
     }
   }
 

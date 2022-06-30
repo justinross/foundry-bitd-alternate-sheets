@@ -60,7 +60,7 @@
         {{{inline-editable-text "data.heritage" "Heritage" data.heritage actor._id this}}} &bull; {{{inline-editable-text "data.background" "Background" data.background actor._id this}}} &bull; {{{inline-editable-text "data.background-details" "Background Details" data.background-details actor._id this}}} &bull; {{{inline-editable-text "data.vice" "Vice" data.vice actor._id this}}} &bull; {{{inline-editable-text "data.vice-purveyor" "Vice Purveyor" data.vice-purveyor actor._id this}}}
       </div>
       <div class="look bio">{{{inline-editable-text "data.look" "Look" data.look actor._id this}}}</div>
-      <div class="abilities-list">{{#each my_abilities}}<span title="{{this.data.description}}" class="hover-term">{{this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
+      <div class="abilities-list">{{#each my_abilities}}<span title="{{this.data.description}}" class="hover-term">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
       <section class="attributes-actions">
         {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" actor=actor}}
       </section>
@@ -69,9 +69,8 @@
       <nav class="tabs" data-group="primary-tabs">
         <div class="tab-item playbook" data-tab="playbook">
           {{#if actor.flags.bitd-alternate-sheets.allow-edit}}
-            <select class="dropdown playbook-select">
-              {{selectOptions playbook_select selected=selected_playbook.id localize=false blank="Playbook"}}
-            </select>
+              <div class="playbook-name">{{selected_playbook_name}}</div>
+              <div class="playbook-description">Drop a playbook item onto the sheet to switch playbooks.</div>
           {{else}}
           <div class="playbook-name">{{selected_playbook_name}}</div>
           <div class="playbook-description">{{selected_playbook_description}}</div>
@@ -85,6 +84,7 @@
           <div class="notes-header">Notes</div>
         </div>
       </nav>
+
       <section class="tab-content">
         <div class="tab" data-tab="playbook" data-group="primary-tabs">
           <div class="playbook">
@@ -103,7 +103,7 @@
                 </div>
               </header>
               <section class="ability-list check-list">
-                {{#each available_abilities as |ability index|}}
+                {{#each available_playbook_abilities as |ability index|}}
                 {{#with ../actor as |actor|}}
                   {{> "modules/bitd-alternate-sheets/templates/parts/ability.html" actor=actor ability=ability}}
                 {{/with}}
@@ -115,10 +115,10 @@
               {{#each my_items as |item index|}}
                 {{#with ../actor as |actor|}}
                 <div class="item-block" data-item-id="{{item._id}}">
-                  <input type="checkbox" class="item-checkbox main-checkbox" id="character-{{actor._id}}-item-{{item._id}}-1" {{checked item.data.equipped}}><!--
-                  -->{{#if (gte item.data.load 2)}}<span class="join-line"></span><input type="checkbox" class="item-checkbox child-checkbox" id="character-{{actor._id}}-item-{{item._id}}-2" {{checked item.data.equipped}}>{{/if}}<!--
-                  -->{{#if (eq item.data.load 3)}}<span class="join-line"></span><input type="checkbox" class="item-checkbox child-checkbox" id="character-{{actor._id}}-item-{{item._id}}-3"{{checked item.data.equipped}}>{{/if}}
-                  <label class="item-name {{#if (eq item.data.load '0')}}free-item{{/if}} {{#if actor.flags.bitd-alternate-sheets.allow-edit}}clickable-edit{{/if}}" for="character-{{actor._id}}-item-{{item._id}}-1" title="{{item.data.description}}">{{item.name}}</label>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}<a class="item-delete delete-button" data-type="item" data-id="{{item._id}}"><i class="fas fa-trash"></i></a>{{/if}}
+                  <input type="checkbox" class="item-checkbox main-checkbox" id="character-{{actor._id}}-item-{{item._id}}-1" {{checked (item-equipped actor item._id)}}><!--
+                  -->{{#if (gte item.data.load 2)}}<span class="join-line"></span><input type="checkbox" class="item-checkbox child-checkbox" id="character-{{actor._id}}-item-{{item._id}}-2" {{checked (item-equipped actor item._id)}}>{{/if}}<!--
+                  -->{{#if (eq item.data.load 3)}}<span class="join-line"></span><input type="checkbox" class="item-checkbox child-checkbox" id="character-{{actor._id}}-item-{{item._id}}-3" {{checked (item-equipped actor item._id)}}>{{/if}}
+                  <label class="item-name {{#if (eq item.data.load '0')}}free-item{{/if}} {{#if actor.flags.bitd-alternate-sheets.allow-edit}}clickable-edit{{/if}}" for="character-{{actor._id}}-item-{{item._id}}-1" title="{{item.data.description}}">{{clean-name item.name}}</label>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}<a class="item-delete delete-button" data-type="item" data-id="{{item._id}}"><i class="fas fa-trash"></i></a>{{/if}}
                 </div>
                 {{/with}}
               {{/each}}
@@ -129,8 +129,8 @@
               {{#each data.acquaintances}}
                 <div class="acquaintance" data-acquaintance="{{this.id}}">
                   <i data-acquaintance="{{this.id}}" class="standing-toggle fas
-                    {{#if (eq this.standing "friend")}} fa-smile green-icon
-                    {{else if (eq this.standing "rival")}}fa-angry red-icon
+                    {{#if (eq this.standing "friend" )}} fa-smile green-icon
+                    {{else if (eq this.standing "rival")}} fa-angry red-icon
                     {{else}}fa-meh
                     {{/if}}"></i><strong class="standing-toggle">{{this.name}}</strong>{{#if this.description_short}}, {{this.description_short}}{{/if}}
                 </div>
@@ -142,10 +142,10 @@
               {{#each generic_items as |item index|}}
                 {{#with ../actor as |actor|}}
                 <div class="item-block" data-item-id="{{item._id}}">
-                  <input type="checkbox" class="item-checkbox main-checkbox {{#if (eq item.data.load "0")}}free-item{{/if}}" id="character-{{actor._id}}-item-{{item._id}}-1" {{checked item.data.equipped}}><!--
-                  -->{{#if (gte item.data.load 2)}}<span class="join-line"></span><input type="checkbox" class="item-checkbox child-checkbox"  id="character-{{actor._id}}-item-{{item._id}}-2" {{checked item.data.equipped}} >{{/if}}<!--
-                  -->{{#if (gte item.data.load 3)}}<span class="join-line"></span><input type="checkbox" class="item-checkbox child-checkbox" id="character-{{actor._id}}-item-{{item._id}}-3" {{checked item.data.equipped}} >{{/if}}
-                  <label class="item-name  {{#if (eq item.data.load "0")}}free-item{{/if}} {{#if actor.flags.bitd-alternate-sheets.allow-edit}}clickable-edit{{/if}}" for="character-{{actor._id}}-item-{{item._id}}-1" title="{{item.data.description}}">{{item.name}}</label>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}<a class="item-delete delete-button" data-type="item" data-id="{{item._id}}"><i class="fas fa-trash"></i></a>{{/if}}
+                  <input type="checkbox" class="item-checkbox main-checkbox {{#if (eq item.data.load "0")}}free-item{{/if}}" id="character-{{actor._id}}-item-{{item.id}}-1" {{checked item.data.equipped}}><!--
+                  -->{{#if (gte item.data.load 2)}}<span class="join-line"></span><input type="checkbox" class="item-checkbox child-checkbox"  id="character-{{actor._id}}-item-{{item.id}}-2" {{checked item.data.equipped}} >{{/if}}<!--
+                  -->{{#if (gte item.data.load 3)}}<span class="join-line"></span><input type="checkbox" class="item-checkbox child-checkbox" id="character-{{actor._id}}-item-{{item.id}}-3" {{checked item.data.equipped}} >{{/if}}
+                  <label class="item-name  {{#if (eq item.data.load "0")}}free-item{{/if}} {{#if actor.flags.bitd-alternate-sheets.allow-edit}}clickable-edit{{/if}}" for="character-{{actor._id}}-item-{{item.id}}-1" title="{{item.data.description}}">{{item.name}}</label>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}<a class="item-delete delete-button" data-type="item" data-id="{{item.id}}"><i class="fas fa-trash"></i></a>{{/if}}
                 </div>
                 {{/with}}
               {{/each}}

@@ -23,17 +23,29 @@ export const registerHandlebarsHelpers = function() {
 
   Handlebars.registerHelper('clean-name', function(input){
     return Utils.trimClassFromName(input);
-  })
+  });
 
   Handlebars.registerHelper('owns-ability', function(actor, ability_name){
-    return actor.items.some(item => item.type == "ability" && item.name == ability_name);
-  })
+    return actor.items.some(item => item.name == ability_name);
+  });
+
+  Handlebars.registerHelper('item-equipped', function(actor, id){
+    let actor_doc = game.actors.get(actor._id);
+    let equipped_items = actor_doc.getFlag('bitd-alternate-sheets', 'equipped-items');
+    if(equipped_items){
+      let equipped = equipped_items.includes(id);
+      return equipped;
+    }
+    else{
+      return false;
+    }
+  });
 
   Handlebars.registerHelper('md', function(input){
     let md = window.markdownit();
     let output_value = md.render(input);
     return output_value;
-  })
+  });
 
 
   Handlebars.registerHelper('editable-textarea', function(parameter_name, blank_value, use_markdown = false, force_editable=false, current_value, uniq_id, context){

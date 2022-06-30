@@ -21,7 +21,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     //make sure a playbook is selected (take from owned class item if one exists)
     //new actor with sheet
     //switching to sheet
-    await this.ensureActorHasPlaybook(this.actor);
+    // await this.ensureActorHasPlaybook(this.actor);
     //add missing playbook abilities (and mark non-missing ones as purchased)
     //mark playbook default items as purchased
     //add missing playbook items (and mark non-missing ones as purchased)
@@ -31,6 +31,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
 
+  /* not important with drag/drop playbook. probably
   async ensureActorHasPlaybook(){
     let actor = this.actor;
     //check to see if the playbook field is filled
@@ -91,6 +92,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     }
   }
+   */
 
 
   /** @override */
@@ -148,14 +150,30 @@ export class BladesAlternateActorSheet extends BladesSheet {
         // await this.actor.addAcquaintance(droppedEntityFull);
         break;
       case "item":
+        // just let Foundry do its thing
         break;
       case "ability":
+        // just let Foundry do its thing
         break;
+      case "class":
+        await this.switchPlaybook(droppedEntityFull);
+        break ;
       default:
         // await this.actor.setUniqueDroppedItem(droppedEntityFull);
         // await this.onDroppedDistinctItem(droppedEntityFull);
         break;
     }
+  }
+
+  async switchPlaybook(newPlaybookItem){
+    // show confirmation (ask for items to replace)
+    // remove old playbook
+    // add abilities
+    // add items
+    // add acquaintances
+    // set skills
+
+
   }
 
   async generateAddExistingItemDialog(item_type){
@@ -383,62 +401,98 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     //load up playbook options/data for playbook select
     // data.playbook_options = await game.packs.get("blades-in-the-dark.class").getIndex();
-    data.playbook_options = await Utils.getSourcedItemsByType("class");
-    data.playbook_select = Utils.prepIndexForHelper(data.playbook_options);
+    // data.playbook_options = await Utils.getSourcedItemsByType("class");
+    // data.playbook_select = Utils.prepIndexForHelper(data.playbook_options);
     // data.playbook_select["0"] = "Playbook";
     let owned_playbooks = this.actor.items.filter(item => item.type == "class");
-    if(owned_playbooks.length > 1){
-      await this.handleTooManyPlaybookItems();
-    }
-    else if(owned_playbooks.length < 1){
-      data.owned_playbook = '0';
-      console.log("no playbooks");
-    }
-    else if(owned_playbooks.length == 1){
-      data.selected_playbook = data.playbook_options.find(pb => pb.name == owned_playbooks[0].name)
-      console.log("One playbook: ", data.selected_playbook);
+    // if(owned_playbooks.length > 1){
+    //   // await this.handleTooManyPlaybookItems();
+    // }
+    // else if(owned_playbooks.length < 1){
+    //   data.owned_playbook = '0';
+    //   // console.log("no playbooks");
+    // }
+    if(owned_playbooks.length == 1){
+      data.selected_playbook = owned_playbooks[0];
+      // data.selected_playbook = data.playbook_options.find(pb => pb.name == owned_playbooks[0].name)
+      // console.log("One playbook: ", data.selected_playbook);
     }
 
 
     let all_abilities = await Utils.getSourcedItemsByType("ability");
 
     if(data.selected_playbook){
-      data.selected_playbook_full = await Utils.getItemByType("class", data.selected_playbook.id);
+      data.selected_playbook_full = data.selected_playbook;
+      // data.selected_playbook_full = await Utils.getItemByType("class", data.selected_playbook.id);
       if(typeof data.selected_playbook_full != "undefined"){
         data.selected_playbook_name = data.selected_playbook_full.name;
         data.selected_playbook_description = data.selected_playbook_full.data.data.description;
-        let available_abilities = all_abilities.filter(item => item.data.data.class == data.selected_playbook_name);
-        available_abilities = available_abilities.map(item => item.data);
+        let available_playbook_abilities = all_abilities.filter(item => item.data.data.class == data.selected_playbook_name);
+        available_playbook_abilities = available_playbook_abilities.map(item => item.data);
         // let custom_abilities = data.items.filter(item => {
         //   return item.flags[MODULE_ID]?.custom_ability && item.type == "ability";
         // });
         let owned_abilities = this.actor.items.filter(item => item.type == "ability");
         // available_abilities = available_abilities.concat(custom_abilities);
         owned_abilities.forEach(ability => {
-          if(!available_abilities.some(avail_ab => ability.name == avail_ab.name)){
-            available_abilities.push(ability.data);
+          if(!available_playbook_abilities.some(avail_ab => ability.name == avail_ab.name)){
+            available_playbook_abilities.push(ability.data);
           }
         });
 
         //hide the playbook abbreviations for display
-
-        data.available_abilities = available_abilities.sort((a, b) => {
+        data.available_playbook_abilities = available_playbook_abilities.sort((a, b) => {
           if(a.name.includes("Veteran") || b.data.class_default){
             return 1;
           }
           if(b.name.includes("Veteran") || a.data.class_default){
             return -1;
           }
-          if(a.name == b.name){ return 0; }
+          if(a.name === b.name){ return 0; }
           return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
         });
       }
     }
 
     let all_sourced_items = await Utils.getSourcedItemsByType("item")
-    // let all_playbook_items = all_sourced_items.filter()
-    // let my_abilities = data.items.filter(ability => ability.type == "ability" && ability.data.purchased);
-    // data.my_abilities = my_abilities;
+    let all_playbook_items = [];
+    let all_generic_items = [];
+    for (const item of all_sourced_items) {
+      if(item.data.data.class === ""){
+        all_generic_items.push(item.data);
+      }
+      else if(item.data.data.class === data.selected_playbook_name){
+        all_playbook_items.push(item.data);
+      }
+    }
+
+    let my_items = all_playbook_items.sort((a, b) => {
+      if(a.name === b.name){ return 0; }
+      return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
+    });
+    for (const item of data.items){
+      if(item.type === "item" && !my_items.some(i => i.name === item.name)){
+        my_items.push(item);
+      }
+    }
+    data.my_items = my_items;
+    let armor = all_generic_items.findSplice(item => item.name.includes("Armor"));
+    let heavy = all_generic_items.findSplice(item => item.name.includes("Heavy"));
+    all_generic_items.sort((a, b) => {
+      if(a.name === b.name){ return 0; }
+      return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
+    });
+
+    all_generic_items.splice(0, 0, armor, heavy);
+
+    data.generic_items = all_generic_items;
+
+    // let all_playbook_items = all_sourced_items.filter(item=>{
+    //   console.log(item.data.data.class, data.selected_playbook_name);
+    //   item.data.data.class == data.selected_playbook_name
+    // });
+    let my_abilities = data.items.filter(ability => ability.type == "ability");
+    data.my_abilities = my_abilities;
 
     // let playbook_items = data.items.filter(item => item.type == "item" && item.data.class == data.selected_playbook_name);
     // let my_items = data.items.filter(item => item.type == "item" && item.data.class != "");
@@ -587,6 +641,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       await this.actor.setFlag('bitd-alternate-sheets', 'show-debug', !debug);
     });
 
+    /* Removed drop-down in favor of drag/drop playbooks. Hopefully more simple.
     html.find('.dropdown.playbook-select').change(async ev=>{
       let existing_playbooks = this.actor.items.filter(item=>item.type == "class");
       existing_playbooks = existing_playbooks.map(pb => pb.id);
@@ -596,8 +651,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
         // await this.actor.deleteEmbeddedDocuments('Item', existing_playbooks);
         await this.actor.createEmbeddedDocuments('Item', [new_playbook.data]);
       }
-      console.log("changed");
     });
+     */
 
     // Update Inventory Item
     html.find('.item-block .clickable-edit').click(ev => {
@@ -624,7 +679,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     html.find('.toggle-allow-edit').click(async (event) => {
       event.preventDefault();
       if(this.actor.getFlag('bitd-alternate-sheets', 'allow-edit')){
-        await this.actor.unsetFlag('bitd-alternate-sheets', 'allow-edit');
+        await this.actor.setFlag('bitd-alternate-sheets', 'allow-edit', false);
       } else {
         await this.actor.setFlag('bitd-alternate-sheets', 'allow-edit', true);
       }
@@ -634,7 +689,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let checkbox = ev.target;
       let itemId = checkbox.closest(".item-block").dataset.itemId;
       let item = this.actor.items.get(itemId);
-      return item.update({data: {equipped : checkbox.checked}});
+      if(item){
+        return item.update({data: {equipped : checkbox.checked}});
+      }
     });
 
     html.find('.item-block .child-checkbox').click(ev => {
@@ -652,6 +709,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let checkbox = ev.target;
       let ability_id = checkbox.closest(".ability-block").dataset.abilityId;
       await Utils.toggleOwnership(checkbox.checked, this.actor, 'ability', ability_id);
+    });
+
+    html.find('.item-block .main-checkbox').change(async ev => {
+      let checkbox = ev.target;
+      let item_id = checkbox.closest(".item-block").dataset.itemId;
+      await Utils.toggleOwnership(checkbox.checked, this.actor, 'item', item_id);
     });
 
     //this could probably be cleaner. Numbers instead of text would be fine, but not much easier, really.

@@ -8,7 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="foundry.js" level="project" />
     <orderEntry type="library" name="blades-in-the-dark" level="project" />
+    <orderEntry type="library" name="Foundry" level="application" />
   </component>
 </module>
