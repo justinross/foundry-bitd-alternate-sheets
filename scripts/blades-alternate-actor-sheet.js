@@ -636,6 +636,16 @@ export class BladesAlternateActorSheet extends BladesSheet {
       await migrateWorld();
     });
 
+    html.find('.inline-input').on('input', async ev => {
+      let input = ev.currentTarget.previousSibling;
+      input.value = ev.currentTarget.innerText;
+    })
+
+    html.find('.inline-input').on('blur', async ev => {
+      let input = ev.currentTarget.previousSibling;
+      $(input).change();
+    })
+
     html.find('.debug-toggle').click(async ev => {
       let debug = await this.actor.getFlag('bitd-alternate-sheets', 'show-debug');
       await this.actor.setFlag('bitd-alternate-sheets', 'show-debug', !debug);
