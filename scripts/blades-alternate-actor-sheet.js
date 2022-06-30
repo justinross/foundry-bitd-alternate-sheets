@@ -166,11 +166,21 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async switchPlaybook(newPlaybookItem){
-    // show confirmation (ask for items to replace)
-    // remove old playbook
-    // add abilities
-    // add items
+    // show confirmation (ask for items to replace) - not doing this. can't be bothered. sry.
+    // remove old playbook (done automatically somewhere else. tbh I don't know where)
+    // add abilities - not adding. virtual!
+    // add items - virtual!
     // add acquaintances
+    let all_acquaintances = await Utils.getSourcedItemsByType('npc');
+    let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === newPlaybookItem.data.name);
+    let current_acquaintances = this.actor.data.data.acquaintances;
+    let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
+    for(const acq of neutral_acquaintances){
+      await Utils.removeAcquaintance(this.actor, acq.id);
+    }
+    for(const acq of playbook_acquaintances){
+      await Utils.addAcquaintance(this.actor, acq);
+    }
     // set skills
   }
 
@@ -291,7 +301,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("bitd-alt.DeleteItem"),
       icon: '<i class="fas fa-trash"></i>',
       callback: element => {
-        this.actor.removeAcquaintance(element.data("acquaintance"));
+        Utils.removeAcquaintance(this.actor, element.data("acquaintance"));
         // this.actor.deleteEmbeddedDocuments("Item", [element.data("ability-id")]);
       }
     }
@@ -354,47 +364,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // Prepare active effects
     data.effects = BladesActiveEffect.prepareActiveEffectCategories(this.actor.effects);
 
-    // Calculate Load
-    let loadout = 0;
-    data.items.forEach(i => {
-      loadout += (i.type === "item" && i.data.equipped) ? parseInt(i.data.load) : 0});
-    data.data.loadout = loadout;
-
-    // Encumbrance Levels
-    let load_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal","BITD.Heavy","BITD.Encumbered",
-			"BITD.Encumbered","BITD.Encumbered","BITD.OverMax"];
-    let mule_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal",
-			"BITD.Heavy","BITD.Encumbered","BITD.OverMax"];
-    let mule_present=0;
-
-    //Sanity Check
-    if (loadout < 0) {
-      loadout = 0;
-    }
-    if (loadout > 10) {
-      loadout = 10;
-    }
-
-    switch (data.data.selected_load_level){
-      case "BITD.Light":
-        data.max_load = data.data.base_max_load + 3;
-        break;
-      case "BITD.Normal":
-        data.max_load = data.data.base_max_load + 5;
-        break;
-      case "BITD.Heavy":
-        data.max_load = data.data.base_max_load + 6;
-        break;
-      default:
-        data.data.selected_load_level = "BITD.Normal";
-        data.max_load = data.base_max_load + 5;
-        break;
-    }
 
     // @todo - fix this. display heritage, background, and vice based on owned objects (original sheet style) or stored string, with priority given to string if not empty and not default value
-    // data.heritage = data.data.heritage != "" && data.data.heritage != "Heritage" ? data.data.heritage : (Utils.getOwnedObjectByType(this.actor, "heritage") ? Utils.getOwnedObjectByType(this.actor, "heritage").name : "");
-    // data.background = data.data.background != "" && data.data.background != "Background" ? data.data.background : (Utils.getOwnedObjectByType(this.actor, "background") ? Utils.getOwnedObjectByType(this.actor, "background").name : "");
-    // data.vice = data.data.vice != "" && data.data.vice != "Vice" ? data.data.vice : (Utils.getOwnedObjectByType(this.actor, "vice") ? Utils.getOwnedObjectByType(this.actor, "vice").name : "");
+    data.heritage = data.data.heritage != "" && data.data.heritage != "Heritage" ? data.data.heritage : (Utils.getOwnedObjectByType(this.actor, "heritage") ? Utils.getOwnedObjectByType(this.actor, "heritage").name : "");
+    data.background = data.data.background != "" && data.data.background != "Background" ? data.data.background : (Utils.getOwnedObjectByType(this.actor, "background") ? Utils.getOwnedObjectByType(this.actor, "background").name : "");
+    data.vice = data.data.vice != "" && data.data.vice != "Vice" ? data.data.vice : (Utils.getOwnedObjectByType(this.actor, "vice") ? Utils.getOwnedObjectByType(this.actor, "vice").name : "");
 
     data.load_levels = {"BITD.Light":"BITD.Light", "BITD.Normal":"BITD.Normal", "BITD.Heavy":"BITD.Heavy"};
 
@@ -514,6 +488,45 @@ export class BladesAlternateActorSheet extends BladesSheet {
     //     }
     //   }
     // }
+
+    // Calculate Load
+    let loadout = 0;
+    let equipped = await this.actor.getFlag('bitd-alternate-sheets', 'equipped-items');
+    for(const i of equipped){
+      console.log(i)
+      loadout += parseInt(i.load);
+    }
+    data.loadout = loadout;
+    // Encumbrance Levels
+    let load_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal","BITD.Heavy","BITD.Encumbered",
+      "BITD.Encumbered","BITD.Encumbered","BITD.OverMax"];
+    let mule_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal",
+      "BITD.Heavy","BITD.Encumbered","BITD.OverMax"];
+    let mule_present=0;
+
+    //Sanity Check
+    if (loadout < 0) {
+      loadout = 0;
+    }
+    if (loadout > 10) {
+      loadout = 10;
+    }
+
+    switch (data.data.selected_load_level){
+      case "BITD.Light":
+        data.max_load = data.data.base_max_load + 3;
+        break;
+      case "BITD.Normal":
+        data.max_load = data.data.base_max_load + 5;
+        break;
+      case "BITD.Heavy":
+        data.max_load = data.data.base_max_load + 6;
+        break;
+      default:
+        data.data.selected_load_level = "BITD.Normal";
+        data.max_load = data.base_max_load + 5;
+        break;
+    }
 
     return data;
   }

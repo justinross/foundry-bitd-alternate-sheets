@@ -15,6 +15,7 @@ export const preloadHandlebarsTemplates = async function() {
     "modules/bitd-alternate-sheets/templates/parts/load.html",
     "modules/bitd-alternate-sheets/templates/parts/radiotoggles.html",
     "modules/bitd-alternate-sheets/templates/parts/ability.html",
+    "modules/bitd-alternate-sheets/templates/parts/item.html",
     // "modules/bitd-alternate-sheets/templates/parts/turf-list.html",
     // "modules/bitd-alternate-sheets/templates/parts/cohort-block.html",
     // "modules/bitd-alternate-sheets/templates/parts/factions.html",

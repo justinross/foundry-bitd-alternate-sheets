@@ -285,6 +285,7 @@
   font-size: 1rem;
   position: relative;
   margin-bottom: 5px;
+  line-height: 1em;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.right {
   position: absolute;
@@ -1141,17 +1142,22 @@
   font-style: italic;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .item-list .item-block {
-  padding-left: 5px;
-  padding-right: 1em;
+  padding: 2px 5px;
   position: relative;
+  line-height: 0;
 }
 .allow-edit .item-block:nth-child(even) {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .item-list .item-block .checkbox {
+  position: relative;
+  display: inline-block;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .item-list .item-block .item-name {
   width: 100%;
   position: relative;
+  line-height: 1em;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .item-list .item-block .join-line {
   border: 1px solid #666;
@@ -1159,12 +1165,9 @@
   display: inline-block;
   height: 0px;
   margin: 0 -0.5em;
-  top: calc(-0.5em - 2px);
+  top: calc(-0.5em + 3px);
   position: relative;
   z-index: 0;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .item-list .item-block * {
-  vertical-align: bottom;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .item-list .item-block input {
   margin-left: 0;
@@ -1175,10 +1178,18 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .friends-rivals {
   grid-area: friends;
   background: #bbb;
+  line-height: 0;
   font-size: 1.2em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .friends-rivals .acquaintance {
+  line-height: 1em;
+  padding: 2px 5px;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .friends-rivals .acquaintance i {
   padding: 1px;
+  margin-right: 3px;
+  width: 1.2em;
+  text-align: center;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .friends-rivals .acquaintance i.red-icon {
   color: #880000;

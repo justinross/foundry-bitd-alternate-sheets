@@ -33,7 +33,7 @@ export const registerHandlebarsHelpers = function() {
     let actor_doc = game.actors.get(actor._id);
     let equipped_items = actor_doc.getFlag('bitd-alternate-sheets', 'equipped-items');
     if(equipped_items){
-      let equipped = equipped_items.includes(id);
+      let equipped = equipped_items.find(item => item.id === id);
       return equipped;
     }
     else{

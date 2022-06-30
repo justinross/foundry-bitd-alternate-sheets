@@ -304,7 +304,6 @@ export class Utils {
   }
 
   static async toggleOwnership(state, actor, type, id){
-    console.log("toggling", type);
     if(type == "ability"){
       if(state){
         let all_of_type = await Utils.getSourcedItemsByType(type);
@@ -324,23 +323,34 @@ export class Utils {
       }
     }
     else if(type == "item"){
+      console.log(state);
       // let item = actor.items.find(item => item.id === id);
       let equipped_items = await actor.getFlag('bitd-alternate-sheets', 'equipped-items');
-      console.log(equipped_items);
-      if(equipped_items){
-        if(equipped_items.some(i => i === id )){
-          console.log("was equipped");
-          equipped_items = equipped_items.filter(i => i !== id);
-          // equipped_items.findSplice(i => i === id);
-        }
-        else{
-          console.log("was not equipped");
-          equipped_items.push(id);
-        }
+      console.log("eq", equipped_items);
+      if(!equipped_items){
+        equipped_items = [];
+      }
+      let item_source = await Utils.getItemByType(type, id);
+      console.log("i_s", item_source);
+      if(state){
+        console.log("pushing");
+        equipped_items.push({id: item_source.data._id, load: item_source.data.data.load, name: item_source.name});
       }
       else{
-        equipped_items = [id];
+        console.log("filtering");
+        equipped_items = equipped_items.filter(i => i.id !== id);
       }
+      // if(equipped_items){
+      //   let item_source = await Utils.getItemByType(type, id);
+      //   if(equipped_items.some(i => i.id === id )){
+      //     // equipped_items.findSplice(i => i === id);
+      //   }
+      //   else{
+      //   }
+      // }
+      // else{
+      //   equipped_items = [id];
+      // }
       await actor.setFlag('bitd-alternate-sheets', 'equipped-items', equipped_items);
     }
   }
@@ -406,17 +416,24 @@ export class Utils {
     let acquaintance = {
       id : acq.id,
       name : acq.name,
-      description_short : acq.data.description_short,
+      description_short : acq.data.data.description_short,
       standing: "neutral"
     };
     let unique_id =  !current_acquaintances.some((oldAcq) => {
       return oldAcq.id == acq.id;
     });
     if(unique_id){
-      queueUpdate(()=> {actor.update({data: {acquaintances : current_acquaintances.concat(acquaintance)}});});
+      // queueUpdate(()=> {actor.update({data: {acquaintances : current_acquaintances.concat([acquaintance])}});});
+      await actor.update({data: {acquaintances : current_acquaintances.concat([acquaintance])}});
     }
     else{
       ui.notifications.info("The dropped NPC is already an acquaintance of this character.");
     }
+  }
+
+  static async removeAcquaintance(actor, acqId){
+    let current_acquaintances = actor.data.data.acquaintances;
+    let new_acquaintances = current_acquaintances.filter(acq => acq._id !== acqId && acq.id !== acqId);
+    await actor.update({data: {acquaintances : new_acquaintances}});
   }
 }
