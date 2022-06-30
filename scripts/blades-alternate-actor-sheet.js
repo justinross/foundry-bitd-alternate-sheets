@@ -172,8 +172,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // add items
     // add acquaintances
     // set skills
-
-
   }
 
   async generateAddExistingItemDialog(item_type){
@@ -182,6 +180,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let grouped_items = {};
 
     let items_html = '<div class="items-list">';
+    all_items = all_items.filter(i => !i.name.includes("Veteran"));
     let sorted_grouped_items = Utils.groupItemsByClass(all_items);
 
     for (const [itemclass, group] of Object.entries(sorted_grouped_items)) {
@@ -459,9 +458,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let all_generic_items = [];
     for (const item of all_sourced_items) {
       if(item.data.data.class === ""){
+        item.data.virtual = true;
         all_generic_items.push(item.data);
       }
       else if(item.data.data.class === data.selected_playbook_name){
+        item.data.virtual = true;
         all_playbook_items.push(item.data);
       }
     }
@@ -471,7 +472,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
     });
     for (const item of data.items){
-      if(item.type === "item" && !my_items.some(i => i.name === item.name)){
+      if(item.type === "item" /*&& !my_items.some(i => i.name === item.name)*/){
         my_items.push(item);
       }
     }
@@ -620,8 +621,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    new ContextMenu(html, ".item-block", this.itemContextMenu);
-    new ContextMenu(html, ".ability-block", this.abilityContextMenu);
+    // new ContextMenu(html, ".item-block", this.itemContextMenu);
+    // new ContextMenu(html, ".ability-block", this.abilityContextMenu);
     new ContextMenu(html, ".context-items > span", this.itemListContextMenu);
     new ContextMenu(html, ".item-list-add", this.itemListContextMenu, {eventName : "click"});
     new ContextMenu(html, ".context-abilities", this.abilityListContextMenu);
@@ -669,7 +670,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       ev.preventDefault();
       let itemId = ev.currentTarget.closest(".item-block").dataset.itemId;
       let item = this.actor.items.get(itemId);
-      item.sheet.render(true);
+      if(item && !item.data.virtual){
+        item.sheet.render(true);
+      }
     });
 
     html.find('.ability-block .clickable-edit').click(ev => {
