@@ -21,7 +21,7 @@
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}</div>
           </div>
 
-        </div>        <div class="stress-trauma-box">
+        </div><div class="stress-trauma-box">
           <header class="stress-bar full-bar">
             {{localize data.stress.name}}
             <div class="stripe-tooth-body stress">
@@ -37,8 +37,9 @@
           </header>
             <div class="trauma-box">
                 <div class="trauma-list count-{{ownedTraumas.length}}">
-                {{#if (gt data.trauma.list.length 0)}}
-                {{#each data.trauma.list as |trauma index|}}
+                {{log trauma_array}}
+                {{#if (gt trauma_count 0)}}
+                {{#each trauma_array as |trauma index|}}
                   <div class="trauma-item" data-trauma="{{trauma}}">{{localize (concat "BITD.Trauma" (upper-first trauma))}}</div>
                 {{/each}}
                 {{else}}
@@ -69,11 +70,11 @@
       <nav class="tabs" data-group="primary-tabs">
         <div class="tab-item playbook" data-tab="playbook">
           {{#if actor.flags.bitd-alternate-sheets.allow-edit}}
-              <div class="playbook-name">{{selected_playbook_name}}</div>
+              <div class="playbook-name">{{selected_playbook.name}}</div>
               <div class="playbook-description">Drop a playbook item onto the sheet to switch playbooks.</div>
           {{else}}
-          <div class="playbook-name">{{selected_playbook_name}}</div>
-          <div class="playbook-description">{{selected_playbook_description}}</div>
+          <div class="playbook-name">{{selected_playbook.name}}</div>
+          <div class="playbook-description">{{selected_playbook.data.data.description}}</div>
           {{/if}}
         </div>
         <!-- todo: put the downtime tab back -->
@@ -114,7 +115,7 @@
               <header class="full-bar flex-header context-items"><span>{{localize "bitd-alt.items"}}</span>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}<a class="item-list-add add-button" data-item-type="item" data-group-by="data.class"><i class="fas fa-plus"></i></a>{{/if}}</header>
               {{#each my_items as |item index|}}
                 {{#with ../actor as |actor|}}
-                  {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item}}
+                {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item}}
                 {{/with}}
               {{/each}}
             </section>
@@ -145,7 +146,7 @@
               <ul>
                 <li>Every time you roll a desperate action, mark xp in that action's attribute.</li>
                 <p>At the end of each session, for each item below, mark 1 xp (in your playbook or an attribute) or 2 xp if that item occurred multiple times.</p>
-                <li>{{selected_playbook_full.data.data.experience_clues}}</li>
+                <li>{{selected_playbook.data.data.experience_clues}}</li>
                 <li>You expressed your beliefs, drives, heritage, or background.</li>
                 <li>You struggled with issues from your vice or traumas during the session.</li>
               </ul>

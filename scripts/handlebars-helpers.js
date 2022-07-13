@@ -29,6 +29,16 @@ export const registerHandlebarsHelpers = function() {
     return actor.items.some(item => item.name == ability_name);
   });
 
+  Handlebars.registerHelper('times_from_2', function(n, block) {
+
+    var accum = '';
+    n = parseInt(n);
+    for (var i = 2; i <= n; ++i) {
+      accum += block.fn(i);
+    }
+    return accum;
+  });
+
   Handlebars.registerHelper('item-equipped', function(actor, id){
     let actor_doc = game.actors.get(actor._id);
     let equipped_items = actor_doc.getFlag('bitd-alternate-sheets', 'equipped-items');
@@ -39,6 +49,13 @@ export const registerHandlebarsHelpers = function() {
     else{
       return false;
     }
+  });
+
+  Handlebars.registerHelper('times', function(n, block) {
+    var accum = '';
+    for(var i = 0; i < n; ++i)
+      accum += block.fn(i);
+    return accum;
   });
 
   Handlebars.registerHelper('md', function(input){

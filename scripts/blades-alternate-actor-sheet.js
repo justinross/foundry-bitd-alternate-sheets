@@ -6,94 +6,11 @@ import {queueUpdate} from "./lib/update-queue.js";
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
 
 /**
- * Extend the basic ActorSheet with some very simple modifications
+ * Pure chaos
  * @extends {BladesSheet}
  */
 export class BladesAlternateActorSheet extends BladesSheet {
-  playbookChangeOptions = {};
-
-  // async render(args){
-  //   // await this.prepExistingActorForSheet();
-  //   return super.render(args);
-  // }
-
-  async prepActorForSheet(){
-    //make sure a playbook is selected (take from owned class item if one exists)
-    //new actor with sheet
-    //switching to sheet
-    // await this.ensureActorHasPlaybook(this.actor);
-    //add missing playbook abilities (and mark non-missing ones as purchased)
-    //mark playbook default items as purchased
-    //add missing playbook items (and mark non-missing ones as purchased)
-    //add missing generic items (and mark non-missing ones as purchased)
-    //add playbook npcs
-    //add vice, heritage, and background items -- this could be done in getData, just render whatever exists, with string getting priority
-  }
-
-
-  /* not important with drag/drop playbook. probably
-  async ensureActorHasPlaybook(){
-    let actor = this.actor;
-    //check to see if the playbook field is filled
-    if (typeof actor.data.data.playbook === "undefined" || actor.data.data.playbook === ""){
-      console.log("No playbook set");
-      let old_playbook = actor.data.items.find(item => {
-        return item.type === "class";
-      });
-      console.log("Old playbook:", old_playbook);
-      if(typeof old_playbook != "undefined"){
-        let updateData = {};
-        let playbooks_content = await BladesHelpers.getSourcedItemsByType("class");
-        updateData[`data.playbook`] = playbooks_content.find(pb => pb.name === old_playbook.name)._id;
-        // let existing_abilities = actor.items.filter(item => item.type === "ability");
-        // for (const existingAbility of existing_abilities) {
-        //   await existingAbility.update({data : { purchased : true } });
-        // }
-        // await actor.addPlaybookAbilities(old_playbook.name);
-        //
-        // // Migrate character playbook items
-        // await actor.addPlaybookItems(old_playbook.name);
-        //
-        // // Migrate character generic items
-        // await actor.addGenericItems();
-        //
-        // // Add default character NPCs
-        // await actor.addPlaybookAcquaintances(old_playbook.name);
-        // if (typeof actor.data.data.heritage === "undefined" || actor.data.data.heritage === "" || actor.data.data.heritage === "Heritage") {
-        //   let old_heritage = actor.data.items.find(item => {
-        //     return item.type === "heritage";
-        //   });
-        //   if (typeof old_heritage != "undefined") {
-        //     updateData[`data.heritage`] = old_heritage.name;
-        //   }
-        // }
-        //
-        // if (typeof actor.data.data.background === "undefined" || actor.data.data.background === "" || actor.data.data.background === "Background") {
-        //   let old_background = actor.data.items.find(item => {
-        //     return item.type === "background";
-        //   });
-        //   if (typeof old_background != "undefined") {
-        //     updateData[`data.background`] = old_background.name;
-        //   }
-        // }
-        //
-        // if (typeof actor.data.data.vice === "undefined" || actor.data.data.vice === "" || actor.data.data.vice === "Vice") {
-        //   let old_vice = actor.data.items.find(item => {
-        //     return item.type === "vice";
-        //   });
-        //   if (typeof old_vice != "undefined") {
-        //     updateData[`data.vice`] = old_vice.name;
-        //   }
-        // }
-
-      }
-      else{
-        ui.notifications.info(`No playbook/class item found. Please select a class manually via the dropdown`, {permanent: true});
-      }
-    }
-  }
-   */
-
+  // playbookChangeOptions = {};
 
   /** @override */
 	static get defaultOptions() {
@@ -128,6 +45,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override **/
   async handleDrop(event, droppedEntity){
+    // console.log(await Utils.modifiedFromPlaybookDefault(this.actor));
     let droppedEntityFull;
     //if the dropped entity is from a compendium, get the full entity from there
     if("pack" in droppedEntity){
@@ -156,6 +74,27 @@ export class BladesAlternateActorSheet extends BladesSheet {
         // just let Foundry do its thing
         break;
       case "class":
+        // let d = new Dialog({
+        //   title: game.i18n.localize("bitd-alt.SwitchPlaybook"),
+        //   content:  `<h3>This will reset your owned abilities, skill points, and acquaintances. Do you wish to continue?`,
+        //   buttons: {
+        //     ok: {
+        //       icon: "<i class='fas fa-check'></i>",
+        //       label: game.i18n.localize("bitd-alt.Ok"),
+        //       callback: async (html)=> {
+        //         await this.switchPlaybook(droppedEntityFull);
+        //       }
+        //     },
+        //     cancel: {
+        //       icon: "<i class='fas fa-times'></i>",
+        //       label: game.i18n.localize("bitd-alt.Cancel"),
+        //       callback: ()=> close()
+        //     }
+        //   },
+        //   close: (html) => {
+        //   }
+        // }, {classes:["add-existing-dialog"], width: "650"});
+        // d.render(true);
         await this.switchPlaybook(droppedEntityFull);
         break ;
       default:
@@ -170,17 +109,22 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // remove old playbook (done automatically somewhere else. tbh I don't know where)
     // add abilities - not adding. virtual!
     // add items - virtual!
-    // add acquaintances
-    let all_acquaintances = await Utils.getSourcedItemsByType('npc');
-    let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === newPlaybookItem.data.name);
-    let current_acquaintances = this.actor.data.data.acquaintances;
-    let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
-    for(const acq of neutral_acquaintances){
-      await Utils.removeAcquaintance(this.actor, acq.id);
-    }
-    for(const acq of playbook_acquaintances){
-      await Utils.addAcquaintance(this.actor, acq);
-    }
+    // add acquaintances - should be virtual?
+    // let all_acquaintances = await Utils.getSourcedItemsByType('npc');
+    // let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === newPlaybookItem.data.name);
+    // let current_acquaintances = this.actor.data.data.acquaintances;
+    // let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
+    // for(const acq of neutral_acquaintances){
+    //   await Utils.removeAcquaintance(this.actor, acq.id);
+    // }
+    // for(const acq of playbook_acquaintances){
+    //   await Utils.addAcquaintance(this.actor, acq);
+    // }
+    let attributes = await Utils.getStartingAttributes(newPlaybookItem.name);
+    let newData = {data:{}};
+    newData.data.attributes = attributes;
+    await this.actor.update(newData);
+    console.log("playbook switched");
     // set skills
   }
 
@@ -274,13 +218,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   traumaListContextMenu = [
     {
-      name: game.i18n.localize("BITD.DeleteTrauma"),
+      name: game.i18n.localize("bitd-alt.DeleteItem"),
       icon: '<i class="fas fa-trash"></i>',
       callback: element => {
         let traumaToDisable = element.data("trauma");
         let traumaUpdateObject = this.actor.data.data.trauma.list;
-        let index = traumaUpdateObject.indexOf(traumaToDisable.toLowerCase());
-        traumaUpdateObject.splice(index, 1);
+        traumaUpdateObject[traumaToDisable.toLowerCase()] = false;
+        // let index = traumaUpdateObject.indexOf(traumaToDisable.toLowerCase());
+        // traumaUpdateObject.splice(index, 1);
         queueUpdate(()=> this.actor.update({data:{trauma:{list: traumaUpdateObject}}}));
       }
     }
@@ -344,11 +289,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     let new_abilities = await this.actor.createEmbeddedDocuments("Item", [new_ability_data], {renderSheet : true});
     let new_ability = new_abilities[0];
-    console.log(new_ability);
+    // console.log(new_ability);
     await new_ability.setFlag(MODULE_ID, "custom_ability", true);
 
     return new_ability;
   }
+
 
   /* -------------------------------------------- */
 
@@ -363,7 +309,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     // Prepare active effects
     data.effects = BladesActiveEffect.prepareActiveEffectCategories(this.actor.effects);
+    let trauma_array = [];
+    for(const trauma in data.data.trauma.list){
+      if(data.data.trauma.list[trauma]){
+        trauma_array.push(trauma);
+      }
+    }
 
+    data.trauma_array = trauma_array;
+    data.trauma_count = trauma_array.length;
 
     // @todo - fix this. display heritage, background, and vice based on owned objects (original sheet style) or stored string, with priority given to string if not empty and not default value
     data.heritage = data.data.heritage != "" && data.data.heritage != "Heritage" ? data.data.heritage : (Utils.getOwnedObjectByType(this.actor, "heritage") ? Utils.getOwnedObjectByType(this.actor, "heritage").name : "");
@@ -372,85 +326,46 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     data.load_levels = {"BITD.Light":"BITD.Light", "BITD.Normal":"BITD.Normal", "BITD.Heavy":"BITD.Heavy"};
 
-    //load up playbook options/data for playbook select
-    // data.playbook_options = await game.packs.get("blades-in-the-dark.class").getIndex();
-    // data.playbook_options = await Utils.getSourcedItemsByType("class");
-    // data.playbook_select = Utils.prepIndexForHelper(data.playbook_options);
-    // data.playbook_select["0"] = "Playbook";
     let owned_playbooks = this.actor.items.filter(item => item.type == "class");
-    // if(owned_playbooks.length > 1){
-    //   // await this.handleTooManyPlaybookItems();
-    // }
-    // else if(owned_playbooks.length < 1){
-    //   data.owned_playbook = '0';
-    //   // console.log("no playbooks");
-    // }
     if(owned_playbooks.length == 1){
       data.selected_playbook = owned_playbooks[0];
-      // data.selected_playbook = data.playbook_options.find(pb => pb.name == owned_playbooks[0].name)
-      // console.log("One playbook: ", data.selected_playbook);
+    }
+    else{
+      console.log("Wrong number of playbooks on character " + this.actor.name);
     }
 
 
-    let all_abilities = await Utils.getSourcedItemsByType("ability");
+    // let all_abilities = await Utils.getSourcedItemsByType("ability");
+
+    let combined_abilities_list = [];
+    if(data.selected_playbook){
+      combined_abilities_list = await Utils.getVirtualListOfItems("ability", data, true, data.selected_playbook.name, false, true);
+    }
+    else{
+      combined_abilities_list = await Utils.getVirtualListOfItems("ability", data, true, "", false, true);
+    }
+
+    data.available_playbook_abilities = combined_abilities_list;
 
     if(data.selected_playbook){
       data.selected_playbook_full = data.selected_playbook;
-      // data.selected_playbook_full = await Utils.getItemByType("class", data.selected_playbook.id);
-      if(typeof data.selected_playbook_full != "undefined"){
-        data.selected_playbook_name = data.selected_playbook_full.name;
-        data.selected_playbook_description = data.selected_playbook_full.data.data.description;
-        let available_playbook_abilities = all_abilities.filter(item => item.data.data.class == data.selected_playbook_name);
-        available_playbook_abilities = available_playbook_abilities.map(item => item.data);
-        // let custom_abilities = data.items.filter(item => {
-        //   return item.flags[MODULE_ID]?.custom_ability && item.type == "ability";
-        // });
-        let owned_abilities = this.actor.items.filter(item => item.type == "ability");
-        // available_abilities = available_abilities.concat(custom_abilities);
-        owned_abilities.forEach(ability => {
-          if(!available_playbook_abilities.some(avail_ab => ability.name == avail_ab.name)){
-            available_playbook_abilities.push(ability.data);
-          }
-        });
 
-        //hide the playbook abbreviations for display
-        data.available_playbook_abilities = available_playbook_abilities.sort((a, b) => {
-          if(a.name.includes("Veteran") || b.data.class_default){
-            return 1;
-          }
-          if(b.name.includes("Veteran") || a.data.class_default){
-            return -1;
-          }
-          if(a.name === b.name){ return 0; }
-          return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
-        });
-      }
+      data.selected_playbook_full = await Utils.getItemByType("class", data.selected_playbook.id);
     }
 
-    let all_sourced_items = await Utils.getSourcedItemsByType("item")
-    let all_playbook_items = [];
+    // let all_sourced_items = await Utils.getSourcedItemsByType("item")
+    // let all_playbook_items = [];
     let all_generic_items = [];
-    for (const item of all_sourced_items) {
-      if(item.data.data.class === ""){
-        item.data.virtual = true;
-        all_generic_items.push(item.data);
-      }
-      else if(item.data.data.class === data.selected_playbook_name){
-        item.data.virtual = true;
-        all_playbook_items.push(item.data);
-      }
-    }
+    let my_items = [];
 
-    let my_items = all_playbook_items.sort((a, b) => {
-      if(a.name === b.name){ return 0; }
-      return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
-    });
-    for (const item of data.items){
-      if(item.type === "item" /*&& !my_items.some(i => i.name === item.name)*/){
-        my_items.push(item);
-      }
+    if(data.selected_playbook){
+      my_items = await Utils.getVirtualListOfItems("item", data, true, data.selected_playbook.name, true, true);
     }
-    data.my_items = my_items;
+    else{
+      my_items = await Utils.getVirtualListOfItems("item", data, true, "noclassselectod", true, true);
+    }
+    all_generic_items = await Utils.getVirtualListOfItems("item", data, true, "", false, false);
+
     let armor = all_generic_items.findSplice(item => item.name.includes("Armor"));
     let heavy = all_generic_items.findSplice(item => item.name.includes("Heavy"));
     all_generic_items.sort((a, b) => {
@@ -458,45 +373,28 @@ export class BladesAlternateActorSheet extends BladesSheet {
       return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
     });
 
-    all_generic_items.splice(0, 0, armor, heavy);
+    if(armor){
+      all_generic_items.splice(0, 0, armor);
+    }
+    if(heavy){
+      all_generic_items.splice(1, 0, heavy);
+    }
 
     data.generic_items = all_generic_items;
+    data.my_items = my_items;
 
-    // let all_playbook_items = all_sourced_items.filter(item=>{
-    //   console.log(item.data.data.class, data.selected_playbook_name);
-    //   item.data.data.class == data.selected_playbook_name
-    // });
     let my_abilities = data.items.filter(ability => ability.type == "ability");
     data.my_abilities = my_abilities;
-
-    // let playbook_items = data.items.filter(item => item.type == "item" && item.data.class == data.selected_playbook_name);
-    // let my_items = data.items.filter(item => item.type == "item" && item.data.class != "");
-
-    //hide the playbook abbreviations for display
-    // data.my_items = my_items.map(item => {
-    //   item.name = Utils.trimClassFromName(item.name);
-    //   return item;
-    // });
-    // data.generic_items = data.items.filter(item => item.type == "item" && item.data.class == "");
-
-    // data.ownedTraumas = [];
-    // if(data.data.trauma.list.length > 0){
-    //   for (const trauma in data.data.trauma.list){
-    //     console.log(trauma);
-    //     if(data.data.trauma.list[trauma]){
-    //       data.ownedTraumas.push(trauma.charAt(0).toUpperCase() + trauma.slice(1));
-    //     }
-    //   }
-    // }
 
     // Calculate Load
     let loadout = 0;
     let equipped = await this.actor.getFlag('bitd-alternate-sheets', 'equipped-items');
-    for(const i of equipped){
-      console.log(i)
-      loadout += parseInt(i.load);
+    if(equipped){
+      for(const i of equipped){
+        loadout += parseInt(i.load);
+      }
     }
-    data.loadout = loadout;
+
     // Encumbrance Levels
     let load_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal","BITD.Heavy","BITD.Encumbered",
       "BITD.Encumbered","BITD.Encumbered","BITD.OverMax"];
@@ -512,6 +410,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
       loadout = 10;
     }
 
+    data.loadout = loadout;
+
     switch (data.data.selected_load_level){
       case "BITD.Light":
         data.max_load = data.data.base_max_load + 3;
@@ -524,7 +424,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
         break;
       default:
         data.data.selected_load_level = "BITD.Normal";
-        data.max_load = data.base_max_load + 5;
+        data.max_load = data.data.base_max_load + 5;
         break;
     }
 
@@ -622,6 +522,26 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
   }
 
+  _onRadioToggle(event){
+    let type = event.target.tagName.toLowerCase();
+    let target = event.target;
+    if(type == "label"){
+      let labelID = $(target).attr('for');
+      target = $(`#${labelID}`).get(0);
+    }
+    if(target.checked){
+      //find the next lowest-value input with the same name and click that one instead
+      let name = target.name;
+      let value = parseInt(target.value) - 1;
+      this.element.find(`input[name="${name}"][value="${value}"]`).trigger('click');
+    }
+    else{
+      //trigger the click on this one
+      $(target).trigger('click');
+    }
+  }
+
+
 
   /* -------------------------------------------- */
 
@@ -643,11 +563,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
     new ContextMenu(html, ".trauma-item", this.traumaListContextMenu);
     new ContextMenu(html, ".acquaintance", this.acquaintanceContextMenu);
 
-    // // todo - remove
-    html.find('.migrate-test').click(async ev => {
-      console.log("Testing world migration");
-      this.actor.resetMigTest();
-      await migrateWorld();
+
+    html.find("input.radio-toggle, label.radio-toggle").click(e => e.preventDefault());
+    html.find("input.radio-toggle, label.radio-toggle").mousedown(e => {
+      this._onRadioToggle(e);
     });
 
     html.find('.inline-input').on('input', async ev => {
@@ -793,10 +712,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
 
     html.find('.add_trauma').click(async ev => {
-      console.log(this.actor.data.data.trauma);
-      let actorTraumaList = this.actor.data.data.trauma.list;
+      let data = await this.getData();
+      let actorTraumaList = data.trauma_array;
       let allTraumas = this.actor.data.data.trauma.options;
-      let playbookName = await Utils.getPlaybookName(this.actor.data.data.playbook);
       let unownedTraumas = [];
       for (const traumaListKey of allTraumas) {
         if(!actorTraumaList.includes(traumaListKey)){
@@ -828,7 +746,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
                     trauma: this.actor.data.data.trauma
                   }
               };
-              newTraumaListValue.data.trauma.list.push(newTrauma);
+              newTraumaListValue.data.trauma.list[newTrauma] = true;
               await this.actor.update(newTraumaListValue);
 
             }
@@ -858,20 +776,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
         this._element.removeClass("can-expand");
       }
     });
-
-    // let sheetObserver = new MutationObserver(mutationRecords => {
-    //   let element = $(mutationRecords[0].target);
-    //   let scrollbox = $(mutationRecords[0].target).find(".window-content").get(0);
-    //   let scrollbarVisible = scrollbox.scrollHeight > scrollbox.clientHeight;
-    //   if(scrollbarVisible){
-    //     element.addClass("can-expand");
-    //   }
-    //   else{
-    //     element.removeClass("can-expand");
-    //   }
-    // });
-    // sheetObserver.observe(this._element.get(0), {childList:false, attributes:true, attributeFilter: ["style"], subtree: false});
-
   }
 
   /* -------------------------------------------- */

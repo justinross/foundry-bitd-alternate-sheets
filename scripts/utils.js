@@ -323,21 +323,22 @@ export class Utils {
       }
     }
     else if(type == "item"){
-      console.log(state);
       // let item = actor.items.find(item => item.id === id);
       let equipped_items = await actor.getFlag('bitd-alternate-sheets', 'equipped-items');
-      console.log("eq", equipped_items);
       if(!equipped_items){
         equipped_items = [];
       }
-      let item_source = await Utils.getItemByType(type, id);
-      console.log("i_s", item_source);
-      if(state){
-        console.log("pushing");
-        equipped_items.push({id: item_source.data._id, load: item_source.data.data.load, name: item_source.name});
+      let item_blueprint;
+      if(actor.items.some(item => item.id === id)){
+        item_blueprint = actor.items.find(item => item.id === id);
       }
       else{
-        console.log("filtering");
+        item_blueprint = await Utils.getItemByType(type, id);
+      }
+      if(state){
+        equipped_items.push({id: item_blueprint.data._id, load: item_blueprint.data.data.load, name: item_blueprint.name});
+      }
+      else{
         equipped_items = equipped_items.filter(i => i.id !== id);
       }
       // if(equipped_items){
@@ -435,5 +436,144 @@ export class Utils {
     let current_acquaintances = actor.data.data.acquaintances;
     let new_acquaintances = current_acquaintances.filter(acq => acq._id !== acqId && acq.id !== acqId);
     await actor.update({data: {acquaintances : new_acquaintances}});
+  }
+
+  static async getVirtualListOfItems(type = "", data, sort = true, filter_playbook = "", duplicate_owned_items  = false, include_owned_items = false){
+    let virtual_list = [];
+    let owned_items;
+    let all_game_items = await Utils.getSourcedItemsByType(type);
+    let sheet_items;
+
+    sheet_items = all_game_items.filter(item =>{
+      if(item.data.data.class !== undefined){
+        if(item.data.data.class !== ""){
+        }
+        return item.data.data.class === filter_playbook
+      }
+      else if(item.data.data.associated_class){
+        return item.data.data.associated_class === filter_playbook
+      }
+      else{
+        return false;
+      }
+    });
+    sheet_items.sort((a, b) => {
+      if(a.name.includes("Veteran") || b.data.class_default){
+        return 1;
+      }
+      if(b.name.includes("Veteran") || a.data.class_default){
+        return -1;
+      }
+      if(a.name === b.name){ return 0; }
+      return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
+      }
+    )
+    // }
+    sheet_items = sheet_items.map(el => {
+      el.data.data.virtual = true;
+      return el.data;
+    });
+    if(include_owned_items){
+      owned_items = data.actor.items.filter(item => item.type === type);
+    }
+    else{
+      owned_items = [];
+    }
+    virtual_list = sheet_items;
+    for(const item of owned_items){
+      if(duplicate_owned_items || !virtual_list.some(i => i.name === item.name)){
+        virtual_list.push(item);
+      }
+    }
+
+    return virtual_list;
+  }
+
+  // This doesn't work as expected. It hasn't been updated
+  static async modifiedFromPlaybookDefault(actor) {
+    let skillsChanged = false;
+    let newAbilities = false;
+    let ownedAbilities = false;
+    let relationships = false;
+    let acquaintanceList = false;
+    let addedItems = false;
+
+    //get the original playbook
+    let selected_playbook_source;
+    if(actor.data.data.playbook !== "" && actor.data.data.playbook){
+      // selected_playbook_source = await game.packs.get("blades-in-the-dark.class").getDocument(this.data.data.playbook);
+      selected_playbook_source = await Utils.getItemByType("class", actor.data.data.playbook);
+
+      let startingAttributes = await Utils.getStartingAttributes(selected_playbook_source.name);
+      let currentAttributes = actor.data.data.attributes;
+      //vampire ActiveEffects make this think there's been a change to the base skills, so ignore the exp_max field
+      for (const attribute in currentAttributes) {
+        currentAttributes[attribute].exp = 0;
+        delete currentAttributes[attribute].exp_max;
+      }
+      for (const attribute in startingAttributes) {
+        startingAttributes[attribute].exp = 0;
+        delete startingAttributes[attribute].exp_max;
+      }
+      if(!isObjectEmpty(diffObject(currentAttributes, startingAttributes))){
+        skillsChanged = true;
+      }
+
+
+
+
+
+      //check for added abilities
+      let all_abilities = await Utils.getSourcedItemsByType("ability");
+      if(all_abilities){
+        let pb_abilities = all_abilities.filter(ab=> ab.data.data.class === selected_playbook_source.name);
+        let my_abilities = actor.data.items.filter(i => i.type === "ability");
+        for (const ability of my_abilities) {
+          if(!pb_abilities.some(ab=> ab.name === ability.name)){
+            newAbilities = true;
+          }
+          //check for purchased abilities that aren't class defaults
+          if(ability.data.data.purchased && (ability.data.data.class_default && ability.data.data.class === await Utils.getPlaybookName(actor.data.data.playbook))){
+            ownedAbilities = true;
+          }
+        }
+      }
+
+      //check for non-default acquaintances
+      let all_acquaintances = await Utils.getSourcedItemsByType("npc");
+      if(all_acquaintances){
+        let pb_acquaintances = all_acquaintances.filter(acq=>acq.data.data.associated_class === selected_playbook_source.name);
+        let my_acquaintances = actor.data.data.acquaintances;
+        for (const my_acq of my_acquaintances) {
+          if(!pb_acquaintances.some(acq=> acq.id === my_acq.id || acq.id === my_acq._id)){
+            acquaintanceList = true;
+          }
+          //check for acquaintance relationships
+          if(my_acq.standing !== "neutral"){
+            relationships = true;
+          }
+        }
+      }
+
+      //check for added items
+      let all_items = await Utils.getSourcedItemsByType("item");
+      if(all_items){
+        let pb_items = all_items.filter(i=> i.data.data.class === selected_playbook_source.name);
+        let my_non_generic_items = actor.items.filter(i=> i.type === "item" && i.data.data.class !== "");
+        for (const myNGItem of my_non_generic_items) {
+          if(!pb_items.some(i=> i.name ===  myNGItem.name)){
+            addedItems = true;
+          }
+        }
+      }
+    }
+
+
+    if(skillsChanged || newAbilities || ownedAbilities || relationships || acquaintanceList || addedItems){
+      return {skillsChanged, newAbilities, ownedAbilities, relationships, acquaintanceList, addedItems};
+    }
+    else{
+      return false;
+    }
   }
 }

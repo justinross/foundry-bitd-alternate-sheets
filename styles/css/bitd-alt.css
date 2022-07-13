@@ -1153,6 +1153,7 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .item-list .item-block .checkbox {
   position: relative;
   display: inline-block;
+  width: 100%;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .item-list .item-block .item-name {
   width: 100%;
