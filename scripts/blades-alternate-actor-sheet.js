@@ -146,10 +146,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
       items_html += `<div class="item-group"><header>${itemclass}</header>`;
       for (const item of group) {
         let trimmedname = Utils.trimClassFromName(item.name);
+        let description = item.data.data.description.replace(/"/g, '&quot;');
+        console.log(description);
         items_html += `
-            <div class="item-block">
+            <div class="item-block farts">
               <input type="checkbox" id="character-${this.actor.id}-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
-              <label for="character-${this.actor.id}-${item_type}add-${item.id}" title="${item.data.data.description}" class="hover-term">${trimmedname}</label>
+              <label for="character-${this.actor.id}-${item_type}add-${item.id}" title="${description}" class="hover-term">${trimmedname}</label>
             </div>
           `;
       }
