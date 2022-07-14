@@ -387,7 +387,16 @@
                 .light1{grid-area: light1;}
                 .light2{grid-area: light2;}
                 .effect-text.light{grid-area: light-effect;}
-                .healing-clock{grid-area: healing; @include clock(4, 100);}
+                .healing-clock{
+                  grid-area: healing;
+                  padding-top: 25px;
+                  @include clock(4, 100);
+                  label i.nullifier{
+                    position: absolute;
+                    top: 15px;
+                    right: 0px;
+                  }
+                }
                 .rownum1{grid-area: rownum1;}
                 .armor-use{grid-area: armor; text-align: right;}
                 .effect-text{font-family: "Crimson Text", serif;font-size: .9rem;}
