@@ -179,7 +179,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
         },
         cancel: {
           icon: "<i class='fas fa-times'></i>",
-          label: game.i18n.localize("BITD.Cancel"),
+          label: game.i18n.localize("bitd-alt.Cancel"),
           callback: ()=> close()
         }
       },
