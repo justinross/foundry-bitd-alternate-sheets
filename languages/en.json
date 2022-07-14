@@ -11,5 +11,7 @@
     "bitd-alt.SwitchPlaybook": "Switch Playbook",
     "bitd-alt.Ok": "Ok",
     "bitd-alt.Cancel": "Cancel",
-    "bitd-alt.Acquaintances": "Acquaintances"
+    "bitd-alt.Acquaintances": "Acquaintances",
+    "bitd-alt.SelectToAddAbility": "Select Abilities to Add",
+    "bitd-alt.SelectToAddItem": "Select Items to Add"
 }
