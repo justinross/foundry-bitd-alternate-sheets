@@ -104,22 +104,27 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
   }
 
+  async addPlaybookAcquaintances(selected_playbook){
+    console.log("Adding playbook acquaintances");
+    let all_acquaintances = await Utils.getSourcedItemsByType('npc');
+    let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === selected_playbook.data.name);
+    let current_acquaintances = this.actor.data.data.acquaintances;
+    let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
+    for(const acq of neutral_acquaintances){
+      await Utils.removeAcquaintance(this.actor, acq.id);
+    }
+    for(const acq of playbook_acquaintances){
+      await Utils.addAcquaintance(this.actor, acq);
+    }
+  }
+
   async switchPlaybook(newPlaybookItem){
     // show confirmation (ask for items to replace) - not doing this. can't be bothered. sry.
     // remove old playbook (done automatically somewhere else. tbh I don't know where)
     // add abilities - not adding. virtual!
     // add items - virtual!
     // add acquaintances - should be virtual?
-    // let all_acquaintances = await Utils.getSourcedItemsByType('npc');
-    // let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === newPlaybookItem.data.name);
-    // let current_acquaintances = this.actor.data.data.acquaintances;
-    // let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
-    // for(const acq of neutral_acquaintances){
-    //   await Utils.removeAcquaintance(this.actor, acq.id);
-    // }
-    // for(const acq of playbook_acquaintances){
-    //   await Utils.addAcquaintance(this.actor, acq);
-    // }
+    await this.addPlaybookAcquaintances(newPlaybookItem);
     let attributes = await Utils.getStartingAttributes(newPlaybookItem.name);
     let newData = {data:{}};
     newData.data.attributes = attributes;
@@ -295,7 +300,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
     return new_ability;
   }
 
-
   /* -------------------------------------------- */
 
   /** @override */
@@ -318,6 +322,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     data.trauma_array = trauma_array;
     data.trauma_count = trauma_array.length;
+    // data.acquaintances_array = this.getAcquaintances();
 
     // @todo - fix this. display heritage, background, and vice based on owned objects (original sheet style) or stored string, with priority given to string if not empty and not default value
     data.heritage = data.data.heritage != "" && data.data.heritage != "Heritage" ? data.data.heritage : (Utils.getOwnedObjectByType(this.actor, "heritage") ? Utils.getOwnedObjectByType(this.actor, "heritage").name : "");
@@ -329,6 +334,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let owned_playbooks = this.actor.items.filter(item => item.type == "class");
     if(owned_playbooks.length == 1){
       data.selected_playbook = owned_playbooks[0];
+      // if(data.data.acquaintances.length <= 0){
+      //   await this.addPlaybookAcquaintances(data.selected_playbook);
+      // }
     }
     else{
       console.log("Wrong number of playbooks on character " + this.actor.name);

@@ -37,7 +37,6 @@
           </header>
             <div class="trauma-box">
                 <div class="trauma-list count-{{ownedTraumas.length}}">
-                {{log trauma_array}}
                 {{#if (gt trauma_count 0)}}
                 {{#each trauma_array as |trauma index|}}
                   <div class="trauma-item" data-trauma="{{trauma}}">{{localize (concat "BITD.Trauma" (upper-first trauma))}}</div>
@@ -120,8 +119,8 @@
               {{/each}}
             </section>
             <section class="friends-rivals">
-              {{#if data.acquaintances}}
               <header class="full-bar">{{localize data.acquaintances_label}}</header>
+              {{#if data.acquaintances}}
               {{#each data.acquaintances}}
                 <div class="acquaintance" data-acquaintance="{{this.id}}">
                   <i data-acquaintance="{{this.id}}" class="standing-toggle fas
