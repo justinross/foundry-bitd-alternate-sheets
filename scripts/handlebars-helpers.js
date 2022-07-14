@@ -51,6 +51,11 @@ export const registerHandlebarsHelpers = function() {
     }
   });
 
+  Handlebars.registerHelper('clean-html', function(html) {
+    html = Utils.strip(html);
+    return html;
+  });
+
   Handlebars.registerHelper('times', function(n, block) {
     var accum = '';
     for(var i = 0; i < n; ++i)
@@ -60,6 +65,7 @@ export const registerHandlebarsHelpers = function() {
 
   Handlebars.registerHelper('md', function(input){
     let md = window.markdownit();
+    input = Utils.strip(input);
     let output_value = md.render(input);
     return output_value;
   });

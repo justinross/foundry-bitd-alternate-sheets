@@ -489,6 +489,11 @@ export class Utils {
     return virtual_list;
   }
 
+  static strip(html){
+    let doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
+  }
+
   // This doesn't work as expected. It hasn't been updated
   static async modifiedFromPlaybookDefault(actor) {
     let skillsChanged = false;
