@@ -746,6 +746,7 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm .healing-clock {
   grid-area: healing;
+  padding-top: 25px;
   position: relative;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm .healing-clock .blades-clock {
@@ -791,6 +792,11 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm .healing-clock .blades-clock *:nth-child(9) {
   transform: rotate(270deg) skewY(180deg);
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm .healing-clock label i.nullifier {
+  position: absolute;
+  top: 15px;
+  right: 0px;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm .rownum1 {
   grid-area: rownum1;
