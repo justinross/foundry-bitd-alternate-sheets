@@ -25,22 +25,22 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override **/
   async _onDropItem(event, droppedItem) {
+    await super._onDropItem(event, droppedItem);
     if (!this.actor.isOwner) {
       ui.notifications.error(`You do not have sufficient permissions to edit this character. Please speak to your GM if you feel you have reached this message in error.`, {permanent: true});
       return false;
     }
 	  await this.handleDrop(event, droppedItem);
-    return super._onDropItem(event, droppedItem);
   }
 
   /** @override **/
   async _onDropActor(event, droppedActor){
+    await super._onDropActor(event, droppedActor);
     if (!this.actor.isOwner) {
       ui.notifications.error(`You do not have sufficient permissions to edit this character. Please speak to your GM if you feel you have reached this message in error.`, {permanent: true});
       return false;
     }
     await this.handleDrop(event, droppedActor);
-    return super._onDropActor(event, droppedActor);
   }
 
   /** @override **/
@@ -95,7 +95,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
         //   }
         // }, {classes:["add-existing-dialog"], width: "650"});
         // d.render(true);
-        await this.switchPlaybook(droppedEntityFull);
+         await this.switchPlaybook(droppedEntityFull);
         break ;
       default:
         // await this.actor.setUniqueDroppedItem(droppedEntityFull);
@@ -105,7 +105,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async addPlaybookAcquaintances(selected_playbook){
-    console.log("Adding playbook acquaintances");
     let all_acquaintances = await Utils.getSourcedItemsByType('npc');
     let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === selected_playbook.data.name);
     let current_acquaintances = this.actor.data.data.acquaintances;
@@ -130,6 +129,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     newData.data.attributes = attributes;
     await this.actor.update(newData);
     console.log("playbook switched");
+    return newPlaybookItem;
     // set skills
   }
 
@@ -335,6 +335,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     let owned_playbooks = this.actor.items.filter(item => item.type == "class");
     if(owned_playbooks.length == 1){
+      console.log("One playbook selected. Doing the thing.");
       data.selected_playbook = owned_playbooks[0];
       // if(data.data.acquaintances.length <= 0){
       //   await this.addPlaybookAcquaintances(data.selected_playbook);
@@ -348,33 +349,23 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // let all_abilities = await Utils.getSourcedItemsByType("ability");
 
     let combined_abilities_list = [];
+    let all_generic_items = [];
+    let my_items = [];
     if(data.selected_playbook){
       combined_abilities_list = await Utils.getVirtualListOfItems("ability", data, true, data.selected_playbook.name, false, true);
+      my_items = await Utils.getVirtualListOfItems("item", data, true, data.selected_playbook.name, true, true);
+
+      data.selected_playbook_full = data.selected_playbook;
+      data.selected_playbook_full = await Utils.getItemByType("class", data.selected_playbook.id);
     }
     else{
       combined_abilities_list = await Utils.getVirtualListOfItems("ability", data, true, "", false, true);
-    }
 
-    data.available_playbook_abilities = combined_abilities_list;
-
-    if(data.selected_playbook){
-      data.selected_playbook_full = data.selected_playbook;
-
-      data.selected_playbook_full = await Utils.getItemByType("class", data.selected_playbook.id);
-    }
-
-    // let all_sourced_items = await Utils.getSourcedItemsByType("item")
-    // let all_playbook_items = [];
-    let all_generic_items = [];
-    let my_items = [];
-
-    if(data.selected_playbook){
-      my_items = await Utils.getVirtualListOfItems("item", data, true, data.selected_playbook.name, true, true);
-    }
-    else{
       my_items = await Utils.getVirtualListOfItems("item", data, true, "noclassselectod", true, true);
     }
+
     all_generic_items = await Utils.getVirtualListOfItems("item", data, true, "", false, false);
+    data.available_playbook_abilities = combined_abilities_list;
 
     let armor = all_generic_items.findSplice(item => item.name.includes("Armor"));
     let heavy = all_generic_items.findSplice(item => item.name.includes("Heavy"));
