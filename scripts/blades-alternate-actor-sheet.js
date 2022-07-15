@@ -316,11 +316,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // Prepare active effects
     data.effects = BladesActiveEffect.prepareActiveEffectCategories(this.actor.effects);
     let trauma_array = [];
-    for(const trauma in data.data.trauma.list){
-      if(data.data.trauma.list[trauma]){
-        trauma_array.push(trauma);
-      }
+    let trauma_object = {};
+
+    if(Array.isArray(data.data.trauma.list)){
+      trauma_object = Utils.convertArrayToBooleanObject(data.data.trauma.list);
+      trauma_object = expandObject({"data.trauma.list": trauma_object});
+      await this.actor.update(trauma_object);
     }
+    trauma_array = Utils.convertBooleanObjectToArray(data.data.trauma.list);
 
     data.trauma_array = trauma_array;
     data.trauma_count = trauma_array.length;
@@ -713,8 +716,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
 
     html.find('.add_trauma').click(async ev => {
-      let data = await this.getData();
-      let actorTraumaList = data.trauma_array;
+      // let data = await this.getData();
+      let actorTraumaList = [];
+      if(Array.isArray(this.actor.data.data.trauma.list)){
+        actorTraumaList = this.actor.data.data.trauma.list;
+      }
+      else{
+        actorTraumaList = Utils.convertBooleanObjectToArray(this.actor.data.data.trauma.list);
+      }
       let allTraumas = this.actor.data.data.trauma.options;
       let unownedTraumas = [];
       for (const traumaListKey of allTraumas) {
@@ -748,6 +757,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
                   }
               };
               newTraumaListValue.data.trauma.list[newTrauma] = true;
+              console.log(newTrauma, newTraumaListValue);
               await this.actor.update(newTraumaListValue);
 
             }
