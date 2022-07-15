@@ -7,15 +7,15 @@
           <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" >
         </div>
         <div class="status-buttons">
-          <div class="coins-box {{#if actor.flags.bitd-alternate-sheets.coins_open}}open{{/if}}">
+          <div class="coins-box {{#if actor.flags.bitd-alternate-sheets.coins_open}}open{{/if}} pointer">
             <div class="mini-view"><div class="placeholder"></div><span class="coin-values label-text">{{data.coins}}/{{data.coins_stashed}}</span></div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/coins.html" actor=actor}}</div>
           </div>
-          <div class="load-box {{#if actor.flags.bitd-alternate-sheets.load_open}}open{{/if}}">
+          <div class="load-box {{#if actor.flags.bitd-alternate-sheets.load_open}}open{{/if}} pointer">
             <div class="mini-view"><div class="placeholder"></div><span class="load-amounts label-text {{#if (lt loadout max_load)}}below-max{{else if (eq loadout max_load)}}at-max{{else if (gt loadout max_load)}}over-max{{/if}}">{{loadout}}/{{max_load}}</span></div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/load.html"}}</div>
           </div>
-          <div class="harm-box {{#if actor.flags.bitd-alternate-sheets.harm_open}}open{{/if}}">
+          <div class="harm-box {{#if actor.flags.bitd-alternate-sheets.harm_open}}open{{/if}} pointer">
             <div class="mini-view harm{{#if (or data.harm.light.one data.harm.light.two)}}-1{{/if}}{{#if
               (or data.harm.medium.one data.harm.medium.two)}}-2{{/if}}{{#if data.harm.heavy.one}}-3{{/if}}"><div class="placeholder"></div></div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}</div>
@@ -45,7 +45,7 @@
                   <em>{{localize data.trauma.name}}</em>
                 {{/if}}
 
-                <i class="fas fa-plus add_trauma"></i>
+                <i class="fas fa-plus add_trauma pointer"></i>
               </div>
             </div>
         </div>

@@ -39,6 +39,9 @@
 .blades-alt .debug-toggle.on {
   opacity: 0.75;
 }
+.blades-alt .pointer {
+  cursor: pointer;
+}
 .blades-alt section.flex {
   margin-bottom: 10px;
   display: flex;
@@ -920,7 +923,7 @@
   content: " •";
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list .add_trauma {
-  font-size: 0.8em;
+  font-size: 1em;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .name-alias {
   font-family: Kirsty, serif;
@@ -987,6 +990,9 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions .attribute .action input {
   display: none;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions .attribute .action input:not(:checked) ~ label:hover {
+  background-color: rgba(204, 0, 0, 0.5);
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions .attribute .action input:checked ~ label {
   background-color: transparent;
