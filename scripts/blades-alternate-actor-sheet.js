@@ -25,22 +25,22 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override **/
   async _onDropItem(event, droppedItem) {
+    await super._onDropItem(event, droppedItem);
     if (!this.actor.isOwner) {
       ui.notifications.error(`You do not have sufficient permissions to edit this character. Please speak to your GM if you feel you have reached this message in error.`, {permanent: true});
       return false;
     }
 	  await this.handleDrop(event, droppedItem);
-    return super._onDropItem(event, droppedItem);
   }
 
   /** @override **/
   async _onDropActor(event, droppedActor){
+    await super._onDropActor(event, droppedActor);
     if (!this.actor.isOwner) {
       ui.notifications.error(`You do not have sufficient permissions to edit this character. Please speak to your GM if you feel you have reached this message in error.`, {permanent: true});
       return false;
     }
     await this.handleDrop(event, droppedActor);
-    return super._onDropActor(event, droppedActor);
   }
 
   /** @override **/
@@ -102,7 +102,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
         // await this.onDroppedDistinctItem(droppedEntityFull);
         break;
     }
-    return droppedEntity;
   }
 
   async addPlaybookAcquaintances(selected_playbook){
