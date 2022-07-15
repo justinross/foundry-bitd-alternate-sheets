@@ -170,6 +170,12 @@
   /* Hide the browser's default checkbox */
   input {
     display: none;
+
+    &:not(:checked){
+      & ~ label:hover {
+        background-color: rgba($accent_color, 0.5);
+      }
+    }
   
     &:checked {
   
