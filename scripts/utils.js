@@ -494,6 +494,33 @@ export class Utils {
     return doc.body.textContent || "";
   }
 
+  static convertArrayToBooleanObject(arr){
+    const obj = {};
+    for (const key of arr) {
+      obj[key] = true;
+    }
+    return obj;
+  }
+
+  static convertBooleanObjectToArray(obj){
+    return Object.keys(obj).filter(key => obj[key]);
+    // if(Array.isArray(obj))
+    //
+    //   let arr = [];
+    //   if(!Array.isArray(object)){
+    //     for(const el in object){
+    //       if(object[el]){
+    //         arr.push(el);
+    //       }
+    //     }
+    //     return arr;
+    //   }
+    //   else{
+    //     // console.log("Can't use convertBooleanObjectToArray on an array. Returning object untouched.");
+    //     return object;
+    //   }
+  }
+
   // This doesn't work as expected. It hasn't been updated
   static async modifiedFromPlaybookDefault(actor) {
     let skillsChanged = false;
