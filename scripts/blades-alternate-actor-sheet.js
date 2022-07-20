@@ -104,17 +104,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
   }
 
-  async addPlaybookAcquaintances(selected_playbook){
+  async switchToPlaybookAcquaintances(selected_playbook){
     let all_acquaintances = await Utils.getSourcedItemsByType('npc');
     let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === selected_playbook.data.name);
     let current_acquaintances = this.actor.data.data.acquaintances;
     let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
-    for(const acq of neutral_acquaintances){
-      await Utils.removeAcquaintance(this.actor, acq.id);
-    }
-    for(const acq of playbook_acquaintances){
-      await Utils.addAcquaintance(this.actor, acq);
-    }
+    await Utils.removeAcquaintanceArray(this.actor, neutral_acquaintances);
+    await Utils.addAcquaintanceArray(this.actor, playbook_acquaintances);
   }
 
   async switchPlaybook(newPlaybookItem){
@@ -123,7 +119,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // add abilities - not adding. virtual!
     // add items - virtual!
     // add acquaintances - should be virtual?
-    await this.addPlaybookAcquaintances(newPlaybookItem);
+
+    await this.switchToPlaybookAcquaintances(newPlaybookItem);
     let attributes = await Utils.getStartingAttributes(newPlaybookItem.name);
     let newData = {data:{}};
     newData.data.attributes = attributes;
@@ -340,16 +337,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
     if(owned_playbooks.length == 1){
       console.log("One playbook selected. Doing the thing.");
       data.selected_playbook = owned_playbooks[0];
-      // if(data.data.acquaintances.length <= 0){
-      //   await this.addPlaybookAcquaintances(data.selected_playbook);
-      // }
     }
     else{
       console.log("Wrong number of playbooks on character " + this.actor.name);
     }
 
 
-    // let all_abilities = await Utils.getSourcedItemsByType("ability");
 
     let combined_abilities_list = [];
     let all_generic_items = [];
@@ -676,13 +669,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let newStanding;
       switch(oldStanding){
         case "friend":
-          newStanding = "neutral";
+          newStanding = "rival";
           break;
         case "rival":
-          newStanding = "friend";
+          newStanding = "neutral";
           break;
         case "neutral":
-          newStanding = "rival";
+          newStanding = "friend";
           break;
       }
       clickedAcq.standing = newStanding;
