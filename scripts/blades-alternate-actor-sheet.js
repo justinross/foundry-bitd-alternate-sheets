@@ -278,11 +278,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
   ];
 
   async addNewItem(){
-      let playbook_name = "custom";
-      let item_data_model = game.system.model.Item.item;
-      let new_item_data = { name : "New Item", type : "item", data : {...item_data_model} };
-      new_item_data.data.class = "custom";
-      new_item_data.data.load = 1;
+    let playbook_name = "custom";
+    let item_data_model = game.system.model.Item.item;
+    let new_item_data = { name : "New Item", type : "item", data : {...item_data_model} };
+    new_item_data.data.class = "custom";
+    new_item_data.data.load = 1;
 
       let new_item = await this.actor.createEmbeddedDocuments("Item", [new_item_data], {renderSheet : true});
       return new_item;
@@ -294,8 +294,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let new_ability_data = { name : "New Ability", type : "ability", data : {...ability_data_model} };
     new_ability_data.data.class = "custom";
 
-    let new_abilities = await this.actor.createEmbeddedDocuments("Item", [new_ability_data], {renderSheet : true});
-    let new_ability = new_abilities[0];
+      let new_abilities = await this.actor.createEmbeddedDocuments("Item", [new_ability_data], {renderSheet : true});
+      let new_ability = new_abilities[0];
     // console.log(new_ability);
     await new_ability.setFlag(MODULE_ID, "custom_ability", true);
 
@@ -757,7 +757,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
                   }
               };
               newTraumaListValue.data.trauma.list[newTrauma] = true;
-              console.log(newTrauma, newTraumaListValue);
               await this.actor.update(newTraumaListValue);
 
             }
