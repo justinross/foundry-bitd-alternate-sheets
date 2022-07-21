@@ -104,17 +104,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
   }
 
-  async addPlaybookAcquaintances(selected_playbook){
+  async switchToPlaybookAcquaintances(selected_playbook){
     let all_acquaintances = await Utils.getSourcedItemsByType('npc');
     let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === selected_playbook.data.name);
     let current_acquaintances = this.actor.data.data.acquaintances;
     let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
-    for(const acq of neutral_acquaintances){
-      await Utils.removeAcquaintance(this.actor, acq.id);
-    }
-    for(const acq of playbook_acquaintances){
-      await Utils.addAcquaintance(this.actor, acq);
-    }
+    await Utils.removeAcquaintanceArray(this.actor, neutral_acquaintances);
+    await Utils.addAcquaintanceArray(this.actor, playbook_acquaintances);
   }
 
   async switchPlaybook(newPlaybookItem){
@@ -123,13 +119,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // add abilities - not adding. virtual!
     // add items - virtual!
     // add acquaintances - should be virtual?
-    await this.addPlaybookAcquaintances(newPlaybookItem);
-    let attributes = await Utils.getStartingAttributes(newPlaybookItem.name);
-    let newData = {data:{}};
-    newData.data.attributes = attributes;
-    await this.actor.update(newData);
-    console.log("playbook switched");
-    return newPlaybookItem;
+
+    await this.switchToPlaybookAcquaintances(newPlaybookItem);
+    await this.setPlaybookAttributes(newPlaybookItem);
+    // return newPlaybookItem;
     // set skills
   }
 
@@ -147,7 +140,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       for (const item of group) {
         let trimmedname = Utils.trimClassFromName(item.name);
         let description = item.data.data.description.replace(/"/g, '&quot;');
-        console.log(description);
         items_html += `
             <div class="item-block farts">
               <input type="checkbox" id="character-${this.actor.id}-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
@@ -306,7 +298,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override */
   async getData() {
-    let data = super.getData();
+    let data = await super.getData();
     data.editable = this.options.editable;
     data.isGM = game.user.isGM;
     const actorData = data.data;
@@ -340,16 +332,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
     if(owned_playbooks.length == 1){
       console.log("One playbook selected. Doing the thing.");
       data.selected_playbook = owned_playbooks[0];
-      // if(data.data.acquaintances.length <= 0){
-      //   await this.addPlaybookAcquaintances(data.selected_playbook);
-      // }
     }
     else{
       console.log("Wrong number of playbooks on character " + this.actor.name);
     }
 
 
-    // let all_abilities = await Utils.getSourcedItemsByType("ability");
 
     let combined_abilities_list = [];
     let all_generic_items = [];
@@ -400,11 +388,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
 
     // Encumbrance Levels
-    let load_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal","BITD.Heavy","BITD.Encumbered",
-      "BITD.Encumbered","BITD.Encumbered","BITD.OverMax"];
-    let mule_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal",
-      "BITD.Heavy","BITD.Encumbered","BITD.OverMax"];
-    let mule_present=0;
+    // let load_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal","BITD.Heavy","BITD.Encumbered",
+    //   "BITD.Encumbered","BITD.Encumbered","BITD.OverMax"];
+    // let mule_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal",
+    //   "BITD.Heavy","BITD.Encumbered","BITD.OverMax"];
+    // let mule_present=0;
 
     //Sanity Check
     if (loadout < 0) {
@@ -676,13 +664,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let newStanding;
       switch(oldStanding){
         case "friend":
-          newStanding = "neutral";
+          newStanding = "rival";
           break;
         case "rival":
-          newStanding = "friend";
+          newStanding = "neutral";
           break;
         case "neutral":
-          newStanding = "rival";
+          newStanding = "friend";
           break;
       }
       clickedAcq.standing = newStanding;
@@ -790,4 +778,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /* -------------------------------------------- */
 
+  async setPlaybookAttributes(newPlaybookItem) {
+    let attributes = await Utils.getStartingAttributes(newPlaybookItem.name);
+    let newAttributeData = {data:{}};
+    newAttributeData.data.attributes = attributes;
+    // this damned issue. For some reason exp and exp_max were getting grabbed as numbers instead of strings, which breaks the multiboxes helper somehow?
+    Object.keys(newAttributeData.data.attributes).map((key, index)=>{
+      newAttributeData.data.attributes[key].exp = newAttributeData.data.attributes[key].exp.toString();
+      newAttributeData.data.attributes[key].exp_max = newAttributeData.data.attributes[key].exp_max.toString();
+    });
+    queueUpdate(()=> this.actor.update(newAttributeData));
+  }
 }

@@ -454,7 +454,7 @@ export class Utils {
     await actor.update({data: {acquaintances : updated_acquaintances}});
   }
 
-  static async removeAcquaintanceArray(actor, acqArr){
+   static async removeAcquaintanceArray(actor, acqArr){
     //see who the current acquaintances are
     let current_acquaintances = actor.data.data.acquaintances;
     //for each of the passed acquaintances
