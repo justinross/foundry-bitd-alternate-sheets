@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Debug in Chrome" type="JavascriptDebugType" uri="http://localhost:3030" useFirstLineBreakpoints="true">
+  <configuration default="false" name="Debug in Chrome" type="JavascriptDebugType" uri="http://localhost:30000" useFirstLineBreakpoints="true">
     <mapping url="http:///modules/bitd-alternate-sheets" local-file="$PROJECT_DIR$" />
     <method v="2">
       <option name="FwBeforeLaunchTask" enabled="true" />
