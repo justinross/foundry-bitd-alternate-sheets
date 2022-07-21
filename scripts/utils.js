@@ -142,18 +142,18 @@ export class Utils {
   /**
    * Add item functionality
    */
-  static _addOwnedItem(event, actor) {
-
-    event.preventDefault();
-    const a = event.currentTarget;
-    const item_type = a.dataset.itemType;
-
-    let data = {
-      name: randomID(),
-      type: item_type
-    };
-    return actor.createEmbeddedDocuments("Item", [data]);
-  }
+  // static _addOwnedItem(event, actor) {
+  //
+  //   event.preventDefault();
+  //   const a = event.currentTarget;
+  //   const item_type = a.dataset.itemType;
+  //
+  //   let data = {
+  //     name: randomID(),
+  //     type: item_type
+  //   };
+  //   return actor.createEmbeddedDocuments("Item", [data]);
+  // }
 
   static getOwnedObjectByType(actor, type){
     return actor.items.find(item => item.type === type);
@@ -454,17 +454,14 @@ export class Utils {
     await actor.update({data: {acquaintances : updated_acquaintances}});
   }
 
-  static async removeAcquaintanceArray(actor, acqArr){
+   static async removeAcquaintanceArray(actor, acqArr){
     //see who the current acquaintances are
     let current_acquaintances = actor.data.data.acquaintances;
-    console.log(acqArr);
     //for each of the passed acquaintances
     for(const currAcq of acqArr){
-      console.log(currAcq.id);
       //remove the matching acquaintance from the current acquaintances
       current_acquaintances.findSplice((acq)=>acq.id == currAcq.id);
     }
-    console.log(current_acquaintances);
     // let new_acquaintances = current_acquaintances.filter(acq => acq._id !== acqId && acq.id !== acqId);
     await actor.update({data: {acquaintances : current_acquaintances}});
   }
@@ -499,7 +496,6 @@ export class Utils {
       return Utils.trimClassFromName(a.name) > Utils.trimClassFromName(b.name) ? 1 : -1;
       }
     )
-    // }
     sheet_items = sheet_items.map(el => {
       el.data.data.virtual = true;
       return el.data;
