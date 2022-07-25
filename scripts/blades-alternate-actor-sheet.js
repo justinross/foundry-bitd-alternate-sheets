@@ -11,6 +11,11 @@ import {queueUpdate} from "./lib/update-queue.js";
  */
 export class BladesAlternateActorSheet extends BladesSheet {
   // playbookChangeOptions = {};
+  coins_open = false;
+  harm_open = false;
+  load_open = false;
+  allow_edit = false;
+  show_debug = false;
 
   /** @override */
 	static get defaultOptions() {
@@ -31,6 +36,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
       return false;
     }
 	  await this.handleDrop(event, droppedItem);
+  }
+
+  setLocalProp(propName, value){
+    this[propName] = value;
+    this.render(false);
   }
 
   /** @override **/
@@ -304,6 +314,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
     const actorData = data.data;
     data.actor = actorData;
     data.data = actorData.data;
+    data.coins_open = this.coins_open;
+    data.harm_open = this.harm_open;
+    data.load_open = this.load_open;
+    data.allow_edit = this.allow_edit;
+    data.show_debug = this.show_debug;
 
     // Prepare active effects
     data.effects = BladesActiveEffect.prepareActiveEffectCategories(this.actor.effects);
@@ -572,8 +587,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     })
 
     html.find('.debug-toggle').click(async ev => {
-      let debug = await this.actor.getFlag('bitd-alternate-sheets', 'show-debug');
-      await this.actor.setFlag('bitd-alternate-sheets', 'show-debug', !debug);
+      this.setLocalProp("show_debug", !this.show_debug);
     });
 
     /* Removed drop-down in favor of drag/drop playbooks. Hopefully more simple.
@@ -615,11 +629,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     html.find('.toggle-allow-edit').click(async (event) => {
       event.preventDefault();
-      if(this.actor.getFlag('bitd-alternate-sheets', 'allow-edit')){
-        await this.actor.setFlag('bitd-alternate-sheets', 'allow-edit', false);
-      } else {
-        await this.actor.setFlag('bitd-alternate-sheets', 'allow-edit', true);
-      }
+      this.setLocalProp("allow_edit", !this.allow_edit);
     });
 
     html.find('.item-block .main-checkbox').change(ev => {
@@ -678,9 +688,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
       this.actor.update({data: {acquaintances : acquaintances}});
     });
 
-    html.find('.coins-box').click(ev => {
-      //note: apparently have to do this via flag, as just adding a class doesn't help when the box get rerendered on data change. Fun. Only downside is that it will probably show the coins opening and closing for anyone else viewing the sheet, too.
-      this.actor.getFlag('bitd-alternate-sheets', 'coins_open') ? this.actor.setFlag('bitd-alternate-sheets', 'coins_open', false) : this.actor.setFlag('bitd-alternate-sheets', 'coins_open', true);
+    html.find('.coins-box').click(async ev => {
+      this.setLocalProp("coins_open", !this.coins_open);
     });
 
     html.find('.coins-box .full-view').click(ev => {
@@ -688,7 +697,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
 
     html.find('.harm-box').click(ev => {
-      this.actor.getFlag('bitd-alternate-sheets', 'harm_open') ? this.actor.setFlag('bitd-alternate-sheets', 'harm_open', false) : this.actor.setFlag('bitd-alternate-sheets', 'harm_open', true);
+      this.setLocalProp("harm_open", !this.harm_open);
     });
 
     html.find('.harm-box .full-view').click(ev => {
@@ -696,7 +705,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
 
     html.find('.load-box').click(ev => {
-      this.actor.getFlag('bitd-alternate-sheets', 'load_open') ? this.actor.setFlag('bitd-alternate-sheets', 'load_open', false) : this.actor.setFlag('bitd-alternate-sheets', 'load_open', true);
+      this.setLocalProp("load_open", !this.load_open);
     });
 
     html.find('.load-box .full-view').click(ev => {

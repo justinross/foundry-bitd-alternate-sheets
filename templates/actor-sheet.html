@@ -1,5 +1,5 @@
 <form class="{{cssClass}}" autocomplete="off">
-  <div class="sheet-wrapper {{#if actor.flags.bitd-alternate-sheets.allow-edit}}allow-edit{{/if}}">
+  <div class="sheet-wrapper {{#if allow_edit}}allow-edit{{/if}}">
     <div class="sheet-toggles"><span class="toggle-expand"><i class="fas fa-expand"></i><i class="fas fa-compress"></i></span><span class="toggle-allow-edit"><i class="fas fa-lock"></i><i class="fas fa-lock-open"></i></span><!--<span class="migrate-test">mig</span>--></div>
     <section class="minimized-view">
       <section class="character-portrait">
@@ -7,15 +7,15 @@
           <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" >
         </div>
         <div class="status-buttons">
-          <div class="coins-box {{#if actor.flags.bitd-alternate-sheets.coins_open}}open{{/if}} pointer">
+          <div class="coins-box {{#if coins_open}}open{{/if}} pointer">
             <div class="mini-view"><div class="placeholder"></div><span class="coin-values label-text">{{data.coins}}/{{data.coins_stashed}}</span></div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/coins.html" actor=actor}}</div>
           </div>
-          <div class="load-box {{#if actor.flags.bitd-alternate-sheets.load_open}}open{{/if}} pointer">
+          <div class="load-box {{#if load_open}}open{{/if}} pointer">
             <div class="mini-view"><div class="placeholder"></div><span class="load-amounts label-text {{#if (lt loadout max_load)}}below-max{{else if (eq loadout max_load)}}at-max{{else if (gt loadout max_load)}}over-max{{/if}}">{{loadout}}/{{max_load}}</span></div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/load.html"}}</div>
           </div>
-          <div class="harm-box {{#if actor.flags.bitd-alternate-sheets.harm_open}}open{{/if}} pointer">
+          <div class="harm-box {{#if harm_open}}open{{/if}} pointer">
             <div class="mini-view harm{{#if (or data.harm.light.one data.harm.light.two)}}-1{{/if}}{{#if
               (or data.harm.medium.one data.harm.medium.two)}}-2{{/if}}{{#if data.harm.heavy.one}}-3{{/if}}"><div class="placeholder"></div></div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}</div>
@@ -68,7 +68,7 @@
     <section class="tab-space">
       <nav class="tabs" data-group="primary-tabs">
         <div class="tab-item playbook" data-tab="playbook">
-          {{#if actor.flags.bitd-alternate-sheets.allow-edit}}
+          {{#if allow_edit}}
               <div class="playbook-name">{{selected_playbook.name}}</div>
               <div class="playbook-description" title="Sorry, playbooks are what they should be called, but the system calls them classes">Drop a "class" item onto the sheet to switch playbooks.</div>
           {{else}}
@@ -90,7 +90,7 @@
           <div class="playbook">
             <section class="abilities">
               <header class="full-bar">
-                <span class="context-abilities">{{localize "BITD.SpecialAbilities"}}</span>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}<a class="ability-add-popup add-button" data-item-type="ability" data-group-by="data.class"><i class="fas fa-plus"></i></a>{{/if}}
+                <span class="context-abilities">{{localize "BITD.SpecialAbilities"}}</span>{{#if allow_edit}}<a class="ability-add-popup add-button" data-item-type="ability" data-group-by="data.class"><i class="fas fa-plus"></i></a>{{/if}}
                 <div class="stripe-tooth-body right">
                 {{#multiboxes data.experience}}
                   <input type="radio" id="{{actor._id}}-experience-0"
@@ -111,7 +111,7 @@
               </section>
             </section>
             <section class="playbook-items item-list">
-              <header class="full-bar flex-header context-items"><span>{{localize "bitd-alt.items"}}</span>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}<a class="item-list-add add-button" data-item-type="item" data-group-by="data.class"><i class="fas fa-plus"></i></a>{{/if}}</header>
+              <header class="full-bar flex-header context-items"><span>{{localize "bitd-alt.items"}}</span>{{#if allow_edit}}<a class="item-list-add add-button" data-item-type="item" data-group-by="data.class"><i class="fas fa-plus"></i></a>{{/if}}</header>
               {{#each my_items as |item index|}}
                 {{#with ../actor as |actor|}}
                 {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item}}
@@ -300,8 +300,8 @@
     </section>
   </div>
   {{#if isGM}}
-    <i class="fas fa-bug debug-toggle {{#if actor.flags.bitd-alternate-sheets.show-debug}}on{{/if}} "></i>
-    {{#if actor.flags.bitd-alternate-sheets.show-debug}}
+    <i class="fas fa-bug debug-toggle {{#if show_debug}}on{{/if}} "></i>
+    {{#if show_debug}}
         {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}</div>
         {{#each actor.items as |item id|}}
             <div class="item flex-horizontal" data-item-id="{{item._id}}">
