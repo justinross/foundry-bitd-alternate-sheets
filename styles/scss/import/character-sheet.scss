@@ -649,7 +649,7 @@
           align-items: stretch;
           justify-items: stretch;
           grid-template-columns: 2fr 1em 1fr 1fr;
-          grid-template-rows: repeat(3, 1fr);
+          grid-template-rows: repeat(3, min-content);
           grid-template-areas:
               "abilities gutter pb-items all-items"
               "abilities gutter friends all-items"
@@ -669,6 +669,10 @@
             grid-area: gutter;
             height: 100%;
             width: 100%;
+          }
+
+          section{
+            padding-bottom: .75em;
           }
 
           .abilities{
@@ -767,7 +771,7 @@
                 margin-left: 0;
                 position: relative;
                 z-index: 10;
-                bottom: 2px;
+                bottom: 0px;
               }
             }
           }
