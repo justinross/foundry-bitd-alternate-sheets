@@ -12,12 +12,12 @@ export const registerHandlebarsHelpers = function() {
   });
 
 
-  Handlebars.registerHelper('inline-editable-text', function(parameter_name, blank_value, current_value, uniq_id, context){
+  Handlebars.registerHelper('inline-editable-text', function(editable, parameter_name, blank_value, current_value, uniq_id, context){
     let html = '';
     if(current_value.length === 0){
       current_value = blank_value;
     }
-    html += `<input  data-input="character-${uniq_id}-${parameter_name}" name="${parameter_name}" type="hidden" value="${current_value}" placeholder="${blank_value}"><span class="inline-input" ${context.owner && context.actor.flags["bitd-alternate-sheets"]?.["allow-edit"] ? 'contenteditable="true"' : null} spellcheck="false" data-target="character-${uniq_id}-${parameter_name}" data-placeholder="${blank_value}">${current_value}</span>`;
+    html += `<input  data-input="character-${uniq_id}-${parameter_name}" name="${parameter_name}" type="hidden" value="${current_value}" placeholder="${blank_value}"><span class="inline-input" ${context.owner && editable ? 'contenteditable="true"' : null} spellcheck="false" data-target="character-${uniq_id}-${parameter_name}" data-placeholder="${blank_value}">${current_value}</span>`;
     return html;
   });
 
@@ -71,7 +71,7 @@ export const registerHandlebarsHelpers = function() {
   });
 
 
-  Handlebars.registerHelper('editable-textarea', function(parameter_name, blank_value, use_markdown = false, force_editable=false, current_value, uniq_id, context){
+  Handlebars.registerHelper('editable-textarea', function(editable, parameter_name, blank_value, use_markdown = false, force_editable=false, current_value, uniq_id, context){
     let html = '';
     if(!current_value || current_value.length === 0){
       current_value = "Click the edit lock above to add character notes.";
@@ -82,7 +82,7 @@ export const registerHandlebarsHelpers = function() {
       output_value = md.render(current_value);
       // output_value = current_value;
     }
-    if(force_editable || context.owner && context.actor.flags["bitd-alternate-sheets"]?.["allow-edit"]){
+    if(force_editable || context.owner && editable){
       html += `<textarea data-input="character-${uniq_id}-${parameter_name}" name="${parameter_name}" value="${current_value}" placeholder="${blank_value}">${current_value}</textarea>`;
     }
     else{
