@@ -54,7 +54,7 @@
         </div>
       </section>
       <div class="name-alias bio">
-        <span class="name">{{{inline-editable-text "name" (localize "BITD.Name") actor.name actor._id this}}}</span> <span class="alias">&bull; "{{{inline-editable-text "data.alias" (localize "BITD.Alias") data.alias actor._id this}}}"</span>
+        <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") actor.name actor._id this}}}</span> <span class="alias">&bull; "{{{inline-editable-text allow_edit "data.alias" (localize "BITD.Alias") data.alias actor._id this}}}"</span>
       </div>
       <div class="heritage-background bio">
         {{{inline-editable-text "data.heritage" "Heritage" heritage actor._id this}}} &bull; {{{inline-editable-text "data.background" "Background" background actor._id this}}} &bull; {{{inline-editable-text "data.background-details" "Background Details" data.background-details actor._id this}}} &bull; {{{inline-editable-text "data.vice" "Vice" vice actor._id this}}} &bull; {{{inline-editable-text "data.vice-purveyor" "Vice Purveyor" data.vice-purveyor actor._id this}}}
@@ -154,7 +154,7 @@
         </div>
         <div class="tab" data-tab="notes" data-group="primary-tabs">
           <div class="character-notes-area">
-            {{{editable-textarea "flags.bitd-alternate-sheets.notes" "Add character notes here" true false actor.flags.bitd-alternate-sheets.notes actor._id this}}}
+            {{{editable-textarea allow_edit "flags.bitd-alternate-sheets.notes" "Add character notes here" true false actor.flags.bitd-alternate-sheets.notes actor._id this}}}
           </div>
         </div>
         <!-- todo: put the downtime tab back once it's actually useful and maybe translated -->
