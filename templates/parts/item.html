@@ -1,10 +1,10 @@
 <div class="item-block" data-item-id="{{item._id}}">
   <div class="checkbox">
   <input type="checkbox" class="item-checkbox main-checkbox" id="character-{{actor._id}}-item-{{item._id}}-1" {{checked (item-equipped actor item._id)}}><!--
-  -->{{#times_from_2 item.data.load}}<!--
+  -->{{#times_from_2 item.system.load}}<!--
   --><span class="join-line"></span><!--
   --><input type="checkbox" class="item-checkbox child-checkbox" id="character-{{../actor._id}}-item-{{../item._id}}-{{this}}" {{checked (item-equipped ../actor ../item._id)}}><!--
   -->{{/times_from_2}}<!--
-  --><label class="item-name {{#if (eq item.data.load '0')}}free-item{{/if}} {{#if actor.flags.bitd-alternate-sheets.allow-edit}}{{#unless item.data.virtual}}clickable-edit{{/unless}}{{/if}}" for="character-{{actor._id}}-item-{{item._id}}-1" title="{{item.data.description}}">{{clean-name item.name}}</label>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}{{#unless item.data.virtual}}<a class="item-delete delete-button" data-type="item" data-id="{{item._id}}"><i class="fas fa-trash"></i></a>{{/unless}}{{/if}}
+  --><label class="item-name {{#if (eq item.system.load '0')}}free-item{{/if}} {{#if actor.flags.bitd-alternate-sheets.allow-edit}}{{#unless item.system.virtual}}clickable-edit{{/unless}}{{/if}}" for="character-{{actor._id}}-item-{{item._id}}-1" title="{{item.system.description}}">{{clean-name item.name}}</label>{{#if actor.flags.bitd-alternate-sheets.allow-edit}}{{#unless item.system.virtual}}<a class="item-delete delete-button" data-type="item" data-id="{{item._id}}"><i class="fas fa-trash"></i></a>{{/unless}}{{/if}}
   </div>
 </div>

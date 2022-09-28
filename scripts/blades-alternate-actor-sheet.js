@@ -116,8 +116,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   async switchToPlaybookAcquaintances(selected_playbook){
     let all_acquaintances = await Utils.getSourcedItemsByType('npc');
-    let playbook_acquaintances = all_acquaintances.filter(item => item.data.data.associated_class === selected_playbook.data.name);
-    let current_acquaintances = this.actor.data.data.acquaintances;
+    let playbook_acquaintances = all_acquaintances.filter(item => item.system.associated_class === selected_playbook.data.name);
+    let current_acquaintances = this.actor.system.acquaintances;
     let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
     await Utils.removeAcquaintanceArray(this.actor, neutral_acquaintances);
     await Utils.addAcquaintanceArray(this.actor, playbook_acquaintances);
@@ -149,7 +149,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       items_html += `<div class="item-group"><header>${itemclass}</header>`;
       for (const item of group) {
         let trimmedname = Utils.trimClassFromName(item.name);
-        let description = item.data.data.description.replace(/"/g, '&quot;');
+        let description = item.system.description.replace(/"/g, '&quot;');
         items_html += `
             <div class="item-block farts">
               <input type="checkbox" id="character-${this.actor.id}-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
@@ -231,7 +231,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       icon: '<i class="fas fa-trash"></i>',
       callback: element => {
         let traumaToDisable = element.data("trauma");
-        let traumaUpdateObject = this.actor.data.data.trauma.list;
+        let traumaUpdateObject = this.actor.system.trauma.list;
         traumaUpdateObject[traumaToDisable.toLowerCase()] = false;
         // let index = traumaUpdateObject.indexOf(traumaToDisable.toLowerCase());
         // traumaUpdateObject.splice(index, 1);
@@ -313,7 +313,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     data.isGM = game.user.isGM;
     const actorData = data.data;
     data.actor = actorData;
-    data.data = actorData.data;
+    data.data = actorData.system;
     data.coins_open = this.coins_open;
     data.harm_open = this.harm_open;
     data.load_open = this.load_open;
@@ -459,7 +459,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async showPlaybookChangeDialog(changed){
-    let modifications = await this.actor.modifiedFromPlaybookDefault(this.actor.data.data.playbook);
+    let modifications = await this.actor.modifiedFromPlaybookDefault(this.actor.system.playbook);
     return new Promise(async (resolve, reject)=>{
       if(modifications){
         let abilitiesToKeepOptions = {name : "abilities", value:"none", options : {all: "Keep all Abilities", custom: "Keep added abilities", owned: "Keep owned abilities", ghost: `Keep "Ghost" abilities`, none: "Replace all"}};
@@ -666,7 +666,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     //this could probably be cleaner. Numbers instead of text would be fine, but not much easier, really.
     html.find('.standing-toggle').click(ev => {
-      let acquaintances = this.actor.data.data.acquaintances;
+      let acquaintances = this.actor.system.acquaintances;
       let acqId = ev.target.closest('.acquaintance').dataset.acquaintance;
       let clickedAcqIdx = acquaintances.findIndex(item => item.id == acqId);
       let clickedAcq = acquaintances[clickedAcqIdx];
@@ -715,13 +715,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
     html.find('.add_trauma').click(async ev => {
       // let data = await this.getData();
       let actorTraumaList = [];
-      if(Array.isArray(this.actor.data.data.trauma.list)){
-        actorTraumaList = this.actor.data.data.trauma.list;
+      if(Array.isArray(this.actor.system.trauma.list)){
+        actorTraumaList = this.actor.system.trauma.list;
       }
       else{
-        actorTraumaList = Utils.convertBooleanObjectToArray(this.actor.data.data.trauma.list);
+        actorTraumaList = Utils.convertBooleanObjectToArray(this.actor.system.trauma.list);
       }
-      let allTraumas = this.actor.data.data.trauma.options;
+      let allTraumas = this.actor.system.trauma.options;
       let unownedTraumas = [];
       for (const traumaListKey of allTraumas) {
         if(!actorTraumaList.includes(traumaListKey)){
@@ -750,7 +750,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
               let newTraumaListValue = {
                 data:
                   {
-                    trauma: this.actor.data.data.trauma
+                    trauma: this.actor.system.trauma
                   }
               };
               newTraumaListValue.data.trauma.list[newTrauma] = true;

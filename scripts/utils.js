@@ -21,7 +21,7 @@ export class Utils {
     // If the Item has the exact same name - remove it from list.
     // Remove Duplicate items from the array.
     actor.items.forEach( i => {
-      let has_double = (item_data.type === i.data.type);
+      let has_double = (item_data.type === i.type);
       if ( ( ( i.name === item_data.name ) || ( should_be_distinct && has_double ) ) && !( allowed_types.includes( item_data.type ) ) && ( item_data.id !== i.id ) ) {
         dupe_list.push (i.id);
       }
@@ -44,16 +44,16 @@ export class Utils {
 
   static isEffectSuppressed(e){
     let isSuppressed = false;
-    if ( e.data.disabled || (e.parent.documentName !== "Actor") ) return true;
-    const [parentType, parentId, documentType, documentId] = e.data.origin?.split(".") ?? [];
+    if ( e.disabled || (e.parent.documentName !== "Actor") ) return true;
+    const [parentType, parentId, documentType, documentId] = e.origin?.split(".") ?? [];
     if ( (parentType !== "Actor") || (parentId !== e.parent.id) || (documentType !== "Item") ) return true;
     const item = e.parent.items.get(documentId);
     if ( !item ) return true;
-    const itemData = item.data;
+    const itemData = item;
     // If an item is not equipped, or it is equipped but it requires attunement and is not attuned, then disable any
     // Active Effects that might have originated from it.
     //
-    isSuppressed = itemData.type !== "class" && itemData.data.equipped !== true && itemData.data.purchased !== true;
+    isSuppressed = itemData.type !== "class" && itemData.system.equipped !== true && itemData.system.purchased !== true;
     return isSuppressed;
   }
 
@@ -100,7 +100,7 @@ export class Utils {
     let grouped_items = {};
     let generics = [];
     for (const item of item_list) {
-      let itemclass= getProperty(item, "data.data.class");
+      let itemclass= getProperty(item, "system.class");
       if(itemclass === ""){
         generics.push(item);
       }
@@ -179,8 +179,8 @@ export class Utils {
 
     list_of_items = game_items.concat(compendium_items);
     list_of_items.sort(function(a, b) {
-      let nameA = a.data.name.toUpperCase();
-      let nameB = b.data.name.toUpperCase();
+      let nameA = a.name.toUpperCase();
+      let nameB = b.name.toUpperCase();
       return nameA.localeCompare(nameB);
     });
     return list_of_items;
@@ -277,7 +277,7 @@ export class Utils {
     try{
       let all_playbooks = await Utils.getSourcedItemsByType("class");
       if(all_playbooks){
-        let selected_playbook_base_skills = all_playbooks.find(pb => pb.name == playbook_name).data.data.base_skills;
+        let selected_playbook_base_skills = all_playbooks.find(pb => pb.name == playbook_name).system.base_skills;
         for(const [key, value] of Object.entries(empty_attributes)){
           for(const [childKey, childValue] of Object.entries(value.skills)){
             if(selected_playbook_base_skills[childKey]){
@@ -336,7 +336,7 @@ export class Utils {
         item_blueprint = await Utils.getItemByType(type, id);
       }
       if(state){
-        equipped_items.push({id: item_blueprint.data._id, load: item_blueprint.data.data.load, name: item_blueprint.name});
+        equipped_items.push({id: item_blueprint.id, load: item_blueprint.system.load, name: item_blueprint.name});
       }
       else{
         equipped_items = equipped_items.filter(i => i.id !== id);
@@ -368,13 +368,13 @@ export class Utils {
     let custom = false;
     switch(entity.type){
       case "ability":
-        custom = playbook_name === entity.data.data.class;
+        custom = playbook_name === entity.system.class;
         break;
       case "item":
-        custom = playbook_name === entity.data.data.class;
+        custom = playbook_name === entity.system.class;
         break;
       case "npc":
-        custom = playbook_name === entity.data.data.associated_class;
+        custom = playbook_name === entity.system.associated_class;
         break;
     }
     return custom;
@@ -413,11 +413,11 @@ export class Utils {
 
   // adds an NPC to the character as an acquaintance of neutral standing
   static async addAcquaintance(actor, acq){
-    let current_acquaintances = actor.data.data.acquaintances;
+    let current_acquaintances = actor.system.acquaintances;
     let acquaintance = {
       id : acq.id,
       name : acq.name,
-      description_short : acq.data.data.description_short,
+      description_short : acq.system.description_short,
       standing: "neutral"
     };
     let unique_id =  !current_acquaintances.some((oldAcq) => {
@@ -433,7 +433,7 @@ export class Utils {
   }
 
   static async addAcquaintanceArray(actor, acqArr){
-    let current_acquaintances = actor.data.data.acquaintances;
+    let current_acquaintances = actor.system.acquaintances;
     for(const currAcq of current_acquaintances){
       acqArr.findSplice((acq) => acq.id == currAcq._id);
     }
@@ -441,7 +441,7 @@ export class Utils {
       return {
         id : acq.id,
         name : acq.name,
-        description_short : acq.data.data.description_short,
+        description_short : acq.system.description_short,
         standing: "neutral"
       }
     });
@@ -449,14 +449,14 @@ export class Utils {
   }
 
   static async removeAcquaintance(actor, acqId){
-    let current_acquaintances = actor.data.data.acquaintances;
+    let current_acquaintances = actor.system.acquaintances;
     let updated_acquaintances = current_acquaintances.filter(acq => acq._id !== acqId && acq.id !== acqId);
     await actor.update({data: {acquaintances : updated_acquaintances}});
   }
 
    static async removeAcquaintanceArray(actor, acqArr){
     //see who the current acquaintances are
-    let current_acquaintances = actor.data.data.acquaintances;
+    let current_acquaintances = actor.system.acquaintances;
     //for each of the passed acquaintances
     for(const currAcq of acqArr){
       //remove the matching acquaintance from the current acquaintances
@@ -473,23 +473,23 @@ export class Utils {
     let sheet_items;
 
     sheet_items = all_game_items.filter(item =>{
-      if(item.data.data.class !== undefined){
-        if(item.data.data.class !== ""){
+      if(item.system.class !== undefined){
+        if(item.system.class !== ""){
         }
-        return item.data.data.class === filter_playbook
+        return item.system.class === filter_playbook
       }
-      else if(item.data.data.associated_class){
-        return item.data.data.associated_class === filter_playbook
+      else if(item.system.associated_class){
+        return item.system.associated_class === filter_playbook
       }
       else{
         return false;
       }
     });
     sheet_items.sort((a, b) => {
-      if(a.name.includes("Veteran") || b.data.class_default){
+      if(a.name.includes("Veteran") || b.system.class_default){
         return 1;
       }
-      if(b.name.includes("Veteran") || a.data.class_default){
+      if(b.name.includes("Veteran") || a.system.class_default){
         return -1;
       }
       if(a.name === b.name){ return 0; }
@@ -497,8 +497,8 @@ export class Utils {
       }
     )
     sheet_items = sheet_items.map(el => {
-      el.data.data.virtual = true;
-      return el.data;
+      el.system.virtual = true;
+      return el;
     });
     if(include_owned_items){
       owned_items = data.actor.items.filter(item => item.type === type);
@@ -559,12 +559,12 @@ export class Utils {
 
     //get the original playbook
     let selected_playbook_source;
-    if(actor.data.data.playbook !== "" && actor.data.data.playbook){
-      // selected_playbook_source = await game.packs.get("blades-in-the-dark.class").getDocument(this.data.data.playbook);
-      selected_playbook_source = await Utils.getItemByType("class", actor.data.data.playbook);
+    if(actor.system.playbook !== "" && actor.system.playbook){
+      // selected_playbook_source = await game.packs.get("blades-in-the-dark.class").getDocument(this.system.playbook);
+      selected_playbook_source = await Utils.getItemByType("class", actor.system.playbook);
 
       let startingAttributes = await Utils.getStartingAttributes(selected_playbook_source.name);
-      let currentAttributes = actor.data.data.attributes;
+      let currentAttributes = actor.system.attributes;
       //vampire ActiveEffects make this think there's been a change to the base skills, so ignore the exp_max field
       for (const attribute in currentAttributes) {
         currentAttributes[attribute].exp = 0;
@@ -585,14 +585,14 @@ export class Utils {
       //check for added abilities
       let all_abilities = await Utils.getSourcedItemsByType("ability");
       if(all_abilities){
-        let pb_abilities = all_abilities.filter(ab=> ab.data.data.class === selected_playbook_source.name);
-        let my_abilities = actor.data.items.filter(i => i.type === "ability");
+        let pb_abilities = all_abilities.filter(ab=> ab.system.class === selected_playbook_source.name);
+        let my_abilities = actor.system.items.filter(i => i.type === "ability");
         for (const ability of my_abilities) {
           if(!pb_abilities.some(ab=> ab.name === ability.name)){
             newAbilities = true;
           }
           //check for purchased abilities that aren't class defaults
-          if(ability.data.data.purchased && (ability.data.data.class_default && ability.data.data.class === await Utils.getPlaybookName(actor.data.data.playbook))){
+          if(ability.system.purchased && (ability.system.class_default && ability.system.class === await Utils.getPlaybookName(actor.system.playbook))){
             ownedAbilities = true;
           }
         }
@@ -601,8 +601,8 @@ export class Utils {
       //check for non-default acquaintances
       let all_acquaintances = await Utils.getSourcedItemsByType("npc");
       if(all_acquaintances){
-        let pb_acquaintances = all_acquaintances.filter(acq=>acq.data.data.associated_class === selected_playbook_source.name);
-        let my_acquaintances = actor.data.data.acquaintances;
+        let pb_acquaintances = all_acquaintances.filter(acq=>acq.system.associated_class === selected_playbook_source.name);
+        let my_acquaintances = actor.system.acquaintances;
         for (const my_acq of my_acquaintances) {
           if(!pb_acquaintances.some(acq=> acq.id === my_acq.id || acq.id === my_acq._id)){
             acquaintanceList = true;
@@ -617,8 +617,8 @@ export class Utils {
       //check for added items
       let all_items = await Utils.getSourcedItemsByType("item");
       if(all_items){
-        let pb_items = all_items.filter(i=> i.data.data.class === selected_playbook_source.name);
-        let my_non_generic_items = actor.items.filter(i=> i.type === "item" && i.data.data.class !== "");
+        let pb_items = all_items.filter(i=> i.system.class === selected_playbook_source.name);
+        let my_non_generic_items = actor.items.filter(i=> i.type === "item" && i.system.class !== "");
         for (const myNGItem of my_non_generic_items) {
           if(!pb_items.some(i=> i.name ===  myNGItem.name)){
             addedItems = true;
