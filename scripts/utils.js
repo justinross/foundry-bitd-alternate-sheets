@@ -308,7 +308,7 @@ export class Utils {
       if(state){
         let all_of_type = await Utils.getSourcedItemsByType(type);
         let checked_item = all_of_type.find(item => item.id == id);
-        let added_item = await actor.createEmbeddedDocuments("Item", [checked_item.data]);
+        let added_item = await actor.createEmbeddedDocuments("Item", [{type: checked_item.type, name: checked_item.name, data: checked_item.system}]);
       }
       else{
         if(actor.getEmbeddedDocument('Item', id)){
