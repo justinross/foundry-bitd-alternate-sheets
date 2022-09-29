@@ -55,11 +55,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override **/
   async handleDrop(event, droppedEntity){
-    // console.log(await Utils.modifiedFromPlaybookDefault(this.actor));
     let droppedEntityFull;
     //if the dropped entity is from a compendium, get the full entity from there
-    if("pack" in droppedEntity){
-      droppedEntityFull = await game.packs.get(droppedEntity.pack).getDocument(droppedEntity.id);
+    // if("pack" in droppedEntity){
+    //   droppedEntityFull = await game.packs.get(droppedEntity.pack).getDocument(droppedEntity.id);
+    // }
+    if(droppedEntity.uuid.includes("Compendium")){
+      let splitUuid = droppedEntity.uuid.split(".");
+      let compendiumName = splitUuid[1] + "." + splitUuid[2];
+      droppedEntityFull = await game.packs.get(compendiumName).getDocument(splitUuid[3]);
     }
     //otherwise get it from the world
     else{
@@ -116,7 +120,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   async switchToPlaybookAcquaintances(selected_playbook){
     let all_acquaintances = await Utils.getSourcedItemsByType('npc');
-    let playbook_acquaintances = all_acquaintances.filter(item => item.system.associated_class === selected_playbook.data.name);
+    let playbook_acquaintances = all_acquaintances.filter(item => item.system.associated_class === selected_playbook.name);
     let current_acquaintances = this.actor.system.acquaintances;
     let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
     await Utils.removeAcquaintanceArray(this.actor, neutral_acquaintances);
@@ -298,7 +302,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
       let new_abilities = await this.actor.createEmbeddedDocuments("Item", [new_ability_data], {renderSheet : true});
       let new_ability = new_abilities[0];
-    // console.log(new_ability);
     await new_ability.setFlag(MODULE_ID, "custom_ability", true);
 
     return new_ability;
