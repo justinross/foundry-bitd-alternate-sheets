@@ -29,7 +29,7 @@
           <label for="skill-{{../../../actor._id}}-{{skill_name}}-{{this}}" class="radio-toggle {{#if (gte skill.value this)}}on{{/if}}" ></label>
           {{/times_from_1}}
 
-        <div class="attribute-skill-label roll-die-attribute rollable-text" data-roll-attribute="{{skill_name}}">{{localize skill.label}}</div>
+        <div class="attribute-skill-label roll-die-attribute rollable-text" data-roll-attribute="{{skill_name}}" data-tooltip="{{localize (concat 'bitd-alt.Attributes.' skill_name) }}">{{localize skill.label}}</div>
         {{/multiboxes}}
     </div>
     {{/each}}
