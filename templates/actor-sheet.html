@@ -60,7 +60,7 @@
         {{{inline-editable-text allow_edit "data.heritage" "Heritage" heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background" "Background" background actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background-details" "Background Details" data.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice" "Vice" vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice-purveyor" "Vice Purveyor" data.vice-purveyor actor._id this}}}
       </div>
       <div class="look bio">{{{inline-editable-text allow_edit "data.look" "Look" data.look actor._id this}}}</div>
-      <div class="abilities-list">{{#each my_abilities}}<span title="{{clean-html this.system.description}}" class="hover-term">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
+      <div class="abilities-list">{{#each my_abilities}}<span data-tooltip="{{this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
       <section class="attributes-actions">
         {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" actor=actor}}
       </section>
