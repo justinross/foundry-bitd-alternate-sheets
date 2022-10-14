@@ -13,10 +13,10 @@ export class Patch {
     let embeddedName = args[0];
     let documents = args[1];
     if(actor.type == "character"){
-      let class_name = await Utils.getPlaybookName(actor.data.data.playbook);
+      let class_name = await Utils.getPlaybookName(actor.system.playbook);
       if(embeddedName === "Item" && documents.length > 0){
         for (const document of documents) {
-          if(document.type === "ability" && document.data.data.class_default && document.data.data.class === class_name){
+          if(document.type === "ability" && document.system.class_default && document.system.class === class_name){
             queueUpdate(()=> document.update({data : { purchased : true}}));
           }
         }
