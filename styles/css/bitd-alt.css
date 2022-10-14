@@ -216,7 +216,7 @@
   border: none;
   border-radius: 3px;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .hover-details, .blades-alt.actor.sheet.pc .sheet-wrapper .hover-term {
+.blades-alt.actor.sheet.pc .sheet-wrapper .hover-details, .blades-alt.actor.sheet.pc .sheet-wrapper .hover-term, .blades-alt.actor.sheet.pc .sheet-wrapper .v10-tooltip {
   cursor: help;
   color: #660000;
   font-weight: bold;
