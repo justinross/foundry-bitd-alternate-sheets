@@ -60,7 +60,7 @@
         {{{inline-editable-text allow_edit "data.heritage" "Heritage" heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background" "Background" background actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background-details" "Background Details" data.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice" "Vice" vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice-purveyor" "Vice Purveyor" data.vice-purveyor actor._id this}}}
       </div>
       <div class="look bio">{{{inline-editable-text allow_edit "data.look" "Look" data.look actor._id this}}}</div>
-      <div class="abilities-list">{{#each my_abilities}}<span title="{{clean-html this.data.description}}" class="hover-term">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
+      <div class="abilities-list">{{#each my_abilities}}<span data-tooltip="{{this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
       <section class="attributes-actions">
         {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" actor=actor}}
       </section>
@@ -73,7 +73,7 @@
               <div class="playbook-description" title="Sorry, playbooks are what they should be called, but the system calls them classes">Drop a "class" item onto the sheet to switch playbooks.</div>
           {{else}}
           <div class="playbook-name">{{selected_playbook.name}}</div>
-          <div class="playbook-description">{{selected_playbook.data.data.description}}</div>
+          <div class="playbook-description">{{selected_playbook.system.description}}</div>
           {{/if}}
         </div>
         <!-- todo: put the downtime tab back -->
@@ -145,7 +145,7 @@
               <ul>
                 <li>Every time you roll a desperate action, mark xp in that action's attribute.</li>
                 <p>At the end of each session, for each item below, mark 1 xp (in your playbook or an attribute) or 2 xp if that item occurred multiple times.</p>
-                <li>{{selected_playbook.data.data.experience_clues}}</li>
+                <li>{{selected_playbook.system.experience_clues}}</li>
                 <li>You expressed your beliefs, drives, heritage, or background.</li>
                 <li>You struggled with issues from your vice or traumas during the session.</li>
               </ul>
