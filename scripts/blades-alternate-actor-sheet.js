@@ -55,27 +55,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override **/
   async handleDrop(event, droppedEntity){
-    let droppedEntityFull;
-    //if the dropped entity is from a compendium, get the full entity from there
-    // if("pack" in droppedEntity){
-    //   droppedEntityFull = await game.packs.get(droppedEntity.pack).getDocument(droppedEntity.id);
-    // }
-    if(droppedEntity.uuid.includes("Compendium")){
-      let splitUuid = droppedEntity.uuid.split(".");
-      let compendiumName = splitUuid[1] + "." + splitUuid[2];
-      droppedEntityFull = await game.packs.get(compendiumName).getDocument(splitUuid[3]);
-    }
-    //otherwise get it from the world
-    else{
-      switch(droppedEntity.type){
-        case "Actor":
-          droppedEntityFull = game.actors.find(actor=> actor.id === droppedEntity.id);
-          break;
-        case "Item":
-          droppedEntityFull = game.items.find(actor=> actor.id === droppedEntity.id);
-          break;
-      }
-    }
+    let droppedEntityFull = await fromUuid(droppedEntity.uuid);
     switch (droppedEntityFull.type) {
       case "npc":
         await Utils.addAcquaintance(this.actor, droppedEntityFull);
