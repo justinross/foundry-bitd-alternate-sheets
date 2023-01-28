@@ -283,6 +283,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let new_abilities = await this.actor.createEmbeddedDocuments("Item", [new_ability_data], {renderSheet : true});
       let new_ability = new_abilities[0];
     await new_ability.setFlag(MODULE_ID, "custom_ability", true);
+    console.log("CUSTOM?", new_ability.getFlag(MODULE_ID, "custom_ability"));
 
     return new_ability;
   }
