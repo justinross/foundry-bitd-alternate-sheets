@@ -4,5 +4,5 @@
         <span class="ability-name {{#if actor.flags.bitd-alternate-sheets.allow-edit}}{{#unless ability.system.virtual}}clickable-edit{{/unless}}{{/if}}">{{clean-name ability.name}}:</span>
         <span class="ability-description">{{{md ability.system.description}}}</span>
     </label>
-    {{#if actor.flags.bitd-alternate-sheets.allow-edit}}{{#if ability.flags.bitd-alternate-sheets.custom_ability}}<a class="ability-delete delete-button" data-type="ability" data-id="{{ability._id}}"><i class="fas fa-trash"></i></a>{{/if}}{{/if}}
+    {{#if allow_edit}}{{#if ability.flags.bitd-alternate-sheets.custom_ability}}<a class="ability-delete delete-button" data-type="ability" data-id="{{ability._id}}"><i class="fas fa-trash"></i></a>{{/if}}{{/if}}
 </div>
