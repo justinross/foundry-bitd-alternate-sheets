@@ -11,6 +11,10 @@ export const registerHandlebarsHelpers = function() {
     return(arg1 || arg2);
   });
 
+  Handlebars.registerHelper('notempty', function(arg1){
+    return(arg1.trim().length > 0);
+  });
+
 
   Handlebars.registerHelper('inline-editable-text', function(editable, parameter_name, blank_value, current_value, uniq_id, context){
     let html = '';
