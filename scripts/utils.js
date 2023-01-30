@@ -168,16 +168,21 @@ export class Utils {
   static async getAllItemsByType(item_type) {
 
     let list_of_items = [];
-    let game_items = [];
+    let world_items = [];
     let compendium_items = [];
-
-    game_items = game.items.filter(e => e.type === item_type).map(e => {return e});
+    
+    if(item_type === "npc"){
+      world_items = game.actors.filter(e => e.type === item_type).map(e => {return e});
+    }
+    else{
+      world_items = game.items.filter(e => e.type === item_type).map(e => {return e});
+    }
 
     let pack = game.packs.find(e => e.metadata.name === item_type);
     let compendium_content = await pack.getDocuments();
     compendium_items = compendium_content.map(e => {return e});
 
-    list_of_items = game_items.concat(compendium_items);
+    list_of_items = world_items.concat(compendium_items);
     list_of_items.sort(function(a, b) {
       let nameA = a.name.toUpperCase();
       let nameB = b.name.toUpperCase();

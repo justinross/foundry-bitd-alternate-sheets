@@ -127,7 +127,7 @@
                     {{#if (eq this.standing "friend" )}} fa-caret-up green-icon
                     {{else if (eq this.standing "rival")}} fa-caret-down red-icon
                     {{else}}fa-minus
-                    {{/if}}"></i><strong class="standing-toggle">{{this.name}}</strong>{{#if this.description_short}}, {{this.description_short}}{{/if}}
+                    {{/if}}"></i><strong class="standing-toggle">{{this.name}}</strong>{{#if (notempty this.description_short)}}, {{this.description_short}}{{/if}}
                 </div>
               {{/each}}
             {{/if}}
