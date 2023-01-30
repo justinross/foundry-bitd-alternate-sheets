@@ -207,14 +207,22 @@
   top: 2px;
   font-size: 0.6rem;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable] {
+.blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:not(.ProseMirror) {
   user-select: auto !important;
   text-decoration: underline;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:active, .blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:focus {
+.blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:not(.ProseMirror):active, .blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:not(.ProseMirror):focus {
   background-color: rgba(255, 255, 255, 0.5);
   border: none;
   border-radius: 3px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .editor {
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 1em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .editor.prosemirror {
+  height: 100%;
+  padding: auto;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .hover-details, .blades-alt.actor.sheet.pc .sheet-wrapper .hover-term, .blades-alt.actor.sheet.pc .sheet-wrapper .v10-tooltip {
   cursor: help;

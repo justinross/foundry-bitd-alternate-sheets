@@ -306,6 +306,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
     data.load_open = this.load_open;
     data.allow_edit = this.allow_edit;
     data.show_debug = this.show_debug;
+    // data.notes = foundry.utils.mergeObject
+    let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
+    console.log(TextEditor);
+    data.notes = await TextEditor.enrichHTML(rawNotes, {
+      relativeTo: this.document, secrets: this.document.isOwner, async: true
+    });
 
     // Prepare active effects
     data.effects = BladesActiveEffect.prepareActiveEffectCategories(this.actor.effects);

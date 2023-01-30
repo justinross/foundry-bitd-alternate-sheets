@@ -38,7 +38,7 @@
     font-size: .6rem;
   }
 
-  [contenteditable]{
+  [contenteditable]:not(.ProseMirror){
     user-select: auto !important;
     text-decoration: underline;
 
@@ -47,6 +47,16 @@
       border: none;
       border-radius: 3px;
     }
+  }
+
+  .editor{
+    background-color: rgba(255,255,255,0.3);
+    padding: 1em;
+  }
+  
+  .editor.prosemirror{
+    height: 100%;
+    padding: auto;
   }
 
   .hover-details, .hover-term, .v10-tooltip{
