@@ -100,7 +100,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   async switchToPlaybookAcquaintances(selected_playbook){
     let all_acquaintances = await Utils.getSourcedItemsByType('npc');
-    let playbook_acquaintances = all_acquaintances.filter(item => item.system.associated_class === selected_playbook.name);
+    let playbook_acquaintances = all_acquaintances.filter(item => {
+      return item.system.associated_class.trim() === selected_playbook.name
+    });
+    console.log(playbook_acquaintances);
     let current_acquaintances = this.actor.system.acquaintances;
     let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
     await Utils.removeAcquaintanceArray(this.actor, neutral_acquaintances);
