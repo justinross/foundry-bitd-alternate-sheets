@@ -1,6 +1,8 @@
 tasks:
   - name: Install Foundry
-    init: docker-compose pull
+    init: |
+      mkdir data
+      docker-compose pull
     command: docker-compose up
 checkoutLocation: ./data/Data/modules/bitd-alternate-sheets
 additionalRepositories:
