@@ -1,9 +1,9 @@
-# tasks:
-#   - name: Install Foundry
-#     before: |
-#       mkdir data
-#       docker-compose pull
-#       docker-compose up -d
+tasks:
+  - name: Install Foundry
+    before: |
+      mkdir data
+    # docker-compose pull
+    # docker-compose up -d
 checkoutLocation: "./data/Data/modules/bitd-alternate-sheets"
 
 additionalRepositories:
