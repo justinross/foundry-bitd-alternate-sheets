@@ -154,7 +154,8 @@
         </div>
         <div class="tab" data-tab="notes" data-group="primary-tabs">
           <div class="character-notes-area">
-            {{{editable-textarea allow_edit "flags.bitd-alternate-sheets.notes" "Add character notes here" true false actor.flags.bitd-alternate-sheets.notes actor._id this}}}
+            <header>Add notes here. Drag and drop clocks, actors, or items in to link to them. Click clocks to increment, right-click to decrement.</header>
+            {{editor notes target="flags.bitd-alternate-sheets.notes" button=true editable=true documents=true engine="prosemirror" collaborate=true}}
           </div>
         </div>
         <!-- todo: put the downtime tab back once it's actually useful and maybe translated -->

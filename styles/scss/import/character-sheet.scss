@@ -38,7 +38,7 @@
     font-size: .6rem;
   }
 
-  [contenteditable]{
+  [contenteditable]:not(.ProseMirror){
     user-select: auto !important;
     text-decoration: underline;
 
@@ -47,6 +47,28 @@
       border: none;
       border-radius: 3px;
     }
+  }
+
+  .linkedClock{
+    display: inline-block;
+    text-align: center;
+    margin: 1em;
+  }
+
+  .clockImage{
+    width: 100px;
+    border: none;
+  }
+
+  .editor{
+    background-color: rgba(255,255,255,0.2);
+    padding: .5em;
+    height: auto;
+  }
+  
+  .editor.prosemirror{
+    height: 100%;
+    padding: auto;
   }
 
   .hover-details, .hover-term, .v10-tooltip{
@@ -887,9 +909,12 @@
           box-sizing: border-box;
           padding: 10px;
           font-size: 1.2em;
-          height: 650px;
-          textarea{
-            height: 600px;
+          // height: 650px;
+          // textarea{
+          //   height: 600px;
+          // }
+          header{
+            font-size: .9em;
           }
         }
       }

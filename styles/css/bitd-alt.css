@@ -207,14 +207,32 @@
   top: 2px;
   font-size: 0.6rem;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable] {
+.blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:not(.ProseMirror) {
   user-select: auto !important;
   text-decoration: underline;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:active, .blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:focus {
+.blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:not(.ProseMirror):active, .blades-alt.actor.sheet.pc .sheet-wrapper [contenteditable]:not(.ProseMirror):focus {
   background-color: rgba(255, 255, 255, 0.5);
   border: none;
   border-radius: 3px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .linkedClock {
+  display: inline-block;
+  text-align: center;
+  margin: 1em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .clockImage {
+  width: 100px;
+  border: none;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .editor {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.5em;
+  height: auto;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .editor.prosemirror {
+  height: 100%;
+  padding: auto;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .hover-details, .blades-alt.actor.sheet.pc .sheet-wrapper .hover-term, .blades-alt.actor.sheet.pc .sheet-wrapper .v10-tooltip {
   cursor: help;
@@ -1292,10 +1310,9 @@
   box-sizing: border-box;
   padding: 10px;
   font-size: 1.2em;
-  height: 650px;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .character-notes-area textarea {
-  height: 600px;
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .character-notes-area header {
+  font-size: 0.9em;
 }
 
 .bitd-alt.tooltip {
