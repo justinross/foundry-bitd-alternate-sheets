@@ -103,7 +103,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let playbook_acquaintances = all_acquaintances.filter(item => {
       return item.system.associated_class.trim() === selected_playbook.name
     });
-    console.log(playbook_acquaintances);
     let current_acquaintances = this.actor.system.acquaintances;
     let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
     await Utils.removeAcquaintanceArray(this.actor, neutral_acquaintances);
@@ -286,7 +285,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let new_abilities = await this.actor.createEmbeddedDocuments("Item", [new_ability_data], {renderSheet : true});
       let new_ability = new_abilities[0];
     await new_ability.setFlag(MODULE_ID, "custom_ability", true);
-    console.log("CUSTOM?", new_ability.getFlag(MODULE_ID, "custom_ability"));
 
     return new_ability;
   }
@@ -308,8 +306,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
     data.show_debug = this.show_debug;
     // data.notes = foundry.utils.mergeObject
     let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
-    console.log(TextEditor);
-    data.notes = await TextEditor.enrichHTML(rawNotes, {
+    let clockNotes = await TextEditor.enrichHTML(rawNotes, {
+      documents : false,
+      async: true
+    });
+    data.notes = await TextEditor.enrichHTML(clockNotes, {
       relativeTo: this.document, secrets: this.document.isOwner, async: true
     });
 

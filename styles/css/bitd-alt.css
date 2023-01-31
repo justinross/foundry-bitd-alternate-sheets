@@ -216,6 +216,13 @@
   border: none;
   border-radius: 3px;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .linkedClock {
+  display: inline-block;
+  text-align: center;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .clockImage {
+  width: 100px;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .editor {
   background-color: rgba(255, 255, 255, 0.3);
   padding: 1em;

@@ -21,6 +21,24 @@ export async function registerHooks() {
       let result = wrapped(...args);
       return result;
     }, 'WRAPPER');
+    CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
+      {
+          pattern : /(@UUID\[([^]*?)]){[^}]*?}/gm,
+          enricher : async (match, options) => {
+            let linkedDoc = await fromUuid(match[2]);
+            if(linkedDoc.type == "🕛 clock"){
+              const doc = document.createElement("div");
+              doc.classList.add('linkedClock');
+              // doc.innerHTML = `<img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock ${linkedDoc.system.type}-${linkedDoc.system.value}.svg" class="clockImage" />
+              doc.innerHTML = `<img src="${linkedDoc.img}" class="clockImage" />
+                <br/> 
+                ${match[0]}`;
+              return doc;
+            }
+            else return false;
+          }
+      }
+    ])
   });
   //why isn't sheet showing up in update hook?
 
