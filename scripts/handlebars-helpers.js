@@ -78,7 +78,7 @@ export const registerHandlebarsHelpers = function() {
   Handlebars.registerHelper('editable-textarea', function(editable, parameter_name, blank_value, use_markdown = false, force_editable=false, current_value, uniq_id, context){
     let html = '';
     if(!current_value || current_value.length === 0){
-      current_value = "Click the edit lock above to add character notes.";
+      // current_value = "Click the edit lock above to add character notes.";
     }
     let output_value = current_value;
     if(use_markdown){

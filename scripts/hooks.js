@@ -29,9 +29,13 @@ export async function registerHooks() {
             if(linkedDoc.type == "🕛 clock"){
               const doc = document.createElement("div");
               doc.classList.add('linkedClock');
+              let droppedItemTextRaw = match[0];
+              let droppedItemRegex = /{[^}]*?}/g;
+              let droppedItemTextRenamed = droppedItemTextRaw.replace(droppedItemRegex, `{${linkedDoc.name}}`);
               doc.innerHTML = `<img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock ${linkedDoc.system.type}-${linkedDoc.system.value}.svg" class="clockImage" data-uuid="${match[2]}" />
                 <br/> 
-                ${match[0]}`;
+                ${droppedItemTextRenamed}`;
+                // ${match[0]}`;
               // doc.innerHTML = `<img src="${linkedDoc.img}" class="clockImage" data-uuid="${match[2]}" />
               //   <br/> 
               //   ${match[0]}`;
@@ -43,6 +47,21 @@ export async function registerHooks() {
     ])
   });
   //why isn't sheet showing up in update hook?
+
+  Hooks.on("renderBladesClockSheet", async(sheet, html, options)=>{
+    let characters = game.actors.filter(a => {
+      return a.type === "character";
+    });
+    for (let index = 0; index < characters.length; index++) {
+      const character = characters[index];
+      let notes = await character.getFlag('bitd-alternate-sheets', 'notes');
+      notes = notes ? notes : "";
+      if(notes.includes(sheet.actor._id)){
+        character.sheet.render(false);
+      }
+      
+    }
+  });
 
   // should we just display items and abilities some other way so switching back and forth between sheets is easy?
   Hooks.on("updateActor", async (actor, updateData, options, actorId)=>{
