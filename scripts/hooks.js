@@ -29,10 +29,12 @@ export async function registerHooks() {
             if(linkedDoc.type == "🕛 clock"){
               const doc = document.createElement("div");
               doc.classList.add('linkedClock');
-              // doc.innerHTML = `<img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock ${linkedDoc.system.type}-${linkedDoc.system.value}.svg" class="clockImage" />
-              doc.innerHTML = `<img src="${linkedDoc.img}" class="clockImage" />
+              doc.innerHTML = `<img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock ${linkedDoc.system.type}-${linkedDoc.system.value}.svg" class="clockImage" data-uuid="${match[2]}" />
                 <br/> 
                 ${match[0]}`;
+              // doc.innerHTML = `<img src="${linkedDoc.img}" class="clockImage" data-uuid="${match[2]}" />
+              //   <br/> 
+              //   ${match[0]}`;
               return doc;
             }
             else return false;
