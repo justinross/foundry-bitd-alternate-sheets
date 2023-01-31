@@ -1,9 +1,9 @@
 tasks:
   - name: Install Foundry
-    init: |
+    before: |
       mkdir data
       docker-compose pull
-    command: docker-compose up
+    command: docker-compose up -d
 checkoutLocation: ./data/Data/modules/bitd-alternate-sheets
 additionalRepositories:
   - url: https://github.com/megastruktur/foundryvtt-blades-in-the-dark.git
