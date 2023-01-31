@@ -3,7 +3,7 @@ tasks:
     before: |
       mkdir data
       docker-compose pull
-    command: docker-compose up -d
+      docker-compose up -d
 checkoutLocation: ./data/Data/modules/bitd-alternate-sheets
 additionalRepositories:
   - url: https://github.com/megastruktur/foundryvtt-blades-in-the-dark.git
