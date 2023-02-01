@@ -304,22 +304,26 @@ export class BladesAlternateActorSheet extends BladesSheet {
     data.load_open = this.load_open;
     data.allow_edit = this.allow_edit;
     data.show_debug = this.show_debug;
+    data.acquaintances_label = data.data.acquaintances_label == "BITD.Acquaintances" ? "bitd-alt.Acquaintances" : data.data.acquaintances_label;
     let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
-    let pattern = /(@UUID\[([^]*?)]){[^}]*?}/gm;
-    let linkedEntities = [...rawNotes.matchAll(pattern)];
-    for (let index = 0; index < linkedEntities.length; index++) {
-      const entity = await fromUuid(linkedEntities[index][2]);
-      if(entity.type === "🕛 clock"){
+    if(rawNotes){
+      let pattern = /(@UUID\[([^]*?)]){[^}]*?}/gm;
+      let linkedEntities = [...rawNotes.matchAll(pattern)];
+      for (let index = 0; index < linkedEntities.length; index++) {
+        const entity = await fromUuid(linkedEntities[index][2]);
+        if(entity.type === "🕛 clock"){
 
+        }
       }
+      let clockNotes = await TextEditor.enrichHTML(rawNotes, {
+        documents : false,
+        async: true
+      });
+      data.notes = await TextEditor.enrichHTML(clockNotes, {
+        relativeTo: this.document, secrets: this.document.isOwner, async: true
+      });
+
     }
-    let clockNotes = await TextEditor.enrichHTML(rawNotes, {
-      documents : false,
-      async: true
-    });
-    data.notes = await TextEditor.enrichHTML(clockNotes, {
-      relativeTo: this.document, secrets: this.document.isOwner, async: true
-    });
 
     // Prepare active effects
     data.effects = BladesActiveEffect.prepareActiveEffectCategories(this.actor.effects);
