@@ -573,7 +573,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
 
     html.find("img.clockImage").on("click", async e => {
-      console.log("click");
       let entity = await fromUuid(e.currentTarget.dataset.uuid);
       let currentValue = entity.system.value;
       let currentMax = entity.system.type;
@@ -584,7 +583,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     });
     html.find("img.clockImage").on("contextmenu", async e => {
-      console.log("contextmenu");
       let entity = await fromUuid(e.currentTarget.dataset.uuid);
       let currentValue = entity.system.value;
       let currentMax = entity.system.type;

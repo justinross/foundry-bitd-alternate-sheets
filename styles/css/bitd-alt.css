@@ -229,6 +229,8 @@
   background-color: rgba(255, 255, 255, 0.2);
   padding: 0.5em;
   height: auto;
+  flex-grow: 1;
+
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .editor.prosemirror {
   height: 100%;
@@ -1310,9 +1312,13 @@
   box-sizing: border-box;
   padding: 10px;
   font-size: 1.2em;
+  min-height: 650px;
+  display: flex;
+  flex-direction: column;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .character-notes-area header {
   font-size: 0.9em;
+  flex-grow: 0;
 }
 
 .bitd-alt.tooltip {
