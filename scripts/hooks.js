@@ -28,6 +28,7 @@ export async function registerHooks() {
             let linkedDoc = await fromUuid(match[2]);
             if(linkedDoc.type == "🕛 clock"){
               const doc = document.createElement("div");
+              doc.classList.add('linkedClock');
               let droppedItemTextRaw = match[0];
               let droppedItemRegex = /{[^}]*?}/g;
               let droppedItemTextRenamed = droppedItemTextRaw.replace(droppedItemRegex, `{${linkedDoc.name}}`);
