@@ -1,4 +1,4 @@
-<div class="item-block" data-item-id="{{item._id}}">
+<div class="item-block {{#if item.owned}}owned{{/if}}" data-item-id="{{item._id}}">
   <div class="checkbox">
   <input type="checkbox" class="item-checkbox main-checkbox" id="character-{{actor._id}}-item-{{item._id}}-1" {{checked (item-equipped actor item._id)}}><!--
   -->{{#times_from_2 item.system.load}}<!--

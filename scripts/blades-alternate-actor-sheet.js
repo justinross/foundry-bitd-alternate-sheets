@@ -566,7 +566,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    // new ContextMenu(html, ".item-block", this.itemContextMenu);
+    new ContextMenu(html, ".item-block.owned", this.itemContextMenu);
     // new ContextMenu(html, ".ability-block", this.abilityContextMenu);
     new ContextMenu(html, ".context-items > span", this.itemListContextMenu);
     new ContextMenu(html, ".item-list-add", this.itemListContextMenu, {eventName : "click"});
