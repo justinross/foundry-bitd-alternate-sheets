@@ -1,6 +1,8 @@
 ![](https://img.shields.io/badge/Foundry-v10-informational)
 ![Latest Release Download Count](https://img.shields.io/github/downloads/justinross/foundry-bitd-alternate-sheets/latest/module.zip)
 
+Manifest URL: https://github.com/justinross/foundry-bitd-alternate-sheets/releases/latest/download/module.json
+
 ## Introduction
 This module is a replacement for the default character sheets in Megastruktur's Blades in the Dark system for Foundry VTT.
 
