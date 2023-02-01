@@ -479,9 +479,12 @@ export class Utils {
 
     sheet_items = all_game_items.filter(item =>{
       if(item.system.class !== undefined){
-        if(item.system.class !== ""){
+        if(item.system.class === "" && type === "ability"){
+          return false;
         }
-        return item.system.class === filter_playbook
+        else{
+          return item.system.class === filter_playbook
+        }
       }
       else if(item.system.associated_class){
         return item.system.associated_class === filter_playbook
