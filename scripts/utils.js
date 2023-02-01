@@ -509,7 +509,10 @@ export class Utils {
       return el;
     });
     if(include_owned_items){
-      owned_items = data.actor.items.filter(item => item.type === type);
+      owned_items = data.actor.items.filter(item =>{
+        item.owned = true;
+        return item.type === type
+      });
     }
     else{
       owned_items = [];
