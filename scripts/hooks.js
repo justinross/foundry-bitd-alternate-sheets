@@ -28,7 +28,6 @@ export async function registerHooks() {
             let linkedDoc = await fromUuid(match[2]);
             if(linkedDoc.type == "🕛 clock"){
               const doc = document.createElement("div");
-              doc.classList.add('linkedClock');
               let droppedItemTextRaw = match[0];
               let droppedItemRegex = /{[^}]*?}/g;
               let droppedItemTextRenamed = droppedItemTextRaw.replace(droppedItemRegex, `{${linkedDoc.name}}`);
@@ -62,7 +61,6 @@ export async function registerHooks() {
       
     }
   });
-
   // should we just display items and abilities some other way so switching back and forth between sheets is easy?
   Hooks.on("updateActor", async (actor, updateData, options, actorId)=>{
     if(options.diff && updateData?.flags?.core && "sheetClass" in updateData?.flags?.core){

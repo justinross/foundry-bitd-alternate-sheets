@@ -230,6 +230,7 @@
   padding: 0.5em;
   height: auto;
   flex-grow: 1;
+
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .editor.prosemirror {
   height: 100%;
