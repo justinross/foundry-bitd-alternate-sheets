@@ -613,6 +613,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     html.find('.debug-toggle').click(async ev => {
       this.setLocalProp("show_debug", !this.show_debug);
+      // html.find('.debug-toggle').toggleClass(on)
+      // this.show_debug = true;
     });
 
     /* Removed drop-down in favor of drag/drop playbooks. Hopefully more simple.
@@ -713,28 +715,41 @@ export class BladesAlternateActorSheet extends BladesSheet {
       this.actor.update({data: {acquaintances : acquaintances}});
     });
 
-    html.find('.coins-box').click(async ev => {
-      this.setLocalProp("coins_open", !this.coins_open);
+    $(document).click(ev=>{
+      let render = false;
+      if(!$(ev.target).closest('.coins-box').length){
+        html.find('.coins-box').removeClass('open');
+        this.coins_open = false;
+      }
+      if(!$(ev.target).closest('.harm-box').length){
+        html.find('.harm-box').removeClass('open');
+        this.harm_open = false;
+      }
+      if(!$(ev.target).closest('.load-box').length){
+        html.find('.load-box').removeClass('open');
+        this.load_open = false;
+      }
     });
 
-    html.find('.coins-box .full-view').click(ev => {
-      ev.stopPropagation();
+    html.find('.coins-box').click(async ev => {
+      if(!$(ev.target).closest('.coins-box .full-view').length){
+        html.find('.coins-box').toggleClass('open');
+        this.coins_open = !this.coins_open;
+      }
     });
 
     html.find('.harm-box').click(ev => {
-      this.setLocalProp("harm_open", !this.harm_open);
-    });
-
-    html.find('.harm-box .full-view').click(ev => {
-      ev.stopPropagation();
+      if(!$(ev.target).closest('.harm-box .full-view').length){
+        html.find('.harm-box').toggleClass('open');
+        this.harm_open = !this.harm_open;
+      }
     });
 
     html.find('.load-box').click(ev => {
-      this.setLocalProp("load_open", !this.load_open);
-    });
-
-    html.find('.load-box .full-view').click(ev => {
-      ev.stopPropagation();
+      if(!$(ev.target).closest('.load-box .full-view').length){
+        html.find('.load-box').toggleClass('open');
+        this.load_open = !this.load_open;
+      }
     });
 
     html.find('.add_trauma').click(async ev => {
