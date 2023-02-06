@@ -8,101 +8,102 @@ import {queueUpdate} from "./lib/update-queue.js";
  * @extends {ItemSheet}
  */
 export class BladesAlternateClassSheet extends ItemSheet {
+  groups = [
+    {
+      label: "Starting Attributes", 
+      id: "start-attributes"
+    }
+  ];
   fields = [
     {
-      label: "BITD.Description,
+      label: "BITD.Description",
       name : "description",
       type : "editor"
     },
     {
       label: "BITD.SkillsHunt",
       name : "base_skills.hunt",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsStudy",
       name : "base_skills.study",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsSurvey",
       name : "base_skills.survey",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsTinker",
       name : "base_skills.tinker",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsFinesse",
       name : "base_skills.finesse",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsProwl",
       name : "base_skills.prowl",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsSkirmish",
       name : "base_skills.skirmish",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsWreck",
       name : "base_skills.wreck",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsAttune",
       name : "base_skills.attune",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsCommand",
       name : "base_skills.command",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsConsort",
       name : "base_skills.consort",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
+
     },
     {
       label: "BITD.SkillsSway",
       name : "base_skills.sway",
-      type : "number"
+      type : "number",
+      group : "start-attributes"
     }
-
-
-
-
-
-
-
-
-
-
-  ]
-
-    // "templates": ["default", "logic", "activatedEffect"],
-    // "experience_clues": [],
-    // "base_skills": {
-    //   "hunt": [0],
-    //   "study": [0],
-    //   "survey": [0],
-    //   "tinker": [0],
-    //   "finesse": [0],
-    //   "prowl": [0],
-    //   "skirmish": [0],
-    //   "wreck": [0],
-    //   "attune": [0],
-    //   "command": [0],
-    //   "consort": [0],
-    //   "sway": [0]
-    // }
-  
+  ];
 
   /** @override */
 	static get defaultOptions() {
