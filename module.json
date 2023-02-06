@@ -23,9 +23,6 @@
       "name": "blades-in-the-dark",
       "manifest": "https://raw.githubusercontent.com/megastruktur/foundryvtt-blades-in-the-dark/master/system.json",
       "type": "system"
-    },
-    {
-      "name": "lib-wrapper"
     }
   ],
   "conflicts": [
