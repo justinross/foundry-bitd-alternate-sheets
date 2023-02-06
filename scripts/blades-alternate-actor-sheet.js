@@ -606,6 +606,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     html.find('.debug-toggle').click(async ev => {
       this.setLocalProp("show_debug", !this.show_debug);
+      // html.find('.debug-toggle').toggleClass(on)
+      // this.show_debug = true;
     });
 
     // Update Inventory Item
