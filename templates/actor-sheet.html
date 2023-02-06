@@ -304,6 +304,8 @@
     <i class="fas fa-bug debug-toggle {{#if show_debug}}on{{/if}} "></i>
     {{#if show_debug}}
         {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}</div>
+        <hr />
+        <h3>All Items</h3>
         {{#each actor.items as |item id|}}
             <div class="item flex-horizontal" data-item-id="{{item._id}}">
                 <div class="item-body item-sheet-open flex-horizontal">
