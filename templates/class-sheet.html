@@ -2,26 +2,18 @@
     <form class="{{cssClass}}" autocomplete="off">
         {{> "modules/bitd-alternate-sheets/templates/parts/item-header.html"}}
         <section class="flex-vertical">
+            <h3>Starting Skills</h3>
             {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.item isitem=true attributes=attributes}}
             <label class="label-stripe">{{localize "BITD.Description"}}</label>
-            {{editor system.description target="system.description" button=true editable=editable engine="prosemirror"}}
+            {{log this}}
+            <input type="text" name="system.description" value="{{description}}" />
+            <!-- {{editor system.description target="system.description" button=true editable=editable engine="prosemirror"}} -->
             <label class="label-stripe">{{localize "BITD.ExpClues"}}</label>
-            {{editor system.experience_clues target="system.experience_clues" button=true editable=editable engine="prosemirror"}}
+            <input type="text" name="system.experience_clues" value="{{experience_clues}}" />
+            <!-- {{editor system.experience_clues target="system.experience_clues" button=true editable=editable engine="prosemirror"}} -->
 
         {{#if isGM}}
-            <i class="fas fa-bug debug-toggle {{#if show_debug}}on{{/if}} "></i>
-            {{#if show_debug}}
-                {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}</div>
-                {{#each actor.items as |item id|}}
-                    <div class="item flex-horizontal" data-item-id="{{item._id}}">
-                        <div class="item-body item-sheet-open flex-horizontal">
-                            <img src="{{item.img}}" title="{{item.name}}" width="24" height="24"/>
-                            <div class="item-name">{{item.name}}</div>
-                        </div>
-                        <a class="item-control item-delete" title="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
-                    </div>
-                {{/each}}
-            {{/if}}
+            {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}</div>
         {{/if}}
         </section>
     </form>
