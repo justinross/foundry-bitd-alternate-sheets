@@ -808,7 +808,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   /* -------------------------------------------- */
 
   async setPlaybookAttributes(newPlaybookItem) {
-    let attributes = await Utils.getStartingAttributes(newPlaybookItem.name);
+    let attributes = await Utils.getStartingAttributes(newPlaybookItem);
     let newAttributeData = {data:{}};
     newAttributeData.data.attributes = attributes;
     // this damned issue. For some reason exp and exp_max were getting grabbed as numbers instead of strings, which breaks the multiboxes helper somehow?
