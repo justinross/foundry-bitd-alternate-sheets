@@ -15,10 +15,21 @@ export const registerHandlebarsHelpers = function() {
     return(arg1.trim().length > 0);
   });
 
-  Handlebars.registerHelper('test', function(arg1){
-    console.log(HandlebarsHelpers.notempty("testing"));
-    return "test";
-  });
+  // Handlebars.registerHelper('flexinput', function(field, ctx){
+  //   switch (field.type) {
+  //     case "img":
+  //         return new Handlebars.SafeString(`<img src="${ctx[field.name]}" data-edit="img" title="${field.name}"/>`);
+  //       break;
+  //     case "number":
+        
+  //       break;
+  //     case "editor":
+  //       return Handlebars.helpers['editor']()
+    
+  //     default:
+  //       break;
+  //   }
+  // });
 
 
   Handlebars.registerHelper('inline-editable-text', function(editable, parameter_name, blank_value, current_value, uniq_id, context){

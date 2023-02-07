@@ -1,15 +1,8 @@
 <div>
-    {{test "hello"}}
     <form class="{{cssClass}}" autocomplete="off">
-        {{log this}}
-        <header class="sheet-header">
-            <img src="{{img}}" data-edit="img" title="{{name}}"/>
-            <div class="header-fields">
-                <h1 class="charname"><input name="name" type="text" value="{{name}}" placeholder="{{localize 'BITD.Name'}}"/></h1>
-            </div>
-        </header>
-
+        {{> "modules/bitd-alternate-sheets/templates/parts/item-header.html"}}
         <section class="flex-vertical">
+            {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.item isitem=true attributes=attributes}}
             <label class="label-stripe">{{localize "BITD.Description"}}</label>
             {{editor system.description target="system.description" button=true editable=editable engine="prosemirror"}}
             <label class="label-stripe">{{localize "BITD.ExpClues"}}</label>

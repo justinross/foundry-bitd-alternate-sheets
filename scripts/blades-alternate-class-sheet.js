@@ -18,7 +18,14 @@ export class BladesAlternateClassSheet extends ItemSheet {
     {
       label: "BITD.Description",
       name : "description",
-      type : "editor"
+      type : "editor",
+      group: "none"
+    },
+    {
+      label: "BITD.Image",
+      name : "img",
+      type : "img",
+      group: "none"
     },
     {
       label: "BITD.SkillsHunt",
@@ -133,13 +140,27 @@ export class BladesAlternateClassSheet extends ItemSheet {
 
   /** @override */
   async getData() {
-    // console.log(this.item);
     let superData = await super.getData();
     let sheetData = superData.data;
     sheetData.isGM = game.user.isGM;
     sheetData.owner = superData.owner;
     sheetData.editable = superData.editable;
+    let templateAttributes = game.template.Actor.character.attributes;
+    let classAttributes = superData.item.system.base_skills;
+    for (const attributeKey of Object.keys(templateAttributes)) {
+      for (const skillKey of Object.keys(templateAttributes[attributeKey].skills)) {
+        templateAttributes[attributeKey].skills[skillKey].value = classAttributes[skillKey];
+      }
+      // if (Object.hasOwnProperty.call(object, key)) {
+      //   const element = object[key];
 
+      // }
+    }
+    sheetData.attributes = templateAttributes;
+    console.log(templateAttributes);
+
+
+    //load attribute object and stuff from system template
     return sheetData;
   }
 
