@@ -33,16 +33,13 @@ $hover-brightness: 0.8;
     @import 'import/character-sheet.scss';
   }
 
-  &.item.sheet.class{
-    @import 'import/class-sheet.scss';
-  }
   //&.actor.clock{
   //  @import 'import/clock-sheet';
   //}
   //
-  &.item.sheet{
-   @import 'import/item-sheet.scss';
-  }
+  //&.item.sheet{
+  //  @import 'import/item-sheet.scss';
+  //}
 }
 
 //top-level styles

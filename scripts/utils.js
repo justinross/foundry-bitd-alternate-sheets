@@ -275,13 +275,14 @@ export class Utils {
    * @param {string} playbook_name 
    * @returns {object}
    */
-  static async getStartingAttributes(playbook_item) {
+  static async getStartingAttributes(playbook_name) {
     let empty_attributes = game.system.model.Actor.character.attributes;
     //not sure what was getting linked rather than copied in empty_attributes, but the JSON hack below seems to fix the weirdness I was seeing
     let attributes_to_return = deepClone(empty_attributes);
     try{
-        let selected_playbook = await fromUuid(playbook_item.uuid);
-        let selected_playbook_base_skills = selected_playbook.system.base_skills;
+      let all_playbooks = await Utils.getSourcedItemsByType("class");
+      if(all_playbooks){
+        let selected_playbook_base_skills = all_playbooks.find(pb => pb.name == playbook_name).system.base_skills;
         for(const [key, value] of Object.entries(empty_attributes)){
           for(const [childKey, childValue] of Object.entries(value.skills)){
             if(selected_playbook_base_skills[childKey]){
@@ -289,6 +290,7 @@ export class Utils {
             }
           }
         }
+      }
     }
     catch (e) {
       console.log("Error: ", e);
