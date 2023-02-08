@@ -304,7 +304,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
     data.load_open = this.load_open;
     data.allow_edit = this.allow_edit;
     data.show_debug = this.show_debug;
-    data.attributes = actorData.system.attributes;
     data.acquaintances_label = data.data.acquaintances_label == "BITD.Acquaintances" ? "bitd-alt.Acquaintances" : data.data.acquaintances_label;
     let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
     if(rawNotes){
@@ -407,6 +406,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
         loadout += parseInt(i.load);
       }
     }
+
+    // Encumbrance Levels
+    // let load_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal","BITD.Heavy","BITD.Encumbered",
+    //   "BITD.Encumbered","BITD.Encumbered","BITD.OverMax"];
+    // let mule_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal",
+    //   "BITD.Heavy","BITD.Encumbered","BITD.OverMax"];
+    // let mule_present=0;
 
     //Sanity Check
     if (loadout < 0) {
@@ -607,9 +613,20 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     html.find('.debug-toggle').click(async ev => {
       this.setLocalProp("show_debug", !this.show_debug);
-      // html.find('.debug-toggle').toggleClass(on)
-      // this.show_debug = true;
     });
+
+    /* Removed drop-down in favor of drag/drop playbooks. Hopefully more simple.
+    html.find('.dropdown.playbook-select').change(async ev=>{
+      let existing_playbooks = this.actor.items.filter(item=>item.type == "class");
+      existing_playbooks = existing_playbooks.map(pb => pb.id);
+      let new_playbook = await Utils.getItemByType('class', ev.target.value);
+      if(new_playbook){
+        //deleting old playbooks is done automatically ... somewhere else
+        // await this.actor.deleteEmbeddedDocuments('Item', existing_playbooks);
+        await this.actor.createEmbeddedDocuments('Item', [new_playbook.data]);
+      }
+    });
+     */
 
     // Update Inventory Item
     html.find('.item-block .clickable-edit').click(ev => {
@@ -696,41 +713,28 @@ export class BladesAlternateActorSheet extends BladesSheet {
       this.actor.update({data: {acquaintances : acquaintances}});
     });
 
-    $(document).click(ev=>{
-      let render = false;
-      if(!$(ev.target).closest('.coins-box').length){
-        html.find('.coins-box').removeClass('open');
-        this.coins_open = false;
-      }
-      if(!$(ev.target).closest('.harm-box').length){
-        html.find('.harm-box').removeClass('open');
-        this.harm_open = false;
-      }
-      if(!$(ev.target).closest('.load-box').length){
-        html.find('.load-box').removeClass('open');
-        this.load_open = false;
-      }
+    html.find('.coins-box').click(async ev => {
+      this.setLocalProp("coins_open", !this.coins_open);
     });
 
-    html.find('.coins-box').click(async ev => {
-      if(!$(ev.target).closest('.coins-box .full-view').length){
-        html.find('.coins-box').toggleClass('open');
-        this.coins_open = !this.coins_open;
-      }
+    html.find('.coins-box .full-view').click(ev => {
+      ev.stopPropagation();
     });
 
     html.find('.harm-box').click(ev => {
-      if(!$(ev.target).closest('.harm-box .full-view').length){
-        html.find('.harm-box').toggleClass('open');
-        this.harm_open = !this.harm_open;
-      }
+      this.setLocalProp("harm_open", !this.harm_open);
+    });
+
+    html.find('.harm-box .full-view').click(ev => {
+      ev.stopPropagation();
     });
 
     html.find('.load-box').click(ev => {
-      if(!$(ev.target).closest('.load-box .full-view').length){
-        html.find('.load-box').toggleClass('open');
-        this.load_open = !this.load_open;
-      }
+      this.setLocalProp("load_open", !this.load_open);
+    });
+
+    html.find('.load-box .full-view').click(ev => {
+      ev.stopPropagation();
     });
 
     html.find('.add_trauma').click(async ev => {
@@ -809,7 +813,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   /* -------------------------------------------- */
 
   async setPlaybookAttributes(newPlaybookItem) {
-    let attributes = await Utils.getStartingAttributes(newPlaybookItem);
+    let attributes = await Utils.getStartingAttributes(newPlaybookItem.name);
     let newAttributeData = {data:{}};
     newAttributeData.data.attributes = attributes;
     // this damned issue. For some reason exp and exp_max were getting grabbed as numbers instead of strings, which breaks the multiboxes helper somehow?

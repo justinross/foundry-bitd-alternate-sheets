@@ -536,11 +536,63 @@
 
     .abilities-list{
       grid-area: sub-row-3;
+
+      //span:not(:last-of-type)::after{
+      //  content: " \2022 ";
+      //  text-decoration: none;
+      //  color: $almost_black;
+      //  font-weight: normal;
+      //  display: inline-block;
+      //}
     }
 
     .attributes-actions{
       grid-area: actions;
-      @import "attributes.scss";
+      display: flex;
+      justify-content: space-between;
+      justify-items: stretch;
+      max-width: 600px;
+
+      .attribute{
+        flex-grow: 1;
+        margin: 0 5px 10px 5px;
+
+        .action{
+          padding: 0 5px;
+          @include custom_radio(1em, 1em);
+          justify-content: flex-start;
+          align-items: stretch;
+
+          .attribute-skill-label{
+            font-weight: bold;
+            font-variant: small-caps;
+            padding: 3px 0;
+            margin-left: .4em;
+            line-height: 0.8em;
+
+          }
+
+          label{
+            margin: 2px;
+            border: 1px solid #666666;
+            box-sizing: border-box;
+            position: relative;
+            &:first-of-type::after{
+              content: "";
+              display: inline-block;
+              height: 150%;
+              width: 1%;
+              border-right: 1px solid rgba(0,0,0,0.5);
+              position: absolute;
+              right: -3px;
+              top: -3px;
+            }
+          }
+        }
+        input.zero{
+          display: none;
+        }
+      }
     }
   }
 
