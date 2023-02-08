@@ -40,9 +40,9 @@ $hover-brightness: 0.8;
   //  @import 'import/clock-sheet';
   //}
   //
-  //&.item.sheet{
-  //  @import 'import/item-sheet.scss';
-  //}
+  &.item.sheet{
+   @import 'import/item-sheet.scss';
+  }
 }
 
 //top-level styles

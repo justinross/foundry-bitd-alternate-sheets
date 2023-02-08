@@ -31,7 +31,7 @@
             {{#times_from_1 4}}
             <input type="radio" id="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
                   name="data.base_skills.{{skill_name}}" value="{{this}}" class="radio-toggle">
-            <label for="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}" class="radio-toggle {{#if (gte skill.value this)}}on{{/if}}" ></label>
+            <label for="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}" class="radio-toggle {{#if (gte skill.value this)}}on{{/if}} {{#if ../../../isitem}} item{{/if}} " ></label>
             {{/times_from_1}}
 
           <div class="attribute-skill-label roll-die-attribute rollable-text" data-roll-attribute="{{skill_name}}" data-tooltip="{{localize (concat 'bitd-alt.Attributes.' skill_name) }}">{{localize skill.label}}</div>

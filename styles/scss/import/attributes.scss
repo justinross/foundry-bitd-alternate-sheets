@@ -43,7 +43,7 @@
         border: 1px solid #666666;
         box-sizing: border-box;
         position: relative;
-        &:first-of-type::after{
+        &:not(.item):first-of-type::after{
             content: "";
             display: inline-block;
             height: 150%;
