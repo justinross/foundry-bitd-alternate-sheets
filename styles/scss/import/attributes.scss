@@ -1,0 +1,62 @@
+
+&{
+    display: flex;
+    justify-content: space-between;
+    justify-items: stretch;
+    max-width: 600px;
+
+    header.full-bar{
+        background-color: $darkgray;
+        color: $almost_white;
+        background-color: $almost_black;
+        color: $almost_white;
+        padding: 3px;
+        width: 100%;
+        font-family: Kirsty, serif;
+        font-size: 1rem;
+        position: relative;
+        margin-bottom: 5px;
+        line-height: 1em;
+    }
+    
+    .attribute{
+    flex-grow: 1;
+    margin: 0 5px 10px 5px;
+
+    .action{
+        padding: 0 5px;
+        @include custom_radio(1em, 1em);
+        justify-content: flex-start;
+        align-items: stretch;
+
+        .attribute-skill-label{
+        font-weight: bold;
+        font-variant: small-caps;
+        padding: 3px 0;
+        margin-left: .4em;
+        line-height: 0.8em;
+
+        }
+
+        label{
+        margin: 2px;
+        border: 1px solid #666666;
+        box-sizing: border-box;
+        position: relative;
+        &:not(.item):first-of-type::after{
+            content: "";
+            display: inline-block;
+            height: 150%;
+            width: 1%;
+            border-right: 1px solid rgba(0,0,0,0.5);
+            position: absolute;
+            right: -3px;
+            top: -3px;
+        }
+        }
+    }
+    input.zero{
+        display: none;
+    }
+    }
+}

@@ -1,33 +1,28 @@
 // ITEM
-.item {
-
+&{
   justify-content: space-between;
 
-  .item-body {
+  section{
+    padding-bottom: 1em;
 
-    margin-bottom: 10px;
-    * {
-      margin-right: 10px;
+    input.item_field{
+      font-size: 1.5em;
     }
 
-    .item-description {
-      font-style: italic;
-      text-align: justify;
+    header{
+      width: 100%;
+      label{
+        display: block;
+        background-color: #000;
+        margin-bottom: 0;
+        color: #fff;
+        font-family: Kirsty, serif;
+        font-size: 1rem;
+        padding: 2px;
+      }
     }
   }
 
-  div {
-    flex-grow: 2;
-  }
-  .item-control {
-    flex-grow: 1;
-  }
-  .item-body,
-  .item-class-label {
-    width: 100px;
-  }
+
 }
 
-.item-class-label {
-  margin-bottom: 10px;
-}
