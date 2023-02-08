@@ -15,6 +15,22 @@ export const registerHandlebarsHelpers = function() {
     return(arg1.trim().length > 0);
   });
 
+  // Handlebars.registerHelper('flexinput', function(field, ctx){
+  //   switch (field.type) {
+  //     case "img":
+  //         return new Handlebars.SafeString(`<img src="${ctx[field.name]}" data-edit="img" title="${field.name}"/>`);
+  //       break;
+  //     case "number":
+        
+  //       break;
+  //     case "editor":
+  //       return Handlebars.helpers['editor']()
+    
+  //     default:
+  //       break;
+  //   }
+  // });
+
 
   Handlebars.registerHelper('inline-editable-text', function(editable, parameter_name, blank_value, current_value, uniq_id, context){
     let html = '';
@@ -34,7 +50,6 @@ export const registerHandlebarsHelpers = function() {
   });
 
   Handlebars.registerHelper('times_from_2', function(n, block) {
-
     var accum = '';
     n = parseInt(n);
     for (var i = 2; i <= n; ++i) {
@@ -95,21 +110,6 @@ export const registerHandlebarsHelpers = function() {
     return html;
   });
 
-  // Commented out to avoid conflict with existing foundry helper that I somehow didn't notice
-  // Handlebars.registerHelper('icon', function(icon_name, classes){
-  //   let icon_folder = "/systems/blades-in-the-dark/styles/assets/icons/";
-  //   let icon_info = BladesHelpers.icons[icon_name];
-  //   let html = '';
-  //   switch(icon_info.type){
-  //     case 'fa':
-  //       html = `<i class='${icon_info.icon} ${classes}'></i>`;
-  //       break;
-  //     case 'svg':
-  //       html = `<img src="${icon_folder}${icon_info.icon}" alt="">`
-  //
-  //   }
-  //   return new Handlebars.SafeString(html);
-  // });
 
   Handlebars.registerHelper('upper-first', function(input) {
     return input.charAt(0).toUpperCase() + input.slice(1);

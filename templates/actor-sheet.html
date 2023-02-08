@@ -61,9 +61,7 @@
       </div>
       <div class="look bio">{{{inline-editable-text allow_edit "data.look" "Look" data.look actor._id this}}}</div>
       <div class="abilities-list">{{#each my_abilities}}<span data-tooltip="{{this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
-      <section class="attributes-actions">
-        {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" actor=actor}}
-      </section>
+      {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.actor}}
     </section>
     <section class="tab-space">
       <nav class="tabs" data-group="primary-tabs">

@@ -304,6 +304,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     data.load_open = this.load_open;
     data.allow_edit = this.allow_edit;
     data.show_debug = this.show_debug;
+    data.attributes = actorData.system.attributes;
     data.acquaintances_label = data.data.acquaintances_label == "BITD.Acquaintances" ? "bitd-alt.Acquaintances" : data.data.acquaintances_label;
     let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
     if(rawNotes){
@@ -406,13 +407,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
         loadout += parseInt(i.load);
       }
     }
-
-    // Encumbrance Levels
-    // let load_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal","BITD.Heavy","BITD.Encumbered",
-    //   "BITD.Encumbered","BITD.Encumbered","BITD.OverMax"];
-    // let mule_level=["BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Light","BITD.Normal","BITD.Normal",
-    //   "BITD.Heavy","BITD.Encumbered","BITD.OverMax"];
-    // let mule_present=0;
 
     //Sanity Check
     if (loadout < 0) {
@@ -616,19 +610,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       // html.find('.debug-toggle').toggleClass(on)
       // this.show_debug = true;
     });
-
-    /* Removed drop-down in favor of drag/drop playbooks. Hopefully more simple.
-    html.find('.dropdown.playbook-select').change(async ev=>{
-      let existing_playbooks = this.actor.items.filter(item=>item.type == "class");
-      existing_playbooks = existing_playbooks.map(pb => pb.id);
-      let new_playbook = await Utils.getItemByType('class', ev.target.value);
-      if(new_playbook){
-        //deleting old playbooks is done automatically ... somewhere else
-        // await this.actor.deleteEmbeddedDocuments('Item', existing_playbooks);
-        await this.actor.createEmbeddedDocuments('Item', [new_playbook.data]);
-      }
-    });
-     */
 
     // Update Inventory Item
     html.find('.item-block .clickable-edit').click(ev => {
