@@ -37,6 +37,7 @@ export class BladesAlternateClassSheet extends ItemSheet {
 
   /** @override */
   async activateListeners(html){
+    super.activateListeners(html);
     html.find("input.radio-toggle, label.radio-toggle").click(e => e.preventDefault());
     html.find("input.radio-toggle, label.radio-toggle").mousedown(e => {
       this._onRadioToggle(e);

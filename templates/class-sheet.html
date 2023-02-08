@@ -1,25 +1,23 @@
-<div>
-    <form class="{{cssClass}}" autocomplete="off">
-        {{> "modules/bitd-alternate-sheets/templates/parts/item-header.html"}}
-        <section class="flex-vertical">
-            <section>
-            <h3>Starting Skills</h3>
-            {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.item isitem=true attributes=attributes}}
-            </section>
-            <section>
-            <header><label>{{localize "BITD.Description"}}</label></header>
-            <input type="text" class="input_field" name="system.description" value="{{description}}" />
-            <!-- {{editor system.description target="system.description" button=true editable=editable engine="prosemirror"}} -->
-            </section>
-            <section>
-            <header><label>{{localize "BITD.ExpClues"}}</label></header>
-            <input type="text" class="item_field" name="system.experience_clues" value="{{experience_clues}}" />
-            </section>
-            <!-- {{editor system.experience_clues target="system.experience_clues" button=true editable=editable engine="prosemirror"}} -->
-
-        {{#if isGM}}
-            {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}</div>
-        {{/if}}
+<form class="{{cssClass}}" autocomplete="off">
+    {{> "modules/bitd-alternate-sheets/templates/parts/item-header.html"}}
+    <section class="flex-vertical">
+        <section>
+        <h3>Starting Skills</h3>
+        {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.item isitem=true attributes=attributes}}
         </section>
-    </form>
-</div>
+        <section>
+        <header><label>{{localize "BITD.Description"}}</label></header>
+        <input type="text" class="item_field" name="system.description" value="{{description}}" />
+        <!-- {{editor system.description target="system.description" button=true editable=editable engine="prosemirror"}} -->
+        </section>
+        <section>
+        <header><label>{{localize "BITD.ExpClues"}}</label></header>
+        <input type="text" class="item_field" name="system.experience_clues" value="{{experience_clues}}" />
+        </section>
+        <!-- {{editor system.experience_clues target="system.experience_clues" button=true editable=editable engine="prosemirror"}} -->
+
+    {{#if isGM}}
+        {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}</div>
+    {{/if}}
+    </section>
+</form>
