@@ -78,7 +78,6 @@ export class BladesAlternateItemSheet extends ItemSheet {
 
   /** @override */
   async getData() {
-    console.log(this.item);
     let data = await super.getData();
     return data;
   }

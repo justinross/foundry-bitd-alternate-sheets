@@ -6,7 +6,7 @@ export async function registerHooks() {
   Hooks.once('ready', () => {
     // if(!game.modules.get('lib-wrapper')?.active && game.user.isGM)
     //   ui.notifications.error("Module Blades in the Dark Alternate Sheets requires the 'libWrapper' module. Please install and activate it.");
-    // CONFIG.debug.hooks = true;
+    CONFIG.debug.hooks = true;
   });
 
   Hooks.once('ready', () => {

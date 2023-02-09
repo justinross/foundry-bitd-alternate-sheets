@@ -427,8 +427,8 @@ export class Utils {
       return oldAcq.id == acq.id;
     });
     if(unique_id){
-      // queueUpdate(()=> {actor.update({data: {acquaintances : current_acquaintances.concat([acquaintance])}});});
       await actor.update({data: {acquaintances : current_acquaintances.concat([acquaintance])}});
+      // queueUpdate(()=>actor.update({data: {acquaintances : current_acquaintances.concat([acquaintance])}}));
     }
     else{
       ui.notifications.info("The dropped NPC is already an acquaintance of this character.");
@@ -449,12 +449,14 @@ export class Utils {
       }
     });
     await actor.update({data: {acquaintances : current_acquaintances.concat(acqArr)}});
+    // queueUpdate(()=> actor.update({data: {acquaintances : current_acquaintances.concat(acqArr)}}));
   }
 
   static async removeAcquaintance(actor, acqId){
     let current_acquaintances = actor.system.acquaintances;
     let updated_acquaintances = current_acquaintances.filter(acq => acq._id !== acqId && acq.id !== acqId);
     await actor.update({data: {acquaintances : updated_acquaintances}});
+    // queueUpdate(()=> actor.update({data: {acquaintances : updated_acquaintances}}));
   }
 
    static async removeAcquaintanceArray(actor, acqArr){
@@ -467,6 +469,7 @@ export class Utils {
     }
     // let new_acquaintances = current_acquaintances.filter(acq => acq._id !== acqId && acq.id !== acqId);
     await actor.update({data: {acquaintances : current_acquaintances}});
+    // queueUpdate(()=> actor.update({data: {acquaintances : current_acquaintances}}));
   }
 
   static async getVirtualListOfItems(type = "", data, sort = true, filter_playbook = "", duplicate_owned_items  = false, include_owned_items = false){
