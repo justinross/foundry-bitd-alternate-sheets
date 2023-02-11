@@ -969,25 +969,10 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions {
   grid-area: actions;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions {
   display: flex;
   justify-content: space-between;
   justify-items: stretch;
   max-width: 600px;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions header.full-bar {
-  background-color: #666;
-  color: #EEEFFF;
-  background-color: #191813;
-  color: #EEEFFF;
-  padding: 3px;
-  width: 100%;
-  font-family: Kirsty, serif;
-  font-size: 1rem;
-  position: relative;
-  margin-bottom: 5px;
-  line-height: 1em;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions .attribute {
   flex-grow: 1;
@@ -1053,7 +1038,7 @@
   box-sizing: border-box;
   position: relative;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions .attribute .action label:not(.item):first-of-type::after {
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .attributes-actions .attribute .action label:first-of-type::after {
   content: "";
   display: inline-block;
   height: 150%;
@@ -1334,123 +1319,6 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .character-notes-area header {
   font-size: 0.9em;
   flex-grow: 0;
-}
-.blades-alt.item.sheet.class .attributes-actions {
-  display: flex;
-  justify-content: space-between;
-  justify-items: stretch;
-  max-width: 600px;
-}
-.blades-alt.item.sheet.class .attributes-actions header.full-bar {
-  background-color: #666;
-  color: #EEEFFF;
-  background-color: #191813;
-  color: #EEEFFF;
-  padding: 3px;
-  width: 100%;
-  font-family: Kirsty, serif;
-  font-size: 1rem;
-  position: relative;
-  margin-bottom: 5px;
-  line-height: 1em;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute {
-  flex-grow: 1;
-  margin: 0 5px 10px 5px;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action {
-  padding: 0 5px;
-  display: flex;
-  /* Hide the browser's default checkbox */
-  justify-content: flex-start;
-  align-items: stretch;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action label {
-  height: 1em;
-  width: 1em;
-  background-color: #cc0000;
-  vertical-align: middle;
-  border: 2px solid #191813;
-  border-radius: 24px;
-  transition: filter 0.1s;
-  cursor: pointer;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action label[for$="-0"] {
-  height: 5px;
-  width: 5px;
-  border-radius: 24px;
-  background-image: none !important;
-  background-color: red !important;
-  margin-right: 0px;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action label:hover {
-  filter: brightness(0.7);
-  opacity: 0.7;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action input {
-  display: none;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action input:not(:checked) ~ label:hover {
-  background-color: rgba(204, 0, 0, 0.5);
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action input:checked ~ label {
-  background-color: transparent;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action input:checked + label {
-  transition: filter 0.1s;
-  cursor: pointer;
-  background-color: #cc0000;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action input:checked + label:hover {
-  filter: brightness(0.7);
-  opacity: 0.7;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action .attribute-skill-label {
-  font-weight: bold;
-  font-variant: small-caps;
-  padding: 3px 0;
-  margin-left: 0.4em;
-  line-height: 0.8em;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action label {
-  margin: 2px;
-  border: 1px solid #666666;
-  box-sizing: border-box;
-  position: relative;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute .action label:not(.item):first-of-type::after {
-  content: "";
-  display: inline-block;
-  height: 150%;
-  width: 1%;
-  border-right: 1px solid rgba(0, 0, 0, 0.5);
-  position: absolute;
-  right: -3px;
-  top: -3px;
-}
-.blades-alt.item.sheet.class .attributes-actions .attribute input.zero {
-  display: none;
-}
-.blades-alt.item.sheet {
-  justify-content: space-between;
-}
-.blades-alt.item.sheet section {
-  padding-bottom: 1em;
-}
-.blades-alt.item.sheet section input.item_field {
-  font-size: 1.5em;
-}
-.blades-alt.item.sheet section header {
-  width: 100%;
-}
-.blades-alt.item.sheet section header label {
-  display: block;
-  background-color: #000;
-  margin-bottom: 0;
-  color: #fff;
-  font-family: Kirsty, serif;
-  font-size: 1rem;
-  padding: 2px;
 }
 
 .bitd-alt.tooltip {
