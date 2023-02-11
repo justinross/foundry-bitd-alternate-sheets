@@ -98,6 +98,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
   }
 
+  async switchPlaybook(newPlaybookItem){
+    await this.switchToPlaybookAcquaintances(newPlaybookItem);
+    await this.setPlaybookAttributes(newPlaybookItem);
+    // setTimeout(()=> this.render(false), 500);
+    if(this._state == 1){
+      Hooks.once("renderBladesAlternateActorSheet", ()=>{
+        console.log("rerendering to refresh stale data");
+        setTimeout(()=>this.render(false), 100);
+      })
+    }
+  }
+
   async switchToPlaybookAcquaintances(selected_playbook){
     let all_acquaintances = await Utils.getSourcedItemsByType('npc');
     let playbook_acquaintances = all_acquaintances.filter(item => {
@@ -312,7 +324,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let linkedEntities = [...rawNotes.matchAll(pattern)];
       for (let index = 0; index < linkedEntities.length; index++) {
         const entity = await fromUuid(linkedEntities[index][2]);
-        if(entity.type === "🕛 clock"){
+        if(entity?.type === "🕛 clock"){
 
         }
       }
