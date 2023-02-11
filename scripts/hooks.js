@@ -3,31 +3,20 @@ import { Patch } from "./patches.js";
 import { MODULE_ID } from "./utils.js";
 
 export async function registerHooks() {
-  Hooks.once('ready', () => {
+  // Hooks.once('ready', () => {
     // if(!game.modules.get('lib-wrapper')?.active && game.user.isGM)
     //   ui.notifications.error("Module Blades in the Dark Alternate Sheets requires the 'libWrapper' module. Please install and activate it.");
-    CONFIG.debug.hooks = true;
-  });
+    // CONFIG.debug.hooks = true;
+  // });
 
   Hooks.once('ready', () => {
-    // libWrapper.register(MODULE_ID, 'CONFIG.Actor.documentClass.prototype.applyActiveEffects', function (wrapped, ...args) {
-    //   Patch.ActorApplyActiveEffects(this);
-    //   let result = wrapped(...args);
-    //   return result;
-    // }, 'WRAPPER');
-
-    // libWrapper.register(MODULE_ID, 'CONFIG.Actor.documentClass.prototype._onCreateEmbeddedDocuments', function (wrapped, ...args) {
-    //   Patch.ActorOnCreateEmbeddedDocuments(this, ...args);
-    //   let result = wrapped(...args);
-    //   return result;
-    // }, 'WRAPPER');
 
     CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
       {
           pattern : /(@UUID\[([^]*?)]){[^}]*?}/gm,
           enricher : async (match, options) => {
             let linkedDoc = await fromUuid(match[2]);
-            if(linkedDoc.type == "🕛 clock"){
+            if(linkedDoc?.type == "🕛 clock"){
               const doc = document.createElement("div");
               doc.classList.add('linkedClock');
               let droppedItemTextRaw = match[0];
