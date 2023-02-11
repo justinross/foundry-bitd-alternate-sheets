@@ -9,6 +9,7 @@ export class Patch {
     }
   }
 
+  //just add any class_default abilities to the character when a class is added. Not happening right now.
   static async ActorOnCreateEmbeddedDocuments(actor, ...args){
     let embeddedName = args[0];
     let documents = args[1];

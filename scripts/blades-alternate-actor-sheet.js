@@ -98,6 +98,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
   }
 
+  async switchPlaybook(newPlaybookItem){
+    await this.switchToPlaybookAcquaintances(newPlaybookItem);
+    await this.setPlaybookAttributes(newPlaybookItem);
+    // setTimeout(()=> this.render(false), 500);
+    if(this._state == 1){
+      Hooks.once("renderBladesAlternateActorSheet", ()=>{
+        console.log("rerendering to refresh stale data");
+        setTimeout(()=>this.render(false), 100);
+      })
+    }
+  }
+
   async switchToPlaybookAcquaintances(selected_playbook){
     let all_acquaintances = await Utils.getSourcedItemsByType('npc');
     let playbook_acquaintances = all_acquaintances.filter(item => {
@@ -107,19 +119,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let neutral_acquaintances = current_acquaintances.filter(acq => acq.standing === "neutral");
     await Utils.removeAcquaintanceArray(this.actor, neutral_acquaintances);
     await Utils.addAcquaintanceArray(this.actor, playbook_acquaintances);
-  }
-
-  async switchPlaybook(newPlaybookItem){
-    // show confirmation (ask for items to replace) - not doing this. can't be bothered. sry.
-    // remove old playbook (done automatically somewhere else. tbh I don't know where)
-    // add abilities - not adding. virtual!
-    // add items - virtual!
-    // add acquaintances - should be virtual?
-
-    await this.switchToPlaybookAcquaintances(newPlaybookItem);
-    await this.setPlaybookAttributes(newPlaybookItem);
-    // return newPlaybookItem;
-    // set skills
   }
 
   async generateAddExistingItemDialog(item_type){
@@ -219,9 +218,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
         let traumaToDisable = element.data("trauma");
         let traumaUpdateObject = this.actor.system.trauma.list;
         traumaUpdateObject[traumaToDisable.toLowerCase()] = false;
-        // let index = traumaUpdateObject.indexOf(traumaToDisable.toLowerCase());
-        // traumaUpdateObject.splice(index, 1);
-        queueUpdate(()=> this.actor.update({data:{trauma:{list: traumaUpdateObject}}}));
+        // queueUpdate(()=> this.actor.update({data:{trauma:{list: traumaUpdateObject}}}));
+        this.actor.update({data:{trauma:{list: traumaUpdateObject}}})
       }
     }
   ];
@@ -312,7 +310,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let linkedEntities = [...rawNotes.matchAll(pattern)];
       for (let index = 0; index < linkedEntities.length; index++) {
         const entity = await fromUuid(linkedEntities[index][2]);
-        if(entity.type === "🕛 clock"){
+        if(entity?.type === "🕛 clock"){
 
         }
       }
@@ -334,7 +332,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     if(Array.isArray(data.data.trauma.list)){
       trauma_object = Utils.convertArrayToBooleanObject(data.data.trauma.list);
       trauma_object = expandObject({"data.trauma.list": trauma_object});
-      await this.actor.update(trauma_object);
+      // await this.actor.update(trauma_object);
+      // queueUpdate(()=> this.actor.update(trauma_object));
+      this.actor.update(trauma_object);
     }
     trauma_array = Utils.convertBooleanObjectToArray(data.data.trauma.list);
 
@@ -577,6 +577,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       if(currentValue < currentMax){
         currentValue++;
         await entity.update({data:{value:currentValue}});
+        // queueUpdate(()=> entity.update({data:{value:currentValue}}));
         this.render();
       }
     });
@@ -587,6 +588,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       if(currentValue > 0){
         currentValue = currentValue - 1;
         await entity.update({data:{value:currentValue}});
+        // queueUpdate(()=> entity.update({data:{value:currentValue}}));
         this.render();
       }
     });
@@ -645,7 +647,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
       let itemId = checkbox.closest(".item-block").dataset.itemId;
       let item = this.actor.items.get(itemId);
       if(item){
-        return item.update({data: {equipped : checkbox.checked}});
+        // queueUpdate(()=> item.update({data: {equipped : checkbox.checked}}));
+        item.update({data: {equipped : checkbox.checked}});
       }
     });
 
@@ -694,6 +697,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       clickedAcq.standing = newStanding;
       acquaintances.splice(clickedAcqIdx, 1, clickedAcq);
       this.actor.update({data: {acquaintances : acquaintances}});
+      // queueUpdate(()=> this.actor.update({data: {acquaintances : acquaintances}}));
     });
 
     $(document).click(ev=>{
@@ -776,6 +780,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
               };
               newTraumaListValue.data.trauma.list[newTrauma] = true;
               await this.actor.update(newTraumaListValue);
+              // queueUpdate(()=> this.actor.update(newTraumaListValue));
 
             }
           },
@@ -817,6 +822,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       newAttributeData.data.attributes[key].exp = newAttributeData.data.attributes[key].exp.toString();
       newAttributeData.data.attributes[key].exp_max = newAttributeData.data.attributes[key].exp_max.toString();
     });
-    queueUpdate(()=> this.actor.update(newAttributeData));
+    this.actor.update(newAttributeData);
+    // queueUpdate(()=> this.actor.update(newAttributeData));
   }
 }

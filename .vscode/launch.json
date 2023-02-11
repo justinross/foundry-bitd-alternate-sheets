@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch localhost",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "url": "http://localhost:30000",
+            "webRoot": "${workspaceFolder}",
+            "pathMappings": [
+                {
+                    "url": "http://localhost:30000/modules",
+                    "path": "vscode-remote://wsl%2Bubuntu/mnt/d/Foundry%20Dev%20Containers/BITDSheets/foundrydata/Data/modules"
+                }
+            ]
+        }
+    ]
+}
