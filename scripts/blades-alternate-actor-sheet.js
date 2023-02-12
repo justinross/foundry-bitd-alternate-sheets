@@ -101,7 +101,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
   async switchPlaybook(newPlaybookItem){
     await this.switchToPlaybookAcquaintances(newPlaybookItem);
     await this.setPlaybookAttributes(newPlaybookItem);
-    // setTimeout(()=> this.render(false), 500);
     if(this._state == 1){
       Hooks.once("renderBladesAlternateActorSheet", ()=>{
         console.log("rerendering to refresh stale data");
@@ -121,18 +120,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
     await Utils.addAcquaintanceArray(this.actor, playbook_acquaintances);
   }
 
-  async switchPlaybook(newPlaybookItem){
-    // show confirmation (ask for items to replace) - not doing this. can't be bothered. sry.
-    // remove old playbook (done automatically somewhere else. tbh I don't know where)
-    // add abilities - not adding. virtual!
-    // add items - virtual!
-    // add acquaintances - should be virtual?
+  // async switchPlaybook(newPlaybookItem){
+  //   // show confirmation (ask for items to replace) - not doing this. can't be bothered. sry.
+  //   // remove old playbook (done automatically somewhere else. tbh I don't know where)
+  //   // add abilities - not adding. virtual!
+  //   // add items - virtual!
+  //   // add acquaintances - should be virtual?
 
-    await this.switchToPlaybookAcquaintances(newPlaybookItem);
-    await this.setPlaybookAttributes(newPlaybookItem);
-    // return newPlaybookItem;
-    // set skills
-  }
+  //   await this.switchToPlaybookAcquaintances(newPlaybookItem);
+  //   await this.setPlaybookAttributes(newPlaybookItem);
+  //   // return newPlaybookItem;
+  //   // set skills
+  // }
 
   async generateAddExistingItemDialog(item_type){
     let all_items = await Utils.getSourcedItemsByType(item_type);
