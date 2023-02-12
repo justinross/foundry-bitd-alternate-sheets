@@ -302,6 +302,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     data.load_open = this.load_open;
     data.allow_edit = this.allow_edit;
     data.show_debug = this.show_debug;
+    data.attributes = actorData.system.attributes;
     data.acquaintances_label = data.data.acquaintances_label == "BITD.Acquaintances" ? "bitd-alt.Acquaintances" : data.data.acquaintances_label;
     let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
     if(rawNotes){
@@ -322,6 +323,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       });
 
     }
+
 
     // Prepare active effects
     data.effects = BladesActiveEffect.prepareActiveEffectCategories(this.actor.effects);
