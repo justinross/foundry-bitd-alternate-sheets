@@ -60,7 +60,7 @@
         {{{inline-editable-text allow_edit "data.heritage" "Heritage" heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background" "Background" background actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background-details" "Background Details" data.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice" "Vice" vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice-purveyor" "Vice Purveyor" data.vice-purveyor actor._id this}}}
       </div>
       <div class="look bio">{{{inline-editable-text allow_edit "data.look" "Look" data.look actor._id this}}}</div>
-      <div class="abilities-list">{{#each my_abilities}}<span data-tooltip="{{this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
+      <div class="abilities-list">{{#each my_abilities}}<span data-tooltip="{{clean-html this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
       {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.actor}}
     </section>
     <section class="tab-space">
@@ -71,7 +71,7 @@
               <div class="playbook-description" title="Sorry, playbooks are what they should be called, but the system calls them classes">Drop a "class" item onto the sheet to switch playbooks.</div>
           {{else}}
           <div class="playbook-name">{{selected_playbook.name}}</div>
-          <div class="playbook-description">{{selected_playbook.system.description}}</div>
+          <div class="playbook-description">{{clean-html selected_playbook.system.description}}</div>
           {{/if}}
         </div>
         <!-- todo: put the downtime tab back -->

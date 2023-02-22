@@ -146,11 +146,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
       items_html += `<div class="item-group"><header>${itemclass}</header>`;
       for (const item of group) {
         let trimmedname = Utils.trimClassFromName(item.name);
+        let strip = Utils.strip;
         let description = item.system.description.replace(/"/g, '&quot;');
         items_html += `
-            <div class="item-block farts">
+            <div class="item-block">
               <input type="checkbox" id="character-${this.actor.id}-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
-              <label for="character-${this.actor.id}-${item_type}add-${item.id}" title="${description}" class="hover-term">${trimmedname}</label>
+              <label for="character-${this.actor.id}-${item_type}add-${item.id}" title="${strip(description)}" class="hover-term">${trimmedname}</label>
             </div>
           `;
       }
@@ -160,8 +161,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
     items_html += '</div>';
 
     let d = new Dialog({
-      title: game.i18n.localize("BITD.AddExisting" + Utils.capitalizeFirstLetter(item_type)),
-      content:  `<h3>${game.i18n.localize("BITD.SelectToAdd" + Utils.capitalizeFirstLetter(item_type))}</h3>
+      title: game.i18n.localize("bitd-alt.AddExisting" + Utils.capitalizeFirstLetter(item_type)),
+      content:  `<h3>${game.i18n.localize("bitd-alt.SelectToAdd" + Utils.capitalizeFirstLetter(item_type))}</h3>
                     ${items_html}
                     `,
       buttons: {
