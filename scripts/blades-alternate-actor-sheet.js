@@ -146,11 +146,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
       items_html += `<div class="item-group"><header>${itemclass}</header>`;
       for (const item of group) {
         let trimmedname = Utils.trimClassFromName(item.name);
+        let strip = Utils.strip;
         let description = item.system.description.replace(/"/g, '&quot;');
         items_html += `
-            <div class="item-block farts">
+            <div class="item-block">
               <input type="checkbox" id="character-${this.actor.id}-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
-              <label for="character-${this.actor.id}-${item_type}add-${item.id}" title="${description}" class="hover-term">${trimmedname}</label>
+              <label for="character-${this.actor.id}-${item_type}add-${item.id}" title="${strip(description)}" class="hover-term">${trimmedname}</label>
             </div>
           `;
       }
@@ -160,8 +161,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
     items_html += '</div>';
 
     let d = new Dialog({
-      title: game.i18n.localize("BITD.AddExisting" + Utils.capitalizeFirstLetter(item_type)),
-      content:  `<h3>${game.i18n.localize("BITD.SelectToAdd" + Utils.capitalizeFirstLetter(item_type))}</h3>
+      title: game.i18n.localize("bitd-alt.AddExisting" + Utils.capitalizeFirstLetter(item_type)),
+      content:  `<h3>${game.i18n.localize("bitd-alt.SelectToAdd" + Utils.capitalizeFirstLetter(item_type))}</h3>
                     ${items_html}
                     `,
       buttons: {
@@ -173,7 +174,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
             let items = [];
             for (const itemelement of itemInputs) {
               let item = await Utils.getItemByType(item_type, itemelement.dataset[item_type + "Id"]);
-              items.push(item.data);
+              items.push(item);
             }
             this.actor.createEmbeddedDocuments("Item", items);
           }
@@ -448,6 +449,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     return data;
   }
 
+ async clearLoad(){
+    await this.actor.setFlag('bitd-alternate-sheets', 'equipped-items', '');
+ }
 
   addTermTooltips(html){
     html.find('.hover-term').hover(function(e){ // Hover event
@@ -581,6 +585,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     new ContextMenu(html, ".acquaintance", this.acquaintanceContextMenu);
 
 
+    html.find("button.clearLoad").on("click", async e => {
+      this.clearLoad();
+    });
     html.find("img.clockImage").on("click", async e => {
       let entity = await fromUuid(e.currentTarget.dataset.uuid);
       let currentValue = entity.system.value;

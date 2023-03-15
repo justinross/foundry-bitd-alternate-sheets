@@ -1,6 +1,6 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
 import { Patch } from "./patches.js";
-import { MODULE_ID } from "./utils.js";
+import { MODULE_ID, Utils } from "./utils.js";
 
 export async function registerHooks() {
   // Hooks.once('ready', () => {
@@ -37,6 +37,12 @@ export async function registerHooks() {
     ])
   });
   //why isn't sheet showing up in update hook?
+
+  Hooks.on("deleteItem", async (item, options, id) =>{
+    if(item.type === "item" && item.parent){
+      await Utils.toggleOwnership(false, item.parent, "item", item.id)
+    }
+  })
 
   Hooks.on("renderBladesClockSheet", async(sheet, html, options)=>{
     let characters = game.actors.filter(a => {
