@@ -326,6 +326,7 @@ export class Utils {
       }
     }
     else if(type == "item"){
+      console.log("It's an item");
       // let item = actor.items.find(item => item.id === id);
       let equipped_items = await actor.getFlag('bitd-alternate-sheets', 'equipped-items');
       if(!equipped_items){
@@ -339,11 +340,16 @@ export class Utils {
         item_blueprint = await Utils.getItemByType(type, id);
       }
       if(state){
+        console.log("State is true");
         equipped_items.push({id: item_blueprint.id, load: item_blueprint.system.load, name: item_blueprint.name});
       }
       else{
-        equipped_items = equipped_items.filter(i => i.id !== id);
+        console.log("State is false");
+        equipped_items = equipped_items.filter((i) => {
+          return i.id !== id
+        });
       }
+      console.log(equipped_items);
       // if(equipped_items){
       //   let item_source = await Utils.getItemByType(type, id);
       //   if(equipped_items.some(i => i.id === id )){

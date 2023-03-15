@@ -174,7 +174,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
             let items = [];
             for (const itemelement of itemInputs) {
               let item = await Utils.getItemByType(item_type, itemelement.dataset[item_type + "Id"]);
-              items.push(item.data);
+              items.push(item);
             }
             this.actor.createEmbeddedDocuments("Item", items);
           }
@@ -449,6 +449,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     return data;
   }
 
+ async clearLoad(){
+    await this.actor.setFlag('bitd-alternate-sheets', 'equipped-items', '');
+ }
 
   addTermTooltips(html){
     html.find('.hover-term').hover(function(e){ // Hover event
@@ -582,6 +585,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     new ContextMenu(html, ".acquaintance", this.acquaintanceContextMenu);
 
 
+    html.find("button.clearLoad").on("click", async e => {
+      this.clearLoad();
+    });
     html.find("img.clockImage").on("click", async e => {
       let entity = await fromUuid(e.currentTarget.dataset.uuid);
       let currentValue = entity.system.value;
