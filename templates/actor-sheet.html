@@ -26,7 +26,7 @@
             {{localize data.stress.name}}
             <div class="stripe-tooth-body stress">
             {{#multiboxes data.stress.value}}
-              <input type="radio" id="{{../actor._id}}-stress-0"
+              <input type="radio" id="{{../actor._id}}-stress-0"Item
                      name="data.stress.value" value="0" checked="checked" class="zero">
               {{#times_from_1 data.stress.max}}
                 <input type="radio" id="character-{{../actor._id}}-stress-{{this}}" name="data.stress.value" value="{{this}}" dtype="Radio" class="radio-toggle" >
@@ -57,7 +57,7 @@
         <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") actor.name actor._id this}}}</span> <span class="alias">&bull; "{{{inline-editable-text allow_edit "data.alias" (localize "BITD.Alias") data.alias actor._id this}}}"</span>
       </div>
       <div class="heritage-background bio">
-        {{{inline-editable-text allow_edit "data.heritage" "Heritage" heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background" "Background" background actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background-details" "Background Details" data.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice" "Vice" vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice-purveyor" "Vice Purveyor" data.vice-purveyor actor._id this}}}
+        {{{inline-editable-text allow_edit "data.heritage" (localize "BITD.Heritage") heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background" (localize "BITD.Background") background actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background-details" (localize "bitd-alt.BackgroundDetails") data.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice" (localize "BITD.Vice") vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice-purveyor" (localize "bitd-alt.VicePurveyor") data.vice-purveyor actor._id this}}}
       </div>
       <div class="look bio">{{{inline-editable-text allow_edit "data.look" "Look" data.look actor._id this}}}</div>
       <div class="abilities-list">{{#each my_abilities}}<span data-tooltip="{{clean-html this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
@@ -68,7 +68,7 @@
         <div class="tab-item playbook" data-tab="playbook">
           {{#if allow_edit}}
               <div class="playbook-name">{{selected_playbook.name}}</div>
-              <div class="playbook-description" title="Sorry, playbooks are what they should be called, but the system calls them classes">Drop a "class" item onto the sheet to switch playbooks.</div>
+              <div class="playbook-description" title="{{localize 'bitd-alt.PlaybookDisclaimer'}}">{{localize "bitd-alt.PlaybookInstruction"}}</div>
           {{else}}
           <div class="playbook-name">{{selected_playbook.name}}</div>
           <div class="playbook-description">{{clean-html selected_playbook.system.description}}</div>
@@ -79,7 +79,7 @@
 <!--          <div class="">Downtime</div>-->
 <!--        </div>-->
         <div class="tab-item notes-tab" data-tab="notes">
-          <div class="notes-header">Notes</div>
+          <div class="notes-header">{{localize "BITD.Notes"}}</div>
         </div>
       </nav>
 
@@ -141,18 +141,20 @@
             <section class="xp-notes">
               <header class="full-bar">XP</header>
               <ul>
-                <li>Every time you roll a desperate action, mark xp in that action's attribute.</li>
-                <p>At the end of each session, for each item below, mark 1 xp (in your playbook or an attribute) or 2 xp if that item occurred multiple times.</p>
+                <li>{{localize "BITD.ClassExpClue1"}}</li>
+                <p>{{localize "BITD.ClassExpClueDescription"}}</p>
                 <li>{{selected_playbook.system.experience_clues}}</li>
-                <li>You expressed your beliefs, drives, heritage, or background.</li>
-                <li>You struggled with issues from your vice or traumas during the session.</li>
+                <li>{{localize "BITD.ClassExpClue2"}}</li>
+                <li>{{localize "BITD.ClassExpClue3"}}</li>
               </ul>
             </section>
           </div>
         </div>
         <div class="tab" data-tab="notes" data-group="primary-tabs">
           <div class="character-notes-area">
-            <header>Add notes here. Drag and drop clocks, actors, or items in to link to them. Click clocks to increment, right-click to decrement.</header>
+
+
+            <header>{{localize "bitd-alt.NotesInstructions"}}</header>
             {{editor notes target="flags.bitd-alternate-sheets.notes" button=true editable=true documents=true engine="prosemirror" collaborate=true}}
           </div>
         </div>
@@ -310,7 +312,7 @@
                     <img src="{{item.img}}" title="{{item.name}}" width="24" height="24"/>
                     <div class="item-name">{{item.name}}</div>
                 </div>
-                <a class="item-control item-delete" title="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
+                <a class="item-control item-delete" title=(localize "BITD.TitleDeleteItem")><i class="fas fa-trash"></i></a>
             </div>
         {{/each}}
         <button class="clearLoad">Clear Load</button>
