@@ -26,7 +26,7 @@
             {{localize data.stress.name}}
             <div class="stripe-tooth-body stress">
             {{#multiboxes data.stress.value}}
-              <input type="radio" id="{{../actor._id}}-stress-0"Item
+              <input type="radio" id="{{../actor._id}}-stress-0"
                      name="data.stress.value" value="0" checked="checked" class="zero">
               {{#times_from_1 data.stress.max}}
                 <input type="radio" id="character-{{../actor._id}}-stress-{{this}}" name="data.stress.value" value="{{this}}" dtype="Radio" class="radio-toggle" >
@@ -312,7 +312,7 @@
                     <img src="{{item.img}}" title="{{item.name}}" width="24" height="24"/>
                     <div class="item-name">{{item.name}}</div>
                 </div>
-                <a class="item-control item-delete" title=(localize "BITD.TitleDeleteItem")><i class="fas fa-trash"></i></a>
+                <a class="item-control item-delete" title="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
             </div>
         {{/each}}
         <button class="clearLoad">Clear Load</button>
