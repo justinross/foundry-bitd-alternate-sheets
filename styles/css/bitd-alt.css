@@ -885,7 +885,6 @@
   position: absolute;
   top: -10px;
   left: 100%;
-  width: 100px;
   box-shadow: 0px 7px 6px 0px rgba(0, 0, 0, 0.25);
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .load-box > div {
