@@ -1,21 +1,19 @@
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
-import {queueUpdate} from "./lib/update-queue.js";
-
+import { queueUpdate } from "./lib/update-queue.js";
 
 /**
  * Pure chaos
  * @extends {ItemSheet}
  */
 export class BladesAlternateClassSheet extends ItemSheet {
-
   /** @override */
-	static get defaultOptions() {
-	  return foundry.utils.mergeObject(super.defaultOptions, {
-  	  classes: ["blades-alt", "sheet", "item", "class"],
-  	  template: "modules/bitd-alternate-sheets/templates/class-sheet.html",
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ["blades-alt", "sheet", "item", "class"],
+      template: "modules/bitd-alternate-sheets/templates/class-sheet.html",
       width: 600,
-      height: 600
+      height: 600,
       // tabs: [{navSelector: ".tabs", contentSelector: ".tab-content", initial: "playbook"}]
     });
   }
@@ -24,25 +22,30 @@ export class BladesAlternateClassSheet extends ItemSheet {
   async _onDropItem(event, droppedItem) {
     await super._onDropItem(event, droppedItem);
     if (!this.actor.isOwner) {
-      ui.notifications.error(`You do not have sufficient permissions to edit this character. Please speak to your GM if you feel you have reached this message in error.`, {permanent: true});
+      ui.notifications.error(
+        `You do not have sufficient permissions to edit this character. Please speak to your GM if you feel you have reached this message in error.`,
+        { permanent: true }
+      );
       return false;
     }
-	  await this.handleDrop(event, droppedItem);
+    await this.handleDrop(event, droppedItem);
   }
 
-  setLocalProp(propName, value){
+  setLocalProp(propName, value) {
     this[propName] = value;
     this.render(false);
   }
 
   /** @override */
-  async activateListeners(html){
+  async activateListeners(html) {
     super.activateListeners(html);
-    html.find("input.radio-toggle, label.radio-toggle").click(e => e.preventDefault());
-    html.find("input.radio-toggle, label.radio-toggle").mousedown(e => {
+    html
+      .find("input.radio-toggle, label.radio-toggle")
+      .click((e) => e.preventDefault());
+    html.find("input.radio-toggle, label.radio-toggle").mousedown((e) => {
       this._onRadioToggle(e);
     });
-    html.find('.debug-toggle').click(async ev => {
+    html.find(".debug-toggle").click(async (ev) => {
       console.log("DEBUG");
       this.show_debug = !this.show_debug;
       this.render(false);
@@ -59,15 +62,20 @@ export class BladesAlternateClassSheet extends ItemSheet {
     sheetData.owner = superData.owner;
     sheetData.editable = superData.editable;
     sheetData.show_debug = this.show_debug;
-    sheetData.description = superData.data.system.description;
-    sheetData.experience_clues = superData.data.system.experience_clues;
-    
-    sheetData.effects = BladesActiveEffect.prepareActiveEffectCategories(this.item.effects);
+    sheetData.description = superData.system.system.description;
+    sheetData.experience_clues = superData.system.system.experience_clues;
+
+    sheetData.effects = BladesActiveEffect.prepareActiveEffectCategories(
+      this.item.effects
+    );
     let templateAttributes = game.template.Actor.character.attributes;
     let classAttributes = superData.item.system.base_skills;
     for (const attributeKey of Object.keys(templateAttributes)) {
-      for (const skillKey of Object.keys(templateAttributes[attributeKey].skills)) {
-        templateAttributes[attributeKey].skills[skillKey].value = classAttributes[skillKey];
+      for (const skillKey of Object.keys(
+        templateAttributes[attributeKey].skills
+      )) {
+        templateAttributes[attributeKey].skills[skillKey].value =
+          classAttributes[skillKey];
       }
       // if (Object.hasOwnProperty.call(object, key)) {
       //   const element = object[key];
@@ -80,23 +88,23 @@ export class BladesAlternateClassSheet extends ItemSheet {
     return sheetData;
   }
 
-  _onRadioToggle(event){
+  _onRadioToggle(event) {
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
-    if(type == "label"){
-      let labelID = $(target).attr('for');
+    if (type == "label") {
+      let labelID = $(target).attr("for");
       target = $(`#${labelID}`).get(0);
     }
-    if(target.checked){
+    if (target.checked) {
       //find the next lowest-value input with the same name and click that one instead
       let name = target.name;
       let value = parseInt(target.value) - 1;
-      this.element.find(`input[name="${name}"][value="${value}"]`).trigger('click');
-    }
-    else{
+      this.element
+        .find(`input[name="${name}"][value="${value}"]`)
+        .trigger("click");
+    } else {
       //trigger the click on this one
-      $(target).trigger('click');
+      $(target).trigger("click");
     }
   }
-
 }

@@ -12,9 +12,9 @@
       <div class="stripe-tooth-body right">
       {{#multiboxes attribute.exp}}
         <input type="radio" id="character-{{../owner._id}}-{{attribute_name}}-exp-0"
-               name="data.attributes.{{attribute_name}}.exp" value="0" checked="checked" class="zero">
+               name="system.attributes.{{attribute_name}}.exp" value="0" checked="checked" class="zero">
         {{#times_from_1 attribute.exp_max}}
-          <input type="radio" id="character-{{../../owner._id}}-{{attribute_name}}-{{this}}" name="data.attributes.{{attribute_name}}.exp" value="{{this}}" dtype="Radio" class="radio-toggle" >
+          <input type="radio" id="character-{{../../owner._id}}-{{attribute_name}}-{{this}}" name="system.attributes.{{attribute_name}}.exp" value="{{this}}" dtype="Radio" class="radio-toggle" >
           <label for="character-{{../../owner._id}}-{{attribute_name}}-{{this}}" class="{{#if (gte attribute.exp @this)}}on{{/if}} radio-toggle"  ></label>
         {{/times_from_1}}
       {{/multiboxes}}
@@ -27,10 +27,10 @@
         {{#if ../../isitem}}
           {{#multiboxes skill.value}}
           <input type="radio" id="skill-{{../../owner._id}}-{{skill_name}}-0"
-                name="data.base_skills.{{skill_name}}" value="0" class="zero">
+                name="system.base_skills.{{skill_name}}" value="0" class="zero">
             {{#times_from_1 4}}
             <input type="radio" id="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
-                  name="data.base_skills.{{skill_name}}" value="{{this}}" class="radio-toggle">
+                  name="system.base_skills.{{skill_name}}" value="{{this}}" class="radio-toggle">
             <label for="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}" class="radio-toggle {{#if (gte skill.value this)}}on{{/if}} {{#if ../../../isitem}} item{{/if}} " ></label>
             {{/times_from_1}}
 
@@ -39,10 +39,10 @@
         {{else}}
           {{#multiboxes skill.value}}
           <input type="radio" id="skill-{{../../owner._id}}-{{skill_name}}-0"
-                name="data.attributes.{{attribute_name}}.skills.{{skill_name}}.value" value="0" class="zero">
+                name="system.attributes.{{attribute_name}}.skills.{{skill_name}}.value" value="0" class="zero">
             {{#times_from_1 4}}
             <input type="radio" id="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
-                  name="data.attributes.{{attribute_name}}.skills.{{skill_name}}.value" value="{{this}}" class="radio-toggle">
+                  name="system.attributes.{{attribute_name}}.skills.{{skill_name}}.value" value="{{this}}" class="radio-toggle">
             <label for="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}" class="radio-toggle {{#if (gte skill.value this)}}on{{/if}}" ></label>
             {{/times_from_1}}
 
