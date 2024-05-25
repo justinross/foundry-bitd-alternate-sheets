@@ -498,9 +498,7 @@ export class Utils {
   }
 
   static async addAcquaintanceArray(actor, acqArr) {
-    console.log("adding acquaintances", acqArr);
     let current_acquaintances = actor.system.acquaintances;
-    console.log("current acquaintances", current_acquaintances);
     for (const currAcq of current_acquaintances) {
       acqArr.findSplice((acq) => acq.id == currAcq._id);
     }
@@ -512,11 +510,9 @@ export class Utils {
         standing: "neutral",
       };
     });
-    console.log("new acquaintances", acqArr);
     await actor.update({
       system: { acquaintances: current_acquaintances.concat(acqArr) },
     });
-    console.log("updated actor", actor);
   }
 
   static async removeAcquaintance(actor, acqId) {
