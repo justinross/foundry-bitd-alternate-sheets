@@ -62,13 +62,13 @@ export class BladesAlternateClassSheet extends ItemSheet {
     sheetData.owner = superData.owner;
     sheetData.editable = superData.editable;
     sheetData.show_debug = this.show_debug;
-    sheetData.description = superData.system.system.description;
-    sheetData.experience_clues = superData.system.system.experience_clues;
+    sheetData.description = superData.data.description;
+    sheetData.experience_clues = superData.data.experience_clues;
 
     sheetData.effects = BladesActiveEffect.prepareActiveEffectCategories(
       this.item.effects
     );
-    let templateAttributes = game.template.Actor.character.attributes;
+    let templateAttributes = game.model.Actor.character.attributes;
     let classAttributes = superData.item.system.base_skills;
     for (const attributeKey of Object.keys(templateAttributes)) {
       for (const skillKey of Object.keys(

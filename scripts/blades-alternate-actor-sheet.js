@@ -5,6 +5,7 @@ import { queueUpdate } from "./lib/update-queue.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
 
+
 /**
  * Pure chaos
  * @extends {BladesSheet}
@@ -883,6 +884,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
 
     html.find(".ability-block .main-checkbox").change(async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
       let checkbox = ev.target;
       let ability_id = checkbox.closest(".ability-block").dataset.abilityId;
       await Utils.toggleOwnership(
@@ -891,6 +894,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
         "ability",
         ability_id
       );
+      this.actor.sheet.render(false);
     });
 
     html.find(".item-block .main-checkbox").change(async (ev) => {
