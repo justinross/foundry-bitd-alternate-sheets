@@ -8,7 +8,7 @@
         </div>
         <div class="status-buttons">
           <div class="coins-box {{#if coins_open}}open{{/if}} pointer">
-            <div class="mini-view"><div class="placeholder"></div><span class="coin-values label-text">{{data.coins}}/{{data.coins_stashed}}</span></div>
+            <div class="mini-view"><div class="placeholder"></div><span class="coin-values label-text">{{system.coins}}/{{system.coins_stashed}}</span></div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/coins.html" actor=actor}}</div>
           </div>
           <div class="load-box {{#if load_open}}open{{/if}} pointer">
@@ -16,21 +16,21 @@
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/load.html"}}</div>
           </div>
           <div class="harm-box {{#if harm_open}}open{{/if}} pointer">
-            <div class="mini-view harm{{#if (or data.harm.light.one data.harm.light.two)}}-1{{/if}}{{#if
-              (or data.harm.medium.one data.harm.medium.two)}}-2{{/if}}{{#if data.harm.heavy.one}}-3{{/if}}"><div class="placeholder"></div></div>
+            <div class="mini-view harm{{#if (or system.harm.light.one system.harm.light.two)}}-1{{/if}}{{#if
+              (or system.harm.medium.one system.harm.medium.two)}}-2{{/if}}{{#if system.harm.heavy.one}}-3{{/if}}"><div class="placeholder"></div></div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}</div>
           </div>
 
         </div><div class="stress-trauma-box">
           <header class="stress-bar full-bar">
-            {{localize data.stress.name}}
+            {{localize system.stress.name}}
             <div class="stripe-tooth-body stress">
-            {{#multiboxes data.stress.value}}
+            {{#multiboxes system.stress.value}}
               <input type="radio" id="{{../actor._id}}-stress-0"
-                     name="data.stress.value" value="0" checked="checked" class="zero">
-              {{#times_from_1 data.stress.max}}
-                <input type="radio" id="character-{{../actor._id}}-stress-{{this}}" name="data.stress.value" value="{{this}}" dtype="Radio" class="radio-toggle" >
-                <label for="character-{{../actor._id}}-stress-{{this}}" class="{{#if (gte ../data.stress.value @this)}}on{{/if}} radio-toggle"  ></label>
+                     name="system.stress.value" value="0" checked="checked" class="zero">
+              {{#times_from_1 system.stress.max}}
+                <input type="radio" id="character-{{../actor._id}}-stress-{{this}}" name="system.stress.value" value="{{this}}" dtype="Radio" class="radio-toggle" >
+                <label for="character-{{../actor._id}}-stress-{{this}}" class="{{#if (gte ../system.stress.value @this)}}on{{/if}} radio-toggle"  ></label>
               {{/times_from_1}}
             {{/multiboxes}}
             </div>
@@ -39,10 +39,10 @@
                 <div class="trauma-list count-{{ownedTraumas.length}}">
                 {{#if (gt trauma_count 0)}}
                 {{#each trauma_array as |trauma index|}}
-                  <div class="trauma-item" data-trauma="{{trauma}}">{{localize (concat "BITD.Trauma" (upper-first trauma))}}</div>
+                  <div class="trauma-item" data-trauma="{{trauma}}">{{localize (concat 'BITD.Trauma' (upper-first trauma))}}</div>
                 {{/each}}
                 {{else}}
-                  <em>{{localize data.trauma.name}}</em>
+                  <em>{{localize system.trauma.name}}</em>
                 {{/if}}
 
                 <i class="fas fa-plus add_trauma pointer"></i>
@@ -54,12 +54,12 @@
         </div>
       </section>
       <div class="name-alias bio">
-        <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") actor.name actor._id this}}}</span> <span class="alias">&bull; "{{{inline-editable-text allow_edit "data.alias" (localize "BITD.Alias") data.alias actor._id this}}}"</span>
+        <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") actor.name actor._id this}}}</span> <span class="alias">&bull; "{{{inline-editable-text allow_edit "system.alias" (localize "BITD.Alias") system.alias actor._id this}}}"</span>
       </div>
       <div class="heritage-background bio">
-        {{{inline-editable-text allow_edit "data.heritage" "Heritage" heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background" "Background" background actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.background-details" "Background Details" data.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice" "Vice" vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "data.vice-purveyor" "Vice Purveyor" data.vice-purveyor actor._id this}}}
+        {{{inline-editable-text allow_edit "system.heritage" (localize "BITD.Heritage") heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.background" (localize "BITD.Background") background actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.background-details" (localize "bitd-alt.BackgroundDetails") system.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.vice-purveyor" (localize "bitd-alt.VicePurveyor") system.vice-purveyor actor._id this}}}
       </div>
-      <div class="look bio">{{{inline-editable-text allow_edit "data.look" "Look" data.look actor._id this}}}</div>
+      <div class="look bio">{{{inline-editable-text allow_edit "system.look" "Look" system.look actor._id this}}}</div>
       <div class="abilities-list">{{#each my_abilities}}<span data-tooltip="{{clean-html this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}</div>
       {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.actor}}
     </section>
@@ -68,10 +68,13 @@
         <div class="tab-item playbook" data-tab="playbook">
           {{#if allow_edit}}
               <div class="playbook-name">{{selected_playbook.name}}</div>
-              <div class="playbook-description" title="Sorry, playbooks are what they should be called, but the system calls them classes">Drop a "class" item onto the sheet to switch playbooks.</div>
+              <div class="playbook-description" title="{{localize 'bitd-alt.PlaybookDisclaimer'}}">{{localize 'bitd-alt.PlaybookInstructions'}}</div>
+          {{else if selected_playbook}}
+              <div class="playbook-name">{{selected_playbook.name}}</div>
+              <div class="playbook-description">{{clean-html selected_playbook.system.description}}</div>
           {{else}}
-          <div class="playbook-name">{{selected_playbook.name}}</div>
-          <div class="playbook-description">{{clean-html selected_playbook.system.description}}</div>
+              <div class="playbook-name"></div>
+              <div class="playbook-description" title="{{localize 'bitd-alt.PlaybookDisclaimer'}}">{{localize 'bitd-alt.PlaybookInstructions'}}</div>
           {{/if}}
         </div>
         <!-- todo: put the downtime tab back -->
@@ -79,7 +82,7 @@
 <!--          <div class="">Downtime</div>-->
 <!--        </div>-->
         <div class="tab-item notes-tab" data-tab="notes">
-          <div class="notes-header">Notes</div>
+          <div class="notes-header">{{localize "BITD.Notes"}}</div>
         </div>
       </nav>
 
@@ -88,14 +91,14 @@
           <div class="playbook">
             <section class="abilities">
               <header class="full-bar">
-                <span class="context-abilities">{{localize "BITD.SpecialAbilities"}}</span>{{#if allow_edit}}<a class="ability-add-popup add-button" data-item-type="ability" data-group-by="data.class"><i class="fas fa-plus"></i></a>{{/if}}
+                <span class="context-abilities">{{localize "BITD.SpecialAbilities"}}</span>{{#if allow_edit}}<a class="ability-add-popup add-button" data-item-type="ability" data-group-by="system.class"><i class="fas fa-plus"></i></a>{{/if}}
                 <div class="stripe-tooth-body right">
-                {{#multiboxes data.experience}}
+                {{#multiboxes system.experience}}
                   <input type="radio" id="{{actor._id}}-experience-0"
-                        name="data.experience" value="0" checked="checked" class="zero">
-                  {{#times_from_1 data.experience_max}}
-                    <input type="radio" id="character-{{../actor._id}}-experience-{{this}}" name="data.experience" value="{{this}}" dtype="Radio" class="radio-toggle" >
-                    <label for="character-{{../actor._id}}-experience-{{this}}" class="{{#if (gte ../data.experience @this)}}on{{/if}} radio-toggle"  ></label>
+                        name="system.experience" value="0" checked="checked" class="zero">
+                  {{#times_from_1 system.experience_max}}
+                    <input type="radio" id="character-{{../actor._id}}-experience-{{this}}" name="system.experience" value="{{this}}" dtype="Radio" class="radio-toggle" >
+                    <label for="character-{{../actor._id}}-experience-{{this}}" class="{{#if (gte ../system.experience @this)}}on{{/if}} radio-toggle"  ></label>
                   {{/times_from_1}}
                 {{/multiboxes}}
                 </div>
@@ -109,7 +112,7 @@
               </section>
             </section>
             <section class="playbook-items item-list">
-              <header class="full-bar flex-header context-items"><span>{{localize "bitd-alt.items"}}</span>{{#if allow_edit}}<a class="item-list-add add-button" data-item-type="item" data-group-by="data.class"><i class="fas fa-plus"></i></a>{{/if}}</header>
+              <header class="full-bar flex-header context-items"><span>{{localize "bitd-alt.items"}}</span>{{#if allow_edit}}<a class="item-list-add add-button" data-item-type="item" data-group-by="system.class"><i class="fas fa-plus"></i></a>{{/if}}</header>
               {{#each my_items as |item index|}}
                 {{#with ../actor as |actor|}}
                 {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item}}
@@ -118,8 +121,8 @@
             </section>
             <section class="friends-rivals">
               <header class="full-bar">{{localize acquaintances_label}}</header>
-              {{#if data.acquaintances}}
-              {{#each data.acquaintances}}
+              {{#if system.acquaintances}}
+              {{#each system.acquaintances}}
                 <div class="acquaintance" data-acquaintance="{{this.id}}">
                   <i data-acquaintance="{{this.id}}" class="standing-toggle fas
                     {{#if (eq this.standing "friend" )}} fa-caret-up green-icon
@@ -141,18 +144,20 @@
             <section class="xp-notes">
               <header class="full-bar">XP</header>
               <ul>
-                <li>Every time you roll a desperate action, mark xp in that action's attribute.</li>
-                <p>At the end of each session, for each item below, mark 1 xp (in your playbook or an attribute) or 2 xp if that item occurred multiple times.</p>
+                <li>{{localize "BITD.ClassExpClue1"}}</li>
+                <p>{{localize "BITD.ClassExpClueDescription"}}</p>
                 <li>{{selected_playbook.system.experience_clues}}</li>
-                <li>You expressed your beliefs, drives, heritage, or background.</li>
-                <li>You struggled with issues from your vice or traumas during the session.</li>
+                <li>{{localize "BITD.ClassExpClue2"}}</li>
+                <li>{{localize "BITD.ClassExpClue3"}}</li>
               </ul>
             </section>
           </div>
         </div>
         <div class="tab" data-tab="notes" data-group="primary-tabs">
           <div class="character-notes-area">
-            <header>Add notes here. Drag and drop clocks, actors, or items in to link to them. Click clocks to increment, right-click to decrement.</header>
+
+
+            <header>{{localize "bitd-alt.NotesInstructions"}}</header>
             {{editor notes target="flags.bitd-alternate-sheets.notes" button=true editable=true documents=true engine="prosemirror" collaborate=true}}
           </div>
         </div>
