@@ -20,7 +20,7 @@
   "dependencies": [
     {
       "name": "blades-in-the-dark",
-      "manifest": "https://raw.githubusercontent.com/megastruktur/foundryvtt-blades-in-the-dark/master/system.json",
+      "manifest": "https://raw.githubusercontent.com/Dez384/foundryvtt-blades-in-the-dark/master/system.json",
       "type": "system"
     }
   ],
