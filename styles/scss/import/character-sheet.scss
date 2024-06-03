@@ -436,7 +436,7 @@
         }
 
         .load-box {
-          @include css_popup(30px, 30px, 100px, 50px);
+          @include css_popup(30px, 30px, null, 50px);
           > div {
             display: inline-block;
           }

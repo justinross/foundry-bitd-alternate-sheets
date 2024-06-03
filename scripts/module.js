@@ -6,15 +6,20 @@ import { preloadHandlebarsTemplates } from "./blades-templates.js";
 import { registerHandlebarsHelpers } from "./handlebars-helpers.js";
 import { registerHooks } from "./hooks.js";
 
-Hooks.once('init', async function() {
-  Actors.registerSheet("bitd-alt", BladesAlternateActorSheet, { types: ["character"], makeDefault: true});
+Hooks.once("init", async function () {
+  Actors.registerSheet("bitd-alt", BladesAlternateActorSheet, {
+    types: ["character"],
+    makeDefault: true,
+  });
   // Items.registerSheet("bitd-alt", BladesAlternateItemSheet, { types: ["item"], makeDefault: true});
-  Items.registerSheet("bitd-alt", BladesAlternateClassSheet, { types: ["class"], makeDefault: true});
+  Items.registerSheet("bitd-alt", BladesAlternateClassSheet, {
+    types: ["class"],
+    makeDefault: true,
+  });
 
   await registerSystemSettings();
 
   await preloadHandlebarsTemplates();
   await registerHandlebarsHelpers();
   await registerHooks();
-
 });

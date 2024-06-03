@@ -5,11 +5,10 @@
   "version": "0.0.1",
   "library": "false",
   "manifestPlusVersion": "1.2.0",
-  "minimumCoreVersion": "10",
-  "compatibleCoreVersion": "10",
+  "minimumCoreVersion": "12",
   "compatibility": {
-    "minimum": 10,
-    "verified": 10
+    "minimum": 12,
+    "verified": 12
   },
   "authors": [
     {
@@ -25,18 +24,10 @@
       "type": "system"
     }
   ],
-  "conflicts": [
-
-  ],
-  "esmodules": [
-    "/scripts/module.js"
-  ],
-  "scripts": [
-    "scripts/lib/markdown-it.min.js"
-  ],
-  "styles": [
-    "/styles/css/bitd-alt.css"
-  ],
+  "conflicts": [],
+  "esmodules": ["/scripts/module.js"],
+  "scripts": ["scripts/lib/markdown-it.min.js"],
+  "styles": ["/styles/css/bitd-alt.css"],
   "languages": [
     {
       "lang": "en",
