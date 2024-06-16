@@ -38,6 +38,11 @@
       "lang": "de",
       "name": "German",
       "path": "languages/de.json"
+    },
+    {
+      "lang": "it",
+      "name": "Italian",
+      "path": "languages/it.json"
     }
   ],
   "url": "This is auto replaced",
