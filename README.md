@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/Foundry-v10-informational)
+![](https://img.shields.io/badge/Foundry-v12-informational)
 ![Latest Release Download Count](https://img.shields.io/github/downloads/justinross/foundry-bitd-alternate-sheets/latest/module.zip)
 
 Manifest URL: https://github.com/justinross/foundry-bitd-alternate-sheets/releases/latest/download/module.json
