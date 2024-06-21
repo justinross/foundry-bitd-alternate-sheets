@@ -3,15 +3,15 @@ textarea {
   margin-bottom: 20px;
 }
 
-.debug-toggle{
+.debug-toggle {
   opacity: 0.1;
 
-  &.on{
+  &.on {
     opacity: 0.75;
   }
 }
 
-.pointer{
+.pointer {
   cursor: pointer;
 }
 
@@ -43,10 +43,15 @@ section.flex {
   }
 }
 
+.flex-lazy {
+  display: flex;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
 
-.tab[data-tab]{
+.tab[data-tab] {
   display: none;
-  &.active{
+  &.active {
     display: block;
   }
 }
@@ -83,7 +88,6 @@ section.flex {
   font-family: Kirsty, serif;
 }
 
-
 .label-stripe {
   text-transform: uppercase;
   background-color: $almost_black;
@@ -118,7 +122,12 @@ section.flex {
 
 i {
   &.nullifier {
-    @include changeable($transition-period, $hover-brightness, $hover-opacity, $red);
+    @include changeable(
+      $transition-period,
+      $hover-brightness,
+      $hover-opacity,
+      $red
+    );
   }
 }
 
@@ -130,7 +139,8 @@ i {
     box-shadow: none;
     border: none;
     cursor: pointer;
-    background: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat right;
+    background: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>")
+      no-repeat right;
     padding: 0 20px 0 0;
     margin: 0.1em -6px 0 0;
     background-color: $almost_black;
@@ -151,7 +161,9 @@ i {
   }
 }
 
-#abilities, #loadout, #faction-items {
+#abilities,
+#loadout,
+#faction-items {
   .item-name {
     width: 100px;
     margin-left: 10px;

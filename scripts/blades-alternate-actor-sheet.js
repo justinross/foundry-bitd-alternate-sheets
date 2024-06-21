@@ -5,7 +5,6 @@ import { queueUpdate } from "./lib/update-queue.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
 
-
 /**
  * Pure chaos
  * @extends {BladesSheet}
@@ -787,6 +786,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
     new ContextMenu(html, ".trauma-item", this.traumaListContextMenu);
     new ContextMenu(html, ".acquaintance", this.acquaintanceContextMenu);
 
+    html.find('*[contenteditable="true"]').on("paste", (e) => {
+      e.preventDefault();
+      let text = (e.originalEvent || e).clipboardData.getData("text/plain");
+      document.execCommand("insertText", false, text);
+    });
+
     html.find("button.clearLoad").on("click", async (e) => {
       this.clearLoad();
     });
@@ -817,9 +822,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
       this._onRadioToggle(e);
     });
 
-    html.find(".inline-input").on("input", async (ev) => {
+    html.find(".inline-input").on("keyup", async (ev) => {
       let input = ev.currentTarget.previousSibling;
       input.value = ev.currentTarget.innerText;
+      console.log(ev.currentTarget.innerText);
     });
 
     html.find(".inline-input").on("blur", async (ev) => {
