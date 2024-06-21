@@ -436,7 +436,7 @@ export class Utils {
         .find(`[data-document-id="${character}"]`)
         .find(".document-name.entry-name")
         .each((index, el) => {
-          el.innerText = game.actors.get(character).system.alias;
+          el.innerHtml = `<a>${game.actors.get(character).system.alias}</a>`;
         });
     }
   }
