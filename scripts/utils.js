@@ -420,6 +420,27 @@ export class Utils {
     }
   }
 
+  static replaceCharacterNamesInDirectory(app, html) {
+    const listOfCharacterIds = app.documents
+      .filter(
+        (item) =>
+          item.type === "character" &&
+          item.getFlag("bitd-alternate-sheets", "showAliasInDirectory")
+      )
+      .map((item) => item._id);
+    console.log(
+      `Found ${listOfCharacterIds.length} character(s) to rename in the directory`
+    );
+    for (const character of listOfCharacterIds) {
+      html
+        .find(`[data-document-id="${character}"]`)
+        .find(".document-name.entry-name")
+        .each((index, el) => {
+          el.innerText = game.actors.get(character).system.alias;
+        });
+    }
+  }
+
   static prepIndexForHelper(index) {
     let prepped = {};
     if (index) {
