@@ -260,6 +260,42 @@
       }
     }
   }
+  span.toggle-alias-display {
+    display: inline-block;
+    cursor: pointer;
+    background: #008000;
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 3px;
+
+    &:hover {
+      color: #fff;
+    }
+
+    i {
+      width: 100%;
+      text-align: center;
+      padding: 4px 6px;
+    }
+    .fa-face-disguise {
+      display: none;
+    }
+  }
+  &.showing-alias {
+    .sheet-toggles {
+      .toggle-alias-display {
+        background-color: #800000;
+        .fa-face-disguise {
+          display: inline-block;
+        }
+        .fa-face-smile {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &.allow-edit {
+  }
 
   .minimized-view {
     align-items: center;

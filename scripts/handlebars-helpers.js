@@ -52,6 +52,43 @@ export const registerHandlebarsHelpers = function () {
     }
   );
 
+  Handlebars.registerHelper("testing", function () {
+    return "testing";
+  });
+  Handlebars.registerHelper(
+    "fancyToggle",
+    function (
+      parameter_name,
+      offIcon,
+      onIcon,
+      current_value,
+      tooltip,
+      uniq_id
+    ) {
+      console.log(
+        parameter_name,
+        offIcon,
+        onIcon,
+        current_value,
+        tooltip,
+        uniq_id
+      );
+      let html = `
+      <label class="fancyToggle" for="fancyToggle-${uniq_id}" data-tooltip="${tooltip}">
+        <i class="fas ${offIcon}" style="display: ${
+        current_value ? "none" : "inline"
+      };"></i>
+        <i class="fas ${onIcon}" style="display: ${
+        current_value ? "inline" : "none"
+      };"></i>
+      </label>
+        <input type="checkbox" style="" checked="${current_value}" id="fancyToggle-${uniq_id}" name="${parameter_name}" data-input="${uniq_id}-${parameter_name}" />
+      `;
+      console.log("HTMLLLL", html);
+      return html;
+    }
+  );
+
   Handlebars.registerHelper("ifCond", function (v1, operator, v2, options) {
     switch (operator) {
       case "==":

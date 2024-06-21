@@ -363,6 +363,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let sheetData = await super.getData();
     sheetData.editable = this.options.editable;
     sheetData.isGM = game.user.isGM;
+    sheetData.showAliasInDirectory = this.actor.getFlag(
+      "bitd-alternate-sheets",
+      "showAliasInDirectory"
+    );
     const actorData = sheetData.data;
     sheetData.actor = actorData;
     sheetData.system = actorData.system;
@@ -867,6 +871,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
     html.find(".toggle-allow-edit").click(async (event) => {
       event.preventDefault();
       this.setLocalProp("allow_edit", !this.allow_edit);
+    });
+
+    html.find(".toggle-alias-display").click(async (event) => {
+      event.preventDefault();
+      this.actor.setFlag(
+        "bitd-alternate-sheets",
+        "showAliasInDirectory",
+        !this.actor.getFlag("bitd-alternate-sheets", "showAliasInDirectory")
+      );
     });
 
     html.find(".item-block .main-checkbox").change((ev) => {

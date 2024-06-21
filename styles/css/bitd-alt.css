@@ -1379,6 +1379,33 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit .fa-lock {
   display: none;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display {
+  display: inline-block;
+  cursor: pointer;
+  background: #008000;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 3px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display:hover {
+  color: #fff;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display i {
+  width: 100%;
+  text-align: center;
+  padding: 4px 6px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display .fa-face-disguise {
+  display: none;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper.showing-alias .sheet-toggles .toggle-alias-display {
+  background-color: #800000;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper.showing-alias .sheet-toggles .toggle-alias-display .fa-face-disguise {
+  display: inline-block;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper.showing-alias .sheet-toggles .toggle-alias-display .fa-face-smile {
+  display: none;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view {
   align-items: center;
 }

@@ -1,6 +1,6 @@
 <form class="{{cssClass}}" autocomplete="off">
-  <div class="sheet-wrapper {{#if allow_edit}}allow-edit{{/if}}">
-    <div class="sheet-toggles"><span class="toggle-expand"><i class="fas fa-expand"></i><i class="fas fa-compress"></i></span><span class="toggle-allow-edit"><i class="fas fa-lock"></i><i class="fas fa-lock-open"></i></span><!--<span class="migrate-test">mig</span>--></div>
+  <div class="sheet-wrapper {{#if allow_edit}}allow-edit{{/if}} {{#if showAliasInDirectory}}showing-alias{{/if}}">
+    <div class="sheet-toggles"><span class="toggle-alias-display"><i class="fas fa-face-disguise" data-tooltip="Show Character Name in Directory"></i><i class="fas fa-face-smile" data-tooltip="Show Character Alias in Directory"></i></span><span class="toggle-expand"><i class="fas fa-expand"></i><i class="fas fa-compress"></i></span><span class="toggle-allow-edit"><i class="fas fa-lock"></i><i class="fas fa-lock-open"></i></span><!--<span class="migrate-test">mig</span>--></div>
     <section class="minimized-view row natural-height ">
       <section class="character-portrait col flex-lazy">
         <div class="portrait">
@@ -57,6 +57,9 @@
 
       <div class="name-alias bio">
         <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") actor.name actor._id this}}}</span> <span class="alias">&bull; "{{{inline-editable-text allow_edit "system.alias" (localize "BITD.Alias") system.alias actor._id this}}}"</span>
+        <!-- {{#if allow_edit}}
+          <input type="checkbox" id="actor-{{actor._id}}-showAliasInDirectory" data-tooltip="Display Alias in Directory" name="flags.bitd-alternate-sheets.showAliasInDirectory" {{checked showAliasInDirectory}} /><label class="showAliasCheckbox" for="actor-{{actor._id}}-showAliasInDirectory">Show Alias In Directory</label>
+        {{/if}} -->
       </div>
       <div class="heritage-background bio">
         {{{inline-editable-text allow_edit "system.heritage" (localize "BITD.Heritage") heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.background" (localize "BITD.Background") background actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.background-details" (localize "bitd-alt.BackgroundDetails") system.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.vice-purveyor" (localize "bitd-alt.VicePurveyor") system.vice-purveyor actor._id this}}}
