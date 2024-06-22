@@ -1,16 +1,19 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
 import { registerDiceSoNiceChanges } from "./dice-so-nice.js";
 import { Patch } from "./patches.js";
-import { MODULE_ID, Utils } from "./utils.js";
+import { Utils } from "./utils.js";
 
 export async function registerHooks() {
   // Hooks.once('ready', () => {
   // if(!game.modules.get('lib-wrapper')?.active && game.user.isGM)
   //   ui.notifications.error("Module Blades in the Dark Alternate Sheets requires the 'libWrapper' module. Please install and activate it.");
-  // CONFIG.debug.hooks = true;
   // });
 
+  // Hooks.once("setup", () => {
+  // });
   Hooks.once("ready", () => {
+    CONFIG.debug.hooks = true;
+
     Hooks.once("diceSoNiceReady", (dice3d) => {
       registerDiceSoNiceChanges(dice3d);
     });
@@ -48,6 +51,11 @@ export async function registerHooks() {
     if (item.type === "item" && item.parent) {
       await Utils.toggleOwnership(false, item.parent, "item", item.id);
     }
+  });
+
+  Hooks.on("renderSidebarTab", async (app, html, options) => {
+    if (options.tabName !== "actors") return;
+    Utils.replaceCharacterNamesInDirectory(app, html);
   });
 
   Hooks.on("renderBladesClockSheet", async (sheet, html, options) => {

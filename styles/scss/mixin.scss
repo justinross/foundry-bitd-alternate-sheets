@@ -526,21 +526,21 @@
     left: 50%;
     width:  $item-size;
     height: $item-size;
-    margin: -($item-size / 2);
+    margin: -($item-size * 0.5);
 
     //adjust so that 0deg is at the top. Theoretically.
     $start-angle: $start-angle - 90;
     $end-angle: $end-angle - 90;
     
     $total-angle: $end-angle - $start-angle; 
-    $angle: ($total-angle / ($item-count - 1));
+    $angle: math.div($total-angle, $item-count - 1);
     $rot: $start-angle;
 
     @for $i from 1 through $item-count {
       &:nth-of-type(#{$i}) {
         transform: 
           rotate($rot * 1deg) 
-          translate($circle-size / 2) 
+          translate($circle-size * 0.5) 
           rotate($rot * -1deg);
       }
 
@@ -567,22 +567,22 @@
     left: 50%;
     width:  $item-size;
     height: $item-size;
-    margin: -($item-size / 2);
+    margin: -($item-size * 0.5);
 
     //adjust so that 0deg is at the top. Theoretically.
     $center-angle: $center-angle - 90;
     $total-angle: $angle-spacing * ($item-count - 1); 
-    $start-angle: $center-angle - ($total-angle / 2);
-    $end-angle: $center-angle + ($total-angle / 2);
+    $start-angle: $center-angle - ($total-angle * 0.5);
+    $end-angle: $center-angle + ($total-angle * 0.5);
     
-    $angle: ($total-angle / ($item-count - 1));
+    $angle: math.div($total-angle, $item-count - 1);
     $rot: $start-angle;
 
     @for $i from 1 through $item-count {
       &:nth-of-type(#{$i}) {
         transform: 
           rotate($rot * 1deg) 
-          translate($circle-size / 2) 
+          translate($circle-size * 0.5) 
           rotate($rot * -1deg);
       }
 
@@ -594,13 +594,13 @@
 @function makeLongShadow($length, $spacing, $angle, $backgroundColor, $shadowColor, $fade, $blur, $blurRate){
   $shadow : 0px 0px $shadowColor;
   @for $i from 1 through $length{
-    $radians : $angle * math.$pi/180;
+    $radians : math.div($angle * math.$pi, 180);
     $shadow : #{$shadow}, #{(math.cos($radians) * $i) * $spacing}px #{(math.sin($radians) * $i) * $spacing}px;
     @if $blur{
       $shadow : #{$shadow} #{($blurRate * $i)}px;
     }
     @if $fade{
-      $shadow : #{$shadow} #{mix($backgroundColor, $shadowColor, ((100/$length) * $i))};
+      $shadow : #{$shadow} #{mix($backgroundColor, $shadowColor, (math.div(100, $length) * $i))};
     }
     @else{
       $shadow : #{$shadow} #{$shadowColor};

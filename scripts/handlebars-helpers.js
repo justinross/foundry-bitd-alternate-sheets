@@ -42,7 +42,7 @@ export const registerHandlebarsHelpers = function () {
       context
     ) {
       let html = "";
-      if (current_value?.length === 0) {
+      if (current_value?.length === 0 || !current_value) {
         current_value = blank_value;
       }
       html += `<input  data-input="character-${uniq_id}-${parameter_name}" name="${parameter_name}" type="hidden" value="${current_value}" placeholder="${blank_value}"><span class="inline-input" ${
@@ -51,6 +51,70 @@ export const registerHandlebarsHelpers = function () {
       return html;
     }
   );
+
+  Handlebars.registerHelper("testing", function () {
+    return "testing";
+  });
+  Handlebars.registerHelper(
+    "fancyToggle",
+    function (
+      parameter_name,
+      offIcon,
+      onIcon,
+      current_value,
+      tooltip,
+      uniq_id
+    ) {
+      console.log(
+        parameter_name,
+        offIcon,
+        onIcon,
+        current_value,
+        tooltip,
+        uniq_id
+      );
+      let html = `
+      <label class="fancyToggle" for="fancyToggle-${uniq_id}" data-tooltip="${tooltip}">
+        <i class="fas ${offIcon}" style="display: ${
+        current_value ? "none" : "inline"
+      };"></i>
+        <i class="fas ${onIcon}" style="display: ${
+        current_value ? "inline" : "none"
+      };"></i>
+      </label>
+        <input type="checkbox" style="" checked="${current_value}" id="fancyToggle-${uniq_id}" name="${parameter_name}" data-input="${uniq_id}-${parameter_name}" />
+      `;
+      console.log("HTMLLLL", html);
+      return html;
+    }
+  );
+
+  Handlebars.registerHelper("ifCond", function (v1, operator, v2, options) {
+    switch (operator) {
+      case "==":
+        return v1 == v2 ? options.fn(this) : options.inverse(this);
+      case "===":
+        return v1 === v2 ? options.fn(this) : options.inverse(this);
+      case "!=":
+        return v1 != v2 ? options.fn(this) : options.inverse(this);
+      case "!==":
+        return v1 !== v2 ? options.fn(this) : options.inverse(this);
+      case "<":
+        return v1 < v2 ? options.fn(this) : options.inverse(this);
+      case "<=":
+        return v1 <= v2 ? options.fn(this) : options.inverse(this);
+      case ">":
+        return v1 > v2 ? options.fn(this) : options.inverse(this);
+      case ">=":
+        return v1 >= v2 ? options.fn(this) : options.inverse(this);
+      case "&&":
+        return v1 && v2 ? options.fn(this) : options.inverse(this);
+      case "||":
+        return v1 || v2 ? options.fn(this) : options.inverse(this);
+      default:
+        return options.inverse(this);
+    }
+  });
 
   Handlebars.registerHelper("clean-name", function (input) {
     return Utils.trimClassFromName(input);
