@@ -1,58 +1,152 @@
-<section class="attributes-actions">
-  {{#each attributes as |attribute attribute_name|}}
-  {{#if attribute_name}}
-  <section class="attribute attributes-{{attribute_name}}">
+<section class="attributes-actions row">
+  {{#each attributes as |attribute attribute_name|}} {{#if attribute_name}}
+  <section class="attribute attributes-{{attribute_name}} col">
     <header class="full-bar">
-
       {{#if ../isitem}}
       <a class="attribute-label">{{localize (concat attribute.label '')}}</a>
       {{else}}
-      <a class="attribute-label roll-die-attribute rollable-text" data-roll-attribute="{{attribute_name}}">{{localize (concat attribute.label '')}}</a>
+      <a
+        class="attribute-label roll-die-attribute rollable-text"
+        data-roll-attribute="{{attribute_name}}"
+        >{{localize (concat attribute.label '')}}</a
+      >
       <!-- attribute xp -->
       <div class="stripe-tooth-body right">
-      {{#multiboxes attribute.exp}}
-        <input type="radio" id="character-{{../owner._id}}-{{attribute_name}}-exp-0"
-               name="system.attributes.{{attribute_name}}.exp" value="0" checked="checked" class="zero">
+        {{#multiboxes attribute.exp}}
+        <input
+          type="radio"
+          id="character-{{../owner._id}}-{{attribute_name}}-exp-0"
+          name="system.attributes.{{attribute_name}}.exp"
+          value="0"
+          checked="checked"
+          class="zero"
+        />
         {{#times_from_1 attribute.exp_max}}
-          <input type="radio" id="character-{{../../owner._id}}-{{attribute_name}}-{{this}}" name="system.attributes.{{attribute_name}}.exp" value="{{this}}" dtype="Radio" class="radio-toggle" >
-          <label for="character-{{../../owner._id}}-{{attribute_name}}-{{this}}" class="{{#if (gte attribute.exp @this)}}on{{/if}} radio-toggle"  ></label>
-        {{/times_from_1}}
-      {{/multiboxes}}
+        <input
+          type="radio"
+          id="character-{{../../owner._id}}-{{attribute_name}}-{{this}}"
+          name="system.attributes.{{attribute_name}}.exp"
+          value="{{this}}"
+          dtype="Radio"
+          class="radio-toggle"
+        />
+        <label
+          for="character-{{../../owner._id}}-{{attribute_name}}-{{this}}"
+          class="{{#if (gte attribute.exp @this)}}on{{/if}} radio-toggle"
+        ></label>
+        {{/times_from_1}} {{/multiboxes}}
       </div>
       {{/if}}
     </header>
     <!-- actions -->
     {{#each attribute.skills as |skill skill_name|}}
     <div class="action">
-        {{#if ../../isitem}}
-          {{#multiboxes skill.value}}
-          <input type="radio" id="skill-{{../../owner._id}}-{{skill_name}}-0"
-                name="system.base_skills.{{skill_name}}" value="0" class="zero">
-            {{#times_from_1 4}}
-            <input type="radio" id="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
-                  name="system.base_skills.{{skill_name}}" value="{{this}}" class="radio-toggle">
-            <label for="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}" class="radio-toggle {{#if (gte skill.value this)}}on{{/if}} {{#if ../../../isitem}} item{{/if}} " ></label>
-            {{/times_from_1}}
+      {{#if ../../isitem}} {{#multiboxes skill.value}}
+      <input
+        type="radio"
+        id="skill-{{../../owner._id}}-{{skill_name}}-0"
+        name="system.base_skills.{{skill_name}}"
+        value="0"
+        class="zero"
+      />
+      {{#times_from_1 4}}
+      <input
+        type="radio"
+        id="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
+        name="system.base_skills.{{skill_name}}"
+        value="{{this}}"
+        class="radio-toggle"
+      />
+      <label
+        for="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
+        class="radio-toggle {{#if (gte skill.value this)}}on{{/if}} {{#if ../../../isitem}} item{{/if}} "
+      ></label>
+      {{/times_from_1}}
 
-          <div class="attribute-skill-label roll-die-attribute rollable-text" data-roll-attribute="{{skill_name}}" data-tooltip="{{localize (concat 'bitd-alt.Attributes.' skill_name) }}">{{localize skill.label}}</div>
-          {{/multiboxes}}
-        {{else}}
-          {{#multiboxes skill.value}}
-          <input type="radio" id="skill-{{../../owner._id}}-{{skill_name}}-0"
-                name="system.attributes.{{attribute_name}}.skills.{{skill_name}}.value" value="0" class="zero">
-            {{#times_from_1 4}}
-            <input type="radio" id="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
-                  name="system.attributes.{{attribute_name}}.skills.{{skill_name}}.value" value="{{this}}" class="radio-toggle">
-            <label for="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}" class="radio-toggle {{#if (gte skill.value this)}}on{{/if}}" ></label>
-            {{/times_from_1}}
+      <div
+        class="attribute-skill-label roll-die-attribute rollable-text"
+        data-roll-attribute="{{skill_name}}"
+        data-tooltip="{{localize (concat 'bitd-alt.Attributes.' skill_name) }}"
+      >
+        {{localize skill.label}}
+      </div>
+      {{/multiboxes}} {{else}} {{#multiboxes skill.value}}
+      <input
+        type="radio"
+        id="skill-{{../../owner._id}}-{{skill_name}}-0"
+        name="system.attributes.{{attribute_name}}.skills.{{skill_name}}.value"
+        value="0"
+        class="zero"
+      />
+      {{#times_from_1 4}}
+      <input
+        type="radio"
+        id="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
+        name="system.attributes.{{attribute_name}}.skills.{{skill_name}}.value"
+        value="{{this}}"
+        class="radio-toggle"
+      />
+      <label
+        for="skill-{{../../../owner._id}}-{{skill_name}}-{{this}}"
+        class="radio-toggle {{#if (gte skill.value this)}}on{{/if}}"
+      ></label>
+      {{/times_from_1}}
 
-          <div class="attribute-skill-label roll-die-attribute rollable-text" data-roll-attribute="{{skill_name}}" data-tooltip="{{localize (concat 'bitd-alt.Attributes.' skill_name) }}">{{localize skill.label}}</div>
-          {{/multiboxes}}
-        {{/if}}
+      <div
+        class="attribute-skill-label roll-die-attribute rollable-text"
+        data-roll-attribute="{{skill_name}}"
+        data-tooltip="{{localize (concat 'bitd-alt.Attributes.' skill_name) }}"
+      >
+        {{localize skill.label}}
+      </div>
+      {{/multiboxes}} {{/if}}
     </div>
     {{/each}}
-
   </section>
-  {{/if}}
-  {{/each}}
+  {{/if}} {{/each}}
+  <div class="harm-list row">
+    {{#ifCond system.harm.light.one '||' system.harm.light.two}}
+    <div
+      class="col row harm-block light natural-height"
+      data-tooltip="Less Effect"
+    >
+      <i class="fa-solid fa-down col"></i>
+      <div class="col">
+        {{#if system.harm.light.one}}
+        <span class="harm col">{{system.harm.light.one}}</span
+        ><span class="dash">,&#8203;</span>
+        {{/if}} {{#if system.harm.light.two}}
+        <span class="harm col">{{system.harm.light.two}}</span>
+        {{/if}}
+      </div>
+    </div>
+    {{/ifCond}} {{#ifCond system.harm.medium.one '||' system.harm.medium.two}}
+    <div
+      class="col row harm-block medium natural-height"
+      data-tooltip="-1D To Affected Rolls"
+    >
+      <i class="fa-solid fa-dice-five col"></i>
+      <div class="col">
+        {{#if system.harm.medium.one}}
+        <span class="harm col">{{system.harm.medium.one}}</span
+        ><span class="dash">,&#8203;</span>
+        {{/if}} {{#if system.harm.medium.two}}
+        <span class="harm col">{{system.harm.medium.two}}</span>
+        {{/if}}
+      </div>
+    </div>
+    {{/ifCond}} {{#if system.harm.heavy.one}}
+    <div
+      class="col row harm-block heavy natural-height"
+      data-tooltip="Need Immediate Help"
+    >
+      <i class="fa-solid fa-skull col"></i>
+      <div class="col">
+        {{#if system.harm.heavy.one}}
+        <span class="harm col">{{system.harm.heavy.one}}</span>
+        {{/if}}
+      </div>
+    </div>
+    {{/if}}
+  </div>
 </section>

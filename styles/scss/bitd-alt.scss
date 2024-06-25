@@ -4,8 +4,8 @@ $darkgray: #666;
 $gray: #999;
 $red: red;
 $almost_black: #191813;
-$almost_white: #EEEFFF;
-$gold: #DAA520;
+$almost_white: #eeefff;
+$gold: #daa520;
 $green: #008000;
 $light_green: #12a012;
 $blue: #04578f;
@@ -16,36 +16,39 @@ $hover-opacity: 0.9;
 $hover-brightness: 0.8;
 
 // Utility imports
-@import 'mixin.scss';
+@import "mixin.scss";
 //@import 'fonts.scss';
 
 //namespacing to avoid conflicts with other modules
-.blades-alt{
+.blades-alt {
   font-family: "Crimson Text", serif;
 
-  @import 'import/general-styles.scss';
+  $gutter: 0px;
+  @import "import/flexbox/main.scss";
+
+  @import "import/general-styles.scss";
 
   //&.crew.sheet{
   //  @import 'import/crew-sheet.scss';
   //}
 
-  &.actor.sheet.pc{
-    @import 'import/character-sheet.scss';
+  &.actor.sheet.pc {
+    @import "import/character-sheet.scss";
   }
 
-  &.item.sheet.class{
-    @import 'import/class-sheet.scss';
+  &.item.sheet.class {
+    @import "import/class-sheet.scss";
   }
   //&.actor.clock{
   //  @import 'import/clock-sheet';
   //}
   //
-  &.item.sheet{
-   @import 'import/item-sheet.scss';
+  &.item.sheet {
+    @import "import/item-sheet.scss";
   }
 }
 
 //top-level styles
 //@import 'import/chat.scss';
 //@import 'import/dialogs.scss';
-@import 'import/tooltip.scss';
+@import "import/tooltip.scss";

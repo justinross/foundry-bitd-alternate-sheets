@@ -1,19 +1,18 @@
-
 /*
  * General Styles - Redesign
  */
 
-&{
+& {
   min-width: 800px;
   min-height: 275px;
 }
 
-.sheet-wrapper{
+.sheet-wrapper {
   position: relative;
   margin: 5px;
   font-family: "Crimson Text", serif;
 
-  input[type="checkbox"]{
+  input[type="checkbox"] {
     width: 1em;
     height: 1em;
   }
@@ -26,80 +25,83 @@
     color: $red;
   }
 
-  a.add-button{
+  a.add-button {
     margin-left: 5px;
-    font-size: .9rem;
+    font-size: 0.9rem;
   }
 
-  a.delete-button{
+  a.delete-button {
     position: absolute;
     right: 5px;
     top: 2px;
-    font-size: .6rem;
+    font-size: 0.6rem;
   }
 
-  [contenteditable]:not(.ProseMirror){
+  [contenteditable]:not(.ProseMirror) {
     user-select: auto !important;
     text-decoration: underline;
 
-    &:active, &:focus{
-      background-color: rgba(255,255,255,0.5);
+    &:active,
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.5);
       border: none;
       border-radius: 3px;
     }
   }
 
-  .linkedClock{
+  .linkedClock {
     display: inline-block;
     text-align: center;
     margin: 1em;
   }
 
-  .clockImage{
+  .clockImage {
     width: 100px;
     border: none;
   }
 
-  .editor{
-    background-color: rgba(255,255,255,0.2);
-    padding: .5em;
+  .editor {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.5em;
     height: auto;
     flex-grow: 1;
   }
-  
-  .editor.prosemirror{
+
+  .editor.prosemirror {
     height: 100%;
     padding: auto;
   }
 
-  .hover-details, .hover-term, .v10-tooltip{
+  .hover-details,
+  .hover-term,
+  .v10-tooltip {
     cursor: help;
     color: darken($red, 30%);
     font-weight: bold;
     text-decoration: underline;
   }
 
-  ul.diamond{
+  ul.diamond {
     list-style: none;
-    li{
+    li {
       position: relative;
       &:after {
-        content: '';
-        height: .4em;
-        width: .4em;
+        content: "";
+        height: 0.4em;
+        width: 0.4em;
         background: $almost_black;
         display: block;
         position: absolute;
         transform: rotate(45deg);
-        top: .45em;
+        top: 0.45em;
         left: -1em;
       }
     }
   }
 
   @at-root {
-    .add-existing-dialog{
-      .items-list{
+    .add-existing-dialog {
+      .items-list {
         display: flex;
         flex-wrap: wrap;
         align-content: space-between;
@@ -108,12 +110,12 @@
         background-color: rgba(255, 255, 255, 0.4);
         vertical-align: top;
         flex-grow: 1;
-        margin: .5px;
-        padding: .5em;
+        margin: 0.5px;
+        padding: 0.5em;
 
         header {
           background-color: $almost-black;
-          padding: .1em .25em;
+          padding: 0.1em 0.25em;
           width: 100%;
           font-size: 2em;
           font-family: Kirsty, serif;
@@ -123,30 +125,30 @@
     }
   }
 
-  #context-menu ol li *{
+  #context-menu ol li * {
     vertical-align: initial;
   }
 
-  .clickable-edit{
+  .clickable-edit {
     text-decoration: underline;
   }
 
-  .rollable-text{
+  .rollable-text {
     cursor: pointer;
   }
 
-  input[type=text]{
+  input[type="text"] {
     width: auto;
     border: 0;
   }
-  .edit-only{
+  .edit-only {
     display: none;
   }
-  .non-edit{
+  .non-edit {
     display: initial;
   }
 
-  header.full-bar{
+  header.full-bar {
     background-color: $almost_black;
     color: $almost_white;
     padding: 3px;
@@ -157,61 +159,78 @@
     margin-bottom: 5px;
     line-height: 1em;
 
-
-    .stripe-tooth-body{
-      &.right{
+    .stripe-tooth-body {
+      &.right {
         position: absolute;
         top: 1px;
         right: 1px;
-        @include toothradio(10px, 25px, "assets/teeth/xptooth-white.png", "assets/teeth/xptooth-red.png");
+        @include toothradio(
+          10px,
+          25px,
+          "assets/teeth/xptooth-white.png",
+          "assets/teeth/xptooth-red.png"
+        );
       }
-      &.stress{
+      &.stress {
         position: absolute;
         top: 1px;
         right: 1px;
-        @include toothradio(10px, 25px, "assets/teeth/xptooth-white.png", "assets/teeth/xptooth-red.png");
+        @include toothradio(
+          10px,
+          25px,
+          "assets/teeth/xptooth-white.png",
+          "assets/teeth/xptooth-red.png"
+        );
       }
     }
   }
 
-  .sheet-toggles{
+  .sheet-toggles {
     position: absolute;
     top: -10px;
     right: -10px;
 
-    >span{
+    > span {
       display: inline-block;
       padding: 4px;
       margin: 0 5px;
     }
 
-    span.toggle-expand{
+    span.toggle-expand {
       background: #0058cc;
       color: rgba(255, 255, 255, 0.6);
       cursor: pointer;
       border-radius: 3px;
-      .fa-expand{ display: none; }
-      .fa-compress{ display: initial; }
-    }
-
-    @at-root .can-expand{
-      span.toggle-expand{
-        .fa-expand{ display: initial !important; }
-        .fa-compress{ display: none !important; }
+      .fa-expand {
+        display: none;
+      }
+      .fa-compress {
+        display: initial;
       }
     }
 
-    span.toggle-allow-edit{
+    @at-root .can-expand {
+      span.toggle-expand {
+        .fa-expand {
+          display: initial !important;
+        }
+        .fa-compress {
+          display: none !important;
+        }
+      }
+    }
+
+    span.toggle-allow-edit {
       cursor: pointer;
       background: #008000;
       color: rgba(255, 255, 255, 0.6);
       border-radius: 3px;
 
-      &:hover{
+      &:hover {
         color: #fff;
       }
 
-      i{
+      i {
         width: 100%;
         text-align: center;
         padding: 4px 6px;
@@ -222,16 +241,15 @@
     }
   }
 
-
-  &.allow-edit{
+  &.allow-edit {
     //.edit-only{
     //  display: initial;
     //}
     //.non-edit{
     //  display: none;
     //}
-    .sheet-toggles{
-      .toggle-allow-edit{
+    .sheet-toggles {
+      .toggle-allow-edit {
         background-color: #800000;
         .fa-lock-open {
           display: inline-block;
@@ -242,52 +260,74 @@
       }
     }
   }
+  span.toggle-alias-display {
+    display: inline-block;
+    cursor: pointer;
+    background: #008000;
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 3px;
 
-  .minimized-view{
-    display: grid;
-    height: 235px;
-    //background-color: rgba(255,0,0,0.1);
-    grid-template-columns: auto 1fr;
-    column-gap: 1em;
-    grid-template-rows: 2fr 1fr 1fr 1fr 4fr;
-    grid-template-areas:
-        "portrait main-row"
-        "portrait sub-row-1"
-        "portrait sub-row-2"
-        "portrait sub-row-3"
-        "portrait actions";
+    &:hover {
+      color: #fff;
+    }
 
-    .character-portrait{
+    i {
+      width: 100%;
+      text-align: center;
+      padding: 4px 6px;
+    }
+    .fa-face-disguise {
+      display: none;
+    }
+  }
+  &.showing-alias {
+    .sheet-toggles {
+      .toggle-alias-display {
+        background-color: #800000;
+        .fa-face-disguise {
+          display: inline-block;
+        }
+        .fa-face-smile {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &.allow-edit {
+  }
+
+  .minimized-view {
+    align-items: center;
+    .character-portrait {
       $portrait-size: 200px;
-      grid-area: portrait;
-      place-self: center;
-      width: $portrait-size;
-      height: $portrait-size;
-      flex-shrink: 0;
-      flex-grow: 0;
       position: relative;
 
-      .portrait{
+      &.row {
+        align-items: center;
+      }
+
+      .portrait {
         border-radius: 100px;
         overflow: hidden;
         border: 6px solid $gray;
-        width: 100%;
-        height: 100%;
+        width: $portrait-size;
+        height: $portrait-size;
         position: relative;
         top: -10px;
 
-        > img{
-          width:100%;
-          height:100%;
+        > img {
+          width: 100%;
+          height: 100%;
           object-fit: cover;
           overflow: hidden;
           border: 0;
           border-radius: 50%;
-          box-shadow: 0 0 20px rgba(0,0,0,0.3) inset;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
         }
       }
 
-      .status-buttons{
+      .status-buttons {
         position: absolute;
         top: 15px;
         left: -15px;
@@ -300,40 +340,40 @@
         flex-direction: column;
         justify-content: space-around;
 
-        >div{
+        > div {
           overflow: visible;
           position: relative;
         }
-        >div:not(:last-of-type){
+        > div:not(:last-of-type) {
           margin-bottom: 20px;
         }
 
-        .coins-box{
+        .coins-box {
           @include css_popup(30px, 30px, 250px, 50px);
 
-          > div{
+          > div {
             display: inline-block;
           }
-          .mini-view{
+          .mini-view {
             background-repeat: no-repeat;
             background-image: url(assets/icons/coins.png);
             background-size: contain;
 
-            .coin-values{
+            .coin-values {
             }
-
           }
 
-          .full-view{
-            @import 'coins.scss';
+          .full-view {
+            @import "coins.scss";
           }
 
-          &.open{
-            .full-view{
-              .coins{
+          &.open {
+            .full-view {
+              .coins {
                 display: flex;
                 justify-content: space-between;
-                .hand, .stash{
+                .hand,
+                .stash {
                   display: inline-block;
                   text-align: left;
                 }
@@ -342,37 +382,49 @@
           }
         }
 
-        .harm-box{
+        .harm-box {
           @include css_popup(30px, 30px, 550px, 350px);
-          .mini-view{
+          .mini-view {
             background-repeat: no-repeat;
             background-image: url(assets/icons/harm.png);
             background-size: contain;
-            &.harm-1{background-image: url(assets/icons/harm-1.png);}
-            &.harm-1-2{background-image: url(assets/icons/harm-1-2.png);}
-            &.harm-1-3{background-image: url(assets/icons/harm-1-3.png);}
-            &.harm-1-2-3{background-image: url(assets/icons/harm-1-2-3.png);}
-            &.harm-2{background-image: url(assets/icons/harm-2.png);}
-            &.harm-2-3{background-image: url(assets/icons/harm-2-3.png);}
-            &.harm-3{background-image: url(assets/icons/harm-3.png);}
+            &.harm-1 {
+              background-image: url(assets/icons/harm-1.png);
+            }
+            &.harm-1-2 {
+              background-image: url(assets/icons/harm-1-2.png);
+            }
+            &.harm-1-3 {
+              background-image: url(assets/icons/harm-1-3.png);
+            }
+            &.harm-1-2-3 {
+              background-image: url(assets/icons/harm-1-2-3.png);
+            }
+            &.harm-2 {
+              background-image: url(assets/icons/harm-2.png);
+            }
+            &.harm-2-3 {
+              background-image: url(assets/icons/harm-2-3.png);
+            }
+            &.harm-3 {
+              background-image: url(assets/icons/harm-3.png);
+            }
 
-            .harm-effects{
+            .harm-effects {
               position: absolute;
               bottom: 4px;
               font-weight: bold;
-              font-size: .9rem;
+              font-size: 0.9rem;
               font-family: "Crimson Text", serif;
               left: 0px;
               width: 100%;
               color: $almost-white;
             }
-
           }
 
-
-          &.open{
-            .full-view{
-              .character-harm{
+          &.open {
+            .full-view {
+              .character-harm {
                 display: grid;
                 grid-template-columns: 1em repeat(6, 1fr);
                 grid-template-rows: repeat(5, 1.6em);
@@ -380,50 +432,84 @@
                 grid-row-gap: 1px;
                 place-items: center;
                 grid-template-areas:
-                "empty header-harm header-harm header-harm header-harm header-effect header-healing"
-                "rownum3 heavy heavy heavy heavy heavy-effect healing"
-                "rownum2 medium1 medium1 medium2 medium2 medium-effect healing"
-                "rownum1 light1 light1 light2 light2 light-effect healing"
-                "armor armor armor armor armor armor armor";
-                input[type=text]{
+                  "empty header-harm header-harm header-harm header-harm header-effect header-healing"
+                  "rownum3 heavy heavy heavy heavy heavy-effect healing"
+                  "rownum2 medium1 medium1 medium2 medium2 medium-effect healing"
+                  "rownum1 light1 light1 light2 light2 light-effect healing"
+                  "armor armor armor armor armor armor armor";
+                input[type="text"] {
                   height: 100%;
                   width: 100%;
                   border-radius: 0;
                   background-color: darken($lightgray, 10%);
                   z-index: 10;
                 }
-                header{
+                header {
                   width: calc(100% + 5px);
                   background-color: $almost_black;
                   color: $almost_white;
                 }
-                header.harm{grid-area: header-harm;}
-                header.effect{grid-area: header-effect;}
-                header.healing{grid-area: header-healing;}
-                .rownum3{grid-area: rownum3;}
-                .heavy{grid-area: heavy;}
-                .effect-text.heavy{grid-area: heavy-effect;}
-                .rownum2{grid-area: rownum2;}
-                .medium1{grid-area: medium1;}
-                .medium2{grid-area: medium2;}
-                .effect-text.medium{grid-area: medium-effect;}
-                .light1{grid-area: light1;}
-                .light2{grid-area: light2;}
-                .effect-text.light{grid-area: light-effect;}
-                .healing-clock{
+                header.harm {
+                  grid-area: header-harm;
+                }
+                header.effect {
+                  grid-area: header-effect;
+                }
+                header.healing {
+                  grid-area: header-healing;
+                }
+                .rownum3 {
+                  grid-area: rownum3;
+                }
+                .heavy {
+                  grid-area: heavy;
+                }
+                .effect-text.heavy {
+                  grid-area: heavy-effect;
+                }
+                .rownum2 {
+                  grid-area: rownum2;
+                }
+                .medium1 {
+                  grid-area: medium1;
+                }
+                .medium2 {
+                  grid-area: medium2;
+                }
+                .effect-text.medium {
+                  grid-area: medium-effect;
+                }
+                .light1 {
+                  grid-area: light1;
+                }
+                .light2 {
+                  grid-area: light2;
+                }
+                .effect-text.light {
+                  grid-area: light-effect;
+                }
+                .healing-clock {
                   grid-area: healing;
                   padding-top: 25px;
                   @include clock(4, 100);
-                  label i.nullifier{
+                  label i.nullifier {
                     position: absolute;
                     top: 15px;
                     right: 0px;
                   }
                 }
-                .rownum1{grid-area: rownum1;}
-                .armor-use{grid-area: armor; text-align: right;}
-                .effect-text{font-family: "Crimson Text", serif;font-size: .9rem;}
-                .grid-lines{
+                .rownum1 {
+                  grid-area: rownum1;
+                }
+                .armor-use {
+                  grid-area: armor;
+                  text-align: right;
+                }
+                .effect-text {
+                  font-family: "Crimson Text", serif;
+                  font-size: 0.9rem;
+                }
+                .grid-lines {
                   background-color: $almost_black;
                   grid-area: 2 / 2 / 5 / 6;
                   width: 100%;
@@ -447,36 +533,35 @@
             background-size: contain;
           }
 
-          .below-max{
+          .below-max {
             color: #006600;
           }
-          .at-max{
+          .at-max {
             color: #e07f1a;
           }
-          .over-max{
+          .over-max {
             color: #660000;
           }
         }
       }
 
-
-      .stress-trauma-box{
+      .stress-trauma-box {
         width: 100%;
         height: 2em;
         position: absolute;
         bottom: 10px;
         left: 0;
 
-        .stress-bar{
+        .stress-bar {
           position: relative;
           z-index: 100;
         }
 
-        .trauma-box{
+        .trauma-box {
           padding: 0 0 2px;
           position: relative;
           z-index: 1;
-          .trauma-list{
+          .trauma-list {
             width: 100%;
             height: 100%;
             background-color: $lightgray;
@@ -486,7 +571,7 @@
             top: -5px;
             padding-top: 5px;
             border-radius: 0 0 1em 1em;
-            .trauma-item{
+            .trauma-item {
               pointer-events: all;
               display: inline-block;
               font-weight: bold;
@@ -495,66 +580,64 @@
                 content: " \2022";
               }
             }
-            .add_trauma{
+            .add_trauma {
               font-size: 1em;
             }
-
           }
         }
-
       }
     }
 
-    .name-alias{
-      font-family: Kirsty, serif;
-      font-weight: bold;
-      font-size: 3em;
-      color: $almost_black;
-      grid-area: main-row;
+    .character-info {
+      padding-left: 1em;
+      .name-alias {
+        font-family: Kirsty, serif;
+        font-weight: bold;
+        font-size: 3em;
+        color: $almost_black;
+        line-height: 0.4em;
+        padding-bottom: 0.2em;
+        padding-top: 0.5em;
 
-      .name{
+        .name {
+        }
 
+        .alias {
+          font-size: 0.6em;
+          font-weight: normal;
+        }
       }
 
-      .alias{
-        font-size: .6em;
-        font-weight: normal;
+      .heritage-background {
       }
-    }
 
-    .heritage-background{
-      grid-area: sub-row-1;
-    }
+      .look {
+      }
 
-    .look{
-      grid-area: sub-row-2;
-    }
+      .bio {
+        border-bottom: 1px solid $almost_black;
+      }
 
-    .bio{
-      border-bottom: 2px solid $almost_black;
-    }
+      .abilities-list {
+        border-bottom: 1px solid $almost_black;
+      }
 
-    .abilities-list{
-      grid-area: sub-row-3;
-    }
-
-    .attributes-actions{
-      grid-area: actions;
-      @import "attributes.scss";
+      .attributes-actions {
+        @import "attributes.scss";
+      }
     }
   }
 
-  .tab-space{
-    nav.tabs{
+  .tab-space {
+    nav.tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-column-gap: 1em;
       grid-template-rows: auto;
-      grid-template-areas:
-          "tab1 tab2 ";
+      grid-template-areas: "tab1 tab2 ";
     }
 
-    .tab-item{
+    .tab-item {
       flex-grow: 0;
       display: inline-flex;
       justify-content: space-between;
@@ -563,10 +646,10 @@
       border-radius: 20px 20px 0 0;
       font-family: Kirsty, serif;
       text-transform: capitalize;
-      padding: 5px 15px ;
+      padding: 5px 15px;
       font-size: 2.6em;
 
-      select{
+      select {
         font-family: Kirsty;
         font-size: 1em;
         height: 80%;
@@ -575,11 +658,11 @@
         left: 2px;
       }
 
-      > div{
+      > div {
         margin: 5px 10px;
       }
 
-      &.playbook{
+      &.playbook {
         grid-area: tab1;
       }
 
@@ -587,46 +670,43 @@
       //  grid-area: tab2;
       //}
 
-      &.notes{
+      &.notes {
         grid-area: tab2;
       }
 
-
-      .playbook-description{
+      .playbook-description {
         font-family: "Crimson Text", serif;
-        font-size: .4em;
+        font-size: 0.4em;
         font-variant: small-caps;
         font-weight: bold;
         color: $darkgray;
         text-align: center;
       }
 
-      &.active{
+      &.active {
         margin-bottom: 0;
       }
 
-      &:not(.active){
+      &:not(.active) {
         background-color: rgba($lightgray, 0.5);
       }
-
     }
-    .tab-content{
+    .tab-content {
       flex-basis: 100%;
 
-      .tab{
-
-        .playbook{
+      .tab {
+        .playbook {
           display: grid;
           align-items: stretch;
           justify-items: stretch;
           grid-template-columns: 2fr 1em 1fr 1fr;
           grid-template-rows: repeat(3, min-content);
           grid-template-areas:
-              "abilities gutter pb-items all-items"
-              "abilities gutter friends all-items"
-              "abilities gutter xp-notes xp-notes";
+            "abilities gutter pb-items all-items"
+            "abilities gutter friends all-items"
+            "abilities gutter xp-notes xp-notes";
 
-          select{
+          select {
             font-family: Kirsty, serif;
             text-transform: capitalize;
             font-size: 2.6em;
@@ -634,7 +714,7 @@
             background-color: #f00;
           }
 
-          &::after{
+          &::after {
             content: "";
             background: $lightgray;
             grid-area: gutter;
@@ -642,103 +722,101 @@
             width: 100%;
           }
 
-          section{
-            padding-bottom: .75em;
+          section {
+            padding-bottom: 0.75em;
           }
 
-          .abilities{
+          .abilities {
             grid-area: abilities;
             background: $lightgray;
             padding-bottom: 1em;
-            .ability-list{
-              .ability-block{
+            .ability-list {
+              .ability-block {
                 display: flex;
                 align-items: flex-start;
                 position: relative;
                 padding: 5px;
-                &:nth-child(even){
-                  background-color: rgba(255,255,255,0.3);
+                &:nth-child(even) {
+                  background-color: rgba(255, 255, 255, 0.3);
                 }
 
-                input{
+                input {
                   margin: 0;
                   margin-right: 3px;
                   position: relative;
 
-                  &.offset{
+                  &.offset {
                     margin-top: -3px;
                   }
                 }
               }
-              label{
+              label {
                 margin: 0;
-                line-height: .8em;
+                line-height: 0.8em;
                 font-size: 1.2em;
                 margin-bottom: 6px;
                 padding-right: 1em;
 
-                .ability-name{
+                .ability-name {
                   font-weight: bold;
                   font-variant: small-caps;
                 }
 
-                .ability-description p{
+                .ability-description p {
                   display: inline;
                 }
               }
             }
           }
 
-          .playbook-items{
+          .playbook-items {
             grid-area: pb-items;
             background: $lightgray;
           }
 
-          .item-list{
+          .item-list {
             font-size: 1.2em;
-            .free-item{
+            .free-item {
               font-style: italic;
             }
-            .item-block{
+            .item-block {
               padding: 2px 5px;
               //padding-left: 5px;
               //padding-right: 1em;
               //padding-bottom: .15em;
               position: relative;
               line-height: 0;
-              @at-root .allow-edit .item-block:nth-child(even){
-                background-color: rgba(0,0,0,0.1);
+              @at-root .allow-edit .item-block:nth-child(even) {
+                background-color: rgba(0, 0, 0, 0.1);
               }
-              .checkbox{
+              .checkbox {
                 position: relative;
                 display: inline-block;
                 width: 100%;
               }
-              .item-name{
+              .item-name {
                 width: 100%;
                 position: relative;
                 line-height: 1em;
               }
-
 
               //this is probably not very robust. Figure something else out.
               .join-line {
                 border: 1px solid $darkgray;
                 width: 1em;
                 display: inline-block;
-                height:0px;
-                margin: 0 -.5em;
+                height: 0px;
+                margin: 0 -0.5em;
                 top: calc(-0.5em + 5px);
                 position: relative;
                 z-index: 0;
-
               }
 
-              *{
+              * {
                 //vertical-align: bottom;
               }
 
-              input{
+              input {
                 margin-left: 0;
                 position: relative;
                 z-index: 10;
@@ -747,104 +825,105 @@
             }
           }
 
-          .friends-rivals{
+          .friends-rivals {
             grid-area: friends;
             background: $lightgray;
             line-height: 0;
 
             font-size: 1.2em;
-            .acquaintance{
+            .acquaintance {
               line-height: 1em;
               padding: 2px 5px;
-              i{
+              i {
                 padding: 1px;
                 margin-right: 3px;
                 width: 1.2em;
                 text-align: center;
-                &.red-icon{
+                &.red-icon {
                   color: #880000;
                 }
 
-                &.green-icon{
+                &.green-icon {
                   color: #006600;
                 }
               }
             }
           }
 
-          .all-items{
+          .all-items {
             grid-area: all-items;
           }
 
-          .xp-notes{
+          .xp-notes {
             grid-area: xp-notes;
             background: $lightgray;
             font-size: 1.2em;
-            p{
+            p {
               line-height: 1em;
             }
-            ul{
+            ul {
               list-style-type: square;
               padding-right: 5px;
-              li{
+              li {
                 font-style: italic;
               }
             }
           }
 
-          header.full-bar{
+          header.full-bar {
             background-color: $darkgray;
             color: $almost_white;
           }
         }
 
-        &.downtime{
+        &.downtime {
           line-height: 1em;
-          h3{
+          h3 {
             text-align: center;
             font-family: Kirsty, serif;
             font-size: 2em;
-            margin: .5em;
+            margin: 0.5em;
           }
-          header{
+          header {
             width: 100%;
             font-family: Kirsty, serif;
             background-color: $almost_black;
             color: $almost_white;
             padding: 3px;
             text-align: center;
-            .header-row{
+            .header-row {
               display: flex;
               justify-content: space-evenly;
               margin: 2px 0;
             }
           }
-          .downtimeWrapper{
+          .downtimeWrapper {
             display: flex;
-            table{
-              tr{
+            table {
+              tr {
                 text-align: center;
-                td, th{
+                td,
+                th {
                   padding: 3px;
                 }
-                th{
+                th {
                   background-color: $almost-black;
                   color: $almost-white;
                 }
               }
             }
-            .column{
+            .column {
               display: flex;
               flex-direction: column;
               width: 50%;
-              section{
+              section {
                 background-color: $lightgray;
-                p{
+                p {
                   text-align: center;
                 }
-                ul{
+                ul {
                   padding-right: 1em;
-                  li{
+                  li {
                     margin-bottom: 3px;
                   }
                 }
@@ -853,7 +932,7 @@
           }
         }
 
-        .character-notes-area{
+        .character-notes-area {
           background-color: $lightgray;
           box-sizing: border-box;
           padding: 10px;
@@ -865,11 +944,10 @@
           // textarea{
           //   height: 600px;
           // }
-          header{
-            font-size: .9em;
+          header {
+            font-size: 0.9em;
             flex-grow: 0;
           }
-
         }
       }
     }

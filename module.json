@@ -25,6 +25,12 @@
     }
   ],
   "conflicts": [],
+  "flags": {
+    "hotReload": {
+      "extensions": ["hbs", "css", "html"],
+      "paths": ["templates", "templates/parts", "langs", "styles", "images"]
+    }
+  },
   "esmodules": ["/scripts/module.js"],
   "scripts": ["scripts/lib/markdown-it.min.js"],
   "styles": ["/styles/css/bitd-alt.css"],
