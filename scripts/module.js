@@ -6,7 +6,9 @@ import { preloadHandlebarsTemplates } from "./blades-templates.js";
 import { registerHandlebarsHelpers } from "./handlebars-helpers.js";
 import { registerHooks } from "./hooks.js";
 
-Hooks.once("init", async function () {
+Hooks.once("init", function () {
+  console.log("Initializing Blades in the Dark Alternate Sheets");
+  // CONFIG.debug.hooks = true;
   Actors.registerSheet("bitd-alt", BladesAlternateActorSheet, {
     types: ["character"],
     makeDefault: true,
@@ -17,9 +19,9 @@ Hooks.once("init", async function () {
     makeDefault: true,
   });
 
-  await registerSystemSettings();
+  registerSystemSettings();
 
-  await preloadHandlebarsTemplates();
-  await registerHandlebarsHelpers();
-  await registerHooks();
+  preloadHandlebarsTemplates();
+  registerHandlebarsHelpers();
+  registerHooks();
 });

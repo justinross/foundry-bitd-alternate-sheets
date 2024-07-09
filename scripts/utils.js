@@ -373,7 +373,6 @@ export class Utils {
         }
       }
     } else if (type == "item") {
-      console.log("It's an item");
       // let item = actor.items.find(item => item.id === id);
       let equipped_items = await actor.getFlag(
         "bitd-alternate-sheets",
@@ -389,14 +388,12 @@ export class Utils {
         item_blueprint = await Utils.getItemByType(type, id);
       }
       if (state) {
-        console.log("State is true");
         equipped_items.push({
           id: item_blueprint.id,
           load: item_blueprint.system.load,
           name: item_blueprint.name,
         });
       } else {
-        console.log("State is false");
         equipped_items = equipped_items.filter((i) => {
           return i.id !== id;
         });
@@ -432,12 +429,23 @@ export class Utils {
       `Found ${listOfCharacterIds.length} character(s) to rename in the directory`
     );
     for (const character of listOfCharacterIds) {
-      html
+      const showPronouns = game.settings.get(
+        "bitd-alternate-sheets",
+        "showPronounsInCharacterDirectory"
+      );
+      let computedName = game.actors.get(character).system.alias;
+      const pronouns = game.actors
+        .get(character)
+        .getFlag("bitd-alternate-sheets", "pronouns");
+      if (showPronouns && pronouns !== "Pronouns") {
+        computedName = `${computedName} (${pronouns})`;
+      }
+      let elements = html
         .find(`[data-document-id="${character}"]`)
-        .find(".document-name.entry-name")
-        .each((index, el) => {
-          el.innerHtml = `<a>${game.actors.get(character).system.alias}</a>`;
-        });
+        .find(".document-name.entry-name");
+      elements.each((index, el) => {
+        el.innerHTML = `<a>${computedName}</a>`;
+      });
     }
   }
 

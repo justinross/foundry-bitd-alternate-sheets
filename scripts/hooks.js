@@ -11,9 +11,14 @@ export async function registerHooks() {
 
   // Hooks.once("setup", () => {
   // });
-  Hooks.once("ready", () => {
-    CONFIG.debug.hooks = true;
 
+  Hooks.on("renderSidebarTab", (app, html, options) => {
+    if (options.tabName !== "actors") return;
+    console.log("Replacing Actors' Names");
+    Utils.replaceCharacterNamesInDirectory(app, html);
+  });
+
+  Hooks.once("ready", () => {
     Hooks.once("diceSoNiceReady", (dice3d) => {
       registerDiceSoNiceChanges(dice3d);
     });
@@ -51,11 +56,6 @@ export async function registerHooks() {
     if (item.type === "item" && item.parent) {
       await Utils.toggleOwnership(false, item.parent, "item", item.id);
     }
-  });
-
-  Hooks.on("renderSidebarTab", async (app, html, options) => {
-    if (options.tabName !== "actors") return;
-    Utils.replaceCharacterNamesInDirectory(app, html);
   });
 
   Hooks.on("renderBladesClockSheet", async (sheet, html, options) => {

@@ -980,7 +980,6 @@
   justify-content: center;
 }
 .blades-alt .flex-lazy {
-  display: flex;
   flex-grow: 0;
   flex-shrink: 0;
 }
@@ -1410,6 +1409,7 @@
   align-items: center;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait {
+  margin-bottom: -35px;
   position: relative;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait.row {
@@ -1855,10 +1855,9 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box {
   width: 100%;
-  height: 2em;
-  position: absolute;
-  bottom: 10px;
-  left: 0;
+  position: relative;
+  margin-bottom: 10px;
+  bottom: 30px;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .stress-bar {
   position: relative;
@@ -1916,7 +1915,6 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions {
   background-color: rgba(0, 0, 0, 0.1);
-  margin-bottom: 0.75rem;
   column-gap: 0.5rem;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions header.full-bar {
@@ -2313,7 +2311,6 @@
 }
 .blades-alt.item.sheet.class .attributes-actions {
   background-color: rgba(0, 0, 0, 0.1);
-  margin-bottom: 0.75rem;
   column-gap: 0.5rem;
 }
 .blades-alt.item.sheet.class .attributes-actions header.full-bar {
