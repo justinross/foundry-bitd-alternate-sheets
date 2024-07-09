@@ -418,22 +418,20 @@ export class Utils {
   }
 
   static replaceCharacterNamesInDirectory(app, html) {
-    const listOfCharacterIds = app.documents
-      .filter(
-        (item) =>
-          item.type === "character" &&
-          item.getFlag("bitd-alternate-sheets", "showAliasInDirectory")
-      )
+    const listOfAllCharacterIds = app.documents
+      .filter((item) => item.type === "character")
       .map((item) => item._id);
-    console.log(
-      `Found ${listOfCharacterIds.length} character(s) to rename in the directory`
-    );
-    for (const character of listOfCharacterIds) {
+    for (const character of listOfAllCharacterIds) {
       const showPronouns = game.settings.get(
         "bitd-alternate-sheets",
         "showPronounsInCharacterDirectory"
       );
-      let computedName = game.actors.get(character).system.alias;
+      const showAliasInDirectory = game.actors
+        .get(character)
+        .getFlag("bitd-alternate-sheets", "showAliasInDirectory");
+      let computedName = showAliasInDirectory
+        ? game.actors.get(character).system.alias
+        : game.actors.get(character).name;
       const pronouns = game.actors
         .get(character)
         .getFlag("bitd-alternate-sheets", "pronouns");
