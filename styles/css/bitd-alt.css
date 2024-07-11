@@ -1407,6 +1407,7 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view {
   align-items: center;
+  margin-bottom: 0.5rem;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait {
   margin-bottom: -35px;
