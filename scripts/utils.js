@@ -435,7 +435,7 @@ export class Utils {
       const pronouns = game.actors
         .get(character)
         .getFlag("bitd-alternate-sheets", "pronouns");
-      if (showPronouns && pronouns !== "Pronouns") {
+      if (showPronouns && pronouns && pronouns !== "Pronouns") {
         computedName = `${computedName} (${pronouns})`;
       }
       let elements = html
