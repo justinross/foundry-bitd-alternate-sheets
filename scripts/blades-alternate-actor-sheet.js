@@ -262,9 +262,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       callback: (element) => {
         let traumaToDisable = element.data("trauma");
         let traumaUpdateObject = this.actor.system.trauma.list;
-        console.log(traumaUpdateObject);
         traumaUpdateObject[traumaToDisable.toLowerCase()] = false;
-        console.log(traumaUpdateObject);
         // let index = traumaUpdateObject.indexOf(traumaToDisable.toLowerCase());
         // traumaUpdateObject.splice(index, 1);
         queueUpdate(() =>
@@ -829,7 +827,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
     html.find(".inline-input").on("keyup", async (ev) => {
       let input = ev.currentTarget.previousSibling;
       input.value = ev.currentTarget.innerText;
-      console.log(ev.currentTarget.innerText);
     });
 
     html.find(".inline-input").on("blur", async (ev) => {
@@ -1044,7 +1041,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
                 },
               };
               newTraumaListValue.system.trauma.list[newTrauma] = true;
-              console.log(newTraumaListValue);
               await this.actor.update(newTraumaListValue);
             },
           },

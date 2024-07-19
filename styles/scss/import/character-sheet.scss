@@ -299,7 +299,9 @@
 
   .minimized-view {
     align-items: center;
+    margin-bottom: 0.5rem;
     .character-portrait {
+      margin-bottom: -35px;
       $portrait-size: 200px;
       position: relative;
 
@@ -547,10 +549,9 @@
 
       .stress-trauma-box {
         width: 100%;
-        height: 2em;
-        position: absolute;
-        bottom: 10px;
-        left: 0;
+        position: relative;
+        margin-bottom: 10px;
+        bottom: 30px;
 
         .stress-bar {
           position: relative;

@@ -373,7 +373,6 @@ export class Utils {
         }
       }
     } else if (type == "item") {
-      console.log("It's an item");
       // let item = actor.items.find(item => item.id === id);
       let equipped_items = await actor.getFlag(
         "bitd-alternate-sheets",
@@ -389,14 +388,12 @@ export class Utils {
         item_blueprint = await Utils.getItemByType(type, id);
       }
       if (state) {
-        console.log("State is true");
         equipped_items.push({
           id: item_blueprint.id,
           load: item_blueprint.system.load,
           name: item_blueprint.name,
         });
       } else {
-        console.log("State is false");
         equipped_items = equipped_items.filter((i) => {
           return i.id !== id;
         });
@@ -421,23 +418,32 @@ export class Utils {
   }
 
   static replaceCharacterNamesInDirectory(app, html) {
-    const listOfCharacterIds = app.documents
-      .filter(
-        (item) =>
-          item.type === "character" &&
-          item.getFlag("bitd-alternate-sheets", "showAliasInDirectory")
-      )
+    const listOfAllCharacterIds = app.documents
+      .filter((item) => item.type === "character")
       .map((item) => item._id);
-    console.log(
-      `Found ${listOfCharacterIds.length} character(s) to rename in the directory`
-    );
-    for (const character of listOfCharacterIds) {
-      html
+    for (const character of listOfAllCharacterIds) {
+      const showPronouns = game.settings.get(
+        "bitd-alternate-sheets",
+        "showPronounsInCharacterDirectory"
+      );
+      const showAliasInDirectory = game.actors
+        .get(character)
+        .getFlag("bitd-alternate-sheets", "showAliasInDirectory");
+      let computedName = showAliasInDirectory
+        ? game.actors.get(character).system.alias
+        : game.actors.get(character).name;
+      const pronouns = game.actors
+        .get(character)
+        .getFlag("bitd-alternate-sheets", "pronouns");
+      if (showPronouns && pronouns && pronouns !== "Pronouns") {
+        computedName = `${computedName} (${pronouns})`;
+      }
+      let elements = html
         .find(`[data-document-id="${character}"]`)
-        .find(".document-name.entry-name")
-        .each((index, el) => {
-          el.innerHtml = `<a>${game.actors.get(character).system.alias}</a>`;
-        });
+        .find(".document-name.entry-name");
+      elements.each((index, el) => {
+        el.innerHTML = `<a>${computedName}</a>`;
+      });
     }
   }
 

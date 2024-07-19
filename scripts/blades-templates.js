@@ -1,13 +1,11 @@
 /**
  * Define a set of template paths to pre-load
  * Pre-loaded templates are compiled and cached for fast access when rendering
- * @return {Promise}
+ * @return {}
  */
-export const preloadHandlebarsTemplates = async function() {
-
+export const preloadHandlebarsTemplates = function () {
   // Define template paths to load
   const templatePaths = [
-
     // Actor Sheet Partials
     "modules/bitd-alternate-sheets/templates/parts/coins.html",
     "modules/bitd-alternate-sheets/templates/parts/attributes.html",
@@ -24,5 +22,5 @@ export const preloadHandlebarsTemplates = async function() {
   ];
 
   // Load the template parts
-  return await loadTemplates(templatePaths);
+  return loadTemplates(templatePaths);
 };
