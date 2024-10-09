@@ -516,10 +516,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.available_playbook_abilities = combined_abilities_list;
 
     let armor = all_generic_items.findSplice((item) =>
-      item.name.includes("Armor")
+      item.name.includes(game.i18n.localize("BITD.Armor"))
     );
     let heavy = all_generic_items.findSplice((item) =>
-      item.name.includes("Heavy")
+      item.name.includes(game.i18n.localize("BITD.Heavy"))
     );
     all_generic_items.sort((a, b) => {
       if (a.name === b.name) {
