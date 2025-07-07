@@ -443,11 +443,20 @@ export class BladesAlternateActorSheet extends BladesSheet {
         ? Utils.getOwnedObjectByType(this.actor, "vice").name
         : "";
 
-    sheetData.load_levels = {
-      "BITD.Light": "BITD.Light",
-      "BITD.Normal": "BITD.Normal",
-      "BITD.Heavy": "BITD.Heavy",
-    };
+    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
+      //Set up DC Load Levels
+      sheetData.load_levels = {
+        "BITD.Discreet": "BITD.Discreet",
+        "BITD.Conspicuous": "BITD.Conspicuous"
+      };
+    } else {
+      //Set up Traditional Load Levels
+      sheetData.load_levels = {
+        "BITD.Light": "BITD.Light",
+        "BITD.Normal": "BITD.Normal",
+        "BITD.Heavy": "BITD.Heavy",
+      };
+    }
 
     let owned_playbooks = this.actor.items.filter(
       (item) => item.type == "class"
@@ -567,21 +576,40 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     sheetData.loadout = loadout;
 
-    switch (sheetData.system.selected_load_level) {
-      case "BITD.Light":
-        sheetData.max_load = sheetData.system.base_max_load + 3;
-        break;
-      case "BITD.Normal":
-        sheetData.max_load = sheetData.system.base_max_load + 5;
-        break;
-      case "BITD.Heavy":
-        sheetData.max_load = sheetData.system.base_max_load + 6;
-        break;
-      default:
-        sheetData.system.selected_load_level = "BITD.Normal";
-        sheetData.max_load = sheetData.system.base_max_load + 5;
-        break;
+    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
+      //Deep Cuts Load
+      switch (sheetData.system.selected_load_level) {
+        case "BITD.Discreet":
+          sheetData.max_load = sheetData.system.base_max_load + 4;
+          break;
+        case "BITD.Conspicuous":
+          sheetData.max_load = sheetData.system.base_max_load + 6;
+          break;
+        default:
+          sheetData.system.selected_load_level = "BITD.Discreet";
+          sheetData.max_load = sheetData.system.base_max_load + 4;
+          break;
+      }
     }
+    else {
+      //Traditional Load
+      switch (sheetData.system.selected_load_level) {
+        case "BITD.Light":
+          sheetData.max_load = sheetData.system.base_max_load + 3;
+          break;
+        case "BITD.Normal":
+          sheetData.max_load = sheetData.system.base_max_load + 5;
+          break;
+        case "BITD.Heavy":
+          sheetData.max_load = sheetData.system.base_max_load + 6;
+          break;
+        default:
+          sheetData.system.selected_load_level = "BITD.Normal";
+          sheetData.max_load = sheetData.system.base_max_load + 5;
+          break;
+      }
+    }
+
     return sheetData;
   }
 
