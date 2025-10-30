@@ -803,18 +803,17 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    new ContextMenu(html, ".item-block.owned", this.itemContextMenu);
-    // new ContextMenu(html, ".ability-block", this.abilityContextMenu);
-    new ContextMenu(html, ".context-items > span", this.itemListContextMenu);
-    new ContextMenu(html, ".item-list-add", this.itemListContextMenu, {
-      eventName: "click",
-    });
-    new ContextMenu(html, ".context-abilities", this.abilityListContextMenu);
-    new ContextMenu(html, ".ability-add-popup", this.abilityListContextMenu, {
-      eventName: "click",
-    });
-    new ContextMenu(html, ".trauma-item", this.traumaListContextMenu);
-    new ContextMenu(html, ".acquaintance", this.acquaintanceContextMenu);
+    const { implementation: ContextMenu } = foundry.applications.ux.ContextMenu;
+    const contextMenuOptions = { jQuery: false };
+    const root = html[0];
+
+    new ContextMenu(root, ".item-block.owned", this.itemContextMenu, contextMenuOptions);
+    new ContextMenu(root, ".context-items > span", this.itemListContextMenu, contextMenuOptions);
+    new ContextMenu(root, ".item-list-add", this.itemListContextMenu, { ...contextMenuOptions, eventName: "click" });
+    new ContextMenu(root, ".context-abilities", this.abilityListContextMenu, contextMenuOptions);
+    new ContextMenu(root, ".ability-add-popup", this.abilityListContextMenu, { ...contextMenuOptions, eventName: "click" });
+    new ContextMenu(root, ".trauma-item", this.traumaListContextMenu, contextMenuOptions);
+    new ContextMenu(root, ".acquaintance", this.acquaintanceContextMenu, contextMenuOptions);
 
     html.find('*[contenteditable="true"]').on("paste", (e) => {
       e.preventDefault();
