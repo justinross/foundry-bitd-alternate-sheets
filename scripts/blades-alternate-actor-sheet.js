@@ -373,7 +373,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.load_open = this.load_open;
     sheetData.allow_edit = this.allow_edit;
     sheetData.show_debug = this.show_debug;
-    sheetData.attributes = actorData.system.attributes;
+    const computedAttributes = this.actor.getComputedAttributes();
+    sheetData.system.attributes = computedAttributes;
+    sheetData.attributes = computedAttributes;
+    sheetData.system.stress.max = this.actor.getMaxStress();
+    sheetData.system.trauma.max = this.actor.getMaxTrauma();
+    if (sheetData.system?.healing_clock) {
+      sheetData.system.healing_clock.value = this.actor.getHealingMin();
+    }
     sheetData.acquaintances_label =
       sheetData.system.acquaintances_label == "BITD.Acquaintances"
         ? "bitd-alt.Acquaintances"
