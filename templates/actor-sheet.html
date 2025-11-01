@@ -61,6 +61,10 @@
       <div class="heritage-background bio">
         {{{inline-editable-text allow_edit "system.heritage" (localize "BITD.Heritage") heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.background" (localize "BITD.Background") background actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.background-details" (localize "bitd-alt.BackgroundDetails") system.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.vice-purveyor" (localize "bitd-alt.VicePurveyor") system.vice-purveyor actor._id this}}}
       </div>
+      <div class="crew-affiliation bio">
+        <span class="crew-label">{{localize "bitd-alt.CrewLabel"}}:</span>
+        <span class="crew-name{{#if allow_edit}} crew-editable{{/if}}" data-action="select-crew" data-crew-id="{{crew.id}}" {{#if allow_edit}}tabindex="0" role="button"{{/if}}>{{crew.name}}</span>
+      </div>
       <div class="look bio">{{{inline-editable-text allow_edit "system.look" "Look" system.look actor._id this}}} &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.pronouns" "Pronouns" data.flags.bitd-alternate-sheets.pronouns actor._id this}}}</div>
       <div class="abilities-list">
         {{#each my_abilities}}<span data-tooltip="{{clean-html this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}
