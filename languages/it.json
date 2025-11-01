@@ -20,6 +20,7 @@
     "bitd-alt.CrewLabel": "Banda",
     "bitd-alt.UnknownCrew": "<banda sconosciuta>",
     "bitd-alt.ClearCrew": "Scollega",
+    "bitd-alt.CrewClearHint": "Seleziona {crew} per scollegare questo personaggio dalla banda.",
     "bitd-alt.SelectCrewTitle": "Seleziona banda",
     "bitd-alt.SelectCrewInstructions": "Scegli la banda a cui appartiene questo personaggio.",
     "bitd-alt.CrewNotFound": "Impossibile trovare la banda selezionata.",

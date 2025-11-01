@@ -20,6 +20,7 @@
     "bitd-alt.CrewLabel": "Crew",
     "bitd-alt.UnknownCrew": "<unbekannte Crew>",
     "bitd-alt.ClearCrew": "Verbindung lösen",
+    "bitd-alt.CrewClearHint": "Wähle {crew}, um diesen Charakter von einer Crew zu lösen.",
     "bitd-alt.SelectCrewTitle": "Crew auswählen",
     "bitd-alt.SelectCrewInstructions": "Wähle die Crew, zu der dieser Charakter gehört.",
     "bitd-alt.CrewNotFound": "Die ausgewählte Crew konnte nicht gefunden werden.",

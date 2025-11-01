@@ -2,6 +2,7 @@ import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-s
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { openCrewSelectionDialog } from "./lib/dialog-compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
 
@@ -1169,7 +1170,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async _promptCrewSelection(currentCrewId, crewActors) {
-    const selectId = `crew-select-${this.actor.id}`;
     const instructions = game.i18n.localize(
       "bitd-alt.SelectCrewInstructions"
     );
@@ -1178,66 +1178,31 @@ export class BladesAlternateActorSheet extends BladesSheet {
     const okLabel = game.i18n.localize("bitd-alt.Ok");
     const cancelLabel = game.i18n.localize("bitd-alt.Cancel");
     const clearLabel = game.i18n.localize("bitd-alt.ClearCrew");
+    const crewLabel = game.i18n.localize("bitd-alt.CrewLabel");
+    const clearHint = game.i18n.format("bitd-alt.CrewClearHint", {
+      crew: unknownCrew,
+    });
     const sortedCrew = [...crewActors].sort((a, b) =>
       (a?.name ?? "").localeCompare(b?.name ?? "", game.i18n.lang)
     );
-    const optionsHtml = sortedCrew
-      .map((actor) => {
-        const displayName = foundry.utils.escapeHTML(actor?.name ?? "");
-        const isSelected = actor?.id === currentCrewId;
-        return `<option value="${actor?.id ?? ""}" ${
-          isSelected ? "selected" : ""
-        }>${displayName}</option>`;
-      })
-      .join("");
-    const content = `
-      <form>
-        <div class="form-group">
-          <label for="${selectId}">${instructions}</label>
-          <select id="${selectId}" name="crewId">
-            <option value="">${unknownCrew}</option>
-            ${optionsHtml}
-          </select>
-        </div>
-      </form>
-    `;
+    const choices = [
+      { value: "", label: unknownCrew },
+      ...sortedCrew.map((actor) => ({
+        value: actor?.id ?? "",
+        label: actor?.name ?? "",
+      })),
+    ];
 
-    return await new Promise((resolve) => {
-      let resolved = false;
-      const finish = (value) => {
-        if (resolved) return;
-        resolved = true;
-        resolve(value);
-      };
-
-      const dialog = new Dialog({
-        title,
-        content,
-        buttons: {
-          confirm: {
-            icon: '<i class="fas fa-check"></i>',
-            label: okLabel,
-            callback: (html) => {
-              const select = html.find("select[name='crewId']");
-              const value = select.val();
-              finish(value ? String(value) : null);
-            },
-          },
-          clear: {
-            icon: '<i class="fas fa-unlink"></i>',
-            label: clearLabel,
-            callback: () => finish(null),
-          },
-          cancel: {
-            icon: '<i class="fas fa-times"></i>',
-            label: cancelLabel,
-            callback: () => finish(undefined),
-          },
-        },
-        default: "confirm",
-        close: () => finish(undefined),
-      });
-      dialog.render(true);
+    return await openCrewSelectionDialog({
+      title,
+      instructions,
+      okLabel,
+      cancelLabel,
+      clearLabel,
+      clearHint,
+      crewLabel,
+      choices,
+      currentValue: currentCrewId ?? "",
     });
   }
 
@@ -1283,9 +1248,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       ),
     ];
 
+    const diff = foundry.utils.diffObject(systemCrewEntries, nextCrewList);
     const needsUpdate =
-      currentCrewId !== crewEntry.id ||
-      !foundry.utils.deepEqual(systemCrewEntries, nextCrewList);
+      currentCrewId !== crewEntry.id || !foundry.utils.isEmpty(diff);
     if (needsUpdate) {
       await this.actor.update({ system: { crew: nextCrewList } });
     }

@@ -20,6 +20,7 @@
     "bitd-alt.CrewLabel": "Crew",
     "bitd-alt.UnknownCrew": "<unknown crew>",
     "bitd-alt.ClearCrew": "Unlink",
+    "bitd-alt.CrewClearHint": "Select {crew} to unlink this character from a crew.",
     "bitd-alt.SelectCrewTitle": "Select Crew",
     "bitd-alt.SelectCrewInstructions": "Choose the crew this character belongs to.",
     "bitd-alt.CrewNotFound": "The selected crew could not be found.",
