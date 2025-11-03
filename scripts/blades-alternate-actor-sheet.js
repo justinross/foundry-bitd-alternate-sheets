@@ -387,7 +387,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.crew = {
       id: crewId,
       name: crewName,
-      hasLink: Boolean(primaryCrew),
+      hasLink: Boolean(crewId),
     };
 
     const computedAttributes = this.actor.getComputedAttributes();
