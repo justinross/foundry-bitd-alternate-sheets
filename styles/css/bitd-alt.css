@@ -1401,6 +1401,10 @@
   align-items: baseline;
   gap: 0.5em;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation .crew-linked {
+  cursor: pointer;
+  text-decoration: underline;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation .crew-label {
   font-family: Kirsty, serif;
   text-transform: uppercase;

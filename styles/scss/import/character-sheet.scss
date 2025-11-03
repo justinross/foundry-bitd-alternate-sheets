@@ -160,6 +160,10 @@
   .non-edit {
     display: initial;
   }
+  .crew-affiliation .crew-linked {
+    cursor: pointer;
+    text-decoration: underline;
+  }
 
   &.allow-edit {
     .crew-affiliation .crew-editable {

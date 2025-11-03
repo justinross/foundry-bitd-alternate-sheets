@@ -932,17 +932,26 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     const crewSelector = html.find('[data-action="select-crew"]');
     crewSelector.on("click", async (event) => {
-      if (!this.allow_edit) return;
       event.preventDefault();
       event.stopPropagation();
-      await this._handleCrewFieldClick();
+      if (this.allow_edit) {
+        await this._handleCrewFieldClick();
+        return;
+      }
+      const crewId = event.currentTarget?.dataset?.crewId ?? "";
+      await this._openCrewSheetById(crewId);
     });
     crewSelector.on("keydown", async (event) => {
-      if (!this.allow_edit) return;
       const triggerKeys = ["Enter", " ", "Space", "Spacebar"];
       if (!triggerKeys.includes(event.key)) return;
       event.preventDefault();
-      await this._handleCrewFieldClick();
+      event.stopPropagation();
+      if (this.allow_edit) {
+        await this._handleCrewFieldClick();
+        return;
+      }
+      const crewId = event.currentTarget?.dataset?.crewId ?? "";
+      await this._openCrewSheetById(crewId);
     });
 
     html.find(".item-block .main-checkbox").change((ev) => {
@@ -1167,6 +1176,24 @@ export class BladesAlternateActorSheet extends BladesSheet {
     );
     if (selectedCrewId === undefined) return;
     await this._updateCrewLink(selectedCrewId);
+  }
+
+  async _openCrewSheetById(crewId) {
+    const normalized = crewId ? String(crewId).trim() : "";
+    if (!normalized) return false;
+    const crewActor = game.actors?.get(normalized);
+    if (!crewActor) {
+      const warning =
+        game.i18n.localize("bitd-alt.CrewNotFound") ??
+        "The selected crew could not be found.";
+      ui.notifications?.warn?.(warning);
+      return false;
+    }
+    if (crewActor.sheet) {
+      crewActor.sheet.render(true);
+      return true;
+    }
+    return false;
   }
 
   async _promptCrewSelection(currentCrewId, crewActors) {

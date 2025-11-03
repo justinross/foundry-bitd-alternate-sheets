@@ -63,7 +63,7 @@
       </div>
       <div class="crew-affiliation bio">
         <span class="crew-label">{{localize "bitd-alt.CrewLabel"}}:</span>
-        <span class="crew-name{{#if allow_edit}} crew-editable{{/if}}" data-action="select-crew" data-crew-id="{{crew.id}}" {{#if allow_edit}}tabindex="0" role="button"{{/if}}>{{crew.name}}</span>
+        <span class="crew-name{{#if allow_edit}} crew-editable{{/if}}{{#if crew.hasLink}} crew-linked{{/if}}" data-action="select-crew" data-crew-id="{{crew.id}}" {{#if allow_edit}}tabindex="0" role="button"{{else}}{{#if crew.hasLink}}tabindex="0" role="button"{{/if}}{{/if}}>{{crew.name}}</span>
       </div>
       <div class="look bio">{{{inline-editable-text allow_edit "system.look" "Look" system.look actor._id this}}} &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.pronouns" "Pronouns" data.flags.bitd-alternate-sheets.pronouns actor._id this}}}</div>
       <div class="abilities-list">
