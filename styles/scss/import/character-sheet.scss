@@ -741,13 +741,15 @@
                   background-color: rgba(255, 255, 255, 0.3);
                 }
 
-                input {
-                  margin: 0;
-                  margin-right: 3px;
-                  position: relative;
+                .ability-checkboxes {
+                  display: flex;
+                  gap: 0.35em;
+                  margin-right: 0.5em;
+                  padding-top: 0.2em;
 
-                  &.offset {
-                    margin-top: -3px;
+                  .ability-checkbox {
+                    margin: 0;
+                    position: relative;
                   }
                 }
               }

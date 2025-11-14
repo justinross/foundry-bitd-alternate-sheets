@@ -53,8 +53,13 @@ export async function registerHooks() {
   //why isn't sheet showing up in update hook?
 
   Hooks.on("deleteItem", async (item, options, id) => {
-    if (item.type === "item" && item.parent) {
+    if (!item?.parent) return;
+    if (item.type === "item") {
       await Utils.toggleOwnership(false, item.parent, "item", item.id);
+    }
+    if (item.type === "ability" && item.parent.type === "character") {
+      const key = Utils.getAbilityProgressKeyFromData(item.name, item.id);
+      await Utils.updateAbilityProgressFlag(item.parent, key, 0);
     }
   });
 

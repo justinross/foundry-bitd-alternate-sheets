@@ -111,6 +111,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async switchPlaybook(newPlaybookItem) {
+    await this._resetAbilityProgressFlags();
     await this.switchToPlaybookAcquaintances(newPlaybookItem);
     await this.setPlaybookAttributes(newPlaybookItem);
     if (this._state == 1) {
@@ -279,9 +280,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("bitd-alt.DeleteAbility"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        this.actor.deleteEmbeddedDocuments("Item", [
-          element.data("ability-id"),
-        ]);
+        const abilityId = element.data("ability-id");
+        const block = element[0]?.closest?.(".ability-block") || null;
+        const abilityName =
+          block?.dataset?.abilityName || element.data("ability-name") || "";
+        const deletionId = this._resolveAbilityDeletionId(
+          block,
+          abilityId,
+          abilityName
+        );
+        if (!deletionId) return;
+        this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        if (block) block.dataset.abilityOwnedId = "";
       },
     },
   ];
@@ -529,6 +539,35 @@ export class BladesAlternateActorSheet extends BladesSheet {
       false,
       false
     );
+    const abilityCostFor = (ability) => {
+      const rawCost = ability?.system?.price ?? ability?.system?.cost ?? 1;
+      const parsed = Number(rawCost);
+      if (Number.isNaN(parsed) || parsed < 1) return 1;
+      return Math.floor(parsed);
+    };
+
+    const storedAbilityProgress =
+      foundry.utils.duplicate(
+        this.actor.getFlag(MODULE_ID, "multiAbilityProgress") || {}
+      ) || {};
+
+    for (const ability of combined_abilities_list) {
+      const cost = abilityCostFor(ability);
+      const abilityKey = Utils.getAbilityProgressKey(ability);
+      const storedProgress = Number(storedAbilityProgress[abilityKey]) || 0;
+      const ownedAbilityId = this._findOwnedAbilityId(ability.name);
+      const ownsAbility = Boolean(ownedAbilityId);
+
+      let progress = Math.max(0, Math.min(storedProgress, cost));
+      if (ownsAbility && progress < 1) {
+        progress = 1;
+      }
+
+      ability._progress = progress;
+      ability._progressKey = abilityKey;
+      ability._ownedId = ownedAbilityId || "";
+    }
+
     sheetData.available_playbook_abilities = combined_abilities_list;
 
     let armor = all_generic_items.findSplice((item) =>
@@ -618,6 +657,47 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
 
     return sheetData;
+  }
+
+  _ownsAbility(abilityName) {
+    return Boolean(this._findOwnedAbilityId(abilityName));
+  }
+
+  _findOwnedAbilityId(abilityName) {
+    if (!abilityName) return "";
+    const trimmedTarget = Utils.trimClassFromName(abilityName);
+    const owned = this.actor.items.find((item) => {
+      if (item.type !== "ability") return false;
+      if (item.name === abilityName) return true;
+      const trimmedItem = Utils.trimClassFromName(item.name);
+      return trimmedItem === trimmedTarget;
+    });
+    return owned?.id || "";
+  }
+
+  async _resetAbilityProgressFlags() {
+    const existing = this.actor.getFlag(MODULE_ID, "multiAbilityProgress");
+    if (!existing) return;
+    await this.actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
+  }
+
+  _resolveAbilityDeletionId(abilityBlock, fallbackId, abilityName) {
+    const blockOwnedId = abilityBlock?.dataset?.abilityOwnedId;
+    if (blockOwnedId && this.actor.items.get(blockOwnedId)) {
+      return blockOwnedId;
+    }
+
+    const byNameId = this._findOwnedAbilityId(abilityName);
+    if (byNameId && this.actor.items.get(byNameId)) {
+      if (abilityBlock) abilityBlock.dataset.abilityOwnedId = byNameId;
+      return byNameId;
+    }
+
+    if (fallbackId && this.actor.items.get(fallbackId)) {
+      return fallbackId;
+    }
+
+    return "";
   }
 
   async clearLoad() {
@@ -895,7 +975,25 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // Delete Inventory Item -- not used in new design
     html.find(".delete-button").click(async (ev) => {
       const element = $(ev.currentTarget);
-      await this.actor.deleteEmbeddedDocuments("Item", [element.data("id")]);
+      const targetId = element.data("id");
+      const targetType = element.data("type");
+
+      if (targetType === "ability") {
+        const abilityBlock = ev.currentTarget.closest(".ability-block");
+        const abilityName = abilityBlock?.dataset?.abilityName || "";
+        const deletionId = this._resolveAbilityDeletionId(
+          abilityBlock,
+          targetId,
+          abilityName
+        );
+        if (!deletionId) return;
+        await this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        if (abilityBlock) abilityBlock.dataset.abilityOwnedId = "";
+      } else {
+        if (!this.actor.items.get(targetId)) return;
+        await this.actor.deleteEmbeddedDocuments("Item", [targetId]);
+      }
+
       element.slideUp(200, () => this.render(false));
     });
 
@@ -928,23 +1026,75 @@ export class BladesAlternateActorSheet extends BladesSheet {
       $main.trigger("click");
     });
 
-    html.find(".item-control.item-delete").click(async (ev) => {
-      let item_id = ev.target.closest("div.item").dataset.itemId;
-      await this.actor.deleteEmbeddedDocuments("Item", [item_id]);
-    });
-
-    html.find(".ability-block .main-checkbox").change(async (ev) => {
+    html.find(".ability-checkbox").change(async (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
-      let checkbox = ev.target;
-      let ability_id = checkbox.closest(".ability-block").dataset.abilityId;
-      await Utils.toggleOwnership(
-        checkbox.checked,
-        this.actor,
-        "ability",
-        ability_id
+
+      const checkboxEl = ev.currentTarget;
+      const abilityBlock = checkboxEl.closest(".ability-block");
+      if (!abilityBlock) return;
+
+      const abilityId = abilityBlock.dataset.abilityId;
+      const abilityName = abilityBlock.dataset.abilityName || "";
+      const abilityCost = Number(abilityBlock.dataset.abilityCost) || 1;
+      const abilityOwnedId = abilityBlock.dataset.abilityOwnedId || "";
+      const abilityKey =
+        abilityBlock.dataset.abilityKey ||
+        Utils.getAbilityProgressKeyFromData(abilityName, abilityId);
+      const checkboxList = Array.from(
+        abilityBlock.querySelectorAll(".ability-checkbox")
       );
-      this.actor.sheet.render(false);
+
+      const previousProgress =
+        Number(abilityBlock.dataset.abilityProgress ?? 0) || 0;
+      const slotValue = Number(checkboxEl.dataset.abilitySlot) || 1;
+
+      let targetProgress;
+      if (slotValue <= previousProgress) {
+        targetProgress = slotValue - 1;
+      } else {
+        targetProgress = slotValue;
+      }
+      targetProgress = Math.max(0, Math.min(targetProgress, abilityCost));
+
+      const hadProgress = previousProgress > 0;
+      const willHaveProgress = targetProgress > 0;
+
+      checkboxList.forEach((el) => el.setAttribute("disabled", "disabled"));
+
+      try {
+        if (!hadProgress && willHaveProgress) {
+          await Utils.toggleOwnership(true, this.actor, "ability", abilityId);
+        } else if (hadProgress && !willHaveProgress) {
+          const targetId = abilityOwnedId || abilityId;
+          await Utils.toggleOwnership(false, this.actor, "ability", targetId);
+        }
+
+        abilityBlock.dataset.abilityProgress = String(targetProgress);
+        if (abilityKey) {
+          await Utils.updateAbilityProgressFlag(
+            this.actor,
+            abilityKey,
+            targetProgress
+          );
+        }
+
+        checkboxList.forEach((el) => {
+          const slot = Number(el.dataset.abilitySlot) || 1;
+          const shouldCheck = slot <= targetProgress;
+          el.checked = shouldCheck;
+          if (shouldCheck) {
+            el.setAttribute("checked", "checked");
+          } else {
+            el.removeAttribute("checked");
+          }
+        });
+
+        const ownedIdAfterUpdate = this._findOwnedAbilityId(abilityName);
+        abilityBlock.dataset.abilityOwnedId = ownedIdAfterUpdate || "";
+      } finally {
+        checkboxList.forEach((el) => el.removeAttribute("disabled"));
+      }
     });
 
     html.find(".item-block .main-checkbox").change(async (ev) => {
