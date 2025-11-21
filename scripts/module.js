@@ -5,23 +5,30 @@ import { registerSystemSettings } from "./settings.js";
 import { preloadHandlebarsTemplates } from "./blades-templates.js";
 import { registerHandlebarsHelpers } from "./handlebars-helpers.js";
 import { registerHooks } from "./hooks.js";
+import { registerDocumentSheet } from "./compat-helpers.js";
 
 Hooks.once("init", function () {
   console.log("Initializing Blades in the Dark Alternate Sheets");
   // CONFIG.debug.hooks = true;
-  Actors.registerSheet("bitd-alt", BladesAlternateActorSheet, {
+
+  registerSystemSettings();
+  registerHandlebarsHelpers();
+  registerHooks();
+});
+
+Hooks.once("ready", async function () {
+  // Defer sheet registration until ready so DocumentSheetConfig and the
+  // namespaced collections are available on V13+, avoiding reliance on the
+  // legacy globals that will vanish in V15.
+  registerDocumentSheet(CONFIG.Actor.documentClass, "bitd-alt", BladesAlternateActorSheet, {
     types: ["character"],
     makeDefault: true,
   });
-  // Items.registerSheet("bitd-alt", BladesAlternateItemSheet, { types: ["item"], makeDefault: true});
-  Items.registerSheet("bitd-alt", BladesAlternateClassSheet, {
+  // registerDocumentSheet(CONFIG.Item.documentClass, "bitd-alt", BladesAlternateItemSheet, { types: ["item"], makeDefault: true });
+  registerDocumentSheet(CONFIG.Item.documentClass, "bitd-alt", BladesAlternateClassSheet, {
     types: ["class"],
     makeDefault: true,
   });
 
-  registerSystemSettings();
-
-  preloadHandlebarsTemplates();
-  registerHandlebarsHelpers();
-  registerHooks();
+  await preloadHandlebarsTemplates();
 });
