@@ -235,7 +235,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("BITD.TitleDeleteItem"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        this.actor.deleteEmbeddedDocuments("Item", [element.data("item-id")]);
+        const itemId = this.getContextMenuElementData(element, "itemId");
+        if (!itemId) return;
+        this.actor.deleteEmbeddedDocuments("Item", [itemId]);
       },
     },
   ];
@@ -262,7 +264,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("bitd-alt.DeleteItem"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        let traumaToDisable = element.data("trauma");
+        const traumaToDisable = this.getContextMenuElementData(
+          element,
+          "trauma"
+        );
+        if (!traumaToDisable) return;
         let traumaUpdateObject = this.actor.system.trauma.list;
         traumaUpdateObject[traumaToDisable.toLowerCase()] = false;
         // let index = traumaUpdateObject.indexOf(traumaToDisable.toLowerCase());
@@ -281,10 +287,20 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("bitd-alt.DeleteAbility"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        const abilityId = element.data("ability-id");
-        const block = element[0]?.closest?.(".ability-block") || null;
+        const target =
+          element instanceof HTMLElement
+            ? element
+            : element?.currentTarget ?? (element?.length ? element[0] : null);
+        const block = target?.closest?.(".ability-block") || null;
         const abilityName =
-          block?.dataset?.abilityName || element.data("ability-name") || "";
+          block?.dataset?.abilityName ||
+          this.getContextMenuElementData(element, "abilityName") ||
+          "";
+        const abilityId =
+          this.getContextMenuElementData(element, "abilityId") ||
+          block?.dataset?.abilityOwnedId ||
+          block?.dataset?.abilityId ||
+          "";
         const deletionId = this._resolveAbilityDeletionId(
           block,
           abilityId,
@@ -302,7 +318,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("bitd-alt.DeleteItem"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        Utils.removeAcquaintance(this.actor, element.data("acquaintance"));
+        const acquaintanceId = this.getContextMenuElementData(
+          element,
+          "acquaintance"
+        );
+        if (!acquaintanceId) return;
+        Utils.removeAcquaintance(this.actor, acquaintanceId);
         // this.actor.deleteEmbeddedDocuments("Item", [element.data("ability-id")]);
       },
     },
@@ -324,6 +345,33 @@ export class BladesAlternateActorSheet extends BladesSheet {
       },
     },
   ];
+
+  getContextMenuElementData(element, datasetKey) {
+    if (!element) return undefined;
+    const attrKey = datasetKey.replace(
+      /([A-Z])/g,
+      (match) => `-${match.toLowerCase()}`
+    );
+    const target =
+      element instanceof HTMLElement
+        ? element
+        : element?.currentTarget ?? (element?.length ? element[0] : undefined);
+
+    if (target?.dataset?.[datasetKey] !== undefined) {
+      return target.dataset[datasetKey];
+    }
+
+    if (target?.getAttribute) {
+      const attrValue = target.getAttribute(`data-${attrKey}`);
+      if (attrValue !== null) return attrValue;
+    }
+
+    if (typeof element?.data === "function") {
+      return element.data(attrKey);
+    }
+
+    return undefined;
+  }
 
   async addNewItem() {
     let playbook_name = "custom";
