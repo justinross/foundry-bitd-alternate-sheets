@@ -43,6 +43,39 @@ export class Utils {
     return name.replace(/\([^)]*\)\ /, "");
   }
 
+  static getAbilityProgressKey(abilityLike) {
+    if (!abilityLike) return "";
+    const name = abilityLike.name ?? "";
+    const trimmed = name ? this.trimClassFromName(name) : "";
+    return trimmed || abilityLike._id || abilityLike.id || name || "";
+  }
+
+  static getAbilityProgressKeyFromData(name, id) {
+    const trimmed = name ? this.trimClassFromName(name) : "";
+    return trimmed || id || name || "";
+  }
+
+  static async updateAbilityProgressFlag(actor, key, value) {
+    if (!actor || !key) return;
+    const normalized = Math.max(0, Number(value) || 0);
+    const progressMap =
+      foundry.utils.duplicate(
+        actor.getFlag(MODULE_ID, "multiAbilityProgress") || {}
+      ) || {};
+
+    if (normalized <= 1) {
+      delete progressMap[key];
+    } else {
+      progressMap[key] = normalized;
+    }
+
+    if (foundry.utils.isEmpty(progressMap)) {
+      await actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
+    } else {
+      await actor.setFlag(MODULE_ID, "multiAbilityProgress", progressMap);
+    }
+  }
+
   static capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
@@ -361,16 +394,22 @@ export class Utils {
           },
         ]);
       } else {
-        if (actor.getEmbeddedDocument("Item", id)) {
-          actor.deleteEmbeddedDocuments("Item", [id]);
-        } else {
-          let item_source = await Utils.getItemByType(type, id);
-          let item_source_name = item_source.name;
-          let matching_owned_item = actor.items.find(
-            (item) => item.name == item_source_name
-          );
-          await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id]);
+        const ownedDoc = actor.getEmbeddedDocument("Item", id);
+        if (ownedDoc) {
+          await actor.deleteEmbeddedDocuments("Item", [id]);
+          return;
         }
+
+        const item_source = await Utils.getItemByType(type, id);
+        const item_source_name = item_source?.name;
+        if (!item_source_name) return;
+
+        const matching_owned_item = actor.items.find(
+          (item) => item.name === item_source_name
+        );
+        if (!matching_owned_item) return;
+
+        await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id]);
       }
     } else if (type == "item") {
       // let item = actor.items.find(item => item.id === id);

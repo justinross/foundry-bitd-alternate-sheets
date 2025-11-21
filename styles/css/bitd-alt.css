@@ -2151,13 +2151,15 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.3);
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block input {
-  margin: 0;
-  margin-right: 3px;
-  position: relative;
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block .ability-checkboxes {
+  display: flex;
+  gap: 0.35em;
+  margin-right: 0.5em;
+  padding-top: 0.2em;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block input.offset {
-  margin-top: -3px;
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block .ability-checkboxes .ability-checkbox {
+  margin: 0;
+  position: relative;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list label {
   margin: 0;

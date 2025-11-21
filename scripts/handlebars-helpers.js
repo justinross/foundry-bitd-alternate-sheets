@@ -115,6 +115,17 @@ export const registerHandlebarsHelpers = function () {
     return actor.items.some((item) => item.name == ability_name);
   });
 
+  Handlebars.registerHelper("ability-cost", function (ability) {
+    const raw = ability?.system?.price ?? ability?.system?.cost ?? 1;
+    const parsed = Number(raw);
+    if (Number.isNaN(parsed) || parsed < 1) return 1;
+    return Math.floor(parsed);
+  });
+
+  Handlebars.registerHelper("inc", function (value) {
+    return Number(value) + 1;
+  });
+
   Handlebars.registerHelper("times_from_2", function (n, block) {
     var accum = "";
     n = parseInt(n);
@@ -144,8 +155,13 @@ export const registerHandlebarsHelpers = function () {
   });
 
   Handlebars.registerHelper("times", function (n, block) {
-    var accum = "";
-    for (var i = 0; i < n; ++i) accum += block.fn(i);
+    let accum = "";
+    const count = Math.max(0, Number.parseInt(n, 10) || 0);
+    const data = block.data ? Handlebars.createFrame(block.data) : undefined;
+    for (let i = 0; i < count; ++i) {
+      if (data) data.index = i;
+      accum += block.fn(i, { data });
+    }
     return accum;
   });
 
