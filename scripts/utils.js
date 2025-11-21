@@ -248,10 +248,12 @@ export class Utils {
     }
 
     let pack = game.packs.find((e) => e.metadata.name === item_type);
-    let compendium_content = await pack.getDocuments();
-    compendium_items = compendium_content.map((e) => {
-      return e;
-    });
+    if (pack && typeof pack.getDocuments === "function") {
+      let compendium_content = await pack.getDocuments();
+      compendium_items = compendium_content.map((e) => {
+        return e;
+      });
+    }
 
     list_of_items = world_items.concat(compendium_items);
     list_of_items.sort(function (a, b) {
@@ -276,9 +278,11 @@ export class Utils {
     if (populateFromCompendia && populateFromWorld) {
       limited_items = await this.getAllItemsByType(item_type);
     } else if (populateFromCompendia && !populateFromWorld) {
-      limited_items = await game.packs
-        .get("blades-in-the-dark." + item_type)
-        .getDocuments();
+      const pack = game.packs.get("blades-in-the-dark." + item_type);
+      limited_items =
+        pack && typeof pack.getDocuments === "function"
+          ? await pack.getDocuments()
+          : [];
     } else if (!populateFromCompendia && populateFromWorld) {
       if (item_type === "npc") {
         limited_items = game.actors.filter((actor) => actor.type === item_type);
