@@ -2,6 +2,7 @@ import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-s
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { openCrewSelectionDialog } from "./lib/dialog-compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
 
@@ -373,6 +374,22 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.load_open = this.load_open;
     sheetData.allow_edit = this.allow_edit;
     sheetData.show_debug = this.show_debug;
+
+    const systemCrewEntries = this._getSystemCrewEntries();
+    const primaryCrew = this._getPrimaryCrewEntry(systemCrewEntries);
+    const crewActor = primaryCrew?.id
+      ? game.actors?.get(primaryCrew.id)
+      : null;
+    const unknownCrewLabel = game.i18n.localize("bitd-alt.UnknownCrew");
+    const crewName =
+      crewActor?.name ?? primaryCrew?.name ?? unknownCrewLabel;
+    const crewId = crewActor?.id ?? primaryCrew?.id ?? "";
+    sheetData.crew = {
+      id: crewId,
+      name: crewName,
+      hasLink: Boolean(crewId),
+    };
+
     const computedAttributes = this.actor.getComputedAttributes();
     sheetData.system.attributes = computedAttributes;
     sheetData.attributes = computedAttributes;
@@ -914,6 +931,30 @@ export class BladesAlternateActorSheet extends BladesSheet {
       );
     });
 
+    const crewSelector = html.find('[data-action="select-crew"]');
+    crewSelector.on("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (this.allow_edit) {
+        await this._handleCrewFieldClick();
+        return;
+      }
+      const crewId = event.currentTarget?.dataset?.crewId ?? "";
+      await this._openCrewSheetById(crewId);
+    });
+    crewSelector.on("keydown", async (event) => {
+      const triggerKeys = ["Enter", " ", "Space", "Spacebar"];
+      if (!triggerKeys.includes(event.key)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (this.allow_edit) {
+        await this._handleCrewFieldClick();
+        return;
+      }
+      const crewId = event.currentTarget?.dataset?.crewId ?? "";
+      await this._openCrewSheetById(crewId);
+    });
+
     html.find(".item-block .main-checkbox").change((ev) => {
       let checkbox = ev.target;
       let itemId = checkbox.closest(".item-block").dataset.itemId;
@@ -1104,6 +1145,143 @@ export class BladesAlternateActorSheet extends BladesSheet {
         this._element.removeClass("can-expand");
       }
     });
+  }
+
+  _getSystemCrewEntries() {
+    const crewData = foundry.utils.getProperty(this.actor, "system.crew");
+    if (!Array.isArray(crewData)) return [];
+    const duplicated = foundry.utils.duplicate(crewData);
+    return duplicated.filter(
+      (entry) => entry && typeof entry === "object"
+    );
+  }
+
+  _getPrimaryCrewEntry(entries = this._getSystemCrewEntries()) {
+    if (!Array.isArray(entries) || entries.length === 0) return null;
+    const withId = entries.find((entry) => entry?.id);
+    return withId ?? entries[0] ?? null;
+  }
+
+  _getAvailableCrewActors() {
+    if (!game?.actors) return [];
+    return game.actors.filter((actor) => actor?.type === "crew");
+  }
+
+  async _handleCrewFieldClick() {
+    const crewActors = this._getAvailableCrewActors();
+    const primaryCrew = this._getPrimaryCrewEntry();
+    const currentCrewId = primaryCrew?.id ?? "";
+    const selectedCrewId = await this._promptCrewSelection(
+      currentCrewId,
+      crewActors
+    );
+    if (selectedCrewId === undefined) return;
+    await this._updateCrewLink(selectedCrewId);
+  }
+
+  async _openCrewSheetById(crewId) {
+    const normalized = crewId ? String(crewId).trim() : "";
+    if (!normalized) return false;
+    const crewActor = game.actors?.get(normalized);
+    if (!crewActor) {
+      const warning =
+        game.i18n.localize("bitd-alt.CrewNotFound") ??
+        "The selected crew could not be found.";
+      ui.notifications?.warn?.(warning);
+      return false;
+    }
+    if (crewActor.sheet) {
+      crewActor.sheet.render(true);
+      return true;
+    }
+    return false;
+  }
+
+  async _promptCrewSelection(currentCrewId, crewActors) {
+    const instructions = game.i18n.localize(
+      "bitd-alt.SelectCrewInstructions"
+    );
+    const title = game.i18n.localize("bitd-alt.SelectCrewTitle");
+    const unknownCrew = game.i18n.localize("bitd-alt.UnknownCrew");
+    const okLabel = game.i18n.localize("bitd-alt.Ok");
+    const cancelLabel = game.i18n.localize("bitd-alt.Cancel");
+    const clearLabel = game.i18n.localize("bitd-alt.ClearCrew");
+    const crewLabel = game.i18n.localize("bitd-alt.CrewLabel");
+    const clearHint = game.i18n.format("bitd-alt.CrewClearHint", {
+      crew: unknownCrew,
+    });
+    const sortedCrew = [...crewActors].sort((a, b) =>
+      (a?.name ?? "").localeCompare(b?.name ?? "", game.i18n.lang)
+    );
+    const choices = [
+      { value: "", label: unknownCrew },
+      ...sortedCrew.map((actor) => ({
+        value: actor?.id ?? "",
+        label: actor?.name ?? "",
+      })),
+    ];
+
+    return await openCrewSelectionDialog({
+      title,
+      instructions,
+      okLabel,
+      cancelLabel,
+      clearLabel,
+      clearHint,
+      crewLabel,
+      choices,
+      currentValue: currentCrewId ?? "",
+    });
+  }
+
+  async _updateCrewLink(selectedCrewId) {
+    const normalized = selectedCrewId ? String(selectedCrewId).trim() : "";
+    const systemCrewEntries = this._getSystemCrewEntries();
+    const currentPrimary = this._getPrimaryCrewEntry(systemCrewEntries);
+    const currentCrewId = currentPrimary?.id ?? "";
+
+    if (!normalized) {
+      if (systemCrewEntries.length === 0) return;
+      await this.actor.update({ system: { crew: [] } });
+      return;
+    }
+
+    const crewActor = game.actors?.get(normalized);
+    if (!crewActor) {
+      const warning =
+        game.i18n.localize("bitd-alt.CrewNotFound") ??
+        "The selected crew could not be found.";
+      ui.notifications?.warn?.(warning);
+      return;
+    }
+
+    const description =
+      foundry.utils.getProperty(crewActor, "system.description.value") ??
+      foundry.utils.getProperty(crewActor, "system.description") ??
+      "";
+    const crewEntry = {
+      id: crewActor.id,
+      name: crewActor.name,
+      description:
+        typeof description === "string"
+          ? description
+          : foundry.utils.duplicate(description ?? ""),
+      img: crewActor.img ?? "icons/svg/mystery-man.svg",
+    };
+
+    const nextCrewList = [
+      crewEntry,
+      ...systemCrewEntries.filter(
+        (entry) => entry?.id && entry.id !== crewEntry.id
+      ),
+    ];
+
+    const diff = foundry.utils.diffObject(systemCrewEntries, nextCrewList);
+    const needsUpdate =
+      currentCrewId !== crewEntry.id || !foundry.utils.isEmpty(diff);
+    if (needsUpdate) {
+      await this.actor.update({ system: { crew: nextCrewList } });
+    }
   }
 
   /* -------------------------------------------- */
