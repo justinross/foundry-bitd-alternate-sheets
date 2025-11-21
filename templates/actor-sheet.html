@@ -125,7 +125,7 @@
               <header class="full-bar flex-header context-items"><span>{{localize "bitd-alt.items"}}</span>{{#if allow_edit}}<a class="item-list-add add-button" data-item-type="item" data-group-by="system.class"><i class="fas fa-plus"></i></a>{{/if}}</header>
               {{#each my_items as |item index|}}
                 {{#with ../actor as |actor|}}
-                {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item}}
+                {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item allow_edit=../../allow_edit}}
                 {{/with}}
               {{/each}}
             </section>
@@ -147,7 +147,7 @@
               <header class="full-bar">&nbsp;</header>
               {{#each generic_items as |item index|}}
                 {{#with ../actor as |actor|}}
-                  {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item}}
+                  {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item allow_edit=../allow_edit}}
                 {{/with}}
               {{/each}}
             </section>
