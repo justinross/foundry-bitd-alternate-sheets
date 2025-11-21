@@ -29,7 +29,8 @@ export async function openCrewSelectionDialog(options) {
 
 function supportsDialogV2() {
   if (FORCE_DIALOG_V1) return false;
-  return Boolean(foundry?.applications?.api?.DialogV2);
+  const dialogV2 = foundry?.applications?.api?.DialogV2;
+  return Boolean(dialogV2 && typeof dialogV2.input === "function");
 }
 
 function escapeHTML(value) {
