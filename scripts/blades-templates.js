@@ -1,4 +1,4 @@
-import { loadTemplatesCompat } from "./compat.js";
+import { loadHandlebarsTemplates } from "./compat.js";
 
 /**
  * Define a set of template paths to pre-load
@@ -24,5 +24,5 @@ export const preloadHandlebarsTemplates = function () {
   ];
 
   // Load the template parts
-  return loadTemplatesCompat(templatePaths);
+  return loadHandlebarsTemplates(templatePaths);
 };
