@@ -3,6 +3,7 @@ import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/b
 import { Utils, MODULE_ID } from "./utils.js";
 import { queueUpdate } from "./lib/update-queue.js";
 import { openCrewSelectionDialog } from "./lib/dialog-compat.js";
+import { enrichHTML } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
 
@@ -469,11 +470,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
         if (entity?.type === "🕛 clock") {
         }
       }
-      let clockNotes = await TextEditor.enrichHTML(rawNotes, {
+      let clockNotes = await enrichHTML(rawNotes, {
         documents: false,
         async: true,
       });
-      sheetData.notes = await TextEditor.enrichHTML(clockNotes, {
+      sheetData.notes = await enrichHTML(clockNotes, {
         relativeTo: this.document,
         secrets: this.document.isOwner,
         async: true,

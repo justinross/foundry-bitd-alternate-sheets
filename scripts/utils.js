@@ -163,7 +163,7 @@ export class Utils {
     let grouped_items = {};
     let generics = [];
     for (const item of item_list) {
-      let itemclass = getProperty(item, "system.class");
+      let itemclass = foundry.utils.getProperty(item, "system.class");
       if (itemclass === "") {
         generics.push(item);
       } else {
