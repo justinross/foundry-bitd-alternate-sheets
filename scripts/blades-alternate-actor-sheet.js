@@ -770,7 +770,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   async clearLoad() {
     await this.actor.update({
-      "flags.bitd-alternate-sheets.equipped-items": {},
+      "flags.bitd-alternate-sheets.-=equipped-items": null,
     });
   }
 
@@ -977,8 +977,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       document.execCommand("insertText", false, text);
     });
 
-    html.find("button.clearLoad").on("click", async (e) => {
-      this.clearLoad();
+    html.on("click", "button.clearLoad", async (e) => {
+      e.preventDefault();
+      await this.clearLoad();
     });
     html.find("img.clockImage").on("click", async (e) => {
       let entity = await fromUuid(e.currentTarget.dataset.uuid);
