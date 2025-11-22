@@ -698,6 +698,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
         case "BITD.Conspicuous":
           sheetData.max_load = sheetData.system.base_max_load + 6;
           break;
+        case "BITD.Encumbered":
+          sheetData.max_load = sheetData.system.base_max_load + 9;
+          break;
         default:
           sheetData.system.selected_load_level = "BITD.Discreet";
           sheetData.max_load = sheetData.system.base_max_load + 4;
