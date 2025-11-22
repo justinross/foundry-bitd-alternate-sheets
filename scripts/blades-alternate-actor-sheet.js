@@ -526,14 +526,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
         ? Utils.getOwnedObjectByType(this.actor, "vice").name
         : "";
 
-    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
-      //Set up DC Load Levels
+    if (game.settings.get("blades-in-the-dark", "DeepCutLoad")) {
+      // Deep Cut: include Encumbered so mule/overmax can be represented
       sheetData.load_levels = {
         "BITD.Discreet": "BITD.Discreet",
-        "BITD.Conspicuous": "BITD.Conspicuous"
+        "BITD.Conspicuous": "BITD.Conspicuous",
+        "BITD.Encumbered": "BITD.Encumbered",
       };
     } else {
-      //Set up Traditional Load Levels
+      // Traditional Load Levels
       sheetData.load_levels = {
         "BITD.Light": "BITD.Light",
         "BITD.Normal": "BITD.Normal",
