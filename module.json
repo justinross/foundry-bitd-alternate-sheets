@@ -4,11 +4,9 @@
   "description": "",
   "version": "0.0.1",
   "library": "false",
-  "manifestPlusVersion": "1.2.0",
-  "minimumCoreVersion": "12",
   "compatibility": {
     "minimum": 12,
-    "verified": 12
+    "verified": 13
   },
   "authors": [
     {
@@ -17,14 +15,16 @@
       "discord": "thsjstin#5654"
     }
   ],
-  "dependencies": [
-    {
-      "name": "blades-in-the-dark",
-      "manifest": "https://raw.githubusercontent.com/Dez384/foundryvtt-blades-in-the-dark/master/system.json",
-      "type": "system"
-    }
-  ],
-  "conflicts": [],
+  "relationships": {
+    "systems": [
+      {
+        "id": "blades-in-the-dark",
+        "manifest": "https://raw.githubusercontent.com/Dez384/foundryvtt-blades-in-the-dark/master/system.json"
+      }
+    ],
+    "requires": [],
+    "conflicts": []
+  },
   "flags": {
     "hotReload": {
       "extensions": ["hbs", "css", "html"],
