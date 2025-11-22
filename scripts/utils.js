@@ -45,34 +45,54 @@ export class Utils {
 
   static getAbilityProgressKey(abilityLike) {
     if (!abilityLike) return "";
-    const name = abilityLike.name ?? "";
-    const trimmed = name ? this.trimClassFromName(name) : "";
-    return trimmed || abilityLike._id || abilityLike.id || name || "";
+    return abilityLike._id || abilityLike.id || "";
   }
 
   static getAbilityProgressKeyFromData(name, id) {
-    const trimmed = name ? this.trimClassFromName(name) : "";
-    return trimmed || id || name || "";
+    return id || "";
   }
 
   static async updateAbilityProgressFlag(actor, key, value) {
     if (!actor || !key) return;
     const normalized = Math.max(0, Number(value) || 0);
-    const progressMap =
-      foundry.utils.duplicate(
-        actor.getFlag(MODULE_ID, "multiAbilityProgress") || {}
-      ) || {};
 
     if (normalized <= 1) {
-      delete progressMap[key];
+      await actor.update({
+        [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null,
+      });
     } else {
-      progressMap[key] = normalized;
+      await actor.update({
+        [`flags.${MODULE_ID}.multiAbilityProgress.${key}`]: normalized,
+      });
+    }
+  }
+
+  static async cleanupAbilityProgressFlags(actor) {
+    const progressMap = foundry.utils.duplicate(
+      actor.getFlag(MODULE_ID, "multiAbilityProgress") || {}
+    );
+    if (!progressMap || foundry.utils.isEmpty(progressMap)) return;
+
+    const validAbilityIds = new Set(
+      actor.items
+        .filter((item) => item.type === "ability")
+        .map((item) => item.id)
+    );
+
+    let changed = false;
+    for (const key of Object.keys(progressMap)) {
+      if (!validAbilityIds.has(key)) {
+        delete progressMap[key];
+        changed = true;
+      }
     }
 
-    if (foundry.utils.isEmpty(progressMap)) {
-      await actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
-    } else {
-      await actor.setFlag(MODULE_ID, "multiAbilityProgress", progressMap);
+    if (changed) {
+      if (foundry.utils.isEmpty(progressMap)) {
+        await actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
+      } else {
+        await actor.setFlag(MODULE_ID, "multiAbilityProgress", progressMap);
+      }
     }
   }
 
@@ -757,7 +777,7 @@ export class Utils {
             ability.system.purchased &&
             ability.system.class_default &&
             ability.system.class ===
-              (await Utils.getPlaybookName(actor.system.playbook))
+            (await Utils.getPlaybookName(actor.system.playbook))
           ) {
             ownedAbilities = true;
           }
