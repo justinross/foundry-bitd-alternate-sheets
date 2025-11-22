@@ -29,6 +29,9 @@ export async function registerHooks() {
         enricher: async (match, options) => {
           let linkedDoc = await fromUuid(match[2]);
           if (linkedDoc?.type == "🕛 clock") {
+            const type = linkedDoc.system?.type ?? "";
+            const value = linkedDoc.system?.value ?? 0;
+            const color = linkedDoc.system?.color ?? "black";
             const doc = document.createElement("div");
             doc.classList.add("linkedClock");
             let droppedItemTextRaw = match[0];
@@ -37,7 +40,10 @@ export async function registerHooks() {
               droppedItemRegex,
               `{${linkedDoc.name}}`
             );
-            doc.innerHTML = `<img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock ${linkedDoc.system.type}-${linkedDoc.system.value}.svg" class="clockImage" data-uuid="${match[2]}" />
+            const clockImgSrc = type && value !== undefined
+              ? `systems/blades-in-the-dark/themes/${color}/${type}clock_${value}.svg`
+              : linkedDoc.img;
+            doc.innerHTML = `<img src="${clockImgSrc}" class="clockImage" data-uuid="${match[2]}" />
                 <br/> 
                 ${droppedItemTextRenamed}`;
             // ${match[0]}`;
