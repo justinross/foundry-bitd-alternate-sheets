@@ -172,14 +172,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
         let description = item.system.description.replace(/"/g, "&quot;");
         items_html += `
             <div class="item-block">
-              <input type="checkbox" id="character-${
-                this.actor.id
-              }-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
-              <label for="character-${this.actor.id}-${item_type}add-${
-          item.id
-        }" title="${strip(
-          description
-        )}" class="hover-term">${trimmedname}</label>
+              <input type="checkbox" id="character-${this.actor.id
+          }-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
+              <label for="character-${this.actor.id}-${item_type}add-${item.id
+          }" title="${strip(
+            description
+          )}" class="hover-term">${trimmedname}</label>
             </div>
           `;
       }
@@ -218,13 +216,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
           cancel: {
             icon: "<i class='fas fa-times'></i>",
             label: game.i18n.localize("bitd-alt.Cancel"),
-            callback: () => {},
+            callback: () => { },
           },
         },
         render: (html) => {
           this.addTermTooltips(html);
         },
-        close: (html) => {},
+        close: (html) => { },
       },
       { classes: ["add-existing-dialog"], width: "650" }
     );
@@ -510,21 +508,21 @@ export class BladesAlternateActorSheet extends BladesSheet {
       sheetData.system.heritage != "" && sheetData.system.heritage != "Heritage"
         ? sheetData.system.heritage
         : Utils.getOwnedObjectByType(this.actor, "heritage")
-        ? Utils.getOwnedObjectByType(this.actor, "heritage").name
-        : "";
+          ? Utils.getOwnedObjectByType(this.actor, "heritage").name
+          : "";
     sheetData.background =
       sheetData.system.background != "" &&
-      sheetData.system.background != "Background"
+        sheetData.system.background != "Background"
         ? sheetData.system.background
         : Utils.getOwnedObjectByType(this.actor, "background")
-        ? Utils.getOwnedObjectByType(this.actor, "background").name
-        : "";
+          ? Utils.getOwnedObjectByType(this.actor, "background").name
+          : "";
     sheetData.vice =
       sheetData.system.vice != "" && sheetData.system.vice != "Vice"
         ? sheetData.system.vice
         : Utils.getOwnedObjectByType(this.actor, "vice")
-        ? Utils.getOwnedObjectByType(this.actor, "vice").name
-        : "";
+          ? Utils.getOwnedObjectByType(this.actor, "vice").name
+          : "";
 
     if (game.settings.get("blades-in-the-dark", "DeepCutLoad")) {
       // Deep Cut: include Encumbered so mule/overmax can be represented
@@ -674,7 +672,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       "equipped-items"
     );
     if (equipped) {
-      for (const i of equipped) {
+      for (const i of Object.values(equipped)) {
         loadout += parseInt(i.load);
       }
     }
@@ -771,7 +769,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async clearLoad() {
-    await this.actor.setFlag("bitd-alternate-sheets", "equipped-items", "");
+    await this.actor.update({
+      "flags.bitd-alternate-sheets.equipped-items": {},
+    });
   }
 
   addTermTooltips(html) {
@@ -860,10 +860,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
           <p>Changes have been made to this character that would be overwritten by a playbook switch. Please select how you'd like to handle this data and click "Ok", or click "Cancel" to cancel this change.</p>
           <p>Note that this process only uses the Item, Ability, Playbook, and NPC compendia to decide what is "default". If you have created entities outside the relevant compendia and added them to your character, those items will be considered "custom" and removed unless you choose to save.</p>
           <h2>Changes to keep</h2>
-          <div ${
-            modifications.newAbilities || modifications.ownedAbilities
-              ? ""
-              : "hidden"
+          <div ${modifications.newAbilities || modifications.ownedAbilities
+            ? ""
+            : "hidden"
           }>
             <label>Abilities to keep</label>
             ${selectTemplate(abilitiesToKeepOptions)}
@@ -876,10 +875,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
             <label>Skill Points</label>
             ${selectTemplate(keepSkillPointsOptions)}
           </div>
-          <div ${
-            modifications.acquaintanceList || modifications.relationships
-              ? ""
-              : "hidden"
+          <div ${modifications.acquaintanceList || modifications.relationships
+            ? ""
+            : "hidden"
           }>
             <label>Acquaintances</label>
             ${selectTemplate(acquaintancesToKeepOptions)}
@@ -1328,8 +1326,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
             label: "Cancel",
           },
         },
-        render: (html) => {},
-        close: (html) => {},
+        render: (html) => { },
+        close: (html) => { },
       });
       d.render(true);
     });

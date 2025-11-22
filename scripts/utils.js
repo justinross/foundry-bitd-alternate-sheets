@@ -67,35 +67,6 @@ export class Utils {
     }
   }
 
-  static async cleanupAbilityProgressFlags(actor) {
-    const progressMap = foundry.utils.duplicate(
-      actor.getFlag(MODULE_ID, "multiAbilityProgress") || {}
-    );
-    if (!progressMap || foundry.utils.isEmpty(progressMap)) return;
-
-    const validAbilityIds = new Set(
-      actor.items
-        .filter((item) => item.type === "ability")
-        .map((item) => item.id)
-    );
-
-    let changed = false;
-    for (const key of Object.keys(progressMap)) {
-      if (!validAbilityIds.has(key)) {
-        delete progressMap[key];
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      if (foundry.utils.isEmpty(progressMap)) {
-        await actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
-      } else {
-        await actor.setFlag(MODULE_ID, "multiAbilityProgress", progressMap);
-      }
-    }
-  }
-
   static capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
@@ -436,47 +407,39 @@ export class Utils {
         await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id]);
       }
     } else if (type == "item") {
-      // let item = actor.items.find(item => item.id === id);
       let equipped_items = await actor.getFlag(
         "bitd-alternate-sheets",
         "equipped-items"
       );
+
       if (!equipped_items) {
-        equipped_items = [];
+        equipped_items = {};
       }
+
       let item_blueprint;
       if (actor.items.some((item) => item.id === id)) {
         item_blueprint = actor.items.find((item) => item.id === id);
       } else {
         item_blueprint = await Utils.getItemByType(type, id);
       }
+
       if (state) {
-        equipped_items.push({
+        // Atomic Add
+        const newItem = {
           id: item_blueprint.id,
           load: item_blueprint.system.load,
           name: item_blueprint.name,
+        };
+        await actor.update({
+          [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
+            newItem,
         });
       } else {
-        equipped_items = equipped_items.filter((i) => {
-          return i.id !== id;
+        // Atomic Remove
+        await actor.update({
+          [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
         });
       }
-      // if(equipped_items){
-      //   let item_source = await Utils.getItemByType(type, id);
-      //   if(equipped_items.some(i => i.id === id )){
-      //     // equipped_items.findSplice(i => i === id);
-      //   }
-      //   else{
-      //   }
-      // }
-      // else{
-      //   equipped_items = [id];
-      // }
-      await actor.setFlag(
-        "bitd-alternate-sheets",
-        "equipped-items",
-        equipped_items
-      );
     }
   }
 

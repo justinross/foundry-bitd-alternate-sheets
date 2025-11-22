@@ -45,9 +45,8 @@ export const registerHandlebarsHelpers = function () {
       if (current_value?.length === 0 || !current_value) {
         current_value = blank_value;
       }
-      html += `<input  data-input="character-${uniq_id}-${parameter_name}" name="${parameter_name}" type="hidden" value="${current_value}" placeholder="${blank_value}"><span class="inline-input" ${
-        context.owner && editable ? 'contenteditable="true"' : null
-      } spellcheck="false" data-target="character-${uniq_id}-${parameter_name}" data-placeholder="${blank_value}">${current_value}</span>`;
+      html += `<input  data-input="character-${uniq_id}-${parameter_name}" name="${parameter_name}" type="hidden" value="${current_value}" placeholder="${blank_value}"><span class="inline-input" ${context.owner && editable ? 'contenteditable="true"' : null
+        } spellcheck="false" data-target="character-${uniq_id}-${parameter_name}" data-placeholder="${blank_value}">${current_value}</span>`;
       return html;
     }
   );
@@ -67,12 +66,10 @@ export const registerHandlebarsHelpers = function () {
     ) {
       let html = `
       <label class="fancyToggle" for="fancyToggle-${uniq_id}" data-tooltip="${tooltip}">
-        <i class="fas ${offIcon}" style="display: ${
-        current_value ? "none" : "inline"
-      };"></i>
-        <i class="fas ${onIcon}" style="display: ${
-        current_value ? "inline" : "none"
-      };"></i>
+        <i class="fas ${offIcon}" style="display: ${current_value ? "none" : "inline"
+        };"></i>
+        <i class="fas ${onIcon}" style="display: ${current_value ? "inline" : "none"
+        };"></i>
       </label>
         <input type="checkbox" style="" checked="${current_value}" id="fancyToggle-${uniq_id}" name="${parameter_name}" data-input="${uniq_id}-${parameter_name}" />
       `;
@@ -141,12 +138,7 @@ export const registerHandlebarsHelpers = function () {
       "bitd-alternate-sheets",
       "equipped-items"
     );
-    if (equipped_items) {
-      let equipped = equipped_items.find((item) => item.id === id);
-      return equipped;
-    } else {
-      return false;
-    }
+    return equipped_items ? equipped_items[id] : false;
   });
 
   Handlebars.registerHelper("clean-html", function (html) {

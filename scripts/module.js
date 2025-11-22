@@ -6,6 +6,7 @@ import { preloadHandlebarsTemplates } from "./blades-templates.js";
 import { registerHandlebarsHelpers } from "./handlebars-helpers.js";
 import { registerHooks } from "./hooks.js";
 import { registerDocumentSheet } from "./compat-helpers.js";
+import { Migration } from "./migration.js";
 
 Hooks.once("init", function () {
   console.log("Initializing Blades in the Dark Alternate Sheets");
@@ -31,4 +32,16 @@ Hooks.once("ready", async function () {
   });
 
   await preloadHandlebarsTemplates();
+
+  // Register schema version setting
+  game.settings.register("bitd-alternate-sheets", "schemaVersion", {
+    name: "Schema Version",
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0,
+  });
+
+  // Trigger migration
+  await Migration.migrate();
 });
