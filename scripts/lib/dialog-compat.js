@@ -140,7 +140,9 @@ async function openCrewSelectionDialogV2({
             event.target?.closest("dialog")?.querySelector("form") ||
             document.querySelector("dialog[open] form");
           if (!formElement) return "";
-          const formData = new FormDataExtended(formElement);
+          // v13: Use namespaced FormDataExtended, v12: Use global
+          const FormData = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
+          const formData = new FormData(formElement);
           return formData.object.crewId || "";
         },
       },
@@ -159,8 +161,15 @@ async function openCrewSelectionDialogV2({
     ],
   });
 
-  if (result === undefined) return undefined;
+  console.log("BitD Alt | Dialog returned:", result, "type:", typeof result);
+
+  // DialogV2 sometimes returns the action name as a string instead of the callback result
+  // Handle "cancel" and "clear" action names explicitly
+  if (result === undefined || result === "cancel") return undefined;
+  if (result === "clear") return null;
+
   const normalized = (result ?? "").trim();
+  console.log("BitD Alt | Normalized to:", normalized);
   return normalized.length > 0 ? normalized : null;
 }
 
