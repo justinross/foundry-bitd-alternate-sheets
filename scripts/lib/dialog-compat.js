@@ -204,7 +204,6 @@ async function openCrewSelectionDialogV1({
             label: okLabel,
             callback: (html) => {
               const selected = html.find("input[name='crewId']:checked").val();
-              console.log("BitD Alt | V1 Selected:", selected);
               finish(selected ? String(selected) : null);
             },
           },
@@ -212,7 +211,6 @@ async function openCrewSelectionDialogV1({
             icon: '<i class="fas fa-unlink"></i>',
             label: clearLabel,
             callback: () => {
-              console.log("BitD Alt | V1 Clear clicked");
               finish(null);
             },
           },
@@ -220,7 +218,6 @@ async function openCrewSelectionDialogV1({
             icon: '<i class="fas fa-times"></i>',
             label: cancelLabel,
             callback: () => {
-              console.log("BitD Alt | V1 Cancel clicked");
               finish(undefined);
             },
           },
