@@ -1420,6 +1420,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       ...sortedCrew.map((actor) => ({
         value: actor?.id ?? "",
         label: actor?.name ?? "",
+        img: actor?.img ?? "icons/svg/mystery-man.svg",
       })),
     ];
 
@@ -1429,7 +1430,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       okLabel,
       cancelLabel,
       clearLabel,
-      clearHint,
       crewLabel,
       choices,
       currentValue: currentCrewId ?? "",
@@ -1437,7 +1437,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async _updateCrewLink(selectedCrewId) {
-    const normalized = selectedCrewId ? String(selectedCrewId).trim() : "";
+    let normalized = selectedCrewId ? String(selectedCrewId).trim() : "";
+    if (normalized === "null" || normalized === "undefined") normalized = "";
+
     const systemCrewEntries = this._getSystemCrewEntries();
     const currentPrimary = this._getPrimaryCrewEntry(systemCrewEntries);
     const currentCrewId = currentPrimary?.id ?? "";
