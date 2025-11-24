@@ -25,4 +25,7 @@
 - Right clicking on a non-playbook item will display a context menu with a delete option. This was previously broken, but has been fixed.
 
 ### Manifest Warnings [Issue #99](https://github.com/justinross/foundry-bitd-alternate-sheets/issues/99)
-- Manifest warnings have been fixed. 
+- Manifest warnings have been fixed.
+
+### Debug Panel
+- The "Clear Load" button in the debug panel (visible only to GMs) now correctly clears the loadout.
