@@ -49,7 +49,7 @@ export class BladesAlternateClassSheet extends BaseItemSheet {
       this._onRadioToggle(e);
     });
     html.find(".debug-toggle").click(async (ev) => {
-      console.log("DEBUG");
+
       this.show_debug = !this.show_debug;
       this.render(false);
       // html.find('.debug-toggle').toggleClass(on)

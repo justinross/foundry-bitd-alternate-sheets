@@ -118,7 +118,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     await this.setPlaybookAttributes(newPlaybookItem);
     if (this._state == 1) {
       Hooks.once("renderBladesAlternateActorSheet", () => {
-        console.log("rerendering to refresh stale data");
+
         setTimeout(() => this.render(false), 100);
       });
     }
@@ -544,10 +544,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
       (item) => item.type == "class"
     );
     if (owned_playbooks.length == 1) {
-      console.log("One playbook selected. Doing the thing.");
+
       sheetData.selected_playbook = owned_playbooks[0];
     } else {
-      console.log("Wrong number of playbooks on character " + this.actor.name);
+
     }
 
     let combined_abilities_list = [];

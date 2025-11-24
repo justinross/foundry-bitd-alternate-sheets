@@ -14,7 +14,7 @@ export async function registerHooks() {
 
   Hooks.on("renderSidebarTab", (app, html, options) => {
     if (options.tabName !== "actors") return;
-    console.log("Replacing Actors' Names");
+
     Utils.replaceCharacterNamesInDirectory(app, html);
   });
 

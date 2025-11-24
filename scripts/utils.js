@@ -577,10 +577,10 @@ export class Utils {
   }
 
   static async removeAcquaintanceArray(actor, acqArr) {
-    console.log("removing current acquaintances", acqArr);
+
     //see who the current acquaintances are
     let current_acquaintances = actor.system.acquaintances;
-    console.log("current acquaintances", current_acquaintances);
+
     //for each of the passed acquaintances
     for (const currAcq of acqArr) {
       //remove the matching acquaintance from the current acquaintances
