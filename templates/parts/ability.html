@@ -1,8 +1,18 @@
-<div class="ability-block" data-ability-id="{{ability._id}}">
-    <input type="checkbox" class="ability-checkbox main-checkbox" id="character-{{actor._id}}-ability-{{ability._id}}-1" {{checked (owns-ability actor ability.name)}}>
+<div class="ability-block" data-ability-id="{{ability._id}}" data-ability-owned-id="{{ability._ownedId}}" data-ability-name="{{ability.name}}" data-ability-cost="{{ability-cost ability}}" data-ability-progress="{{#if ability._progress}}{{ability._progress}}{{else}}0{{/if}}" data-ability-key="{{ability._progressKey}}">
+    <div class="ability-checkboxes">
+        {{#times (ability-cost ability)}}
+            <input
+                type="checkbox"
+                class="ability-checkbox"
+                id="character-{{../actor._id}}-ability-{{../ability._id}}-{{inc this}}"
+                data-ability-slot="{{inc this}}"
+                {{#ifCond (inc this) "<=" ../ability._progress}}checked{{/ifCond}}
+            >
+        {{/times}}
+    </div>
     <label for="character-{{actor._id}}-ability-{{ability._id}}-1">
-        <span class="ability-name {{#if actor.flags.bitd-alternate-sheets.allow-edit}}{{#unless ability.system.virtual}}clickable-edit{{/unless}}{{/if}}">{{clean-name ability.name}}:</span>
+        <span class="ability-name {{#if allow_edit}}{{#unless ability.system.virtual}}clickable-edit{{/unless}}{{/if}}">{{clean-name ability.name}}:</span>
         <span class="ability-description">{{{md ability.system.description}}}</span>
     </label>
-    {{#if allow_edit}}{{#if ability.flags.bitd-alternate-sheets.custom_ability}}<a class="ability-delete delete-button" data-type="ability" data-id="{{ability._id}}"><i class="fas fa-trash"></i></a>{{/if}}{{/if}}
+    {{#if allow_edit}}{{#if ability.flags.bitd-alternate-sheets.custom_ability}}<a class="ability-delete delete-button" data-type="ability" data-id="{{ability._ownedId}}" data-ability-name="{{ability.name}}"><i class="fas fa-trash"></i></a>{{/if}}{{/if}}
 </div>

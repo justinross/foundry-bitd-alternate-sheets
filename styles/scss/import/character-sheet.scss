@@ -137,6 +137,19 @@
     cursor: pointer;
   }
 
+  .crew-affiliation {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+
+    .crew-label {
+      font-family: Kirsty, serif;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.85em;
+    }
+  }
+
   input[type="text"] {
     width: auto;
     border: 0;
@@ -146,6 +159,17 @@
   }
   .non-edit {
     display: initial;
+  }
+  .crew-affiliation .crew-linked {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &.allow-edit {
+    .crew-affiliation .crew-editable {
+      cursor: pointer;
+      text-decoration: underline;
+    }
   }
 
   header.full-bar {
@@ -741,13 +765,15 @@
                   background-color: rgba(255, 255, 255, 0.3);
                 }
 
-                input {
-                  margin: 0;
-                  margin-right: 3px;
-                  position: relative;
+                .ability-checkboxes {
+                  display: flex;
+                  gap: 0.35em;
+                  margin-right: 0.5em;
+                  padding-top: 0.2em;
 
-                  &.offset {
-                    margin-top: -3px;
+                  .ability-checkbox {
+                    margin: 0;
+                    position: relative;
                   }
                 }
               }

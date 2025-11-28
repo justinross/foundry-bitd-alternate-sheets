@@ -43,6 +43,30 @@ export class Utils {
     return name.replace(/\([^)]*\)\ /, "");
   }
 
+  static getAbilityProgressKey(abilityLike) {
+    if (!abilityLike) return "";
+    return abilityLike._id || abilityLike.id || "";
+  }
+
+  static getAbilityProgressKeyFromData(name, id) {
+    return id || "";
+  }
+
+  static async updateAbilityProgressFlag(actor, key, value) {
+    if (!actor || !key) return;
+    const normalized = Math.max(0, Number(value) || 0);
+
+    if (normalized <= 1) {
+      await actor.update({
+        [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null,
+      });
+    } else {
+      await actor.update({
+        [`flags.${MODULE_ID}.multiAbilityProgress.${key}`]: normalized,
+      });
+    }
+  }
+
   static capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
@@ -130,7 +154,7 @@ export class Utils {
     let grouped_items = {};
     let generics = [];
     for (const item of item_list) {
-      let itemclass = getProperty(item, "system.class");
+      let itemclass = foundry.utils.getProperty(item, "system.class");
       if (itemclass === "") {
         generics.push(item);
       } else {
@@ -215,10 +239,12 @@ export class Utils {
     }
 
     let pack = game.packs.find((e) => e.metadata.name === item_type);
-    let compendium_content = await pack.getDocuments();
-    compendium_items = compendium_content.map((e) => {
-      return e;
-    });
+    if (pack && typeof pack.getDocuments === "function") {
+      let compendium_content = await pack.getDocuments();
+      compendium_items = compendium_content.map((e) => {
+        return e;
+      });
+    }
 
     list_of_items = world_items.concat(compendium_items);
     list_of_items.sort(function (a, b) {
@@ -243,9 +269,11 @@ export class Utils {
     if (populateFromCompendia && populateFromWorld) {
       limited_items = await this.getAllItemsByType(item_type);
     } else if (populateFromCompendia && !populateFromWorld) {
-      limited_items = await game.packs
-        .get("blades-in-the-dark." + item_type)
-        .getDocuments();
+      const pack = game.packs.get("blades-in-the-dark." + item_type);
+      limited_items =
+        pack && typeof pack.getDocuments === "function"
+          ? await pack.getDocuments()
+          : [];
     } else if (!populateFromCompendia && populateFromWorld) {
       if (item_type === "npc") {
         limited_items = game.actors.filter((actor) => actor.type === item_type);
@@ -361,59 +389,57 @@ export class Utils {
           },
         ]);
       } else {
-        if (actor.getEmbeddedDocument("Item", id)) {
-          actor.deleteEmbeddedDocuments("Item", [id]);
-        } else {
-          let item_source = await Utils.getItemByType(type, id);
-          let item_source_name = item_source.name;
-          let matching_owned_item = actor.items.find(
-            (item) => item.name == item_source_name
-          );
-          await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id]);
+        const ownedDoc = actor.getEmbeddedDocument("Item", id);
+        if (ownedDoc) {
+          await actor.deleteEmbeddedDocuments("Item", [id]);
+          return;
         }
+
+        const item_source = await Utils.getItemByType(type, id);
+        const item_source_name = item_source?.name;
+        if (!item_source_name) return;
+
+        const matching_owned_item = actor.items.find(
+          (item) => item.name === item_source_name
+        );
+        if (!matching_owned_item) return;
+
+        await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id]);
       }
     } else if (type == "item") {
-      // let item = actor.items.find(item => item.id === id);
       let equipped_items = await actor.getFlag(
         "bitd-alternate-sheets",
         "equipped-items"
       );
+
       if (!equipped_items) {
-        equipped_items = [];
+        equipped_items = {};
       }
+
       let item_blueprint;
       if (actor.items.some((item) => item.id === id)) {
         item_blueprint = actor.items.find((item) => item.id === id);
       } else {
         item_blueprint = await Utils.getItemByType(type, id);
       }
+
       if (state) {
-        equipped_items.push({
+        // Atomic Add
+        const newItem = {
           id: item_blueprint.id,
           load: item_blueprint.system.load,
           name: item_blueprint.name,
+        };
+        await actor.update({
+          [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
+            newItem,
         });
       } else {
-        equipped_items = equipped_items.filter((i) => {
-          return i.id !== id;
+        // Atomic Remove
+        await actor.update({
+          [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
         });
       }
-      // if(equipped_items){
-      //   let item_source = await Utils.getItemByType(type, id);
-      //   if(equipped_items.some(i => i.id === id )){
-      //     // equipped_items.findSplice(i => i === id);
-      //   }
-      //   else{
-      //   }
-      // }
-      // else{
-      //   equipped_items = [id];
-      // }
-      await actor.setFlag(
-        "bitd-alternate-sheets",
-        "equipped-items",
-        equipped_items
-      );
     }
   }
 
@@ -551,10 +577,10 @@ export class Utils {
   }
 
   static async removeAcquaintanceArray(actor, acqArr) {
-    console.log("removing current acquaintances", acqArr);
+
     //see who the current acquaintances are
     let current_acquaintances = actor.system.acquaintances;
-    console.log("current acquaintances", current_acquaintances);
+
     //for each of the passed acquaintances
     for (const currAcq of acqArr) {
       //remove the matching acquaintance from the current acquaintances
@@ -714,7 +740,7 @@ export class Utils {
             ability.system.purchased &&
             ability.system.class_default &&
             ability.system.class ===
-              (await Utils.getPlaybookName(actor.system.playbook))
+            (await Utils.getPlaybookName(actor.system.playbook))
           ) {
             ownedAbilities = true;
           }

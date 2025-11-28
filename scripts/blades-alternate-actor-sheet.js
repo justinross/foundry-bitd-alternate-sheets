@@ -2,6 +2,8 @@ import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-s
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { openCrewSelectionDialog } from "./lib/dialog-compat.js";
+import { enrichHTML } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
 
@@ -111,11 +113,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async switchPlaybook(newPlaybookItem) {
+    await this._resetAbilityProgressFlags();
     await this.switchToPlaybookAcquaintances(newPlaybookItem);
     await this.setPlaybookAttributes(newPlaybookItem);
     if (this._state == 1) {
       Hooks.once("renderBladesAlternateActorSheet", () => {
-        console.log("rerendering to refresh stale data");
+
         setTimeout(() => this.render(false), 100);
       });
     }
@@ -169,14 +172,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
         let description = item.system.description.replace(/"/g, "&quot;");
         items_html += `
             <div class="item-block">
-              <input type="checkbox" id="character-${
-                this.actor.id
-              }-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
-              <label for="character-${this.actor.id}-${item_type}add-${
-          item.id
-        }" title="${strip(
-          description
-        )}" class="hover-term">${trimmedname}</label>
+              <input type="checkbox" id="character-${this.actor.id
+          }-${item_type}add-${item.id}" data-${item_type}-id="${item.id}" >
+              <label for="character-${this.actor.id}-${item_type}add-${item.id
+          }" title="${strip(
+            description
+          )}" class="hover-term">${trimmedname}</label>
             </div>
           `;
       }
@@ -215,13 +216,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
           cancel: {
             icon: "<i class='fas fa-times'></i>",
             label: game.i18n.localize("bitd-alt.Cancel"),
-            callback: () => {},
+            callback: () => { },
           },
         },
         render: (html) => {
           this.addTermTooltips(html);
         },
-        close: (html) => {},
+        close: (html) => { },
       },
       { classes: ["add-existing-dialog"], width: "650" }
     );
@@ -233,7 +234,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("BITD.TitleDeleteItem"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        this.actor.deleteEmbeddedDocuments("Item", [element.data("item-id")]);
+        const itemId = this.getContextMenuElementData(element, "itemId");
+        if (!itemId) return;
+        this.actor.deleteEmbeddedDocuments("Item", [itemId]);
       },
     },
   ];
@@ -260,7 +263,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("bitd-alt.DeleteItem"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        let traumaToDisable = element.data("trauma");
+        const traumaToDisable = this.getContextMenuElementData(
+          element,
+          "trauma"
+        );
+        if (!traumaToDisable) return;
         let traumaUpdateObject = this.actor.system.trauma.list;
         traumaUpdateObject[traumaToDisable.toLowerCase()] = false;
         // let index = traumaUpdateObject.indexOf(traumaToDisable.toLowerCase());
@@ -279,9 +286,28 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("bitd-alt.DeleteAbility"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        this.actor.deleteEmbeddedDocuments("Item", [
-          element.data("ability-id"),
-        ]);
+        const target =
+          element instanceof HTMLElement
+            ? element
+            : element?.currentTarget ?? (element?.length ? element[0] : null);
+        const block = target?.closest?.(".ability-block") || null;
+        const abilityName =
+          block?.dataset?.abilityName ||
+          this.getContextMenuElementData(element, "abilityName") ||
+          "";
+        const abilityId =
+          this.getContextMenuElementData(element, "abilityId") ||
+          block?.dataset?.abilityOwnedId ||
+          block?.dataset?.abilityId ||
+          "";
+        const deletionId = this._resolveAbilityDeletionId(
+          block,
+          abilityId,
+          abilityName
+        );
+        if (!deletionId) return;
+        this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        if (block) block.dataset.abilityOwnedId = "";
       },
     },
   ];
@@ -291,7 +317,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: game.i18n.localize("bitd-alt.DeleteItem"),
       icon: '<i class="fas fa-trash"></i>',
       callback: (element) => {
-        Utils.removeAcquaintance(this.actor, element.data("acquaintance"));
+        const acquaintanceId = this.getContextMenuElementData(
+          element,
+          "acquaintance"
+        );
+        if (!acquaintanceId) return;
+        Utils.removeAcquaintance(this.actor, acquaintanceId);
         // this.actor.deleteEmbeddedDocuments("Item", [element.data("ability-id")]);
       },
     },
@@ -313,6 +344,33 @@ export class BladesAlternateActorSheet extends BladesSheet {
       },
     },
   ];
+
+  getContextMenuElementData(element, datasetKey) {
+    if (!element) return undefined;
+    const attrKey = datasetKey.replace(
+      /([A-Z])/g,
+      (match) => `-${match.toLowerCase()}`
+    );
+    const target =
+      element instanceof HTMLElement
+        ? element
+        : element?.currentTarget ?? (element?.length ? element[0] : undefined);
+
+    if (target?.dataset?.[datasetKey] !== undefined) {
+      return target.dataset[datasetKey];
+    }
+
+    if (target?.getAttribute) {
+      const attrValue = target.getAttribute(`data-${attrKey}`);
+      if (attrValue !== null) return attrValue;
+    }
+
+    if (typeof element?.data === "function") {
+      return element.data(attrKey);
+    }
+
+    return undefined;
+  }
 
   async addNewItem() {
     let playbook_name = "custom";
@@ -373,6 +431,22 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.load_open = this.load_open;
     sheetData.allow_edit = this.allow_edit;
     sheetData.show_debug = this.show_debug;
+
+    const systemCrewEntries = this._getSystemCrewEntries();
+    const primaryCrew = this._getPrimaryCrewEntry(systemCrewEntries);
+    const crewActor = primaryCrew?.id
+      ? game.actors?.get(primaryCrew.id)
+      : null;
+    const unknownCrewLabel = game.i18n.localize("bitd-alt.UnknownCrew");
+    const crewName =
+      crewActor?.name ?? primaryCrew?.name ?? unknownCrewLabel;
+    const crewId = crewActor?.id ?? primaryCrew?.id ?? "";
+    sheetData.crew = {
+      id: crewId,
+      name: crewName,
+      hasLink: Boolean(crewId),
+    };
+
     const computedAttributes = this.actor.getComputedAttributes();
     sheetData.system.attributes = computedAttributes;
     sheetData.attributes = computedAttributes;
@@ -394,11 +468,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
         if (entity?.type === "🕛 clock") {
         }
       }
-      let clockNotes = await TextEditor.enrichHTML(rawNotes, {
+      let clockNotes = await enrichHTML(rawNotes, {
         documents: false,
         async: true,
       });
-      sheetData.notes = await TextEditor.enrichHTML(clockNotes, {
+      sheetData.notes = await enrichHTML(clockNotes, {
         relativeTo: this.document,
         secrets: this.document.isOwner,
         async: true,
@@ -434,30 +508,31 @@ export class BladesAlternateActorSheet extends BladesSheet {
       sheetData.system.heritage != "" && sheetData.system.heritage != "Heritage"
         ? sheetData.system.heritage
         : Utils.getOwnedObjectByType(this.actor, "heritage")
-        ? Utils.getOwnedObjectByType(this.actor, "heritage").name
-        : "";
+          ? Utils.getOwnedObjectByType(this.actor, "heritage").name
+          : "";
     sheetData.background =
       sheetData.system.background != "" &&
-      sheetData.system.background != "Background"
+        sheetData.system.background != "Background"
         ? sheetData.system.background
         : Utils.getOwnedObjectByType(this.actor, "background")
-        ? Utils.getOwnedObjectByType(this.actor, "background").name
-        : "";
+          ? Utils.getOwnedObjectByType(this.actor, "background").name
+          : "";
     sheetData.vice =
       sheetData.system.vice != "" && sheetData.system.vice != "Vice"
         ? sheetData.system.vice
         : Utils.getOwnedObjectByType(this.actor, "vice")
-        ? Utils.getOwnedObjectByType(this.actor, "vice").name
-        : "";
+          ? Utils.getOwnedObjectByType(this.actor, "vice").name
+          : "";
 
-    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
-      //Set up DC Load Levels
+    if (game.settings.get("blades-in-the-dark", "DeepCutLoad")) {
+      // Deep Cut: include Encumbered so mule/overmax can be represented
       sheetData.load_levels = {
         "BITD.Discreet": "BITD.Discreet",
-        "BITD.Conspicuous": "BITD.Conspicuous"
+        "BITD.Conspicuous": "BITD.Conspicuous",
+        "BITD.Encumbered": "BITD.Encumbered",
       };
     } else {
-      //Set up Traditional Load Levels
+      // Traditional Load Levels
       sheetData.load_levels = {
         "BITD.Light": "BITD.Light",
         "BITD.Normal": "BITD.Normal",
@@ -469,10 +544,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
       (item) => item.type == "class"
     );
     if (owned_playbooks.length == 1) {
-      console.log("One playbook selected. Doing the thing.");
+
       sheetData.selected_playbook = owned_playbooks[0];
     } else {
-      console.log("Wrong number of playbooks on character " + this.actor.name);
+
     }
 
     let combined_abilities_list = [];
@@ -529,6 +604,35 @@ export class BladesAlternateActorSheet extends BladesSheet {
       false,
       false
     );
+    const abilityCostFor = (ability) => {
+      const rawCost = ability?.system?.price ?? ability?.system?.cost ?? 1;
+      const parsed = Number(rawCost);
+      if (Number.isNaN(parsed) || parsed < 1) return 1;
+      return Math.floor(parsed);
+    };
+
+    const storedAbilityProgress =
+      foundry.utils.duplicate(
+        this.actor.getFlag(MODULE_ID, "multiAbilityProgress") || {}
+      ) || {};
+
+    for (const ability of combined_abilities_list) {
+      const cost = abilityCostFor(ability);
+      const abilityKey = Utils.getAbilityProgressKey(ability);
+      const storedProgress = Number(storedAbilityProgress[abilityKey]) || 0;
+      const ownedAbilityId = this._findOwnedAbilityId(ability.name);
+      const ownsAbility = Boolean(ownedAbilityId);
+
+      let progress = Math.max(0, Math.min(storedProgress, cost));
+      if (ownsAbility && progress < 1) {
+        progress = 1;
+      }
+
+      ability._progress = progress;
+      ability._progressKey = abilityKey;
+      ability._ownedId = ownedAbilityId || "";
+    }
+
     sheetData.available_playbook_abilities = combined_abilities_list;
 
     let armor = all_generic_items.findSplice((item) =>
@@ -568,7 +672,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       "equipped-items"
     );
     if (equipped) {
-      for (const i of equipped) {
+      for (const i of Object.values(equipped)) {
         loadout += parseInt(i.load);
       }
     }
@@ -591,6 +695,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
           break;
         case "BITD.Conspicuous":
           sheetData.max_load = sheetData.system.base_max_load + 6;
+          break;
+        case "BITD.Encumbered":
+          sheetData.max_load = sheetData.system.base_max_load + 9;
           break;
         default:
           sheetData.system.selected_load_level = "BITD.Discreet";
@@ -620,8 +727,51 @@ export class BladesAlternateActorSheet extends BladesSheet {
     return sheetData;
   }
 
+  _ownsAbility(abilityName) {
+    return Boolean(this._findOwnedAbilityId(abilityName));
+  }
+
+  _findOwnedAbilityId(abilityName) {
+    if (!abilityName) return "";
+    const trimmedTarget = Utils.trimClassFromName(abilityName);
+    const owned = this.actor.items.find((item) => {
+      if (item.type !== "ability") return false;
+      if (item.name === abilityName) return true;
+      const trimmedItem = Utils.trimClassFromName(item.name);
+      return trimmedItem === trimmedTarget;
+    });
+    return owned?.id || "";
+  }
+
+  async _resetAbilityProgressFlags() {
+    const existing = this.actor.getFlag(MODULE_ID, "multiAbilityProgress");
+    if (!existing) return;
+    await this.actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
+  }
+
+  _resolveAbilityDeletionId(abilityBlock, fallbackId, abilityName) {
+    const blockOwnedId = abilityBlock?.dataset?.abilityOwnedId;
+    if (blockOwnedId && this.actor.items.get(blockOwnedId)) {
+      return blockOwnedId;
+    }
+
+    const byNameId = this._findOwnedAbilityId(abilityName);
+    if (byNameId && this.actor.items.get(byNameId)) {
+      if (abilityBlock) abilityBlock.dataset.abilityOwnedId = byNameId;
+      return byNameId;
+    }
+
+    if (fallbackId && this.actor.items.get(fallbackId)) {
+      return fallbackId;
+    }
+
+    return "";
+  }
+
   async clearLoad() {
-    await this.actor.setFlag("bitd-alternate-sheets", "equipped-items", "");
+    await this.actor.update({
+      "flags.bitd-alternate-sheets.-=equipped-items": null,
+    });
   }
 
   addTermTooltips(html) {
@@ -710,10 +860,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
           <p>Changes have been made to this character that would be overwritten by a playbook switch. Please select how you'd like to handle this data and click "Ok", or click "Cancel" to cancel this change.</p>
           <p>Note that this process only uses the Item, Ability, Playbook, and NPC compendia to decide what is "default". If you have created entities outside the relevant compendia and added them to your character, those items will be considered "custom" and removed unless you choose to save.</p>
           <h2>Changes to keep</h2>
-          <div ${
-            modifications.newAbilities || modifications.ownedAbilities
-              ? ""
-              : "hidden"
+          <div ${modifications.newAbilities || modifications.ownedAbilities
+            ? ""
+            : "hidden"
           }>
             <label>Abilities to keep</label>
             ${selectTemplate(abilitiesToKeepOptions)}
@@ -726,10 +875,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
             <label>Skill Points</label>
             ${selectTemplate(keepSkillPointsOptions)}
           </div>
-          <div ${
-            modifications.acquaintanceList || modifications.relationships
-              ? ""
-              : "hidden"
+          <div ${modifications.acquaintanceList || modifications.relationships
+            ? ""
+            : "hidden"
           }>
             <label>Acquaintances</label>
             ${selectTemplate(acquaintancesToKeepOptions)}
@@ -810,17 +958,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
-    const { implementation: ContextMenu } = foundry.applications.ux.ContextMenu;
+    const ContextMenuClass =
+      foundry?.applications?.ux?.ContextMenu?.implementation ?? ContextMenu;
     const contextMenuOptions = { jQuery: false };
     const root = html[0];
 
-    new ContextMenu(root, ".item-block.owned", this.itemContextMenu, contextMenuOptions);
-    new ContextMenu(root, ".context-items > span", this.itemListContextMenu, contextMenuOptions);
-    new ContextMenu(root, ".item-list-add", this.itemListContextMenu, { ...contextMenuOptions, eventName: "click" });
-    new ContextMenu(root, ".context-abilities", this.abilityListContextMenu, contextMenuOptions);
-    new ContextMenu(root, ".ability-add-popup", this.abilityListContextMenu, { ...contextMenuOptions, eventName: "click" });
-    new ContextMenu(root, ".trauma-item", this.traumaListContextMenu, contextMenuOptions);
-    new ContextMenu(root, ".acquaintance", this.acquaintanceContextMenu, contextMenuOptions);
+    new ContextMenuClass(root, ".item-block.owned", this.itemContextMenu, contextMenuOptions);
+    new ContextMenuClass(root, ".context-items > span", this.itemListContextMenu, contextMenuOptions);
+    new ContextMenuClass(root, ".item-list-add", this.itemListContextMenu, { ...contextMenuOptions, eventName: "click" });
+    new ContextMenuClass(root, ".context-abilities", this.abilityListContextMenu, contextMenuOptions);
+    new ContextMenuClass(root, ".ability-add-popup", this.abilityListContextMenu, { ...contextMenuOptions, eventName: "click" });
+    new ContextMenuClass(root, ".trauma-item", this.traumaListContextMenu, contextMenuOptions);
+    new ContextMenuClass(root, ".acquaintance", this.acquaintanceContextMenu, contextMenuOptions);
 
     html.find('*[contenteditable="true"]').on("paste", (e) => {
       e.preventDefault();
@@ -828,8 +977,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       document.execCommand("insertText", false, text);
     });
 
-    html.find("button.clearLoad").on("click", async (e) => {
-      this.clearLoad();
+    html.on("click", "button.clearLoad", async (e) => {
+      e.preventDefault();
+      await this.clearLoad();
     });
     html.find("img.clockImage").on("click", async (e) => {
       let entity = await fromUuid(e.currentTarget.dataset.uuid);
@@ -895,7 +1045,25 @@ export class BladesAlternateActorSheet extends BladesSheet {
     // Delete Inventory Item -- not used in new design
     html.find(".delete-button").click(async (ev) => {
       const element = $(ev.currentTarget);
-      await this.actor.deleteEmbeddedDocuments("Item", [element.data("id")]);
+      const targetId = element.data("id");
+      const targetType = element.data("type");
+
+      if (targetType === "ability") {
+        const abilityBlock = ev.currentTarget.closest(".ability-block");
+        const abilityName = abilityBlock?.dataset?.abilityName || "";
+        const deletionId = this._resolveAbilityDeletionId(
+          abilityBlock,
+          targetId,
+          abilityName
+        );
+        if (!deletionId) return;
+        await this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        if (abilityBlock) abilityBlock.dataset.abilityOwnedId = "";
+      } else {
+        if (!this.actor.items.get(targetId)) return;
+        await this.actor.deleteEmbeddedDocuments("Item", [targetId]);
+      }
+
       element.slideUp(200, () => this.render(false));
     });
 
@@ -913,6 +1081,30 @@ export class BladesAlternateActorSheet extends BladesSheet {
       );
     });
 
+    const crewSelector = html.find('[data-action="select-crew"]');
+    crewSelector.on("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (this.allow_edit) {
+        await this._handleCrewFieldClick();
+        return;
+      }
+      const crewId = event.currentTarget?.dataset?.crewId ?? "";
+      await this._openCrewSheetById(crewId);
+    });
+    crewSelector.on("keydown", async (event) => {
+      const triggerKeys = ["Enter", " ", "Space", "Spacebar"];
+      if (!triggerKeys.includes(event.key)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (this.allow_edit) {
+        await this._handleCrewFieldClick();
+        return;
+      }
+      const crewId = event.currentTarget?.dataset?.crewId ?? "";
+      await this._openCrewSheetById(crewId);
+    });
+
     html.find(".item-block .main-checkbox").change((ev) => {
       let checkbox = ev.target;
       let itemId = checkbox.closest(".item-block").dataset.itemId;
@@ -928,23 +1120,75 @@ export class BladesAlternateActorSheet extends BladesSheet {
       $main.trigger("click");
     });
 
-    html.find(".item-control.item-delete").click(async (ev) => {
-      let item_id = ev.target.closest("div.item").dataset.itemId;
-      await this.actor.deleteEmbeddedDocuments("Item", [item_id]);
-    });
-
-    html.find(".ability-block .main-checkbox").change(async (ev) => {
+    html.find(".ability-checkbox").change(async (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
-      let checkbox = ev.target;
-      let ability_id = checkbox.closest(".ability-block").dataset.abilityId;
-      await Utils.toggleOwnership(
-        checkbox.checked,
-        this.actor,
-        "ability",
-        ability_id
+
+      const checkboxEl = ev.currentTarget;
+      const abilityBlock = checkboxEl.closest(".ability-block");
+      if (!abilityBlock) return;
+
+      const abilityId = abilityBlock.dataset.abilityId;
+      const abilityName = abilityBlock.dataset.abilityName || "";
+      const abilityCost = Number(abilityBlock.dataset.abilityCost) || 1;
+      const abilityOwnedId = abilityBlock.dataset.abilityOwnedId || "";
+      const abilityKey =
+        abilityBlock.dataset.abilityKey ||
+        Utils.getAbilityProgressKeyFromData(abilityName, abilityId);
+      const checkboxList = Array.from(
+        abilityBlock.querySelectorAll(".ability-checkbox")
       );
-      this.actor.sheet.render(false);
+
+      const previousProgress =
+        Number(abilityBlock.dataset.abilityProgress ?? 0) || 0;
+      const slotValue = Number(checkboxEl.dataset.abilitySlot) || 1;
+
+      let targetProgress;
+      if (slotValue <= previousProgress) {
+        targetProgress = slotValue - 1;
+      } else {
+        targetProgress = slotValue;
+      }
+      targetProgress = Math.max(0, Math.min(targetProgress, abilityCost));
+
+      const hadProgress = previousProgress > 0;
+      const willHaveProgress = targetProgress > 0;
+
+      checkboxList.forEach((el) => el.setAttribute("disabled", "disabled"));
+
+      try {
+        if (!hadProgress && willHaveProgress) {
+          await Utils.toggleOwnership(true, this.actor, "ability", abilityId);
+        } else if (hadProgress && !willHaveProgress) {
+          const targetId = abilityOwnedId || abilityId;
+          await Utils.toggleOwnership(false, this.actor, "ability", targetId);
+        }
+
+        abilityBlock.dataset.abilityProgress = String(targetProgress);
+        if (abilityKey) {
+          await Utils.updateAbilityProgressFlag(
+            this.actor,
+            abilityKey,
+            targetProgress
+          );
+        }
+
+        checkboxList.forEach((el) => {
+          const slot = Number(el.dataset.abilitySlot) || 1;
+          const shouldCheck = slot <= targetProgress;
+          el.checked = shouldCheck;
+          if (shouldCheck) {
+            el.setAttribute("checked", "checked");
+          } else {
+            el.removeAttribute("checked");
+          }
+        });
+
+        const ownedIdAfterUpdate = this._findOwnedAbilityId(abilityName);
+        abilityBlock.dataset.abilityOwnedId = ownedIdAfterUpdate || "";
+      } finally {
+        checkboxList.forEach((el) => el.removeAttribute("disabled"));
+      }
     });
 
     html.find(".item-block .main-checkbox").change(async (ev) => {
@@ -1083,8 +1327,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
             label: "Cancel",
           },
         },
-        render: (html) => {},
-        close: (html) => {},
+        render: (html) => { },
+        close: (html) => { },
       });
       d.render(true);
     });
@@ -1103,6 +1347,145 @@ export class BladesAlternateActorSheet extends BladesSheet {
         this._element.removeClass("can-expand");
       }
     });
+  }
+
+  _getSystemCrewEntries() {
+    const crewData = foundry.utils.getProperty(this.actor, "system.crew");
+    if (!Array.isArray(crewData)) return [];
+    const duplicated = foundry.utils.duplicate(crewData);
+    return duplicated.filter(
+      (entry) => entry && typeof entry === "object"
+    );
+  }
+
+  _getPrimaryCrewEntry(entries = this._getSystemCrewEntries()) {
+    if (!Array.isArray(entries) || entries.length === 0) return null;
+    const withId = entries.find((entry) => entry?.id);
+    return withId ?? entries[0] ?? null;
+  }
+
+  _getAvailableCrewActors() {
+    if (!game?.actors) return [];
+    return game.actors.filter((actor) => actor?.type === "crew");
+  }
+
+  async _handleCrewFieldClick() {
+    const crewActors = this._getAvailableCrewActors();
+    const primaryCrew = this._getPrimaryCrewEntry();
+    const currentCrewId = primaryCrew?.id ?? "";
+    const selectedCrewId = await this._promptCrewSelection(
+      currentCrewId,
+      crewActors
+    );
+    if (selectedCrewId === undefined) return;
+    await this._updateCrewLink(selectedCrewId);
+  }
+
+  async _openCrewSheetById(crewId) {
+    const normalized = crewId ? String(crewId).trim() : "";
+    if (!normalized) return false;
+    const crewActor = game.actors?.get(normalized);
+    if (!crewActor) {
+      const warning =
+        game.i18n.localize("bitd-alt.CrewNotFound") ??
+        "The selected crew could not be found.";
+      ui.notifications?.warn?.(warning);
+      return false;
+    }
+    if (crewActor.sheet) {
+      crewActor.sheet.render(true);
+      return true;
+    }
+    return false;
+  }
+
+  async _promptCrewSelection(currentCrewId, crewActors) {
+    const instructions = game.i18n.localize(
+      "bitd-alt.SelectCrewInstructions"
+    );
+    const title = game.i18n.localize("bitd-alt.SelectCrewTitle");
+    const unknownCrew = game.i18n.localize("bitd-alt.UnknownCrew");
+    const okLabel = game.i18n.localize("bitd-alt.Ok");
+    const cancelLabel = game.i18n.localize("bitd-alt.Cancel");
+    const clearLabel = game.i18n.localize("bitd-alt.ClearCrew");
+    const crewLabel = game.i18n.localize("bitd-alt.CrewLabel");
+    const clearHint = game.i18n.format("bitd-alt.CrewClearHint", {
+      crew: unknownCrew,
+    });
+    const sortedCrew = [...crewActors].sort((a, b) =>
+      (a?.name ?? "").localeCompare(b?.name ?? "", game.i18n.lang)
+    );
+    const choices = [
+      { value: "", label: unknownCrew },
+      ...sortedCrew.map((actor) => ({
+        value: actor?.id ?? "",
+        label: actor?.name ?? "",
+        img: actor?.img ?? "icons/svg/mystery-man.svg",
+      })),
+    ];
+
+    return await openCrewSelectionDialog({
+      title,
+      instructions,
+      okLabel,
+      cancelLabel,
+      clearLabel,
+      crewLabel,
+      choices,
+      currentValue: currentCrewId ?? "",
+    });
+  }
+
+  async _updateCrewLink(selectedCrewId) {
+    let normalized = selectedCrewId ? String(selectedCrewId).trim() : "";
+    if (normalized === "null" || normalized === "undefined") normalized = "";
+
+    const systemCrewEntries = this._getSystemCrewEntries();
+    const currentPrimary = this._getPrimaryCrewEntry(systemCrewEntries);
+    const currentCrewId = currentPrimary?.id ?? "";
+
+    if (!normalized) {
+      if (systemCrewEntries.length === 0) return;
+      await this.actor.update({ system: { crew: [] } });
+      return;
+    }
+
+    const crewActor = game.actors?.get(normalized);
+    if (!crewActor) {
+      const warning =
+        game.i18n.localize("bitd-alt.CrewNotFound") ??
+        "The selected crew could not be found.";
+      ui.notifications?.warn?.(warning);
+      return;
+    }
+
+    const description =
+      foundry.utils.getProperty(crewActor, "system.description.value") ??
+      foundry.utils.getProperty(crewActor, "system.description") ??
+      "";
+    const crewEntry = {
+      id: crewActor.id,
+      name: crewActor.name,
+      description:
+        typeof description === "string"
+          ? description
+          : foundry.utils.duplicate(description ?? ""),
+      img: crewActor.img ?? "icons/svg/mystery-man.svg",
+    };
+
+    const nextCrewList = [
+      crewEntry,
+      ...systemCrewEntries.filter(
+        (entry) => entry?.id && entry.id !== crewEntry.id
+      ),
+    ];
+
+    const diff = foundry.utils.diffObject(systemCrewEntries, nextCrewList);
+    const needsUpdate =
+      currentCrewId !== crewEntry.id || !foundry.utils.isEmpty(diff);
+    if (needsUpdate) {
+      await this.actor.update({ system: { crew: nextCrewList } });
+    }
   }
 
   /* -------------------------------------------- */

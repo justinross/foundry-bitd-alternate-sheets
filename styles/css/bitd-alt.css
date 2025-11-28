@@ -1396,6 +1396,25 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display .fa-face-disguise {
   display: none;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation .crew-linked {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation .crew-label {
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.85em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .crew-affiliation .crew-editable {
+  cursor: pointer;
+  text-decoration: underline;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper.showing-alias .sheet-toggles .toggle-alias-display {
   background-color: #800000;
 }
@@ -2132,13 +2151,15 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.3);
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block input {
-  margin: 0;
-  margin-right: 3px;
-  position: relative;
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block .ability-checkboxes {
+  display: flex;
+  gap: 0.35em;
+  margin-right: 0.5em;
+  padding-top: 0.2em;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block input.offset {
-  margin-top: -3px;
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list .ability-block .ability-checkboxes .ability-checkbox {
+  margin: 0;
+  position: relative;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .abilities .ability-list label {
   margin: 0;

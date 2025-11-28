@@ -1,12 +1,15 @@
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { getItemSheetClass } from "./compat.js";
+
+const BaseItemSheet = getItemSheetClass();
 
 /**
  * Pure chaos
  * @extends {ItemSheet}
  */
-export class BladesAlternateClassSheet extends ItemSheet {
+export class BladesAlternateClassSheet extends BaseItemSheet {
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
@@ -46,7 +49,7 @@ export class BladesAlternateClassSheet extends ItemSheet {
       this._onRadioToggle(e);
     });
     html.find(".debug-toggle").click(async (ev) => {
-      console.log("DEBUG");
+
       this.show_debug = !this.show_debug;
       this.render(false);
       // html.find('.debug-toggle').toggleClass(on)
