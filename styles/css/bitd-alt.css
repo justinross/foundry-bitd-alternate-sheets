@@ -3312,7 +3312,7 @@
   display: flex;
   flex-direction: row;
   margin-bottom: 0px;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 .blades-alt.actor.sheet.crew .big-teeth-section>* {
   margin-right: 10px;
@@ -3322,7 +3322,23 @@
 }
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth {
   display: flex;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: flex-start;
+  padding-top: 0;
+  position: static;
+}
+.blades-alt.actor.sheet.crew .crew-heat-wanted {
+  justify-content: flex-start;
+  gap: 1em;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.blades-alt.actor.sheet.crew .big-teeth-section .black-label {
+  margin-top: -2px;
+  line-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
 }
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label {
   height: 50px;
@@ -3359,6 +3375,103 @@
 }
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth input:checked+label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label {
+  height: 50px;
+  width: 17px;
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-right: 5px;
+  transition: filter 0.1s;
+  cursor: pointer;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label:last-of-type {
+  margin-right: 0px;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label[for$="-0"] {
+  width: auto;
+  height: auto;
+  background-image: none !important;
+  color: #EEEFFF;
+  padding: 0 4px;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label:hover {
+  filter: brightness(0.8);
+  opacity: 0.9;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input {
+  display: none;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input:checked~label {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input:checked+label {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label {
+  height: 50px;
+  width: 17px;
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-right: 5px;
+  cursor: not-allowed;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label:last-of-type {
+  margin-right: 0px;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label[for$="-0"] {
+  width: auto;
+  height: auto;
+  background-image: none !important;
+  color: #EEEFFF;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input {
+  display: none;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input:checked~label {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input:checked+label {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth {
+  display: flex;
+  flex-direction: row;
+}
+.blades-alt.actor.sheet.crew .crew-top-teeth {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+.blades-alt.actor.sheet.crew .teeth-row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  border-top: 3px solid #191813;
+  padding-top: 6px;
+}
+.blades-alt.actor.sheet.crew .teeth-row .black-label {
+  margin-top: -2px;
+  align-self: flex-start;
+  line-height: 30px;
+  display: inline-flex;
+  align-items: center;
+}
+.blades-alt.actor.sheet.crew .xp-coins-row {
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth {
+  align-items: flex-start;
+}
+.blades-alt.actor.sheet.crew .coins-block {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 6px;
 }
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap {
   display: flex;
