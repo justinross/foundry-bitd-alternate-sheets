@@ -29,6 +29,18 @@
  */
 .blades-alt {
   font-family: "Crimson Text", serif;
+  --alt-dark: #191813;
+  --alt-light: #bbb;
+  --alt-border: #888;
+  --alt-paper: #e6e3da;
+  --alt-ink: #000;
+  --alt-accent-font: Kirsty, serif;
+  --alt-body-font: "Crimson Text", serif;
+  --alt-radius: 12px;
+  --alt-max-tabs: clamp(540px, 90vw, 850px);
+  --alt-max-row: var(--alt-max-tabs);
+  --alt-panel-bg: rgba(0, 0, 0, 0.03);
+  --alt-status-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.35));
 }
 
 .blades-alt .row {
@@ -2802,40 +2814,52 @@
   display: flex;
   gap: 0.5em;
   padding: 0;
-  margin-top: 0.5em;
+  margin-top: 2em;
   align-items: flex-end;
   flex-wrap: nowrap;
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  align-self: flex-start;
 }
 
 .blades-alt.actor.sheet.crew nav.tabs .item {
   background-color: rgba(187, 187, 187, 0.5);
   /* light alt grey */
-  border: 1px solid #888;
+  border: 1px solid var(--alt-border);
   border-bottom: none;
-  border-radius: 12px 12px 0 0;
-  font-family: Kirsty, serif;
+  border-radius: var(--alt-radius) var(--alt-radius) 0 0;
+  font-family: var(--alt-accent-font);
   text-transform: capitalize;
   padding: 4px 8px;
   font-size: 1.2em;
-  color: #000;
+  color: var(--alt-ink);
   white-space: nowrap;
+  transition: filter 0.15s ease, transform 0.15s ease;
 }
 
 .blades-alt.actor.sheet.crew nav.tabs .item.active {
-  background-color: #bbb;
+  background-color: var(--alt-light);
   /* darker alt grey */
-  color: #000;
+  color: var(--alt-ink);
+}
+
+.blades-alt.actor.sheet.crew nav.tabs .item:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 
 .blades-alt.actor.sheet.crew .tab-content {
-  background: #bbb;
+  background: var(--alt-light);
   /* darker alt grey */
-  border: 1px solid #888;
-  border-radius: 0 0 12px 12px;
+  border: 1px solid var(--alt-border);
+  border-radius: 0 0 var(--alt-radius) var(--alt-radius);
   padding: 0 0 8px 0;
   /* remove side padding so lists align to tabs */
   margin-top: -1px;
   margin-left: 0;
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  align-self: flex-start;
 }
 
 .blades-alt.actor.sheet.crew .tab-content .tab {
@@ -2849,12 +2873,25 @@
   gap: 12px;
 }
 
+.blades-alt.actor.sheet.crew .crew-header {
+  max-width: var(--alt-max-tabs);
+  width: 100%;
+  align-self: flex-start;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Crew header & stats layout */
 .blades-alt.actor.sheet.crew .crew-identity-block {
-  background: linear-gradient(90deg, #c8c5bb, #e6e3da);
-  border: 1px solid #777;
-  border-radius: 12px;
+  background: linear-gradient(90deg, #c8c5bb, var(--alt-paper));
+  border: 1px solid var(--alt-border);
+  border-radius: var(--alt-radius);
   padding: 10px 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: none;
+  align-self: flex-start;
+  flex: 0 0 auto;
 }
 
 .blades-alt.actor.sheet.crew .crew-identity-block .name-line {
@@ -2866,7 +2903,7 @@
 }
 
 .blades-alt.actor.sheet.crew .crew-identity-block .name-line .name {
-  font-family: Kirsty, serif;
+  font-family: var(--alt-accent-font);
   font-size: 2.1em;
   line-height: 1.1em;
 }
@@ -2879,13 +2916,19 @@
 }
 
 .blades-alt.actor.sheet.crew .crew-identity-block .crew-type-pill .crew-type {
-  background: #191813;
+  background: var(--alt-dark);
   color: #eeefff;
   padding: 4px 12px;
   border-radius: 999px;
-  font-family: Kirsty, serif;
+  font-family: var(--alt-accent-font);
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.blades-alt.actor.sheet.crew .crew-identity-block .crew-type-pill .crew-type:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 
 .blades-alt.actor.sheet.crew .crew-meta-line {
@@ -2897,10 +2940,10 @@
 }
 
 .blades-alt.actor.sheet.crew .crew-meta-line .meta-label {
-  font-family: Kirsty, serif;
+  font-family: var(--alt-accent-font);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #191813;
+  color: var(--alt-dark);
 }
 
 .blades-alt.actor.sheet.crew .crew-meta-line .meta-value {
@@ -2926,55 +2969,81 @@
   display: inline-flex;
   gap: 6px;
   align-items: center;
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .hunting-grounds .item:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .blades-alt.actor.sheet.crew .crew-stats-grid {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid #999;
+  background: var(--alt-panel-bg);
+  border: 1px solid var(--alt-border);
   border-radius: 14px;
   padding: 10px 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: none;
+  align-self: stretch;
+  flex: 1 1 auto;
+  height: auto;
 }
 
-.blades-alt.actor.sheet.crew .crew-stats-grid .status-row {
+.blades-alt.actor.sheet.crew .crew-stats-grid>.rep-hold-row,
+.blades-alt.actor.sheet.crew .crew-stats-grid>.heat-wanted-row,
+.blades-alt.actor.sheet.crew .crew-stats-grid>.xp-coins-row {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: flex-start;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.35));
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 8px 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  padding: 4px 0;
 }
 
-.blades-alt.actor.sheet.crew .crew-stats-grid .status-row .rep-turf-row {
+.blades-alt.actor.sheet.crew .crew-stats-grid .rep-turf-row {
   display: flex;
+  margin-bottom: 8px;
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .rep-hold-row {
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: var(--alt-max-row);
+  align-self: flex-start;
 }
 
 .blades-alt.actor.sheet.crew .crew-stats-grid .rep-hold-row>* {
-  flex: 1 1 280px;
+  flex: 1 1 auto;
+  width: 100%;
 }
 
 .blades-alt.actor.sheet.crew .crew-stats-grid .heat-wanted-row>* {
-  flex: 1 1 260px;
+  flex: 1 1 clamp(220px, 38%, 320px);
 }
 
 .blades-alt.actor.sheet.crew .crew-stats-grid .xp-coins-row>* {
-  flex: 1 1 320px;
+  flex: 1 1 clamp(260px, 42%, 380px);
 }
 
-.blades-alt.actor.sheet.crew .crew-stats-grid .status-row .teeth-row {
+.blades-alt.actor.sheet.crew .crew-stats-grid .heat-wanted-row,
+.blades-alt.actor.sheet.crew .crew-stats-grid .xp-coins-row {
+  width: 100%;
+  max-width: var(--alt-max-row);
+  align-self: flex-start;
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .teeth-row {
   border-top: 0;
   padding-top: 0;
   margin: 0;
   flex: 1 1 auto;
 }
 
-.blades-alt.actor.sheet.crew .crew-stats-grid .status-row .big-teeth {
+.blades-alt.actor.sheet.crew .crew-stats-grid .big-teeth {
   align-items: flex-start;
 }
 
@@ -3471,12 +3540,12 @@
 /* Big teeth labels - applies to Heat, XP, and Reputation */
 .blades-alt.actor.sheet.crew .big-teeth label.radio-toggle,
 .blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label.radio-toggle {
-  height: 50px;
-  width: 17px;
+  height: 35px;
+  width: 12px;
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
   background-repeat: no-repeat;
   background-size: contain;
-  margin-right: 5px;
+  margin-right: 4px;
   transition: filter 0.1s;
   cursor: pointer;
 }
@@ -3509,12 +3578,12 @@
 
 /* Small teeth labels - applies to Wanted */
 .blades-alt.actor.sheet.crew .small-teeth-wrap label.radio-toggle {
-  height: 50px;
-  width: 17px;
+  height: 35px;
+  width: 12px;
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
   background-repeat: no-repeat;
   background-size: contain;
-  margin-right: 5px;
+  margin-right: 4px;
   cursor: pointer;
 }
 
@@ -3560,15 +3629,56 @@
 }
 
 .blades-alt.actor.sheet.crew .xp-coins-row {
-  gap: 24px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-direction: row;
+  align-items: flex-start;
 }
 
 .blades-alt.actor.sheet.crew .coins-block {
   display: flex;
   align-items: center;
   flex-direction: row;
-  gap: 0.75em;
+  flex-wrap: nowrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.blades-alt.actor.sheet.crew .portrait-xp {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.blades-alt.actor.sheet.crew .portrait-xp .crew-xp-clock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.blades-alt.actor.sheet.crew .portrait-xp .crew-xp-clock .black-label {
+  min-width: 80px;
+}
+
+.blades-alt.actor.sheet.crew .portrait-xp-track {
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.blades-alt.actor.sheet.crew .portrait-xp-track.big-teeth {
+  border-top: 3px solid #191813;
+  padding-top: 0;
+  margin-top: 0;
+  width: fit-content;
+  flex: 0 0 auto;
+}
+
+.blades-alt.actor.sheet.crew .portrait-coins {
+  width: 100%;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .blades-alt.actor.sheet.crew .crew-coins {
@@ -3591,6 +3701,27 @@
 
 .blades-alt.actor.sheet.crew .crew-coins label.radio-toggle:last-of-type {
   margin-right: 0;
+}
+
+.blades-alt.actor.sheet.crew .portrait-coins-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.blades-alt.actor.sheet.crew .crew-coins.coins-vault {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  gap: 4px;
+}
+
+.blades-alt.actor.sheet.crew .crew-coins.coins-hands {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22px, 1fr));
+  gap: 4px;
 }
 
 /* Hold/Tier layout */
@@ -3622,11 +3753,66 @@
 
 /* Crew sheet aesthetic improvements to match character sheet */
 .blades-alt.actor.sheet.crew .crew-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
+  column-gap: 12px;
+  row-gap: 8px;
+  align-items: stretch;
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  margin-left: auto;
+  margin-right: auto;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.blades-alt.actor.sheet.crew .crew-upper-frame {
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
 }
 
 .blades-alt.actor.sheet.crew .crew-header .character-portrait {
-  margin-bottom: -20px;
+  grid-row: 1 / span 2;
+  grid-column: 1;
+  align-self: stretch;
+  justify-self: stretch;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.blades-alt.actor.sheet.crew .crew-header .character-portrait .portrait-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 10px 8px 10px;
+  background: var(--alt-panel-bg);
+  border: 1px solid var(--alt-border);
+  border-radius: var(--alt-radius);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  flex: 1 1 auto;
+  justify-content: space-between;
+  align-self: stretch;
+}
+
+.blades-alt.actor.sheet.crew .crew-header .crew-header-body {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-self: stretch;
+  justify-self: stretch;
+  width: 100%;
+  height: 100%;
 }
 
 .blades-alt.actor.sheet.crew .crew-header .character-portrait .portrait {
