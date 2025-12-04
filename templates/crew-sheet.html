@@ -9,184 +9,184 @@
 
     <div class="crew-upper-wrapper">
       <div class="crew-upper-frame">
-        <section class="minimized-view row natural-height crew-header">
-        <section class="character-portrait col flex-lazy">
-          <div class="portrait-group">
-            <div class="portrait">
-              <img src="{{img}}" data-edit="img" title="{{name}}">
-            </div>
-            <div class="portrait-xp">
-              {{#if (getSetting 'ClockXP')}}
-              <div class="crew-xp-clock">
-                <p class="black-label">{{localize "BITD.CrewXP"}}</p>
-                <div class="flex-vertical" style="font-size: 16px; padding-left: 6px; padding-right: 2px">
-                  <a class="up-exp-clock" data-tooltip="{{localize 'BITD.AddXP'}}"><i class="fas fa-caret-up"></i></a>
-                  <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i class="fas fa-caret-down"></i></a>
-                </div>
-                <img
-                  src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock {{system.exp_clock.size}}-{{system.exp_clock.value}}.svg"
-                  height="40" width="40" style="border: none; padding-top: 8px" />
+        <section class="crew-header crew-grid">
+          <section class="character-portrait crew-left">
+            <div class="portrait-group">
+              <div class="portrait">
+                <img src="{{img}}" data-edit="img" title="{{name}}">
               </div>
-              {{else}}
-              <div id="crew-{{_id}}-xp" class="big-teeth portrait-xp-track">
-                <div class="black-label">{{localize "BITD.CrewXP"}}</div>
-                {{#multiboxes system.experience}}
-                <input type="radio" id="crew-{{_id}}-experience-0" name="system.experience" value="0" dtype="Radio">
-                {{#times_from 1 system.max.exp}}
-                <input id="crew-{{../_id}}-experience-{{this}}" type="radio" name="system.experience" value="{{this}}">
-                <label class="radio-toggle" for="crew-{{../_id}}-experience-{{this}}"></label>
-                {{/times_from}}
-                {{/multiboxes}}
-              </div>
-              {{/if}}
-              <div class="coins-block portrait-coins">
-                <div class="black-label coins-label">{{localize "BITD.Coins"}}</div>
-                <div id="crew-{{_id}}-coins" class="crew-coins-container portrait-coins-row">
-                  <div id="crew-{{_id}}-coins-hands" class="crew-coins-hands">
-                    <div class="stripe inline"><b>{{localize "bitd-alt.OnHand"}}</b></div>
-                    <div class="crew-coins coins-hands">
-                      {{#multiboxes system.coins.value}}
-                      <input type="radio" id="crew-{{_id}}-coins-hands-0" name="system.coins.value" value="0" checked>
-                      {{#times_from 1 system.coins.max}}
-                      <input id="crew-{{../_id}}-coins-hands-{{this}}" type="radio" name="system.coins.value"
-                        value="{{this}}">
-                      <label class="radio-toggle" for="crew-{{../_id}}-coins-hands-{{this}}"></label>
-                      {{/times_from}}
-                      {{/multiboxes}}
-                    </div>
+              <div class="portrait-xp">
+                {{#if (getSetting 'ClockXP')}}
+                <div class="crew-xp-clock">
+                  <p class="black-label">{{localize "BITD.CrewXP"}}</p>
+                  <div class="flex-vertical" style="font-size: 16px; padding-left: 6px; padding-right: 2px">
+                    <a class="up-exp-clock" data-tooltip="{{localize 'BITD.AddXP'}}"><i class="fas fa-caret-up"></i></a>
+                    <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i class="fas fa-caret-down"></i></a>
                   </div>
-                  {{#if system.vault.max}}
-                  <div id="crew-{{_id}}-coins-vault" class="crew-coins-vault portrait-coins-vault">
-                    <div class="stripe inline"><b>{{localize "BITD.Vault"}}</b></div>
-                    <div class="crew-coins coins-vault">
-                      {{#multiboxes system.vault.value}}
-                      <input type="radio" id="crew-{{_id}}-coins-vault-0" name="system.vault.value" value="0"
-                        checked="checked">
-                      {{#times_from 1 system.vault.max}}
-                      <input id="crew-{{../_id}}-coins-vault-{{this}}" type="radio" name="system.vault.value"
-                        value="{{this}}">
-                      <label class="radio-toggle" for="crew-{{../_id}}-coins-vault-{{this}}"></label>
-                      {{/times_from}}
-                      {{/multiboxes}}
-                    </div>
-                  </div>
-                  {{/if}}
+                  <img
+                    src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock {{system.exp_clock.size}}-{{system.exp_clock.value}}.svg"
+                    height="40" width="40" style="border: none; padding-top: 8px" />
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="character-info col crew-header-body">
-
-        <div class="crew-identity-block">
-          <div class="name-line">
-            <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") name _id this}}}</span>
-            <div class="crew-type-pill">
-              {{#each items as |item id|}}
-              {{#if (eq item.type "crew_type")}}
-              <span class="crew-type" data-tooltip="{{item.system.description}}">{{item.name}}</span>
-              {{/if}}
-              {{/each}}
-            </div>
-          </div>
-          <div class="crew-meta-line">
-            <span class="meta-label">{{localize "BITD.Lair"}}</span>
-            <span class="meta-value">{{{inline-editable-text allow_edit "system.lair" (localize "BITD.Lair") system.lair _id this}}}</span>
-            <span class="meta-separator">&bull;</span>
-            <span class="meta-label">{{localize system.hunting_grounds_label}}</span>
-            <span class="hunting-grounds">
-              {{#each items as |item id|}}
-              {{#if (eq item.type "hunting_grounds")}}
-              <span class="item" data-item-id="{{item._id}}">
-                {{item.name}}
-                <a class="item-control item-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i
-                    class="fas fa-trash"></i></a>
-              </span>
-              {{/if}}
-              {{/each}}
-              <a class="item-add-popup" data-item-type="hunting_grounds"><i class="fas fa-plus"></i></a>
-            </span>
-          </div>
-        </div>
-
-        <div class="crew-stats-grid">
-          <div class="rep-hold-row">
-            <div class="rep-turf-row">
-              <div id="crew-{{_id}}-reputation" class="crew-reputation">
-                <div class="black-label">{{localize "BITD.Rep"}}</div>
-                {{#multiboxes system.reputation}}
-                <input type="radio" id="crew-{{../_id}}-reputation-0" name="system.reputation" value="0" dtype="Radio">
-                {{#repturf _id system.turfs_amount system.max.rep}}
-                {{/repturf}}
-                {{/multiboxes}}
-                <div class="gray-label">{{localize "BITD.Turf"}}</div>
-              </div>
-            </div>
-
-            <div class="teeth-row hold-tier-row">
-              <div id="crew-{{_id}}-hold-box" class="flex-horizontal crew-hold">
-                <div class="black-label">{{localize "BITD.Hold"}}</div>
-                {{#multiboxes system.hold}}
-                <div class="flex-horizontal">
-                  <div class="gray-label">{{localize "BITD.Weak"}}</div>
-                  <input id="crew-{{_id}}-hold-weak" type="radio" name="system.hold" value="weak">
-                  <label for="crew-{{_id}}-hold-weak"></label>
-                </div>
-                <div class="flex-horizontal">
-                  <div class="gray-label">{{localize "BITD.Strong"}}</div>
-                  <input id="crew-{{_id}}-hold-strong" type="radio" name="system.hold" value="strong">
-                  <label for="crew-{{_id}}-hold-strong"></label>
-                </div>
-                {{/multiboxes}}
-              </div>
-
-              <div class="crew-tier flex-horizontal">
-                <div class="black-label">{{localize "BITD.Tier"}}</div>
-                {{#multiboxes system.tier}}
-                <input id="crew-{{_id}}-tier-0" type="radio" name="system.tier" value="0">
-                {{#times_from 1 system.max.tier}}
-                <input id="crew-{{../_id}}-tier-{{this}}" type="radio" name="system.tier" value="{{this}}">
-                <label class="radio-toggle" for="crew-{{../_id}}-tier-{{this}}"></label>
-                {{/times_from}}
-                {{/multiboxes}}
-              </div>
-            </div>
-          </div>
-
-          <div class="heat-wanted-row">
-            <div id="crew-{{_id}}-heat" class="big-teeth">
-              <div class="black-label">{{localize "BITD.Heat"}}</div>
-              {{#multiboxes system.heat}}
-              <input type="radio" id="crew-{{_id}}-heat-0" name="system.heat" value="0" dtype="Radio">
-              {{#times_from 1 system.max.heat}}
-              <input id="crew-{{../_id}}-heat-{{this}}" type="radio" name="system.heat" value="{{this}}">
-              <label class="radio-toggle" for="crew-{{../_id}}-heat-{{this}}"></label>
-              {{/times_from}}
-              {{/multiboxes}}
-            </div>
-
-            <div id="crew-{{_id}}-wanted-container" class="small-teeth-container crew-wanted-container">
-              {{#multiboxes system.wanted}}
-              <div id="crew-{{_id}}-wanted" class="small-teeth-wrap">
-                <div class="black-label">{{localize "BITD.Wanted"}}</div>
-                <div class="small-teeth">
-                  <input type="radio" id="crew-{{_id}}-wanted-counter-0" name="system.wanted" value="0">
-                  {{#times_from 1 system.max.wanted}}
-                  <input id="crew-{{../_id}}-wanted-counter-{{this}}" type="radio" name="system.wanted" value="{{this}}">
-                  <label class="radio-toggle" for="crew-{{../_id}}-wanted-counter-{{this}}"></label>
+                {{else}}
+                <div id="crew-{{_id}}-xp" class="big-teeth portrait-xp-track">
+                  <div class="black-label">{{localize "BITD.CrewXP"}}</div>
+                  {{#multiboxes system.experience}}
+                  <input type="radio" id="crew-{{_id}}-experience-0" name="system.experience" value="0" dtype="Radio">
+                  {{#times_from 1 system.max.exp}}
+                  <input id="crew-{{../_id}}-experience-{{this}}" type="radio" name="system.experience" value="{{this}}">
+                  <label class="radio-toggle" for="crew-{{../_id}}-experience-{{this}}"></label>
                   {{/times_from}}
+                  {{/multiboxes}}
+                </div>
+                {{/if}}
+                <div class="coins-block portrait-coins">
+                  <div class="black-label coins-label">{{localize "BITD.Coins"}}</div>
+                  <div id="crew-{{_id}}-coins" class="crew-coins-container portrait-coins-row">
+                    <div id="crew-{{_id}}-coins-hands" class="crew-coins-hands">
+                      <div class="stripe inline"><b>{{localize "bitd-alt.OnHand"}}</b></div>
+                      <div class="crew-coins coins-hands">
+                        {{#multiboxes system.coins.value}}
+                        <input type="radio" id="crew-{{_id}}-coins-hands-0" name="system.coins.value" value="0" checked>
+                        {{#times_from 1 system.coins.max}}
+                        <input id="crew-{{../_id}}-coins-hands-{{this}}" type="radio" name="system.coins.value"
+                          value="{{this}}">
+                        <label class="radio-toggle" for="crew-{{../_id}}-coins-hands-{{this}}"></label>
+                        {{/times_from}}
+                        {{/multiboxes}}
+                      </div>
+                    </div>
+                    {{#if system.vault.max}}
+                    <div id="crew-{{_id}}-coins-vault" class="crew-coins-vault portrait-coins-vault">
+                      <div class="stripe inline"><b>{{localize "BITD.Vault"}}</b></div>
+                      <div class="crew-coins coins-vault">
+                        {{#multiboxes system.vault.value}}
+                        <input type="radio" id="crew-{{_id}}-coins-vault-0" name="system.vault.value" value="0"
+                          checked="checked">
+                        {{#times_from 1 system.vault.max}}
+                        <input id="crew-{{../_id}}-coins-vault-{{this}}" type="radio" name="system.vault.value"
+                          value="{{this}}">
+                        <label class="radio-toggle" for="crew-{{../_id}}-coins-vault-{{this}}"></label>
+                        {{/times_from}}
+                        {{/multiboxes}}
+                      </div>
+                    </div>
+                    {{/if}}
+                  </div>
                 </div>
               </div>
-              {{/multiboxes}}
             </div>
-          </div>
+          </section>
 
-        
-        </div>
+          <section class="character-info crew-top-right crew-header-body">
+            <div class="crew-identity-block">
+              <div class="name-line">
+                <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") name _id this}}}</span>
+                <div class="crew-type-pill">
+                  {{#each items as |item id|}}
+                  {{#if (eq item.type "crew_type")}}
+                  <span class="crew-type" data-tooltip="{{item.system.description}}">{{item.name}}</span>
+                  {{/if}}
+                  {{/each}}
+                </div>
+              </div>
+              <div class="crew-meta-line">
+                <span class="meta-label">{{localize "BITD.Lair"}}</span>
+                <span class="meta-value">{{{inline-editable-text allow_edit "system.lair" (localize "BITD.Lair") system.lair _id this}}}</span>
+                <span class="meta-separator">&bull;</span>
+                <span class="meta-label">{{localize system.hunting_grounds_label}}</span>
+                <span class="hunting-grounds">
+                  {{#each items as |item id|}}
+                  {{#if (eq item.type "hunting_grounds")}}
+                  <span class="item" data-item-id="{{item._id}}">
+                    {{item.name}}
+                    <a class="item-control item-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i
+                        class="fas fa-trash"></i></a>
+                  </span>
+                  {{/if}}
+                  {{/each}}
+                  <a class="item-add-popup" data-item-type="hunting_grounds"><i class="fas fa-plus"></i></a>
+                </span>
+              </div>
+            </div>
+          </section>
 
+          <section class="crew-bottom-right">
+            <div class="crew-stats-grid">
+              <div class="rep-hold-row">
+                <div class="rep-turf-row">
+                  <div id="crew-{{_id}}-reputation" class="crew-reputation">
+                    <div class="black-label">{{localize "BITD.Rep"}}</div>
+                    {{#multiboxes system.reputation}}
+                    <input type="radio" id="crew-{{../_id}}-reputation-0" name="system.reputation" value="0" dtype="Radio">
+                    {{#repturf _id system.turfs_amount system.max.rep}}
+                    {{/repturf}}
+                    {{/multiboxes}}
+                    <div class="gray-label">{{localize "BITD.Turf"}}</div>
+                  </div>
+                </div>
+
+                <div class="teeth-row hold-tier-row">
+                  <div id="crew-{{_id}}-hold-box" class="flex-horizontal crew-hold">
+                    <div class="black-label">{{localize "BITD.Hold"}}</div>
+                    {{#multiboxes system.hold}}
+                    <div class="flex-horizontal">
+                      <div class="gray-label">{{localize "BITD.Weak"}}</div>
+                      <input id="crew-{{_id}}-hold-weak" type="radio" name="system.hold" value="weak">
+                      <label for="crew-{{_id}}-hold-weak"></label>
+                    </div>
+                    <div class="flex-horizontal">
+                      <div class="gray-label">{{localize "BITD.Strong"}}</div>
+                      <input id="crew-{{_id}}-hold-strong" type="radio" name="system.hold" value="strong">
+                      <label for="crew-{{_id}}-hold-strong"></label>
+                    </div>
+                    {{/multiboxes}}
+                  </div>
+
+                  <div class="crew-tier flex-horizontal">
+                    <div class="black-label">{{localize "BITD.Tier"}}</div>
+                    {{#multiboxes system.tier}}
+                    <input id="crew-{{_id}}-tier-0" type="radio" name="system.tier" value="0">
+                    {{#times_from 1 system.max.tier}}
+                    <input id="crew-{{../_id}}-tier-{{this}}" type="radio" name="system.tier" value="{{this}}">
+                    <label class="radio-toggle" for="crew-{{../_id}}-tier-{{this}}"></label>
+                    {{/times_from}}
+                    {{/multiboxes}}
+                  </div>
+                </div>
+              </div>
+
+              <div class="heat-wanted-row">
+                <div id="crew-{{_id}}-heat" class="big-teeth">
+                  <div class="black-label">{{localize "BITD.Heat"}}</div>
+                  {{#multiboxes system.heat}}
+                  <input type="radio" id="crew-{{_id}}-heat-0" name="system.heat" value="0" dtype="Radio">
+                  {{#times_from 1 system.max.heat}}
+                  <input id="crew-{{../_id}}-heat-{{this}}" type="radio" name="system.heat" value="{{this}}">
+                  <label class="radio-toggle" for="crew-{{../_id}}-heat-{{this}}"></label>
+                  {{/times_from}}
+                  {{/multiboxes}}
+                </div>
+
+                <div id="crew-{{_id}}-wanted-container" class="small-teeth-container crew-wanted-container">
+                  {{#multiboxes system.wanted}}
+                  <div id="crew-{{_id}}-wanted" class="small-teeth-wrap">
+                    <div class="black-label">{{localize "BITD.Wanted"}}</div>
+                    <div class="small-teeth">
+                      <input type="radio" id="crew-{{_id}}-wanted-counter-0" name="system.wanted" value="0">
+                      {{#times_from 1 system.max.wanted}}
+                      <input id="crew-{{../_id}}-wanted-counter-{{this}}" type="radio" name="system.wanted" value="{{this}}">
+                      <label class="radio-toggle" for="crew-{{../_id}}-wanted-counter-{{this}}"></label>
+                      {{/times_from}}
+                    </div>
+                  </div>
+                  {{/multiboxes}}
+                </div>
+              </div>
+            </div>
+          </section>
         </section>
-      </section>
       </div>
+    </div>
 
     <section class="flex-horizontal crew-tabs-row" style="justify-content:flex-start; padding-top: 6px;">
 
