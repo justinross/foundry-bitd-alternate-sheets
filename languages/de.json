@@ -27,6 +27,7 @@
     "bitd-alt.PlaybookDisclaimer": "Sorry, es sollte eigentlich playbooks heißen, aber das System nennt sie Klassen.",
     "bitd-alt.PlaybookInstructions":"Ziehe ein Klassen-Item auf den Akteur-Bogen, um das Charakterbuch zu wechseln.",
     "bitd-alt.NotesInstructions":"Füge hier Notizen hinzu. Ziehe Uhren, Akteure oder Items hierher, um sie zu verknüpfen. Klicke auf Uhren um sie vorzustellen, rechtsklicke um sie zurückzustellen.",
+    "bitd-alt.OnHand": "Bei sich",
     "bitd-alt.Attributes": {
         "attune": "Beim <strong>Einstimmen</strong> öffnest du deinen Verstand für das Geisterfeld oder kanalisierst elektroplasmatische Energie durch deinen Körper. Du sprichst mit einem Geist oder blickst in die Geisterwelt. Du könntest versuchen, etwas Unsichtbares wahrzunehmen, um deine Situation besser zu verstehen (aber vielleicht wäre Einschätzen besser).",
         "command": "Beim <strong>Befehlen</strong> erzwingst du prompten Gehorsam. Schüchterst du jemanden ein oder bedrohst ihn? Führst du deine Bande in einer Gruppenaktion an? Du kannst versuchen, Leute herumzukommandieren, um sie zu überreden (aber vielleicht wäre Verkehren besser).",

@@ -27,6 +27,7 @@
     "bitd-alt.PlaybookDisclaimer": "Sorry, playbooks are what they should be called, but the system calls them classes",
     "bitd-alt.PlaybookInstructions":"Drop a \"class\" item onto the sheet to switch playbooks.",
     "bitd-alt.NotesInstructions":"Add notes here. Drag and drop clocks, actors, or items in to link to them. Click clocks to increment, right-click to decrement.",
+    "bitd-alt.OnHand": "On Hand",
     "bitd-alt.Attributes": {
         "attune": "When you <strong>Attune</strong>, you open your mind to the ghost field or channel nearby electroplasmic energy through your body. <em>You might communicate with a ghost or understand aspects of spectrology. You could try to perceive beyond sight in order to better understand your situation (but Surveying might be better).</em>",
         "command": "When you <strong>Command</strong>, you compel swift obedience. <em>You might intimidate or threaten to get what you want. You might lead a gang in a group action. You could try to order people around to persuade them (but Consorting might be better).</em>",

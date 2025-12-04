@@ -1643,6 +1643,12 @@
   right: 4px;
 }
 
+.blades-alt.actor.sheet.crew .sheet-wrapper .sheet-toggles {
+  top: -24px;
+  right: -24px;
+  z-index: 100;
+}
+
 .blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles>span,
 .blades-alt.actor.sheet.crew .sheet-wrapper .sheet-toggles>span {
   display: inline-block;
@@ -3402,7 +3408,7 @@
 }
 
 .blades-alt.actor.sheet.crew .sheet-wrapper .minimized-view .character-portrait.row {
-  align-items: center;
+  align-items: flex-start;
 }
 
 .blades-alt.actor.sheet.crew .sheet-wrapper .minimized-view .character-portrait .portrait {
@@ -3441,130 +3447,29 @@
   font-size: 1.2em;
 }
 
-/* Teeth Styling for Heat, Wanted, Crew XP - match system */
-.blades-alt.actor.sheet.crew .big-teeth-section {
+
+/* === CREW SHEET TEETH STYLING (CONSOLIDATED) === */
+
+/* Shared teeth containers */
+.blades-alt.actor.sheet.crew .big-teeth,
+.blades-alt.actor.sheet.crew .small-teeth {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+/* Add black border to Heat and XP teeth sections */
+.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth,
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth {
   border-top: 3px solid #191813;
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 0px;
-  align-items: flex-start;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section>* {
-  margin-right: 10px;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section>*:last-child {
-  margin-right: 0px;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
   padding-top: 0;
-  position: static;
+  margin-top: 0;
+  width: fit-content;
+  flex: 0 0 auto;
 }
 
-.blades-alt.actor.sheet.crew .crew-heat-wanted {
-  justify-content: flex-start;
-  gap: 1em;
-  flex-wrap: wrap;
-  align-items: flex-start;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .black-label {
-  margin-top: -2px;
-  line-height: 30px;
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label {
-  height: 50px;
-  width: 17px;
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin-right: 5px;
-  transition: filter 0.1s;
-  cursor: pointer;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label:last-of-type {
-  margin-right: 0px;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label[for$="-0"] {
-  width: auto;
-  height: auto;
-  background-image: none !important;
-  color: #EEEFFF;
-  padding: 0 4px;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label[for$="-0"] i {
-  margin-top: 4px;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label:hover {
-  filter: brightness(0.8);
-  opacity: 0.9;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth input {
-  display: none;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth input:checked~label {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .big-teeth input:checked+label {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label {
-  height: 50px;
-  width: 17px;
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin-right: 5px;
-  transition: filter 0.1s;
-  cursor: pointer;
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label:last-of-type {
-  margin-right: 0px;
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label[for$="-0"] {
-  width: auto;
-  height: auto;
-  background-image: none !important;
-  color: #EEEFFF;
-  padding: 0 4px;
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label:hover {
-  filter: brightness(0.8);
-  opacity: 0.9;
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input {
-  display: none;
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input:checked~label {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input:checked+label {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
-}
-
+/* Big teeth labels - applies to Heat, XP, and Reputation */
+.blades-alt.actor.sheet.crew .big-teeth label.radio-toggle,
 .blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label.radio-toggle {
   height: 50px;
   width: 17px;
@@ -3572,82 +3477,86 @@
   background-repeat: no-repeat;
   background-size: contain;
   margin-right: 5px;
+  transition: filter 0.1s;
   cursor: pointer;
 }
 
+.blades-alt.actor.sheet.crew .big-teeth label.radio-toggle:last-of-type,
 .blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label.radio-toggle:last-of-type {
   margin-right: 0;
 }
 
+.blades-alt.actor.sheet.crew .big-teeth label.radio-toggle:hover {
+  filter: brightness(0.8);
+  opacity: 0.9;
+}
+
+/* Big teeth input states */
+.blades-alt.actor.sheet.crew .big-teeth input,
 .blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input {
   display: none;
 }
 
+.blades-alt.actor.sheet.crew .big-teeth input:checked~label.radio-toggle,
 .blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input:checked~label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
 }
 
+.blades-alt.actor.sheet.crew .big-teeth input:checked+label.radio-toggle,
 .blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input:checked+label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
 }
 
-.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label {
+/* Small teeth labels - applies to Wanted */
+.blades-alt.actor.sheet.crew .small-teeth-wrap label.radio-toggle {
   height: 50px;
   width: 17px;
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
   background-repeat: no-repeat;
   background-size: contain;
   margin-right: 5px;
-  cursor: not-allowed;
+  cursor: pointer;
 }
 
-.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label:last-of-type {
-  margin-right: 0px;
+.blades-alt.actor.sheet.crew .small-teeth-wrap label.radio-toggle:last-of-type {
+  margin-right: 0;
 }
 
-.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label[for$="-0"] {
-  width: auto;
-  height: auto;
-  background-image: none !important;
-  color: #EEEFFF;
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input {
+/* Small teeth input states */
+.blades-alt.actor.sheet.crew .small-teeth-wrap input {
   display: none;
 }
 
-.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input:checked~label {
+.blades-alt.actor.sheet.crew .small-teeth-wrap input:checked~label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
 }
 
-.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input:checked+label {
+.blades-alt.actor.sheet.crew .small-teeth-wrap input:checked+label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
 }
 
-.blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth {
-  display: flex;
-  flex-direction: row;
-}
-
-.blades-alt.actor.sheet.crew .crew-top-teeth {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 6px;
-}
-
+/* Layout containers */
 .blades-alt.actor.sheet.crew .teeth-row {
   display: flex;
   gap: 18px;
   align-items: flex-start;
 }
 
-.blades-alt.actor.sheet.crew .teeth-row .black-label {
-  margin-top: -2px;
-  align-self: flex-start;
-  line-height: 30px;
-  display: inline-flex;
-  align-items: center;
+.blades-alt.actor.sheet.crew .small-teeth-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.blades-alt.actor.sheet.crew .small-teeth-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
 }
 
 .blades-alt.actor.sheet.crew .xp-coins-row {
@@ -3655,163 +3564,36 @@
   flex-wrap: wrap;
 }
 
-.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth {
-  align-items: flex-start;
-}
-
 .blades-alt.actor.sheet.crew .coins-block {
   display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  flex-direction: row;
+  gap: 0.75em;
 }
 
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap {
-  display: flex;
-  flex-direction: column;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap label {
-  height: 50px;
-  width: 17px;
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin-right: 5px;
-  cursor: not-allowed;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap label:last-of-type {
-  margin-right: 0px;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap label[for$="-0"] {
-  width: auto;
-  height: auto;
-  background-image: none !important;
-  color: #EEEFFF;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap label[for$="-0"] i {
-  margin-top: 4px;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap input {
-  display: none;
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap input:checked~label {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap input:checked+label {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
-}
-
-.blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap .small-teeth {
+.blades-alt.actor.sheet.crew .crew-coins {
   display: flex;
   flex-direction: row;
-}
-
-/* Fix for .big-teeth elements without .big-teeth-section parent */
-/* Only Heat and XP use big teeth - style only .radio-toggle labels */
-.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth,
-.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 0;
 }
 
-.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth label.radio-toggle,
-.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth label.radio-toggle {
-  height: 50px;
-  width: 17px;
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
-  background-repeat: no-repeat;
-  background-size: contain;
+.blades-alt.actor.sheet.crew .crew-coins label.radio-toggle {
+  flex-shrink: 0;
   margin-right: 5px;
-  transition: filter 0.1s;
-  cursor: pointer;
+  border-radius: 50%;
 }
 
-.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth label.radio-toggle:last-of-type,
-.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth label.radio-toggle:last-of-type {
-  margin-right: 0px;
+.blades-alt.actor.sheet.crew .crew-coins label.radio-toggle:nth-of-type(4n) {
+  margin-right: 15px;
 }
 
-.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth label.radio-toggle:hover,
-.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth label.radio-toggle:hover {
-  filter: brightness(0.8);
-  opacity: 0.9;
+.blades-alt.actor.sheet.crew .crew-coins label.radio-toggle:last-of-type {
+  margin-right: 0;
 }
 
-.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth input,
-.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth input {
-  display: none;
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth input:checked~label.radio-toggle,
-.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth input:checked~label.radio-toggle {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth input:checked+label.radio-toggle,
-.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth input:checked+label.radio-toggle {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
-}
-
-/* Fix for .small-teeth-container without .big-teeth-section parent */
-/* Only Wanted uses small teeth */
-.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap {
-  display: flex;
-  flex-direction: column;
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap .small-teeth {
-  display: flex;
-  flex-direction: row;
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap label.radio-toggle {
-  height: 50px;
-  width: 17px;
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin-right: 5px;
-  cursor: pointer;
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap label.radio-toggle:last-of-type {
-  margin-right: 0px;
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap input {
-  display: none;
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap input:checked~label.radio-toggle {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
-}
-
-.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap input:checked+label.radio-toggle {
-  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
-}
-
-/* Fix for hold-tier-row layout - simple and let flex do its job */
+/* Hold/Tier layout */
 .blades-alt.actor.sheet.crew .hold-tier-row {
   display: flex;
   flex-wrap: nowrap;
@@ -3819,20 +3601,21 @@
   align-items: flex-start;
 }
 
-/* Override space-between for crew hold/tier - use natural spacing */
 .blades-alt.actor.sheet.crew .crew-hold {
+  display: flex;
   justify-content: flex-start;
   gap: 0.75em;
-  align-items: center;
+  align-items: flex-start;
   flex-shrink: 0;
   min-width: fit-content;
   margin-right: 2em;
 }
 
 .blades-alt.actor.sheet.crew .crew-tier {
+  display: flex;
   justify-content: flex-start;
   gap: 0.75em;
-  align-items: center;
+  align-items: flex-start;
   flex-shrink: 0;
   min-width: fit-content;
 }
