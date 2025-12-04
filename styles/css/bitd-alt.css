@@ -2837,6 +2837,141 @@
   padding: 0;
 }
 
+.blades-alt.actor.sheet.crew .crew-header-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.blades-alt.actor.sheet.crew .crew-identity-block {
+  background: linear-gradient(90deg, #c8c5bb, #e6e3da);
+  border: 1px solid #777;
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.blades-alt.actor.sheet.crew .crew-identity-block .name-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.blades-alt.actor.sheet.crew .crew-identity-block .name-line .name {
+  font-family: Kirsty, serif;
+  font-size: 2.1em;
+  line-height: 1.1em;
+}
+
+.blades-alt.actor.sheet.crew .crew-identity-block .crew-type-pill {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.blades-alt.actor.sheet.crew .crew-identity-block .crew-type-pill .crew-type {
+  background: #191813;
+  color: #eeefff;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.1em;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .meta-label {
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #191813;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .meta-value {
+  font-style: italic;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .meta-separator {
+  opacity: 0.8;
+  padding: 0 2px;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .hunting-grounds {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .hunting-grounds .item {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 2px 6px;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid #999;
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.35));
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 8px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .status-row .rep-turf-row {
+  display: flex;
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .rep-hold-row>* {
+  flex: 1 1 280px;
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .heat-wanted-row>* {
+  flex: 1 1 260px;
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .xp-coins-row>* {
+  flex: 1 1 320px;
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .status-row .teeth-row {
+  border-top: 0;
+  padding-top: 0;
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.blades-alt.actor.sheet.crew .crew-stats-grid .status-row .big-teeth {
+  align-items: flex-start;
+}
+
 .blades-alt.actor.sheet.crew .ability-list.check-list {
   background: #bbb;
   /* match alt abilities section */
@@ -3314,12 +3449,15 @@
   margin-bottom: 0px;
   align-items: flex-start;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section>* {
   margin-right: 10px;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section>*:last-child {
   margin-right: 0px;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth {
   display: flex;
   flex-direction: row;
@@ -3327,12 +3465,14 @@
   padding-top: 0;
   position: static;
 }
+
 .blades-alt.actor.sheet.crew .crew-heat-wanted {
   justify-content: flex-start;
   gap: 1em;
   flex-wrap: wrap;
   align-items: flex-start;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .black-label {
   margin-top: -2px;
   line-height: 30px;
@@ -3340,6 +3480,7 @@
   align-items: center;
   align-self: flex-start;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label {
   height: 50px;
   width: 17px;
@@ -3350,9 +3491,11 @@
   transition: filter 0.1s;
   cursor: pointer;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label:last-of-type {
   margin-right: 0px;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label[for$="-0"] {
   width: auto;
   height: auto;
@@ -3360,22 +3503,28 @@
   color: #EEEFFF;
   padding: 0 4px;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label[for$="-0"] i {
   margin-top: 4px;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth label:hover {
   filter: brightness(0.8);
   opacity: 0.9;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth input {
   display: none;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth input:checked~label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .big-teeth input:checked+label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label {
   height: 50px;
   width: 17px;
@@ -3386,9 +3535,11 @@
   transition: filter 0.1s;
   cursor: pointer;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label:last-of-type {
   margin-right: 0px;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label[for$="-0"] {
   width: auto;
   height: auto;
@@ -3396,19 +3547,50 @@
   color: #EEEFFF;
   padding: 0 4px;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth label:hover {
   filter: brightness(0.8);
   opacity: 0.9;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input {
   display: none;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input:checked~label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .big-teeth input:checked+label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
 }
+
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label.radio-toggle {
+  height: 50px;
+  width: 17px;
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label.radio-toggle:last-of-type {
+  margin-right: 0;
+}
+
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input {
+  display: none;
+}
+
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input:checked~label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
+}
+
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input:checked+label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+}
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label {
   height: 50px;
   width: 17px;
@@ -3418,41 +3600,48 @@
   margin-right: 5px;
   cursor: not-allowed;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label:last-of-type {
   margin-right: 0px;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap label[for$="-0"] {
   width: auto;
   height: auto;
   background-image: none !important;
   color: #EEEFFF;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input {
   display: none;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input:checked~label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth-wrap input:checked+label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth .small-teeth {
   display: flex;
   flex-direction: row;
 }
+
 .blades-alt.actor.sheet.crew .crew-top-teeth {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 6px;
 }
+
 .blades-alt.actor.sheet.crew .teeth-row {
   display: flex;
   gap: 18px;
   align-items: flex-start;
-  border-top: 3px solid #191813;
-  padding-top: 6px;
 }
+
 .blades-alt.actor.sheet.crew .teeth-row .black-label {
   margin-top: -2px;
   align-self: flex-start;
@@ -3460,23 +3649,34 @@
   display: inline-flex;
   align-items: center;
 }
+
 .blades-alt.actor.sheet.crew .xp-coins-row {
   gap: 24px;
   flex-wrap: wrap;
 }
+
 .blades-alt.actor.sheet.crew .xp-coins-row .big-teeth {
   align-items: flex-start;
 }
+
 .blades-alt.actor.sheet.crew .coins-block {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
   gap: 6px;
 }
+
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap {
   display: flex;
   flex-direction: column;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap label {
   height: 50px;
   width: 17px;
@@ -3486,28 +3686,210 @@
   margin-right: 5px;
   cursor: not-allowed;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap label:last-of-type {
   margin-right: 0px;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap label[for$="-0"] {
   width: auto;
   height: auto;
   background-image: none !important;
   color: #EEEFFF;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap label[for$="-0"] i {
   margin-top: 4px;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap input {
   display: none;
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap input:checked~label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap input:checked+label {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
 }
+
 .blades-alt.actor.sheet.crew .big-teeth-section .small-teeth-container .small-teeth-wrap .small-teeth {
   display: flex;
   flex-direction: row;
+}
+
+/* Fix for .big-teeth elements without .big-teeth-section parent */
+/* Only Heat and XP use big teeth - style only .radio-toggle labels */
+.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth,
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth label.radio-toggle,
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth label.radio-toggle {
+  height: 50px;
+  width: 17px;
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-right: 5px;
+  transition: filter 0.1s;
+  cursor: pointer;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth label.radio-toggle:last-of-type,
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth label.radio-toggle:last-of-type {
+  margin-right: 0px;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth label.radio-toggle:hover,
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth label.radio-toggle:hover {
+  filter: brightness(0.8);
+  opacity: 0.9;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth input,
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth input {
+  display: none;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth input:checked~label.radio-toggle,
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth input:checked~label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .big-teeth input:checked+label.radio-toggle,
+.blades-alt.actor.sheet.crew .xp-coins-row .big-teeth input:checked+label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+}
+
+/* Fix for .small-teeth-container without .big-teeth-section parent */
+/* Only Wanted uses small teeth */
+.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap .small-teeth {
+  display: flex;
+  flex-direction: row;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap label.radio-toggle {
+  height: 50px;
+  width: 17px;
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap label.radio-toggle:last-of-type {
+  margin-right: 0px;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap input {
+  display: none;
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap input:checked~label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
+}
+
+.blades-alt.actor.sheet.crew .heat-wanted-row .small-teeth-container .small-teeth-wrap input:checked+label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
+}
+
+/* Fix for hold-tier-row layout - simple and let flex do its job */
+.blades-alt.actor.sheet.crew .hold-tier-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1em;
+  align-items: flex-start;
+}
+
+/* Override space-between for crew hold/tier - use natural spacing */
+.blades-alt.actor.sheet.crew .crew-hold {
+  justify-content: flex-start;
+  gap: 0.75em;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: fit-content;
+  margin-right: 2em;
+}
+
+.blades-alt.actor.sheet.crew .crew-tier {
+  justify-content: flex-start;
+  gap: 0.75em;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: fit-content;
+}
+
+/* Crew sheet aesthetic improvements to match character sheet */
+.blades-alt.actor.sheet.crew .crew-header {
+  margin-bottom: 0.5rem;
+}
+
+.blades-alt.actor.sheet.crew .crew-header .character-portrait {
+  margin-bottom: -20px;
+}
+
+.blades-alt.actor.sheet.crew .crew-header .character-portrait .portrait {
+  border-radius: 100px;
+  overflow: hidden;
+  border: 6px solid #999;
+  width: 200px;
+  height: 200px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.blades-alt.actor.sheet.crew .crew-header .character-portrait .portrait>img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
+}
+
+/* Label styling with typography improvements */
+.blades-alt.actor.sheet.crew .black-label {
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: normal;
+  /* Keep original black background with white text */
+  background-color: #191813;
+  color: #eeefff;
+  font-size: 21px;
+  padding: 0px 5px;
+}
+
+.blades-alt.actor.sheet.crew .gray-label {
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  /* Keep original gray background with dark text */
+  background-color: #999;
+  color: #191813;
+  font-size: 21px;
+  padding: 0px 5px;
+}
+
+/* Keep coins stripe labels styled */
+.blades-alt.actor.sheet.crew .crew-coins-container .stripe {
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
