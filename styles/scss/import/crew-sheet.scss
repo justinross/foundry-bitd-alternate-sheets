@@ -62,41 +62,6 @@ nav {
 // Use shared coins mixin (size/margin tuned for crew coin chips)
 @include coins.coins($size: 15px, $margin: 3px, $wrap-width: 4 * ($coin_size + $coin_margin));
 
-// Reusable teeth track styling for crew (default + checked images)
-@mixin crew-teeth-track($height, $width, $default-img, $checked-img) {
-  label.radio-toggle {
-    height: $height;
-    width: $width;
-    background-image: url($default-img);
-    background-repeat: no-repeat;
-    background-size: contain;
-    margin-right: 4px;
-    transition: filter 0.1s;
-    cursor: pointer;
-
-    &:last-of-type {
-      margin-right: 0;
-    }
-
-    &:hover {
-      filter: brightness(0.8);
-      opacity: 0.9;
-    }
-  }
-
-  input {
-    display: none;
-  }
-
-  input:checked ~ label.radio-toggle {
-    background-image: url($checked-img);
-  }
-
-  input:checked + label.radio-toggle {
-    background-image: url($default-img);
-  }
-}
-
 
 // Reputation
 #crew-reputation {
@@ -543,8 +508,7 @@ header {
 
 .big-teeth,
 .rep-turf-row .crew-reputation {
-  @include crew-teeth-track(
-    35px,
+  @include teeth-track(35px,
     12px,
     "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png",
     "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png"
@@ -556,8 +520,7 @@ header {
 }
 
 .small-teeth-wrap {
-  @include crew-teeth-track(
-    35px,
+  @include teeth-track(35px,
     12px,
     "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png",
     "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png"
@@ -979,6 +942,6 @@ nav.tabs {
 /* Crew-specific tweaks to shared ability styling */
 .ability-list {
   .ability-block {
-    padding: 5px 0;
+    padding: 5px 5px 5px 10px;
   }
 }

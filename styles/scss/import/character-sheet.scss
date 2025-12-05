@@ -193,26 +193,17 @@
     line-height: 1em;
 
     .stripe-tooth-body {
-      &.right {
-        position: absolute;
-        top: 1px;
-        right: 1px;
-        @include toothradio(
-          10px,
-          25px,
-          "assets/teeth/xptooth-white.png",
-          "assets/teeth/xptooth-red.png"
-        );
-      }
+      &.right,
       &.stress {
         position: absolute;
         top: 1px;
         right: 1px;
-        @include toothradio(
-          10px,
+        @include teeth-track(
           25px,
+          10px,
+          "assets/teeth/xptooth-red.png",
           "assets/teeth/xptooth-white.png",
-          "assets/teeth/xptooth-red.png"
+          $gap: 3px
         );
       }
     }
@@ -767,20 +758,40 @@
                 display: flex;
                 align-items: flex-start;
                 position: relative;
-                padding: 5px;
+                padding: 5px 5px 5px 10px;
                 &:nth-child(even) {
                   background-color: rgba(255, 255, 255, 0.3);
                 }
 
+                // Firefox flexbox + checkbox bug workaround: see general-styles.scss and CONTRIBUTING.md
                 .ability-checkboxes {
-                  display: flex;
-                  gap: 0.35em;
+                  display: inline-block;
+                  white-space: nowrap;
                   margin-right: 0.5em;
-                  padding-top: 0.2em;
+                  vertical-align: top;
+
+                  .join-line {
+                    border-bottom: 2px solid var(--alt-border-strong);
+                    width: 0.5em;
+                    height: 1px;
+                    display: inline-block;
+                    vertical-align: top;
+                    margin-top: 0.5em;
+                    margin-left: 0;
+                    margin-right: 0;
+                    margin-bottom: 0;
+                    line-height: 0;
+                  }
 
                   .ability-checkbox {
                     margin: 0;
+                    padding: 0;
                     position: relative;
+                    width: 1em;
+                    min-width: 1em;
+                    height: 1em;
+                    display: inline-block;
+                    vertical-align: top;
                   }
                 }
               }

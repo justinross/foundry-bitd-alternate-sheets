@@ -24,9 +24,20 @@
 - Layout consistency: reuse the gap/align conventions already present; avoid ad-hoc margins/padding when a shared utility or tokenized gap would work. If you spot repeated patterns (teeth, tabs, checklists), consolidate into shared rules instead of duplicating blocks.
 
 ### Ability cost bars (linked vs. independent)
-- The “join-line” bars between multi-box abilities are meant only for gated, single-purchase abilities (you must fill all boxes to unlock the ability).
+- The "join-line" bars between multi-box abilities are meant only for gated, single-purchase abilities (you must fill all boxes to unlock the ability).
 - Multi-level abilities (e.g., Veteran) improve per purchase and should **not** show join bars; treat each box as an independent rank.
-- The template currently renders no join bars by default; if you need to reintroduce them for specific abilities, do it via a data-driven flag/helper (e.g., check a property that marks “requires full fill to unlock”) rather than hard-coding ability names.
+- The template currently renders no join bars by default; if you need to reintroduce them for specific abilities, do it via a data-driven flag/helper (e.g., check a property that marks "requires full fill to unlock") rather than hard-coding ability names.
+
+### Firefox flexbox + checkbox width calculation bug
+- **Problem**: Firefox has a known bug where flex containers with `display: flex` or `display: inline-flex` do not correctly calculate `width: max-content` when containing checkbox `<input>` elements. The container computes a width smaller than its content, causing checkboxes to overflow and overlap with adjacent text.
+- **Root cause**: Firefox calculates the flex container's intrinsic width based on font-size (e.g., `1em = 14px`) rather than the actual rendered width of checkbox children (which may be `20px`). This is compounded when the container itself is a flex item in a parent flex layout, as Firefox's flex shrinking algorithm ignores `width: max-content` directives.
+- **Solution**: Use `display: inline-block` instead of any flex display mode for `.ability-checkboxes`. Combined with `white-space: nowrap`, this forces the container to shrink-wrap to its actual content width in all browsers without triggering Firefox's buggy flex intrinsic sizing.
+- **Implementation details**:
+  - Container: `display: inline-block; white-space: nowrap; vertical-align: top;`
+  - Children (checkboxes): `display: inline-block; vertical-align: top; width: 1em; min-width: 1em;`
+  - Join-lines: `display: inline-block; vertical-align: top; margin-top: 0.5em;` (centers them vertically relative to 1em-tall checkboxes)
+- **DO NOT** switch back to `display: flex` or `display: inline-flex` for `.ability-checkboxes` without extensive cross-browser testing, especially in Firefox. The `inline-block` approach is simpler, more reliable, and works identically in Chrome and Firefox.
+- **References**: This is documented as a known Firefox issue (see [flexbugs](https://github.com/philipwalton/flexbugs) and related Stack Overflow discussions on Firefox flex + checkbox width bugs).
 
 ## Testing Guidelines
 - No automated suite exists; rely on manual Foundry verification.
