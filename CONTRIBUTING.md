@@ -14,7 +14,14 @@
 - JavaScript: ES modules with `const`/`let`, two-space indent, double quotes, and semicolons; prefer async/await for Foundry hooks and migrations.
 - Compatibility: Use `DialogV2` for Foundry V12+ support. Leverage `scripts/compat.js` and `scripts/compat-helpers.js` for cross-version compatibility layers.
 - Templates: Handlebars helpers live in `scripts/handlebars-helpers.js`; keep partial names aligned with filenames and avoid inline logic that belongs in helpers.
-- Styles: keep shared tokens/mixins in `styles/scss/mixin.scss`; prefer SCSS variables over hard-coded colors; match existing class naming.
+
+### CSS authoring expectations (alt sheets)
+- Work in `styles/css/bitd-alt.css` using **plain CSS with custom properties**—no Sass build step. Keep design tokens in the `:root` block (colors, spacing, radii, shadows, grid percentages) and **add new values there first** instead of introducing literals.
+- Use existing shared utilities and patterns: flex grid (`.row`/`.col-*`), visibility helpers (`.show-*`/`.hide-*`), label styles, checklist/ability list bases, and toggle styles. Prefer extending these rather than creating one-off variants.
+- Keep selectors low-specificity and class-based; avoid IDs and descendant chains. Do not add `!important` outside the established visibility helpers.
+- Spacing/size/typography: use the token scale (`--space-*`, `--alt-radius*`, label heights) and avoid pixel magic numbers. Font sizes/line-heights should come from a shared scale (or a single shared “display” size), not bespoke per-component tokens. If alignment requires adjustment, prefer tokenized values over negatives; document any unavoidable negative offsets inline with a short comment.
+- Colors and backgrounds: use palette tokens (`--alt-*`) and avoid new hex literals. If a new semantic color is needed, add it as a token with a clear name before use.
+- Layout consistency: reuse the gap/align conventions already present; avoid ad-hoc margins/padding when a shared utility or tokenized gap would work. If you spot repeated patterns (teeth, tabs, checklists), consolidate into shared rules instead of duplicating blocks.
 
 ### Ability cost bars (linked vs. independent)
 - The “join-line” bars between multi-box abilities are meant only for gated, single-purchase abilities (you must fill all boxes to unlock the ability).
