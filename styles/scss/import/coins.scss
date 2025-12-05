@@ -4,27 +4,47 @@
 $coin_size: 15px;
 $coin_margin: 3px;
 
-.coins {
-  @include custom_radio_square($coin_size);
-  flex-wrap: wrap;
-
-  input ~ label {
-    margin-right: $coin_margin;
-    margin-bottom: $coin_margin;
-
-    &[for$="0"] {
-      border-width: 2px;
+// Generic coins mixin so sheets can set their own dimensions/layout
+@mixin coins(
+  $size: $coin_size,
+  $margin: $coin_margin,
+  $wrap-width: auto,
+  $grid-template: null,
+  $gap: null
+) {
+  .coins {
+    @include custom_radio_square($size);
+    flex-wrap: wrap;
+    @if $wrap-width != auto {
+      max-width: $wrap-width;
     }
 
-    @include changeable($transition-period, $hover-brightness, $hover-opacity);
-  }
+    @if $grid-template != null {
+      display: grid;
+      grid-template-columns: $grid-template;
+      @if $gap != null {
+        gap: $gap;
+      }
+    }
 
-  &.coins-hands {
-    width: 36px;
-  }
+    input ~ label {
+      margin-right: $margin;
+      margin-bottom: $margin;
 
-  &.coins-stashed {
-    width: 190px;
-  }
+      &[for$="0"] {
+        border-width: 2px;
+      }
 
+      @include changeable($transition-period, $hover-brightness, $hover-opacity);
+    }
+
+    &.coins-hands {
+      width: 36px;
+    }
+
+    &.coins-stashed {
+      width: 190px;
+    }
+
+  }
 }

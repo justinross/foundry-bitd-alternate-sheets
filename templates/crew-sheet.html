@@ -1,11 +1,5 @@
 <form class="{{cssClass}} actor-sheet blades-alt crew actor" autocomplete="off">
-  <div class="sheet-wrapper {{#if allow_edit}}allow-edit{{/if}}">
-
-    <div class="sheet-toggles">
-      <span class="toggle-allow-edit" data-tooltip="{{localize 'bitd-alt.AllowEdit'}}">
-        <i class="fas fa-lock"></i><i class="fas fa-lock-open"></i>
-      </span>
-    </div>
+    <div class="sheet-wrapper {{#if allow_edit}}allow-edit{{/if}}">
 
     <div class="crew-upper-wrapper">
       <div class="crew-upper-frame">
@@ -79,6 +73,11 @@
 
           <section class="character-info crew-top-right crew-header-body">
             <div class="crew-identity-block">
+              <div class="sheet-toggles">
+                <span class="toggle-allow-edit" data-tooltip="{{localize 'bitd-alt.AllowEdit'}}">
+                  <i class="fas fa-lock"></i><i class="fas fa-lock-open"></i>
+                </span>
+              </div>
               <div class="name-line">
                 <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") name _id this}}}</span>
                 <div class="crew-type-pill">

@@ -3,6 +3,7 @@
 @use "sass:meta";
 @use "../mixin" as *;
 @use "./attributes" as attrs;
+@use "./coins" as coins;
 
 @mixin character-sheet {
   /*
@@ -398,19 +399,17 @@
           }
 
           .full-view {
-            @include meta.load-css("./coins");
-          }
+            // Use shared coins mixin for popup layout
+            @include coins.coins($size: 15px, $margin: 3px);
 
-          &.open {
-            .full-view {
-              .coins {
-                display: flex;
-                justify-content: space-between;
-                .hand,
-                .stash {
-                  display: inline-block;
-                  text-align: left;
-                }
+            .coins {
+              display: flex;
+              justify-content: space-between;
+
+              .hand,
+              .stash {
+                display: inline-block;
+                text-align: left;
               }
             }
           }
