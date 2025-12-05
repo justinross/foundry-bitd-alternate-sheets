@@ -92,7 +92,8 @@
               <div class="crew-meta-line">
                 <span class="meta-label">{{localize "BITD.Lair"}}</span>
                 <span class="meta-value">{{{inline-editable-text allow_edit "system.lair" (localize "BITD.Lair") system.lair _id this}}}</span>
-                <span class="meta-separator">&bull;</span>
+              </div>
+              <div class="crew-meta-line">
                 <span class="meta-label">{{localize system.hunting_grounds_label}}</span>
                 <span class="hunting-grounds">
                   {{#each items as |item id|}}
@@ -105,6 +106,21 @@
                   {{/if}}
                   {{/each}}
                   <a class="item-add-popup" data-item-type="hunting_grounds"><i class="fas fa-plus"></i></a>
+                </span>
+              </div>
+              <div class="crew-meta-line">
+                <span class="meta-label">{{localize "BITD.CrewReputation"}}</span>
+                <span class="crew-reputation-items">
+                  {{#each items as |item id|}}
+                  {{#if (eq item.type "crew_reputation")}}
+                  <span class="item" data-item-id="{{item._id}}">
+                    {{item.name}}
+                    <a class="item-control item-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i
+                        class="fas fa-trash"></i></a>
+                  </span>
+                  {{/if}}
+                  {{/each}}
+                  <a class="item-add-popup" data-distinct="true" data-item-type="crew_reputation"><i class="fas fa-plus"></i></a>
                 </span>
               </div>
             </div>

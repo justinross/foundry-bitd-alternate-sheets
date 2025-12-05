@@ -187,6 +187,23 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
     if (!this.options.editable) return;
 
+    // Handle inline-editable-text fields (e.g., crew name, lair)
+    html.find('*[contenteditable="true"]').on("paste", (e) => {
+      e.preventDefault();
+      let text = (e.originalEvent || e).clipboardData.getData("text/plain");
+      document.execCommand("insertText", false, text);
+    });
+
+    html.find(".inline-input").on("keyup", async (ev) => {
+      let input = ev.currentTarget.previousSibling;
+      input.value = ev.currentTarget.innerText;
+    });
+
+    html.find(".inline-input").on("blur", async (ev) => {
+      let input = ev.currentTarget.previousSibling;
+      $(input).change();
+    });
+
     html.on("change", ".crew-ability-checkbox", (event) =>
       this._onChoiceToggle(event, "crew_ability")
     );

@@ -450,6 +450,8 @@ export class Utils {
   static bindAllowEditToggle(sheet, html) {
     html.find(".toggle-allow-edit").off("click").on("click", (event) => {
       event.preventDefault();
+      // Trigger blur on any active inline-input fields to save their content before re-rendering
+      html.find(".inline-input:focus").blur();
       sheet.allow_edit = !sheet.allow_edit;
       sheet.render(false);
     });

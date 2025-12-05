@@ -2015,7 +2015,11 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  font-size: 1.1em;
+  font-size: 1.3em;
+}
+
+.blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .inline-input[contenteditable="true"]:hover {
+  text-shadow: 0 0 8px var(--alt-red);
 }
 
 .blades-alt.actor.sheet.crew .crew-meta-line .meta-label {
@@ -2027,6 +2031,24 @@
 
 .blades-alt.actor.sheet.crew .crew-meta-line .meta-value {
   font-style: italic;
+  min-width: 200px;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .meta-value input {
+  font-style: italic;
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--alt-radius-sm);
+  min-width: 200px;
+  width: 100%;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .meta-value input:focus {
+  outline: 2px solid var(--alt-blue);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .blades-alt.actor.sheet.crew .crew-meta-line .meta-separator {
@@ -2052,6 +2074,42 @@
 }
 
 .blades-alt.actor.sheet.crew .crew-meta-line .hunting-grounds .item:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .hunting-grounds .item-delete,
+.blades-alt.actor.sheet.crew .crew-meta-line .hunting-grounds .item-add-popup,
+.blades-alt.actor.sheet.crew .crew-meta-line .crew-reputation-items .item-delete,
+.blades-alt.actor.sheet.crew .crew-meta-line .crew-reputation-items .item-add-popup {
+  display: none;
+}
+
+.blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .crew-meta-line .hunting-grounds .item-delete,
+.blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .crew-meta-line .hunting-grounds .item-add-popup,
+.blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .crew-meta-line .crew-reputation-items .item-delete,
+.blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .crew-meta-line .crew-reputation-items .item-add-popup {
+  display: inline-flex;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .crew-reputation-items {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .crew-reputation-items .item {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 2px 6px;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.blades-alt.actor.sheet.crew .crew-meta-line .crew-reputation-items .item:hover {
   filter: brightness(1.05);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
