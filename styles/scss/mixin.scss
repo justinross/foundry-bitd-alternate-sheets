@@ -1,4 +1,5 @@
 @use "sass:math";
+@use "./variables" as *;
 /*
 *  Elements that can be changed will hint this by dimming and fading a little on hover
 */

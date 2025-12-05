@@ -1,3 +1,7 @@
+
+
+@use "./variables/main" as *;
+
 // Lightweight flex grid driven by CSS custom properties (mirrors the CSS-only edits)
 .row {
   box-sizing: border-box;

@@ -1,23 +1,10 @@
-// Colors
-$lightgray: #bbb;
-$darkgray: #666;
-$gray: #999;
-$red: red;
-$almost_black: #191813;
-$almost_white: #eeefff;
-$gold: #daa520;
-$green: #008000;
-$light_green: #12a012;
-$blue: #04578f;
-
-// Transition period for sheet parts that hint what they can do
-$transition-period: 0.2s;
-$hover-opacity: 0.9;
-$hover-brightness: 0.8;
-
 // Utility imports
-@import "mixin.scss";
-//@import 'fonts.scss';
+@use "./variables" as *;
+@use "sass:meta";
+@use "./mixin" as *;
+@use "./import/character-sheet" as char;
+@use "./import/item-sheet" as item;
+//@use "fonts" as *;
 
 //namespacing to avoid conflicts with other modules
 .blades-alt {
@@ -77,31 +64,31 @@ $hover-brightness: 0.8;
   --col-12: 100%;
 
   $gutter: 0px;
-  @import "import/flexbox/main.scss";
+  @include meta.load-css("./import/flexbox/main");
 
-  @import "import/general-styles.scss";
+  @include meta.load-css("./import/general-styles");
 
   &.actor.sheet.crew {
-    @import "import/crew-sheet.scss";
+    @include meta.load-css("./import/crew-sheet");
   }
 
   &.actor.sheet.pc {
-    @import "import/character-sheet.scss";
+    @include char.character-sheet();
   }
 
   &.item.sheet.class {
-    @import "import/class-sheet.scss";
+    @include meta.load-css("./import/class-sheet");
   }
   //&.actor.clock{
-  //  @import 'import/clock-sheet';
+  //  @use './import/clock-sheet' as *;
   //}
   //
   &.item.sheet {
-    @import "import/item-sheet.scss";
+    @include item.item-sheet();
   }
 }
 
 //top-level styles
-//@import 'import/chat.scss';
-//@import 'import/dialogs.scss';
-@import "import/tooltip.scss";
+//@use './import/chat' as *;
+//@use './import/dialogs' as *;
+@include meta.load-css("./import/tooltip");

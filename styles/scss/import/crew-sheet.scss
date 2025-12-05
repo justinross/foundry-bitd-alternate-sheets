@@ -1,7 +1,9 @@
 $coin_size: 15px;
 $coin_margin: 3px;
 
-@import 'coins.scss';
+@use "../variables" as *;
+@use "../mixin" as *;
+@use "./coins";
 
 .item {
 

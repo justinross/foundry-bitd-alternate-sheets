@@ -1,3 +1,4 @@
+@mixin item-sheet {
 // ITEM
 &{
   justify-content: space-between;
@@ -24,5 +25,6 @@
   }
 
 
+}
 }
 

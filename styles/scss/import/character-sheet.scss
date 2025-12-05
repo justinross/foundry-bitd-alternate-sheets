@@ -1,11 +1,19 @@
-/*
- * General Styles - Redesign
- */
+@use "../variables" as *;
+@use "sass:color";
+@use "sass:meta";
+@use "../mixin" as *;
+@use "./attributes" as attrs;
 
-& {
+@mixin character-sheet {
+  /*
+   * General Styles - Redesign
+   */
+
+  & {
   min-width: 800px;
   min-height: 275px;
 }
+
 
 .sheet-wrapper {
   position: relative;
@@ -76,7 +84,7 @@
   .hover-term,
   .v10-tooltip {
     cursor: help;
-    color: darken($red, 30%);
+    color: color.adjust($red, $lightness: -30%);
     font-weight: bold;
     text-decoration: underline;
   }
@@ -390,7 +398,7 @@
           }
 
           .full-view {
-            @import "coins.scss";
+            @include meta.load-css("./coins");
           }
 
           &.open {
@@ -467,7 +475,7 @@
                   height: 100%;
                   width: 100%;
                   border-radius: 0;
-                  background-color: darken($lightgray, 10%);
+                  background-color: color.adjust($lightgray, $lightness: -10%);
                   z-index: 10;
                 }
                 header {
@@ -648,7 +656,7 @@
       }
 
       .attributes-actions {
-        @import "attributes.scss";
+        @include attrs.attributes-sheet();
       }
     }
   }
@@ -979,4 +987,5 @@
       }
     }
   }
+}
 }
