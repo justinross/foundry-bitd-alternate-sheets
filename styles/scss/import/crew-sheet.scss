@@ -296,3 +296,496 @@ nav{
 header {
   margin-bottom: 10px;
 }
+
+// Inline meta controls and reputation chips
+.sheet-wrapper.allow-edit .inline-input[contenteditable="true"]:hover {
+  text-shadow: 0 0 8px var(--alt-red);
+}
+
+.crew-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.3em;
+
+  .meta-value {
+    font-style: italic;
+    min-width: 200px;
+
+    input {
+      font-style: italic;
+      font-family: inherit;
+      font-size: inherit;
+      border: none;
+      background: rgba(255, 255, 255, 0.5);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--alt-radius-sm);
+      min-width: 200px;
+      width: 100%;
+
+      &:focus {
+        outline: 2px solid var(--alt-blue);
+        background: rgba(255, 255, 255, 0.8);
+      }
+    }
+  }
+
+  .hunting-grounds,
+  .crew-reputation-items {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .hunting-grounds .item-delete,
+  .hunting-grounds .item-add-popup,
+  .crew-reputation-items .item-delete,
+  .crew-reputation-items .item-add-popup {
+    display: none;
+  }
+
+  .crew-reputation-items .item {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    padding: 2px 6px;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    transition: box-shadow 0.15s ease, filter 0.15s ease;
+
+    &:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.sheet-wrapper.allow-edit .crew-meta-line {
+  .hunting-grounds .item-delete,
+  .hunting-grounds .item-add-popup,
+  .crew-reputation-items .item-delete,
+  .crew-reputation-items .item-add-popup {
+    display: inline-flex;
+  }
+}
+
+// Claims / turf styling overrides
+.turf-list {
+  --turf-bg: #d8d8d8;
+  --turf-bg-selected: var(--alt-mid);
+  --turf-checkbox-size: 1em;
+
+  .turf-block {
+    background-color: var(--turf-bg);
+
+    &.turf-selected {
+      background-color: var(--turf-bg-selected);
+    }
+
+    .connector {
+      background-color: var(--turf-bg);
+    }
+
+    &.turf-selected .connector {
+      background-color: var(--turf-bg-selected);
+    }
+
+    .turf-control {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--turf-checkbox-size);
+      height: var(--turf-checkbox-size);
+      padding: 0;
+      margin: 0;
+      z-index: 2;
+
+      input.turf-select[type="checkbox"] {
+        width: var(--turf-checkbox-size);
+        height: var(--turf-checkbox-size);
+        margin: 0;
+        padding: 0;
+        display: block;
+      }
+    }
+  }
+}
+
+// Crew sheet layout and teeth overrides aligned with the alt PC sheet
+.sheet-wrapper .minimized-view {
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  .character-portrait {
+    margin-bottom: -35px;
+    position: relative;
+
+    &.row {
+      align-items: flex-start;
+    }
+
+    .portrait {
+      border-radius: 100px;
+      overflow: hidden;
+      border: 6px solid var(--alt-mid);
+      width: 200px;
+      height: 200px;
+      position: relative;
+      top: -10px;
+
+      > img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        overflow: hidden;
+        border: 0;
+        border-radius: 50%;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
+      }
+    }
+  }
+
+  .character-info {
+    padding-left: 20px;
+
+    .name-alias {
+      font-family: Kirsty, serif;
+      font-size: 2em;
+      line-height: 1em;
+      margin-bottom: 0.2em;
+    }
+
+    .bio {
+      font-family: "Crimson Text", serif;
+      font-size: 1.2em;
+    }
+  }
+}
+
+// Teeth styling / layout
+.big-teeth,
+.small-teeth {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.heat-wanted-row .big-teeth,
+.xp-coins-row .big-teeth {
+  border-top: 3px solid var(--alt-dark);
+  padding-top: 0;
+  margin-top: 0;
+  width: fit-content;
+  flex: 0 0 auto;
+}
+
+.big-teeth label.radio-toggle,
+.rep-turf-row .crew-reputation label.radio-toggle {
+  height: 35px;
+  width: 12px;
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin-right: 4px;
+  transition: filter 0.1s;
+  cursor: pointer;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+
+  &:hover {
+    filter: brightness(0.8);
+    opacity: 0.9;
+  }
+}
+
+.big-teeth input,
+.rep-turf-row .crew-reputation input {
+  display: none;
+}
+
+.crew-reputation input[disabled] + label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-black.png");
+}
+
+.big-teeth input:checked ~ label.radio-toggle,
+.rep-turf-row .crew-reputation input:checked ~ label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
+}
+
+.big-teeth input:checked + label.radio-toggle,
+.rep-turf-row .crew-reputation input:checked + label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
+}
+
+.small-teeth-wrap {
+  label.radio-toggle {
+    height: 35px;
+    width: 12px;
+    background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin-right: 4px;
+    cursor: pointer;
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+
+  input {
+    display: none;
+  }
+
+  input:checked ~ label.radio-toggle {
+    background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
+  }
+
+  input:checked + label.radio-toggle {
+    background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
+  }
+}
+
+.teeth-row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.small-teeth-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.small-teeth-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.rep-turf-row .crew-reputation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.xp-coins-row {
+  gap: var(--space-2);
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.coins-block {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.portrait-xp {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+
+  .crew-xp-clock {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .black-label {
+      min-width: 80px;
+    }
+  }
+
+  .portrait-xp-track {
+    width: 100%;
+    flex: 0 0 auto;
+
+    &.big-teeth {
+      border-top: 3px solid var(--alt-dark);
+      padding-top: 0;
+      margin-top: 0;
+      width: fit-content;
+      flex: 0 0 auto;
+    }
+  }
+}
+
+.portrait-coins {
+  width: 100%;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.crew-coins {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+
+  label.radio-toggle {
+    flex-shrink: 0;
+    margin-right: var(--space-tight);
+    border-radius: 50%;
+
+    &:nth-of-type(4n) {
+      margin-right: var(--space-4);
+    }
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+
+  &.coins-vault {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    gap: 4px;
+  }
+
+  &.coins-hands {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(22px, 1fr));
+    gap: 4px;
+  }
+}
+
+.portrait-coins-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.hold-tier-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.crew-hold,
+.crew-tier {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.75em;
+  align-items: flex-start;
+  flex-shrink: 0;
+  min-width: fit-content;
+}
+
+.crew-hold {
+  margin-right: var(--space-2);
+}
+
+// Header layout / visuals
+.crew-header {
+  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
+  grid-auto-rows: auto;
+  gap: 12px;
+  align-items: stretch;
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  margin-left: auto;
+  margin-right: auto;
+  flex: 1 1 auto;
+}
+
+.crew-upper-frame {
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  margin: 0 auto;
+  display: flex;
+  align-items: stretch;
+}
+
+.crew-header .character-portrait {
+  grid-row: 1 / span 2;
+  grid-column: 1;
+  align-self: stretch;
+  justify-self: stretch;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .portrait-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 12px 10px 8px 10px;
+    background: var(--alt-tab-mid);
+    border: 1px solid var(--alt-border);
+    border-radius: var(--alt-radius);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    flex: 1 1 auto;
+    justify-content: space-between;
+    align-self: stretch;
+  }
+
+  .portrait {
+    border-radius: 100px;
+    overflow: hidden;
+    border: 6px solid var(--alt-mid);
+    width: 200px;
+    height: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
+    }
+  }
+}
+
+.crew-header .crew-header-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-self: stretch;
+  justify-self: stretch;
+  width: 100%;
+}
+
+.crew-header .crew-top-right,
+.crew-header .crew-bottom-right {
+  grid-column: 2;
+  align-self: stretch;
+  justify-self: stretch;
+  width: 100%;
+}
+
+// Label tweaks
+:is(.black-label, .gray-label) {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: normal;
+}
+
+.crew-coins-container .stripe {
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

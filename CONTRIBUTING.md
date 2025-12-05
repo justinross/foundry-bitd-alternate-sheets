@@ -7,7 +7,7 @@
 
 ## Build, Test, and Development Commands
 - Run Foundry locally: set `FVTT_USER`/`FVTT_PW`, then `docker-compose up` (listens on http://localhost:30000, mounts `/workspace/data` to `/data`).
-- No bundler is used; edit JS/HBS directly. Rebuild styles after SCSS changes: `sass styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=compressed --source-map`.
+- No bundler is used; edit JS/HBS directly. Rebuild styles after SCSS changes: `npm run build:css` (or directly `sass styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=compressed --source-map`).
 - Releases are automated via GitHub Actions. Creating a release with a tag (e.g., `v1.0.0`) triggers a workflow that updates `module.json`, builds the zip, and attaches assets to the release.
 
 ## Coding Style & Naming Conventions

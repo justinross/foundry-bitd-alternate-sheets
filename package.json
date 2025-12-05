@@ -1,0 +1,14 @@
+{
+  "name": "bitd-alternate-sheets",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Build scripts for the BitD alternate sheets CSS",
+  "license": "MIT",
+  "scripts": {
+    "build:css": "sass styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=compressed --source-map",
+    "watch:css": "sass --watch styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=compressed --source-map"
+  },
+  "devDependencies": {
+    "sass": "^1.94.2"
+  }
+}
