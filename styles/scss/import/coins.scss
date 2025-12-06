@@ -32,7 +32,8 @@ $coin_margin: 3px;
       margin-right: $margin;
       margin-bottom: $margin;
 
-      &[for$="0"] {
+      // Only the zero-value toggle should have the thicker border; avoid matching 10, 20, etc.
+      &[for$="-0"] {
         border-width: 2px;
       }
 

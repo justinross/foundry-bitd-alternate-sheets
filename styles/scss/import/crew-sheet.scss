@@ -536,6 +536,7 @@ header {
 .small-teeth-wrap {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
 }
 
 .rep-turf-row .crew-reputation {
@@ -552,7 +553,7 @@ header {
 
 .coins-block {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 12px;
@@ -600,7 +601,7 @@ header {
 
 .crew-coins {
   display: grid;
-  grid-template-columns: repeat(4, max-content);
+  grid-template-columns: repeat(auto-fit, minmax(15px, max-content));
   column-gap: 3px;
   row-gap: 3px;
   align-items: center;
@@ -617,6 +618,49 @@ header {
   flex-wrap: nowrap;
   align-items: flex-start;
   gap: var(--space-3);
+}
+
+.coins-grid {
+  /* Coin layout for crew sheet */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  column-gap: var(--space-2);
+  row-gap: 6px;
+  align-items: start;
+}
+
+.coins-grid .coin-group {
+  --coin-size: 15px;
+  --coin-gap: 3px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: max-content;
+}
+
+.coins-grid .vault-group {
+  // 12 boxes + 11 gaps + two grouping offsets (5th and 9th)
+  width: calc(12 * var(--coin-size) + 11 * var(--coin-gap) + 20px);
+}
+
+.coins-grid .coin-group .coins-label {
+  width: 100%;
+  padding: 2px 6px;
+}
+
+.coins-grid .coin-group .crew-coins {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: var(--coin-gap);
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.coins-grid .vault-group .crew-coins label:nth-of-type(5),
+.coins-grid .vault-group .crew-coins label:nth-of-type(9) {
+  margin-left: 10px;
 }
 
 .hold-tier-row {
@@ -636,6 +680,11 @@ header {
   min-width: fit-content;
 }
 
+.crew-tier {
+  align-items: center;
+  align-self: flex-start;
+}
+
 .crew-hold {
   margin-right: var(--space-2);
 }
@@ -645,6 +694,7 @@ header {
   margin-bottom: 1rem;
   display: grid;
   grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
+  grid-template-rows: auto auto;
   grid-auto-rows: auto;
   gap: 12px;
   align-items: stretch;
@@ -664,7 +714,7 @@ header {
 }
 
 .crew-header .character-portrait {
-  grid-row: 1 / span 2;
+  grid-row: 1;
   grid-column: 1;
   align-self: stretch;
   justify-self: stretch;
@@ -722,6 +772,15 @@ header {
   align-self: stretch;
   justify-self: stretch;
   width: 100%;
+}
+
+.crew-header .crew-top-right {
+  grid-row: 1;
+}
+
+.crew-header .crew-bottom-right {
+  grid-row: 2;
+  grid-column: 1 / -1;
 }
 
 // Crew-specific toggle positioning inside identity block
@@ -864,10 +923,11 @@ nav.tabs {
 }
 
 .crew-stats-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: var(--alt-tab-mid);
+  display: grid;
+  grid-template-columns: minmax(320px, 0.8fr) minmax(320px, 1.2fr);
+  grid-auto-rows: auto;
+  column-gap: 14px;
+  row-gap: 12px;
   border: 1px solid var(--alt-border);
   border-radius: 14px;
   padding: 10px 12px;
@@ -878,47 +938,66 @@ nav.tabs {
   flex: 1 1 auto;
   height: auto;
 
-  >.rep-hold-row,
-  >.heat-wanted-row,
-  >.xp-coins-row {
-    display: flex;
-    flex-wrap: wrap;
+  >.rep-hold-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(320px, 0.8fr) minmax(320px, 1.2fr);
     gap: 12px;
     align-items: flex-start;
+    width: 100%;
+    max-width: var(--alt-max-row);
+    padding: 4px 0;
+  }
+
+  >.heat-wanted-row {
+    grid-column: 1;
+    align-self: flex-start;
+    padding: 4px 0;
+  }
+
+  >.coins-row {
+    grid-column: 2;
+    align-self: flex-start;
     padding: 4px 0;
   }
 
   .rep-turf-row {
     display: flex;
-    margin-bottom: 8px;
+    margin-bottom: 0;
+    width: 100%;
+    min-width: 0;
   }
 
-  .rep-hold-row {
-    flex-direction: column;
-    gap: 14px;
+  .rep-hold-row .teeth-row {
     width: 100%;
-    max-width: var(--alt-max-row);
-    align-self: flex-start;
+    min-width: 0;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .heat-wanted-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0;
+    align-items: flex-start;
 
     >* {
-      flex: 1 1 auto;
-      width: 100%;
+      flex: 1 1 clamp(200px, 32vw, 360px);
+    }
+
+    .crew-wanted-container {
+      flex: 0 0 auto;
+    }
+
+    >.big-teeth {
+      flex: 0 0 auto;
     }
   }
 
-  .heat-wanted-row>* {
-    flex: 1 1 clamp(220px, 38%, 320px);
-  }
-
-  .xp-coins-row>* {
-    flex: 1 1 clamp(260px, 42%, 380px);
-  }
-
-  .heat-wanted-row,
-  .xp-coins-row {
+  .coins-row {
+    display: flex;
+    align-items: flex-start;
     width: 100%;
-    max-width: var(--alt-max-row);
-    align-self: flex-start;
   }
 
   .teeth-row {
@@ -930,6 +1009,24 @@ nav.tabs {
 
   .big-teeth {
     align-items: flex-start;
+  }
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+
+    >.rep-hold-row,
+    >.heat-wanted-row,
+    >.coins-row {
+      grid-column: 1;
+    }
+
+    .heat-wanted-row {
+      flex-wrap: wrap;
+
+      >* {
+        flex: 1 1 clamp(220px, 48vw, 400px);
+      }
+    }
   }
 }
 

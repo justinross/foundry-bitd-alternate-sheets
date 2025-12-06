@@ -33,40 +33,6 @@
                   {{/multiboxes}}
                 </div>
                 {{/if}}
-                <div class="coins-block portrait-coins">
-                  <div class="black-label coins-label">{{localize "BITD.Coins"}}</div>
-                  <div id="crew-{{_id}}-coins" class="crew-coins-container portrait-coins-row">
-                    <div id="crew-{{_id}}-coins-hands" class="crew-coins-hands">
-                      <div class="stripe inline"><b>{{localize "bitd-alt.OnHand"}}</b></div>
-                      <div class="crew-coins coins-hands">
-                        {{#multiboxes system.coins.value}}
-                        <input type="radio" id="crew-{{_id}}-coins-hands-0" name="system.coins.value" value="0" checked>
-                        {{#times_from 1 system.coins.max}}
-                        <input id="crew-{{../_id}}-coins-hands-{{this}}" type="radio" name="system.coins.value"
-                          value="{{this}}">
-                        <label class="radio-toggle" for="crew-{{../_id}}-coins-hands-{{this}}"></label>
-                        {{/times_from}}
-                        {{/multiboxes}}
-                      </div>
-                    </div>
-                    {{#if system.vault.max}}
-                    <div id="crew-{{_id}}-coins-vault" class="crew-coins-vault portrait-coins-vault">
-                      <div class="stripe inline"><b>{{localize "BITD.Vault"}}</b></div>
-                      <div class="crew-coins coins-vault">
-                        {{#multiboxes system.vault.value}}
-                        <input type="radio" id="crew-{{_id}}-coins-vault-0" name="system.vault.value" value="0"
-                          checked="checked">
-                        {{#times_from 1 system.vault.max}}
-                        <input id="crew-{{../_id}}-coins-vault-{{this}}" type="radio" name="system.vault.value"
-                          value="{{this}}">
-                        <label class="radio-toggle" for="crew-{{../_id}}-coins-vault-{{this}}"></label>
-                        {{/times_from}}
-                        {{/multiboxes}}
-                      </div>
-                    </div>
-                    {{/if}}
-                  </div>
-                </div>
               </div>
             </div>
           </section>
@@ -83,7 +49,7 @@
                 <div class="crew-type-pill">
                   {{#each items as |item id|}}
                   {{#if (eq item.type "crew_type")}}
-                  <span class="crew-type" data-tooltip="{{item.system.description}}">{{item.name}}</span>
+                  <span class="crew-type" data-tooltip="{{item.system.description}}"> • {{item.name}}</span>
                   {{/if}}
                   {{/each}}
                 </div>
@@ -195,6 +161,44 @@
                     </div>
                   </div>
                   {{/multiboxes}}
+                </div>
+              </div>
+
+              <div class="coins-row">
+                <div class="coins-block">
+                  <div id="crew-{{_id}}-coins" class="crew-coins-container coins-grid">
+                    <div class="coin-group hands-group">
+                      <div class="black-label coins-label">{{localize "BITD.Coins"}}</div>
+                      <div id="crew-{{_id}}-coins-hands" class="crew-coins-hands">
+                        <div class="crew-coins coins coins-hands">
+                          {{#multiboxes system.coins.value}}
+                          <input type="radio" id="crew-{{_id}}-coins-hands-0" name="system.coins.value" value="0" checked>
+                          {{#times_from 1 system.coins.max}}
+                          <input id="crew-{{../_id}}-coins-hands-{{this}}" type="radio" name="system.coins.value" value="{{this}}">
+                          <label class="radio-toggle" for="crew-{{../_id}}-coins-hands-{{this}}"></label>
+                          {{/times_from}}
+                          {{/multiboxes}}
+                        </div>
+                      </div>
+                    </div>
+
+                    {{#if system.vault.max}}
+                    <div class="coin-group vault-group">
+                      <div class="gray-label coins-label vault-label">{{localize "BITD.Vault"}}</div>
+                      <div id="crew-{{_id}}-coins-vault" class="crew-coins-vault">
+                        <div class="crew-coins coins coins-vault">
+                          {{#multiboxes system.vault.value}}
+                          <input type="radio" id="crew-{{_id}}-coins-vault-0" name="system.vault.value" value="0" checked="checked">
+                          {{#times_from 1 system.vault.max}}
+                          <input id="crew-{{../_id}}-coins-vault-{{this}}" type="radio" name="system.vault.value" value="{{this}}">
+                          <label class="radio-toggle" for="crew-{{../_id}}-coins-vault-{{this}}"></label>
+                          {{/times_from}}
+                          {{/multiboxes}}
+                        </div>
+                      </div>
+                    </div>
+                    {{/if}}
+                  </div>
                 </div>
               </div>
             </div>
