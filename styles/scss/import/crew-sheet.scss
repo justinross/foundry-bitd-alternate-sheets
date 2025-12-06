@@ -37,9 +37,8 @@
 }
 
 #name,
-#lair,
-{
-margin-bottom: 10px;
+#lair {
+  margin-bottom: 10px;
 }
 
 form {
@@ -51,6 +50,7 @@ form {
 nav {
   padding-bottom: 10px;
 }
+
 
 
 // Crew Coins
@@ -685,7 +685,7 @@ header {
     padding-right: 0;
   }
 
-  .crew-hold > .flex-horizontal {
+  .crew-hold>.flex-horizontal {
     justify-content: flex-start;
     gap: 0;
   }
@@ -715,7 +715,7 @@ header {
 .crew-header {
   margin-bottom: 1rem;
   display: grid;
-  grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
+  grid-template-columns: minmax(0, 27fr) minmax(0, 73fr);
   grid-template-rows: auto auto;
   grid-auto-rows: auto;
   gap: 12px;
@@ -740,41 +740,92 @@ header {
   grid-column: 1;
   align-self: stretch;
   justify-self: stretch;
-  margin-bottom: 0;
   display: flex;
   flex-direction: column;
   width: 100%;
+  align-items: center; // Ensure centering
+  justify-content: flex-start; // Pack items at the top to prevent spreading
+  gap: 0; // Remove any gap that might interfere with margins
+  margin-bottom: -35px; // Mimic PC sheet's layout squeeze exactly
 
-  .portrait-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    width: 100%;
-    padding: 12px 10px 8px 10px;
-    background: var(--alt-tab-mid);
-    border: 1px solid var(--alt-border);
-    border-radius: var(--alt-radius);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    flex: 1 1 auto;
-    justify-content: space-between;
-    align-self: stretch;
-  }
 
+
+  // New Portrait Styling (Adapted from Character Sheet)
   .portrait {
-    border-radius: 100px;
+    border-radius: 50%; // Perfect circle
     overflow: hidden;
     border: 6px solid var(--alt-mid);
-    width: 200px;
-    height: 200px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box; // Ensure border is included in width for sizing
+    width: 100%; // Fill the grid column (touch edges)
+    height: auto; // Maintain aspect ratio
+    min-width: 0; // Allow shrinking if needed
+    min-height: 0;
+    top: -10px; // Mimic character sheet lifted look
+    aspect-ratio: 1 / 1; // Force 1:1 aspect ratio to avoid squashing
+    flex: 0 0 auto; // Prevent flex shrinking
+    position: relative;
+    margin: 0 auto; // Center the portrait horizontally
+    z-index: 0;
 
     >img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      overflow: hidden;
+      border: 0;
       border-radius: 50%;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
+    }
+  }
+
+  .stress-trauma-box {
+    width: 100%;
+    position: relative;
+    bottom: 45px; // Increased overlap per feedback
+    margin-bottom: 0px; // Reset margin to let flow handle it, or adjust if needed.
+    margin-top: 0; // Reset margin-top
+    z-index: 10; // Ensure it sits on top of the portrait
+
+    .stress-bar {
+      position: relative;
+      z-index: 100;
+
+      &.full-bar {
+        @include full-bar-header();
+
+        // Crew Specific: Teeth positioning for XP
+        .stripe-tooth-body {
+          position: absolute;
+          top: 1px;
+          right: 1px;
+
+          // Using teeth-track mixin with crew XP assets if needed, or standard XP assets per character sheet
+          @include teeth-track(25px,
+            10px,
+            "assets/teeth/xptooth-red.png",
+            "assets/teeth/xptooth-white.png",
+            $gap: 3px);
+        }
+      }
+    }
+
+    .trauma-box {
+      padding: 0 0 2px;
+      position: relative;
+      z-index: 1;
+
+      .trauma-list {
+        width: 100%;
+        height: 100%;
+        background-color: $lightgray;
+        color: $almost_black;
+        text-align: center;
+        position: relative;
+        top: -5px;
+        padding-top: 5px;
+        border-radius: 0 0 1em 1em;
+        min-height: 20px; // Ensure it shows even if empty
+      }
     }
   }
 }
@@ -891,11 +942,11 @@ nav.tabs {
 }
 
 .crew-identity-block {
-  background: var(--alt-tab-mid);
-  border: 1px solid var(--alt-border);
-  border-radius: var(--alt-radius);
+  // background: var(--alt-tab-mid);
+  // border: 1px solid var(--alt-border);
+  // border-radius: var(--alt-radius);
   padding: 10px 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  // box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   width: 100%;
   max-width: none;
   align-self: flex-start;
@@ -945,10 +996,10 @@ nav.tabs {
   grid-auto-rows: auto;
   column-gap: 14px;
   row-gap: 12px;
-  border: 1px solid var(--alt-border);
-  border-radius: 14px;
+  // border: 1px solid var(--alt-border);
+  // border-radius: 14px;
   padding: 10px 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  // box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   width: 100%;
   max-width: none;
   align-self: stretch;
@@ -1034,7 +1085,7 @@ nav.tabs {
     align-items: flex-start;
   }
 
-  @media (width <= 960px) {
+  @media (width <=960px) {
     grid-template-columns: 1fr;
 
     >.rep-hold-row,
