@@ -20,7 +20,6 @@
  * Toothradio. Some (eg trauma) are not changeable, hence the option.
  */
 @mixin toothradio($width, $height, $unchecked_background, $checked_background, $changeable: true) {
-
   display: flex;
 
   label {
@@ -49,8 +48,7 @@
 
       @if $changeable {
         @include changeable(0.1s, 0.8, 0.9);
-      }
-      @else {
+      } @else {
         cursor: not-allowed;
       }
     }
@@ -58,7 +56,6 @@
 
   /* Hide the browser's default checkbox */
   input {
-
     display: none;
   }
 
@@ -193,7 +190,6 @@
  * Custom Radio
  */
 @mixin custom_radio($width, $height) {
-
   display: flex;
   $default_color: transparent;
   $accent_color: #cc0000;
@@ -205,7 +201,6 @@
       height: $height;
       width: $width;
       background-color: $accent_color;
-
       vertical-align: middle;
       border: 2px solid $circle_border_color;
       border-radius: 24px;
@@ -241,6 +236,7 @@
       & + label {
         // Less opacity here cos otherwise it's barely visible on the dark
         @include changeable(0.1s, 0.7, 0.7); 
+
         background-color: $accent_color;
       }
     }
@@ -251,7 +247,6 @@
  * Custom Radio Squared
  */
 @mixin custom_radio_square($side) {
-
   display: flex;
   $default_color: $almost_white;
   $accent_color: $gold;
@@ -263,7 +258,6 @@
       height: $side;
       width: $side;
       background-color: $accent_color;
-
       vertical-align: middle;
       border: 1px solid $circle_border_color;
 
@@ -294,7 +288,6 @@
  * Checkboxes underscored.
  */
 @mixin check_underscore() {
-
   display: flex;
   flex-wrap: wrap;
   label {
@@ -309,7 +302,6 @@
 
     /* Hide the browser's default checkbox */
     input {
-      
       display: none;
 
       &:checked ~ .checkmark {
@@ -337,11 +329,11 @@
   position: relative;
 
   .blades-clock {
-
     position: relative;
     @if $default_color {
       border: #{$border_width}px solid $almost_black;
     }
+
     padding: 0;
     width: #{$size}px;
     height: #{$size}px;
@@ -423,7 +415,6 @@
   }
 
   .connector {
-
     position: absolute;
     display: block;
     background-color: $lightgray;
@@ -495,7 +486,6 @@
  * Toothradio single elements
  */
  @mixin toothradio_single($width, $height, $unchecked_background, $checked_background) {
-
   display: flex;
 
   label {
@@ -516,7 +506,6 @@
 
   /* Hide the browser's default checkbox */
   input {
-  
     display: none;
   
     &:checked {
@@ -531,7 +520,6 @@
  * Custom Radio Round
  */
  @mixin custom_radio_round($diameter, $circle_border_color, $default_color, $accent_color) {
-
   display: flex;
 
   label {
@@ -540,7 +528,6 @@
       height: $diameter;
       width: $diameter;
       background-color: $accent_color;
-
       vertical-align: middle;
       border: 2px solid $accent_color;
       border-radius: math.div($diameter, 2);
@@ -648,18 +635,17 @@
 }
 
 @function makeLongShadow($length, $spacing, $angle, $backgroundColor, $shadowColor, $fade, $blur, $blurRate){
-  $shadow : 0px 0px $shadowColor;
+  $shadow: 0px 0px $shadowColor;
   @for $i from 1 through $length{
-    $radians : math.div($angle * math.$pi, 180);
-    $shadow : #{$shadow}, #{(math.cos($radians) * $i) * $spacing}px #{(math.sin($radians) * $i) * $spacing}px;
+    $radians: math.div($angle * math.$pi, 180);
+    $shadow: #{$shadow}, #{(math.cos($radians) * $i) * $spacing}px #{(math.sin($radians) * $i) * $spacing}px;
     @if $blur{
-      $shadow : #{$shadow} #{($blurRate * $i)}px;
+      $shadow: #{$shadow} #{($blurRate * $i)}px;
     }
     @if $fade{
-      $shadow : #{$shadow} #{mix($backgroundColor, $shadowColor, (math.div(100, $length) * $i))};
-    }
-    @else{
-      $shadow : #{$shadow} #{$shadowColor};
+      $shadow: #{$shadow} #{mix($backgroundColor, $shadowColor, (math.div(100, $length) * $i))};
+    } @else{
+      $shadow: #{$shadow} #{$shadowColor};
     }
   }
   @return $shadow;

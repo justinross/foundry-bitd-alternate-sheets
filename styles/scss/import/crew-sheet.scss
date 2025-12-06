@@ -1,16 +1,11 @@
-$coin_size: 15px;
-$coin_margin: 3px;
-
 @use "../variables" as *;
 @use "../mixin" as *;
 @use "./coins" as coins;
 
 .item {
-
   justify-content: space-between;
 
   .item-body {
-
     margin-bottom: 10px;
 
     * {
@@ -60,7 +55,7 @@ nav {
 
 // Crew Coins
 // Use shared coins mixin (size/margin tuned for crew coin chips)
-@include coins.coins($size: 15px, $margin: 3px, $wrap-width: 4 * ($coin_size + $coin_margin));
+@include coins.coins($size: 15px, $margin: 3px, $wrap-width: 4 * (15px + 3px));
 
 
 // Reputation
@@ -81,7 +76,6 @@ nav {
 }
 
 #turf-list {
-
   display: flex;
   flex-direction: column;
   width: 855px;
@@ -116,11 +110,11 @@ nav {
 #crew-hold {
   border-top: 3px solid $almost_black;
   @include toothradio_single(17px, 50px, "assets/teeth/stresstooth-halfgrey.png", "assets/teeth/stresstooth-red.png");
+
   width: 221px;
 }
 
 #crew-tier {
-
   background-color: $gray;
   height: 33px;
   width: 145px;
@@ -205,7 +199,6 @@ nav {
   }
 
   .cohort-block-harm {
-
     justify-content: space-around;
 
     input[type="radio"] {
@@ -249,7 +242,6 @@ nav {
 }
 
 .big-teeth-section {
-
   border-top: 3px solid $almost_black;
   display: flex;
   flex-direction: row;
@@ -277,6 +269,7 @@ nav {
 
     .small-teeth-wrap {
       @include toothradio(17px, 50px, "assets/teeth/shorttooth-grey.png", "assets/teeth/shorttooth-red.png", false);
+
       flex-direction: column;
 
       .small-teeth {
@@ -288,6 +281,7 @@ nav {
 
   #trauma-list {
     @include check_underscore();
+
     justify-content: space-between;
     align-items: flex-start;
   }

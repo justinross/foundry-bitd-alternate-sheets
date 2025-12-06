@@ -20,6 +20,7 @@
     .action {
       padding: 0 5px;
       @include custom_radio(1em, 1em);
+
       justify-content: flex-start;
       align-items: stretch;
 
