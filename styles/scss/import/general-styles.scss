@@ -308,3 +308,13 @@ i {
 td {
   padding: 5px;
 }
+
+// Shared italic note/caption style (used by character XP notes and crew coins caption)
+.xp-notes,
+.coins-caption {
+  margin: 0;
+  padding: 0;
+  font-style: italic;
+  font-size: 0.85em;
+  line-height: 1.2em;
+}
