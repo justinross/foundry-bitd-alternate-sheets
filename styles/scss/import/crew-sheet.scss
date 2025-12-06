@@ -677,6 +677,15 @@ header {
   margin-left: 10px;
 }
 
+.coins-caption {
+  margin-top: var(--space-2);
+  margin-bottom: 0;
+  font-style: italic;
+  font-size: 0.85em;
+  color: var(--alt-mid);
+  text-align: left;
+}
+
 .hold-tier-row {
   flex-wrap: nowrap;
   border-top: 3px solid $almost_black;
