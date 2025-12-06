@@ -1061,14 +1061,10 @@ nav.tabs {
 }
 
 /* Crew XP notes section */
-.crew-xp-notes {
+.crew-top-right .crew-xp-notes {
   background: $lightgray;
   font-size: 1.2em;
   margin-top: 12px;
-  width: 100%;
-  max-width: var(--alt-max-tabs);
-  margin-left: auto;
-  margin-right: auto;
 
   p {
     line-height: 1em;
