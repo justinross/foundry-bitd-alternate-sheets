@@ -28,6 +28,7 @@
     "bitd-alt.PlaybookInstructions":"Trascina una \"classe\" sulla scheda per cambiare libretto.",
     "bitd-alt.NotesInstructions":"Aggiungi una nota qui. Trascina orologi, personaggi e oggetti per linkarli. Clicca col destro su un orologio per incrementarlo, clicca col sinistro per decrementarlo.",
     "bitd-alt.OnHand": "In Mano",
+    "bitd-alt.CrewCoinsCaption": "All'avanzamento della banda, ogni PG ottiene riserva = Livello+2.",
     "bitd-alt.Attributes": {
         "attune": "Quando usi <strong>Armonizzare</strong>, apri la tua mente al campo di energia spettrale o canalizzi attraverso il tuo corpo l’energiaelettroplasmatica nelle immediate vicinanze. <em>Puoi comunicare con uno spirito o comprendere alcuni aspetti di spettrologia. Puoi sforzarti di percepire oltre la vista per capire meglio una situazione(ma probabilmente è meglio Sondare).</em>",
         "command": "Quando usi <strong>Comandare</strong>, imponi immediata obbedienza. <em>Puoi intimidire o minacciare qualcuno per ottenere quello che vuoi. Puoi guidare una gang in un’azione di gruppo. Puoi provare a impartire ordini per convincere le persone (ma probabilmente è meglio Socializzare).</em>",
