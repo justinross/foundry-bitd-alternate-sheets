@@ -29,6 +29,10 @@
     "bitd-alt.NotesInstructions":"Füge hier Notizen hinzu. Ziehe Uhren, Akteure oder Items hierher, um sie zu verknüpfen. Klicke auf Uhren um sie vorzustellen, rechtsklicke um sie zurückzustellen.",
     "bitd-alt.OnHand": "Bei sich",
     "bitd-alt.CrewCoinsCaption": "Bei Crew-Aufstieg erhält jeder SC Rücklage = Stufe+2.",
+    "bitd-alt.CrewExpClue1": "Tragt am Ende der Sitzung für jeden Auslöser 1 EP ein. Tragt 2 EP ein, wenn er mehrfach vorgekommen ist.",
+    "bitd-alt.CrewExpClue2": "Ihr habt Herausforderungen gemeistert, die über eurer aktuellen Stufe lagen.",
+    "bitd-alt.CrewExpClue3": "Ihr habt den Ruf eurer Crew gestärkt oder einen neuen entwickelt.",
+    "bitd-alt.CrewExpClue4": "Ihr habt die Ziele, Antriebe, inneren Konflikte oder das Wesen der Crew zum Ausdruck gebracht.",
     "bitd-alt.Attributes": {
         "attune": "Beim <strong>Einstimmen</strong> öffnest du deinen Verstand für das Geisterfeld oder kanalisierst elektroplasmatische Energie durch deinen Körper. Du sprichst mit einem Geist oder blickst in die Geisterwelt. Du könntest versuchen, etwas Unsichtbares wahrzunehmen, um deine Situation besser zu verstehen (aber vielleicht wäre Einschätzen besser).",
         "command": "Beim <strong>Befehlen</strong> erzwingst du prompten Gehorsam. Schüchterst du jemanden ein oder bedrohst ihn? Führst du deine Bande in einer Gruppenaktion an? Du kannst versuchen, Leute herumzukommandieren, um sie zu überreden (aber vielleicht wäre Verkehren besser).",

@@ -29,6 +29,10 @@
     "bitd-alt.NotesInstructions":"Add notes here. Drag and drop clocks, actors, or items in to link to them. Click clocks to increment, right-click to decrement.",
     "bitd-alt.OnHand": "On Hand",
     "bitd-alt.CrewCoinsCaption": "Upon crew advance, each PC gets stash = Tier+2.",
+    "bitd-alt.CrewExpClue1": "At the end of each session, for each item below, mark 1 xp (or instead mark 2xp if that item occurred multiple times).",
+    "bitd-alt.CrewExpClue2": "Contend with challenges above your current station.",
+    "bitd-alt.CrewExpClue3": "Bolster your crew's reputation or develop a new one.",
+    "bitd-alt.CrewExpClue4": "Express the goals, drives, inner conflict, or essential nature of the crew.",
     "bitd-alt.Attributes": {
         "attune": "When you <strong>Attune</strong>, you open your mind to the ghost field or channel nearby electroplasmic energy through your body. <em>You might communicate with a ghost or understand aspects of spectrology. You could try to perceive beyond sight in order to better understand your situation (but Surveying might be better).</em>",
         "command": "When you <strong>Command</strong>, you compel swift obedience. <em>You might intimidate or threaten to get what you want. You might lead a gang in a group action. You could try to order people around to persuade them (but Consorting might be better).</em>",

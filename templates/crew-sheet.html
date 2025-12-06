@@ -205,6 +205,19 @@
             </div>
           </section>
         </section>
+
+        <section class="crew-xp-notes xp-notes">
+          <header class="full-bar">XP</header>
+          <ul>
+            <li>{{localize "bitd-alt.CrewExpClue1"}}</li>
+            {{#if selected_crew_type}}
+            <li>{{selected_crew_type.system.experience_clues}}</li>
+            {{/if}}
+            <li>{{localize "bitd-alt.CrewExpClue2"}}</li>
+            <li>{{localize "bitd-alt.CrewExpClue3"}}</li>
+            <li>{{localize "bitd-alt.CrewExpClue4"}}</li>
+          </ul>
+        </section>
       </div>
     </div>
 
