@@ -137,7 +137,6 @@ nav {
 
 #heat-wanted {
 
-  //justify-content: none;
   .small-teeth {
     height: 20px;
 
@@ -642,6 +641,7 @@ header {
 .coins-grid .coin-group {
   --coin-size: 15px;
   --coin-gap: 3px;
+
   display: inline-flex;
   flex-direction: column;
   align-items: stretch;
@@ -1032,7 +1032,7 @@ nav.tabs {
     align-items: flex-start;
   }
 
-  @media (max-width: 960px) {
+  @media (width <= 960px) {
     grid-template-columns: 1fr;
 
     >.rep-hold-row,
