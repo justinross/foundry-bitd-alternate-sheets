@@ -310,15 +310,13 @@
     }
   }
 
-  &.allow-edit {
-  }
-
   .minimized-view {
     align-items: center;
     margin-bottom: 0.5rem;
     .character-portrait {
       margin-bottom: -35px;
       $portrait-size: 200px;
+
       position: relative;
 
       &.row {
@@ -376,9 +374,6 @@
             background-repeat: no-repeat;
             background-image: url(assets/icons/coins.png);
             background-size: contain;
-
-            .coin-values {
-            }
           }
 
           .full-view {
@@ -613,20 +608,10 @@
         line-height: 0.4em;
         padding-bottom: 0.2em;
         padding-top: 0.5em;
-
-        .name {
-        }
-
         .alias {
           font-size: 0.6em;
           font-weight: normal;
         }
-      }
-
-      .heritage-background {
-      }
-
-      .look {
       }
 
       .bio {
@@ -808,7 +793,6 @@
             grid-area: friends;
             background: $lightgray;
             line-height: 0;
-
             font-size: 1.2em;
             .acquaintance {
               line-height: 1em;

@@ -6,9 +6,16 @@
   "license": "MIT",
   "scripts": {
     "build:css": "sass styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=compressed --source-map",
-    "watch:css": "sass --watch styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=compressed --source-map"
+    "watch:css": "sass --watch styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=compressed --source-map",
+    "lint:css": "stylelint \"styles/scss/**/*.scss\"",
+    "metrics:styles": "bash -lc 'scss_lines=$(find styles/scss -name \"*.scss\" ! -path \"*/flexbox/*\" -print0 | xargs -0 wc -l | awk \"END{print $1}\"); css_bytes=$(wc -c < styles/css/bitd-alt.css); echo \"scss_lines=$scss_lines css_bytes=$css_bytes\"'"
   },
   "devDependencies": {
-    "sass": "^1.94.2"
+    "postcss-scss": "^4.0.9",
+    "sass": "^1.94.2",
+    "stylelint": "^16.26.1",
+    "stylelint-config-standard": "^39.0.1",
+    "stylelint-config-standard-scss": "^16.0.0",
+    "stylelint-scss": "^6.13.0"
   }
 }
