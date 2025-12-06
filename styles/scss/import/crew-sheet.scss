@@ -108,10 +108,12 @@ nav {
 }
 
 #crew-hold {
-  border-top: 3px solid $almost_black;
   @include toothradio_single(17px, 50px, "assets/teeth/stresstooth-halfgrey.png", "assets/teeth/stresstooth-red.png");
 
-  width: 221px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: auto;
 }
 
 #crew-tier {
@@ -120,7 +122,6 @@ nav {
   width: 145px;
   display: flex;
   align-items: center;
-  border-top: 3px solid $almost_black;
 
   @include custom_radio_round(18px, gray, $almost_white, $almost_black);
 
@@ -128,6 +129,10 @@ nav {
     margin-right: 5px;
   }
 
+}
+
+#crew-hold label {
+  margin-right: 0;
 }
 
 #heat-wanted {
@@ -525,6 +530,10 @@ header {
   display: flex;
   gap: 18px;
   align-items: flex-start;
+
+  &.hold-tier-row {
+    gap: 0;
+  }
 }
 
 .small-teeth-container {
@@ -625,7 +634,7 @@ header {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: max-content;
-  column-gap: var(--space-2);
+  column-gap: 0;
   row-gap: 6px;
   align-items: start;
 }
@@ -642,12 +651,13 @@ header {
 
 .coins-grid .vault-group {
   // 12 boxes + 11 gaps + two grouping offsets (5th and 9th)
-  width: calc(12 * var(--coin-size) + 11 * var(--coin-gap) + 20px);
+  width: calc(12 * var(--coin-size) + 11 * var(--coin-gap) + 20px + 12px);
 }
 
 .coins-grid .coin-group .coins-label {
   width: 100%;
-  padding: 2px 6px;
+  padding: 2px 10px;
+  text-align: left;
 }
 
 .coins-grid .coin-group .crew-coins {
@@ -658,23 +668,34 @@ header {
   width: 100%;
 }
 
+.coins-grid .vault-group .crew-coins {
+  margin-left: 12px;
+}
+
 .coins-grid .vault-group .crew-coins label:nth-of-type(5),
 .coins-grid .vault-group .crew-coins label:nth-of-type(9) {
   margin-left: 10px;
 }
 
 .hold-tier-row {
-  display: flex;
   flex-wrap: nowrap;
-  gap: var(--space-2);
-  align-items: flex-start;
+  border-top: 3px solid $almost_black;
+
+  .gray-label {
+    padding-right: 0;
+  }
+
+  .crew-hold > .flex-horizontal {
+    justify-content: flex-start;
+    gap: 0;
+  }
 }
 
 .crew-hold,
 .crew-tier {
   display: flex;
   justify-content: flex-start;
-  gap: 0.75em;
+  gap: 0;
   align-items: flex-start;
   flex-shrink: 0;
   min-width: fit-content;
@@ -683,10 +704,11 @@ header {
 .crew-tier {
   align-items: center;
   align-self: flex-start;
+  margin-left: 0;
 }
 
 .crew-hold {
-  margin-right: var(--space-2);
+  margin-right: 0;
 }
 
 // Header layout / visuals
@@ -904,20 +926,15 @@ nav.tabs {
     align-items: baseline;
 
     .crew-type {
-      background: var(--alt-dark);
-      color: var(--alt-ink-light);
-      padding: var(--space-2) var(--space-4);
-      border-radius: 999px;
+      background: none;
+      color: var(--alt-ink);
+      padding: 0;
+      border-radius: 0;
       font-family: var(--alt-accent-font);
       text-transform: uppercase;
       letter-spacing: 0.06em;
       font-size: var(--font-display);
       line-height: var(--line-tight);
-      transition: filter 0.15s ease;
-
-      &:hover {
-        filter: brightness(1.1);
-      }
     }
   }
 }
@@ -973,6 +990,10 @@ nav.tabs {
     min-width: 0;
     gap: 10px;
     align-items: flex-end;
+
+    &.hold-tier-row {
+      gap: 0;
+    }
   }
 
   .heat-wanted-row {
