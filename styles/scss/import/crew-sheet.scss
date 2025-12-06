@@ -829,8 +829,8 @@ nav.tabs {
 
     .name {
       font-family: var(--alt-accent-font);
-      font-size: var(--font-display);
-      line-height: var(--line-tight);
+      font-size: 3em; // match character sheet name size
+      line-height: 0.4em;
       display: flex;
       flex-wrap: wrap;
       gap: var(--space-2);
