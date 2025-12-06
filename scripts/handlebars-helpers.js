@@ -198,4 +198,17 @@ export const registerHandlebarsHelpers = function () {
   Handlebars.registerHelper("upper-first", function (input) {
     return input.charAt(0).toUpperCase() + input.slice(1);
   });
+
+  Handlebars.registerHelper("firstLine", function (text) {
+    if (!text) return "";
+    const lines = text.split("\n");
+    // Return first non-empty line, removing any leading "- " prefix
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed) {
+        return trimmed.replace(/^-\s*/, "");
+      }
+    }
+    return "";
+  });
 };
