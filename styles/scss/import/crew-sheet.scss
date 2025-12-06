@@ -1068,11 +1068,13 @@ nav.tabs {
 
   p {
     line-height: 1em;
+    margin-bottom: 0;
   }
 
   ul {
     list-style-type: square;
     padding-right: 5px;
+    margin-top: 0;
 
     li {
       font-style: italic;
@@ -1080,7 +1082,6 @@ nav.tabs {
   }
 
   header.full-bar {
-    background-color: $darkgray;
-    color: $almost_white;
+    @include full-bar-header($darkgray, $almost_white); // match character XP header font/spacing
   }
 }
