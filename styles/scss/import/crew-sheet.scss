@@ -365,17 +365,17 @@ header {
   }
 
   .crew-reputation-items .item {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 6px;
-    padding: 2px 6px;
+    // background: rgba(0, 0, 0, 0.05); // Removed per user request
+    // border-radius: 6px; // Removed
+    // padding: 2px 6px; // Removed to match Hunting Grounds
     display: inline-flex;
     gap: 6px;
     align-items: center;
-    transition: box-shadow 0.15s ease, filter 0.15s ease;
+    // transition: box-shadow 0.15s ease, filter 0.15s ease; // Removed
 
-    &:hover {
-      filter: brightness(1.05);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    .item-delete {
+      @include editable-style; // Ensure delete icon interacts nicely?
+      // actually, just default icon behavior is fine.
     }
   }
 }

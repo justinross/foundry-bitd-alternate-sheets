@@ -55,12 +55,12 @@
               {{> "modules/bitd-alternate-sheets/templates/parts/identity-header.html" owner=this
               subtitle_type="crew_type"}}
               <div class="crew-meta-line">
-                <span class="meta-label">{{localize "BITD.Lair"}}</span>
+                <span class="meta-label">{{localize "BITD.Lair"}}:</span>
                 <span class="meta-value">{{{inline-editable-text allow_edit "system.lair" (localize "BITD.Lair")
                   system.lair _id this}}}</span>
               </div>
               <div class="crew-meta-line">
-                <span class="meta-label">{{localize system.hunting_grounds_label}}</span>
+                <span class="meta-label">{{localize system.hunting_grounds_label}}:</span>
                 <span class="hunting-grounds">
                   {{#each items as |item id|}}
                   {{#if (eq item.type "hunting_grounds")}}
@@ -75,7 +75,7 @@
                 </span>
               </div>
               <div class="crew-meta-line">
-                <span class="meta-label">{{localize "BITD.CrewReputation"}}</span>
+                <span class="meta-label">{{localize "BITD.CrewReputation"}}:</span>
                 <span class="crew-reputation-items">
                   {{#each items as |item id|}}
                   {{#if (eq item.type "crew_reputation")}}

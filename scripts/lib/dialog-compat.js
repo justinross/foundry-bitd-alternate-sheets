@@ -163,7 +163,8 @@ async function openCrewSelectionDialogV2({
 
   // DialogV2 sometimes returns the action name as a string instead of the callback result
   // Handle "cancel" and "clear" action names explicitly
-  if (result === undefined || result === "cancel") return undefined;
+  // Handle null (Close button 'X') as cancel (undefined)
+  if (result === undefined || result === "cancel" || result === null) return undefined;
   if (result === "clear") return null;
 
   const normalized = (result ?? "").trim();
