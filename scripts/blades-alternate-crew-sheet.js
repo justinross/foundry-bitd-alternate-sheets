@@ -187,11 +187,19 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
     if (!this.options.editable) return;
 
-    // Handle inline-editable-text fields (e.g., crew name, lair)
     html.find('*[contenteditable="true"]').on("paste", (e) => {
       e.preventDefault();
       let text = (e.originalEvent || e).clipboardData.getData("text/plain");
       document.execCommand("insertText", false, text);
+    });
+
+    // Prevent multi-line edits in inline fields (Name, Lair, etc.)
+    html.find('*[contenteditable="true"]').on("keydown", (e) => {
+      // If Enter is pressed
+      if (e.which === 13) {
+        e.preventDefault();
+        $(e.target).blur(); // Trigger save on blur
+      }
     });
 
     html.find(".inline-input").on("keyup", async (ev) => {
@@ -256,11 +264,11 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       typeof source.toObject === "function"
         ? source.toObject()
         : {
-            type: source.type,
-            name: source.name,
-            system: foundry.utils.deepClone(source.system ?? {}),
-            img: source.img,
-          };
+          type: source.type,
+          name: source.name,
+          system: foundry.utils.deepClone(source.system ?? {}),
+          img: source.img,
+        };
 
     // Ensure a fresh ID so Foundry treats this as a new embedded document.
     delete data._id;
@@ -304,11 +312,11 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       typeof sourceItem.toObject === "function"
         ? sourceItem.toObject()
         : {
-            type: sourceItem.type,
-            name: sourceItem.name,
-            system: foundry.utils.deepClone(sourceItem.system ?? {}),
-            img: sourceItem.img,
-          };
+          type: sourceItem.type,
+          name: sourceItem.name,
+          system: foundry.utils.deepClone(sourceItem.system ?? {}),
+          img: sourceItem.img,
+        };
     const max = this._deriveUpgradeMax(sourceItem);
     if (!data.system) data.system = {};
     if (!data.system.boxes) data.system.boxes = {};

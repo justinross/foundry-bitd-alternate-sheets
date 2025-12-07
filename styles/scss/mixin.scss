@@ -1,5 +1,6 @@
 @use "sass:math";
 @use "./variables" as *;
+
 /*
 *  Elements that can be changed will hint this by dimming and fading a little on hover
 */
@@ -10,6 +11,7 @@
   &:hover {
     filter: brightness($hover-brightness);
     opacity: $hover-opacity;
+
     @if $hover-color {
       color: $hover-color;
     }
@@ -31,10 +33,11 @@
       background-repeat: no-repeat;
       background-size: contain;
       margin-right: 3px;
-  
+
       &:last-of-type {
         margin-right: 0px;
       }
+
       &[for$="-0"] {
         width: auto;
         height: auto;
@@ -48,7 +51,9 @@
 
       @if $changeable {
         @include changeable(0.1s, 0.8, 0.9);
-      } @else {
+      }
+
+      @else {
         cursor: not-allowed;
       }
     }
@@ -59,12 +64,12 @@
     display: none;
   }
 
-  label{
+  label {
     background-image: url($unchecked_background);
     background-size: 100% 100%;
   }
 
-  label.on{
+  label.on {
     background-image: url($checked_background);
   }
 }
@@ -73,6 +78,7 @@
 // $filled-img: the image for filled/active teeth
 // $empty-img: the image for unfilled teeth
 @mixin teeth-track($height, $width, $filled-img, $empty-img, $gap: 4px) {
+
   // Style both plain labels and radio-toggle class, since markup varies
   label,
   label.radio-toggle {
@@ -101,12 +107,13 @@
   }
 
   // When an input is checked, labels after it become empty, the current stays filled.
-  input:checked ~ label,
-  input:checked ~ label.radio-toggle {
+  input:checked~label,
+  input:checked~label.radio-toggle {
     background-image: url($empty-img);
   }
-  input:checked + label,
-  input:checked + label.radio-toggle {
+
+  input:checked+label,
+  input:checked+label.radio-toggle {
     background-image: url($filled-img);
   }
 }
@@ -124,7 +131,7 @@
   line-height: 1em;
 }
 
-@mixin css_popup($closed_width, $closed_height, $open_width, $open_height){
+@mixin css_popup($closed_width, $closed_height, $open_width, $open_height) {
   $mini-view-width: $closed_width;
   $mini-view-height: $closed_height;
   $full-view-width: $open_width;
@@ -142,16 +149,18 @@
   text-align: left;
   z-index: 600;
 
-  .mini-view{
+  .mini-view {
     text-align: center;
     position: relative;
     width: $mini-view-width;
     height: $mini-view-height;
-    .placeholder{
+
+    .placeholder {
       height: 100%;
       width: 100%;
     }
-    .label-text{
+
+    .label-text {
       position: relative;
       top: -5px;
       left: 0px;
@@ -163,13 +172,14 @@
     }
   }
 
-  .full-view{
+  .full-view {
     display: none;
   }
 
-  &.open{
+  &.open {
     color: $almost-black;
-    .full-view{
+
+    .full-view {
       background-color: $lightgray;
       border: 3px solid $darkgray;
       display: block;
@@ -181,7 +191,7 @@
       left: 100%;
       width: $full-view-width;
       //height: $full-view-height;
-      box-shadow: 0px 7px 6px 0px rgba(0,0,0,0.25);
+      box-shadow: 0px 7px 6px 0px rgba(0, 0, 0, 0.25);
     }
   }
 }
@@ -222,20 +232,21 @@
   input {
     display: none;
 
-    &:not(:checked){
-      & ~ label:hover {
+    &:not(:checked) {
+      &~label:hover {
         background-color: rgba($accent_color, 0.5);
       }
     }
-  
+
     &:checked {
-  
-      & ~ label {
+
+      &~label {
         background-color: $default_color;
       }
-      & + label {
+
+      &+label {
         // Less opacity here cos otherwise it's barely visible on the dark
-        @include changeable(0.1s, 0.7, 0.7); 
+        @include changeable(0.1s, 0.7, 0.7);
 
         background-color: $accent_color;
       }
@@ -264,6 +275,7 @@
       &[for$="-0"] {
         margin-right: 0px;
       }
+
       @include changeable(0.1s, 0.8, 0.9);
     }
   }
@@ -271,13 +283,14 @@
   /* Hide the browser's default checkbox */
   input {
     display: none;
-  
+
     &:checked {
-  
-      & ~ label {
+
+      &~label {
         background-color: $default_color;
       }
-      & + label {
+
+      &+label {
         background-color: $accent_color;
       }
     }
@@ -290,6 +303,7 @@
 @mixin check_underscore() {
   display: flex;
   flex-wrap: wrap;
+
   label {
     cursor: pointer;
     font-size: 19px;
@@ -304,7 +318,7 @@
     input {
       display: none;
 
-      &:checked ~ .checkmark {
+      &:checked~.checkmark {
         color: $red;
       }
     }
@@ -320,7 +334,7 @@
 /*
  * Create Clock
  */
-@mixin clock($segments, $size, $default_color:null, $accent_color:null) {
+@mixin clock($segments, $size, $default_color: null, $accent_color: null) {
 
   $angle: math.div(360, $segments);
   $skew: 90 + $angle;
@@ -330,6 +344,7 @@
 
   .blades-clock {
     position: relative;
+
     @if $default_color {
       border: #{$border_width}px solid $almost_black;
     }
@@ -360,12 +375,13 @@
       display: none;
 
       &:checked {
-        & ~ label {
+        &~label {
           @if $default_color {
             background-color: $default_color;
           }
         }
-        & + label {
+
+        &+label {
           @if $accent_color {
             background-color: $accent_color;
           }
@@ -381,6 +397,7 @@
     @for $i from 1 through $segments {
 
       $rotate_angle: $angle * ($i - 1);
+
       *:nth-child(#{$i * 2 + 1}) {
         transform: rotate(#{$rotate_angle}deg) skewY(#{$skew}deg);
       }
@@ -425,9 +442,11 @@
       height: math.div($turf_height, 5);
       top: math.div($turf_height, 2) - math.div($turf_height, 10);
     }
+
     &.left {
       left: -$turf_margin * 2;
     }
+
     &.right {
       left: $turf_width;
     }
@@ -438,9 +457,11 @@
       width: math.div($turf_height, 5);
       left: math.div($turf_width, 2) - math.div($turf_height, 10);
     }
+
     &.top {
       top: -$turf_margin * 2;
     }
+
     &.bottom {
       top: $turf_height;
     }
@@ -485,11 +506,12 @@
 /*
  * Toothradio single elements
  */
- @mixin toothradio_single($width, $height, $unchecked_background, $checked_background) {
+@mixin toothradio_single($width, $height, $unchecked_background, $checked_background) {
   display: flex;
 
   label {
     @include changeable(0.1s, 0.8, 0.9);
+
     & {
       height: $height;
       width: $width;
@@ -497,7 +519,7 @@
       background-repeat: no-repeat;
       background-size: contain;
       margin-right: 5px;
-  
+
       &:last-of-type {
         margin-right: 0px;
       }
@@ -507,9 +529,9 @@
   /* Hide the browser's default checkbox */
   input {
     display: none;
-  
+
     &:checked {
-      & + label {
+      &+label {
         background-image: url($checked_background);
       }
     }
@@ -519,11 +541,12 @@
 /*
  * Custom Radio Round
  */
- @mixin custom_radio_round($diameter, $circle_border_color, $default_color, $accent_color) {
+@mixin custom_radio_round($diameter, $circle_border_color, $default_color, $accent_color) {
   display: flex;
 
   label {
     @include changeable(0.1s, 0.8, 0.9);
+
     &:not([for$="-0"]) {
       height: $diameter;
       width: $diameter;
@@ -537,13 +560,14 @@
   /* Hide the browser's default checkbox */
   input {
     display: none;
-  
+
     &:checked {
-      & ~ label:not([for$="-0"]) {
+      &~label:not([for$="-0"]) {
         border-color: $circle_border_color;
         background-color: $default_color;
       }
-      & + label:not([for$="-0"]) {
+
+      &+label:not([for$="-0"]) {
         background-color: $accent_color;
         border-color: $accent_color;
       }
@@ -553,38 +577,36 @@
 
 //draws items on a circle with a given start/end angle (going clockwise from top)
 @mixin on-circle($item-count, $circle-size, $start-angle, $end-angle, $item-selector: "*", $item-size, $style-parent) {
-  @if $style-parent{
+  @if $style-parent {
     position: relative;
-    width:  $circle-size;
+    width: $circle-size;
     height: $circle-size;
     padding: 0;
-    border-radius: 50%; 
-    list-style: none;       
+    border-radius: 50%;
+    list-style: none;
   }
 
-  > #{$item-selector} {
+  >#{$item-selector} {
     display: block;
     position: absolute;
-    top:  50%; 
+    top: 50%;
     left: 50%;
-    width:  $item-size;
+    width: $item-size;
     height: $item-size;
     margin: -($item-size * 0.5);
 
     //adjust so that 0deg is at the top. Theoretically.
     $start-angle: $start-angle - 90;
     $end-angle: $end-angle - 90;
-    
-    $total-angle: $end-angle - $start-angle; 
+
+    $total-angle: $end-angle - $start-angle;
     $angle: math.div($total-angle, $item-count - 1);
     $rot: $start-angle;
 
     @for $i from 1 through $item-count {
       &:nth-of-type(#{$i}) {
-        transform: 
-          rotate($rot * 1deg) 
-          translate($circle-size * 0.5) 
-          rotate($rot * -1deg);
+        transform:
+          rotate($rot * 1deg) translate($circle-size * 0.5) rotate($rot * -1deg);
       }
 
       $rot: $rot + $angle;
@@ -594,39 +616,37 @@
 
 //draws items on a circle with a given start/end angle (going clockwise from top)
 @mixin on-circle-from-center-angle($item-count, $circle-size, $center-angle, $angle-spacing, $item-selector: "*", $item-size, $style-parent) {
-  @if $style-parent{
+  @if $style-parent {
     position: relative;
-    width:  $circle-size;
+    width: $circle-size;
     height: $circle-size;
     padding: 0;
-    border-radius: 50%; 
-    list-style: none;       
+    border-radius: 50%;
+    list-style: none;
   }
 
-  > #{$item-selector} {
+  >#{$item-selector} {
     display: block;
     position: absolute;
-    top:  50%; 
+    top: 50%;
     left: 50%;
-    width:  $item-size;
+    width: $item-size;
     height: $item-size;
     margin: -($item-size * 0.5);
 
     //adjust so that 0deg is at the top. Theoretically.
     $center-angle: $center-angle - 90;
-    $total-angle: $angle-spacing * ($item-count - 1); 
+    $total-angle: $angle-spacing * ($item-count - 1);
     $start-angle: $center-angle - ($total-angle * 0.5);
     $end-angle: $center-angle + ($total-angle * 0.5);
-    
+
     $angle: math.div($total-angle, $item-count - 1);
     $rot: $start-angle;
 
     @for $i from 1 through $item-count {
       &:nth-of-type(#{$i}) {
-        transform: 
-          rotate($rot * 1deg) 
-          translate($circle-size * 0.5) 
-          rotate($rot * -1deg);
+        transform:
+          rotate($rot * 1deg) translate($circle-size * 0.5) rotate($rot * -1deg);
       }
 
       $rot: $rot + $angle;
@@ -634,27 +654,48 @@
   }
 }
 
-@function makeLongShadow($length, $spacing, $angle, $backgroundColor, $shadowColor, $fade, $blur, $blurRate){
+@function makeLongShadow($length, $spacing, $angle, $backgroundColor, $shadowColor, $fade, $blur, $blurRate) {
   $shadow: 0px 0px $shadowColor;
-  @for $i from 1 through $length{
+
+  @for $i from 1 through $length {
     $radians: math.div($angle * math.$pi, 180);
     $shadow: #{$shadow}, #{(math.cos($radians) * $i) * $spacing}px #{(math.sin($radians) * $i) * $spacing}px;
-    @if $blur{
+
+    @if $blur {
       $shadow: #{$shadow} #{($blurRate * $i)}px;
     }
-    @if $fade{
+
+    @if $fade {
       $shadow: #{$shadow} #{mix($backgroundColor, $shadowColor, (math.div(100, $length) * $i))};
-    } @else{
+    }
+
+    @else {
       $shadow: #{$shadow} #{$shadowColor};
     }
   }
+
   @return $shadow;
 }
 
-@mixin text-long-shadow($length: 100, $spacing: 1, $angle: 45, $backgroundColor: #ffffff, $shadowColor: #000000, $fade: true, $blur: false, $blurRate: 0){
-  text-shadow : makeLongShadow($length, $spacing, $angle, $backgroundColor, $shadowColor, $fade, $blur, $blurRate);
+@mixin text-long-shadow($length: 100, $spacing: 1, $angle: 45, $backgroundColor: #ffffff, $shadowColor: #000000, $fade: true, $blur: false, $blurRate: 0) {
+  text-shadow: makeLongShadow($length, $spacing, $angle, $backgroundColor, $shadowColor, $fade, $blur, $blurRate);
 }
 
-@mixin box-long-shadow($length: 100, $spacing: 1, $angle: 45, $backgroundColor: #ffffff, $shadowColor: #000000, $fade: true, $blur: false, $blurRate: 0){
-  box-shadow : makeLongShadow($length, $spacing, $angle, $backgroundColor, $shadowColor, $fade, $blur, $blurRate);
+@mixin box-long-shadow($length: 100, $spacing: 1, $angle: 45, $backgroundColor: #ffffff, $shadowColor: #000000, $fade: true, $blur: false, $blurRate: 0) {
+  box-shadow: makeLongShadow($length, $spacing, $angle, $backgroundColor, $shadowColor, $fade, $blur, $blurRate);
+}
+
+@mixin lined-section {
+  border-bottom: 1px solid $almost_black;
+}
+
+@mixin editable-style {
+  text-decoration: underline; // Original black underline
+  border-bottom: none;
+  text-shadow: none;
+
+  &:hover {
+    cursor: pointer;
+    text-shadow: none;
+  }
 }

@@ -52,17 +52,8 @@
                   <i class="fas fa-lock"></i><i class="fas fa-lock-open"></i>
                 </span>
               </div>
-              <div class="name-line">
-                <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") name _id
-                  this}}}</span>
-                <div class="crew-type-pill">
-                  {{#each items as |item id|}}
-                  {{#if (eq item.type "crew_type")}}
-                  <span class="crew-type" data-tooltip="{{item.system.description}}"> • {{item.name}}</span>
-                  {{/if}}
-                  {{/each}}
-                </div>
-              </div>
+              {{> "modules/bitd-alternate-sheets/templates/parts/identity-header.html" owner=this
+              subtitle_type="crew_type"}}
               <div class="crew-meta-line">
                 <span class="meta-label">{{localize "BITD.Lair"}}</span>
                 <span class="meta-value">{{{inline-editable-text allow_edit "system.lair" (localize "BITD.Lair")
@@ -101,18 +92,7 @@
               </div>
             </div>
 
-            <section class="crew-xp-notes xp-notes">
-              <header class="full-bar">Crew XP</header>
-              <p>{{localize "bitd-alt.CrewExpClue1"}}</p>
-              <ul>
-                {{#if selected_crew_type}}
-                <li>{{firstLine selected_crew_type.system.experience_clues}}</li>
-                {{/if}}
-                <li>{{localize "bitd-alt.CrewExpClue2"}}</li>
-                <li>{{localize "bitd-alt.CrewExpClue3"}}</li>
-                <li>{{localize "bitd-alt.CrewExpClue4"}}</li>
-              </ul>
-            </section>
+
           </section>
 
           <section class="crew-bottom-right">
@@ -243,6 +223,7 @@
       <div class="flex-vertical">
 
         <nav class="tabs flex-horizontal">
+          <a class="item" data-tab="xp">{{localize "BITD.XP"}}</a>
           <a class="item" data-tab="turfs">{{localize "BITD.Claims"}}</a>
           <a class="item" data-tab="upgrades">{{localize "BITD.Upgrades"}}</a>
           <a class="item" data-tab="abilities">{{localize "BITD.Abilities"}}</a>
@@ -263,6 +244,20 @@
     </section>
 
     <section class="tab-content">
+      <div id="crew-{{_id}}-xp" class="tab flex-vertical" data-tab="xp">
+        <section class="crew-xp-notes xp-notes">
+          <header class="full-bar">Crew XP</header>
+          <p>{{localize "bitd-alt.CrewExpClue1"}}</p>
+          <ul>
+            {{#if selected_crew_type}}
+            <li>{{firstLine selected_crew_type.system.experience_clues}}</li>
+            {{/if}}
+            <li>{{localize "bitd-alt.CrewExpClue2"}}</li>
+            <li>{{localize "bitd-alt.CrewExpClue3"}}</li>
+            <li>{{localize "bitd-alt.CrewExpClue4"}}</li>
+          </ul>
+        </section>
+      </div>
 
       <div class="tab" data-tab="turfs">
         {{#each items as |item id|}}

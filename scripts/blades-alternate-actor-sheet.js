@@ -963,6 +963,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
       document.execCommand("insertText", false, text);
     });
 
+    // Prevent multi-line edits in inline fields (Bio, Name, etc.)
+    html.find('*[contenteditable="true"]').on("keydown", (e) => {
+      // If Enter is pressed
+      if (e.which === 13) {
+        e.preventDefault();
+        $(e.target).blur(); // Trigger save on blur
+      }
+    });
+
     html.on("click", "button.clearLoad", async (e) => {
       e.preventDefault();
       await this.clearLoad();
