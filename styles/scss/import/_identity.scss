@@ -11,6 +11,11 @@
     padding-top: 0.5em;
     @include lined-section;
 
+    // Prevent underline from affecting layout when edit mode is toggled
+    .inline-input {
+        text-underline-offset: -0.1em; // Keep underline closer to text
+    }
+
     .identity-name {
         // Inherits font properties from parent
         min-width: 50px; // Ensure it has some width even if empty?
@@ -49,6 +54,44 @@
     }
 }
 
+// Smart Field (Edit Dashboard) Styling
+.smart-field-value {
+    // Inherit standard text styles
+    cursor: help; // Indicate tooltip availability
+    line-height: 1.5; // Match .smart-field-label to prevent layout shift on toggle
+    font-weight: normal; // Explicit normal weight
+    padding: 0;
+    margin: 0;
+}
+
+// Increased specificity to override generic role/button styles
+.sheet-wrapper .smart-field-label {
+    font-family: inherit;
+    font-weight: bold;
+    // Reset box model
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    appearance: none; // Reset native OS button styling
+    -webkit-appearance: none;
+
+    // Explicit line-height to match parent container (.bio) and locked state
+    font-size: inherit;
+    line-height: 1.5;
+
+    cursor: pointer;
+    color: $almost_black;
+    transition: text-shadow 0.2s ease, color 0.2s ease;
+
+    &:hover,
+    &:focus {
+        color: var(--alt-red);
+        text-shadow: 0 0 5px rgba(122, 45, 45, 0.4);
+        outline: none;
+    }
+}
+
 .identity-meta-row {
     @include lined-section;
     font-family: "Crimson Text", serif;
@@ -56,10 +99,11 @@
     line-height: 1.5; // Good default for text lines
     margin-top: 0.25em; // Explicit spacing from previous line/header
     padding-bottom: 0px; // Lined section border sits here
+    margin-bottom: 0; // Ensure no extra margin below
 
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: center; // Changed from baseline to prevent shifts from bold text
     gap: 0.3em; // Horizontal gap between items
 
     // Ensure inputs inside match standard styling

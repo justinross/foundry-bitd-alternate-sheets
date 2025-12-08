@@ -166,6 +166,14 @@
       }
     }
 
+    // Force block layout for bio fields to prevent Flexbox baseline shifts when toggling bold text
+    .heritage-background.bio,
+    .crew-affiliation.bio,
+    .look.bio {
+      display: block;
+      line-height: 1.5;
+    }
+
     input[type="text"] {
       width: auto;
       border: 0;
