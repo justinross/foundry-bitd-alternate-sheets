@@ -2,7 +2,7 @@ import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-s
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
 import { queueUpdate } from "./lib/update-queue.js";
-import { openCrewSelectionDialog } from "./lib/dialog-compat.js";
+import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
 import { enrichHTML } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
@@ -1355,18 +1355,71 @@ export class BladesAlternateActorSheet extends BladesSheet {
     return game.actors.filter((actor) => actor?.type === "crew");
   }
 
+  /**
+   * Handle Smart Edit (Text or Compendium Picker)
+   * @param {Event} event
+   */
   async _handleSmartEdit(event) {
     event.preventDefault();
-    const el = event.currentTarget;
-    const field = el.dataset.field;
-    const header = el.dataset.header;
-    const currentValue = el.dataset.value;
+    const target = event.currentTarget;
+    const field = target.dataset.field;
+    const header = target.dataset.header;
+    const initialValue = target.dataset.value || "";
 
+    // Map fields to Item Types (corresponding to pack suffixes)
+    const typeMap = {
+      "system.heritage": "heritage",
+      "system.background": "background",
+      "system.vice": "vice"
+    };
+
+    const type = typeMap[field];
+
+    // Smart Picker Mode (if mapped type exists)
+    if (type) {
+      // 1. Fetch options via Utils (respects World/Compendium settings)
+      // This reuses the logic from `handleSmartItemSelector` for fetching, ensuring consistency.
+      const availableItems = await Utils.getSourcedItemsByType(type);
+
+      if (availableItems && availableItems.length > 0) {
+        // 2. Prepare Choices
+        const choices = availableItems.map(i => ({
+          value: i.name, // We want the NAME for the string field, not the ID
+          label: i.name,
+          img: i.img || "icons/svg/mystery-man.svg",
+          description: i.system?.description ?? ""
+        }));
+
+        // 3. Open Chooser
+        const result = await openCardSelectionDialog({
+          title: `${game.i18n.localize("bitd-alt.Select")} ${header}`,
+          instructions: `Choose a ${header} from the list below.`,
+          okLabel: game.i18n.localize("bitd-alt.Select") || "Select",
+          cancelLabel: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
+          clearLabel: game.i18n.localize("bitd-alt.Clear") || "Clear",
+          choices: choices,
+          currentValue: initialValue
+        });
+
+        if (result === undefined) return; // Cancelled
+
+        const updateValue = result === null ? "" : result;
+        try {
+          await this.actor.update({ [field]: updateValue });
+        } catch (err) {
+          ui.notifications.error(`Failed to update ${header}: ${err.message}`);
+          console.error("Smart field update error:", err);
+        }
+        return;
+      }
+    }
+
+    // Default: Text Input Mode
     const content = `
       <form>
         <div class="form-group">
           <label>${header}</label>
-          <input type="text" name="value" value="${currentValue}" autofocus/>
+          <input type="text" name="value" value="${initialValue}" autofocus/>
         </div>
       </form>
       `;
