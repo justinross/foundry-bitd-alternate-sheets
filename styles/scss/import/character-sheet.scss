@@ -804,7 +804,7 @@
                 position: relative;
                 line-height: 0;
 
-                @at-root .allow-edit .item-block:nth-child(even) {
+                &:nth-child(even) {
                   background-color: rgba(0, 0, 0, 0.1);
                 }
 
