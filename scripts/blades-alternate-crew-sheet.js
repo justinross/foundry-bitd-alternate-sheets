@@ -237,6 +237,8 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     // Clock embeds in notes (shared with character sheet)
     Utils.bindClockControls(html, this.render.bind(this));
     Utils.bindAllowEditToggle(this, html);
+
+    html.find('[data-action="smart-item-selector"]').click((e) => Utils.handleSmartItemSelector(e, this.actor));
   }
 
   async _onChoiceToggle(event, type) {

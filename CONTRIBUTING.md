@@ -17,7 +17,11 @@
 - JavaScript: ES modules with `const`/`let`, two-space indent, double quotes, and semicolons; prefer async/await for Foundry hooks and migrations.
 - Compatibility: Use `DialogV2` for Foundry V12+ support. Leverage `scripts/compat.js` and `scripts/compat-helpers.js` for cross-version compatibility layers.
 - Templates: Handlebars helpers live in `scripts/handlebars-helpers.js`; keep partial names aligned with filenames and avoid inline logic that belongs in helpers.
+- Templates: Handlebars helpers live in `scripts/handlebars-helpers.js`; keep partial names aligned with filenames and avoid listing inline logic that belongs in helpers.
 
+### Updating Embedded Documents (Items/Effects)
+- **Avoid Delete + Create**: When "replacing" a single item (e.g., swapping a Crew Ability or Changing Hunting Grounds), do **not** use `deleteEmbeddedDocuments` followed by `createEmbeddedDocuments`. This causes a race condition where the UI renders the "empty" state in between, leading to flickering or stale data display.
+- **Use Atomic Updates**: Instead, find the existing document and use `updateEmbeddedDocuments` to transform it in place (update `name`, `img`, `system`, etc.). This ensures a single atomic change event, guaranteeing the UI updates instantly and correctly without gaps.
 ### CSS authoring expectations (alt sheets)
 - Work in `styles/css/bitd-alt.css` using **plain CSS with custom properties**—no Sass build step. Keep design tokens in the `:root` block (colors, spacing, radii, shadows, grid percentages) and **add new values there first** instead of introducing literals.
 - Use existing shared utilities and patterns: flex grid (`.row`/`.col-*`), visibility helpers (`.show-*`/`.hide-*`), label styles, checklist/ability list bases, and toggle styles. Prefer extending these rather than creating one-off variants.

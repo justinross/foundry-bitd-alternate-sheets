@@ -3,7 +3,12 @@ import { queueUpdate } from "./lib/update-queue.js";
 
 export const MODULE_ID = "bitd-alternate-sheets";
 
+import { openCardSelectionDialog } from "./lib/dialog-compat.js";
+
 export class Utils {
+  // ... (previous static methods)
+
+
   /**
    * Identifies duplicate items by type and returns a array of item ids to remove
    *
@@ -403,7 +408,7 @@ export class Utils {
    */
   static bindClockControls(root, renderCallback) {
     const $root = root instanceof HTMLElement ? $(root) : root;
-    const rerender = typeof renderCallback === "function" ? renderCallback : () => {};
+    const rerender = typeof renderCallback === "function" ? renderCallback : () => { };
     $root.find("img.clockImage").on("click", async (e) => {
       const uuid = e.currentTarget.dataset.uuid;
       if (!uuid) return;
@@ -799,8 +804,18 @@ export class Utils {
         startingAttributes[attribute].exp = 0;
         delete startingAttributes[attribute].exp_max;
       }
-      if (!isObjectEmpty(diffObject(currentAttributes, startingAttributes))) {
-        skillsChanged = true;
+      //check for changes
+      //check for exp changes
+      for (const attribute in currentAttributes) {
+        // console.log("Current attribute: ", currentAttributes[attribute]);
+        // console.log("Starting attribute: ", startingAttributes[attribute]);
+        // console.log("Current attribute exp: ", currentAttributes[attribute].exp);
+        // console.log("Starting attribute exp: ", startingAttributes[attribute].exp);
+        if (
+          currentAttributes[attribute].exp !== startingAttributes[attribute].exp
+        ) {
+          skillsChanged = true;
+        }
       }
 
       //check for added abilities
@@ -885,6 +900,94 @@ export class Utils {
       };
     } else {
       return false;
+    }
+  }
+
+  /**
+   * Smart Item Selector Logic (Shared)
+   * Enforces singleton pattern for specific item types (Hunting Grounds, Reputation, etc.)
+   */
+  static async handleSmartItemSelector(event, actor) {
+    event.preventDefault();
+    const itemType = event.currentTarget.dataset.itemType;
+    const label = event.currentTarget.innerText;
+
+    // 1. Fetch options via Utils
+    const availableItems = await Utils.getSourcedItemsByType(itemType);
+
+    // 2. Prepare Choices for Card Dialog
+    const choices = availableItems.map(i => ({
+      value: i._id,
+      label: i.name,
+      img: i.img || "icons/svg/mystery-man.svg"
+    }));
+
+    // 3. Determine Current Value (if any)
+    const existingItem = actor.items.find(i => i.type === itemType);
+    const currentValue = existingItem ? existingItem.name : ""; // Use ID if possible? Source items have different IDs than owned. Match by Name usually safer for Compendium vs World? 
+    // Wait, the "Unique" rule means we likely want to match by Source ID if we tracked it, but we don't always. 
+    // And standard `availableItems` are the *Source* items. 
+    // If I select "Docks", I want "Docks" to be selected. The `value` is the Source ID.
+    // The owned item has a different ID. 
+    // BUT we can match by NAME? `dialog-compat` expects `value` match.
+    // Let's try to match by Name -> Find Source ID.
+    const currentName = existingItem?.name;
+    const currentSourceId = availableItems.find(i => i.name === currentName)?._id ?? "";
+
+
+    // 4. Open Chooser
+    const result = await openCardSelectionDialog({
+      title: `${game.i18n.localize("bitd-alt.Select")} ${label}`,
+      instructions: game.i18n.localize("bitd-alt.SelectToAddItem"),
+      okLabel: game.i18n.localize("bitd-alt.Ok"),
+      cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
+      clearLabel: game.i18n.localize("bitd-alt.DeleteItem"), // Reusing "Clear" as "Delete/None"
+      choices: choices,
+      currentValue: currentSourceId
+    });
+
+    if (result === undefined) return; // Cancelled
+
+    if (result === null) {
+      // Clear: Just delete existing
+      const existingIds = actor.items.filter(i => i.type === itemType).map(i => i.id);
+      if (existingIds.length > 0) {
+        await actor.deleteEmbeddedDocuments("Item", existingIds);
+      }
+    } else {
+      const selectedId = result;
+      const selectedItem = availableItems.find(i => i._id === selectedId);
+
+      if (selectedItem) {
+        // Prepare data from selected source item
+        const itemData = {
+          name: selectedItem.name,
+          type: selectedItem.type,
+          system: selectedItem.system,
+          img: selectedItem.img
+        };
+
+        // Check for existing item to update-in-place
+        const existingItem = actor.items.find(i => i.type === itemType);
+
+        if (existingItem) {
+          // UPDATE existing item (Atomic, no race condition, no empty gap)
+          await actor.updateEmbeddedDocuments("Item", [{
+            _id: existingItem.id,
+            name: itemData.name,
+            system: itemData.system,
+            img: itemData.img
+          }]);
+        } else {
+          // CREATE if none exists
+          await actor.createEmbeddedDocuments("Item", [itemData]);
+        }
+      }
+    }
+
+    // Force re-render to ensure UI reflects final state
+    if (actor.sheet && actor.sheet.rendered) {
+      actor.sheet.render(false);
     }
   }
 }

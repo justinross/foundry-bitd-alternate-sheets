@@ -51,6 +51,38 @@ export const registerHandlebarsHelpers = function () {
     }
   );
 
+  Handlebars.registerHelper(
+    "smart-field",
+    function (
+      allow_edit,
+      parameter_name,
+      label,
+      current_value,
+      uniq_id,
+      context
+    ) {
+      if (!current_value) current_value = "";
+
+      // Locked Mode: Clean Value
+      if (!allow_edit) {
+        // If empty, display label as placeholder (User Request)
+        const display = (!current_value || current_value.trim() === "") ? label : current_value;
+        // Optionally add a class if it's a placeholder? For now just show it.
+        return `<span class="smart-field-value" data-tooltip="${label}: ${current_value}">${display}</span>`;
+      }
+
+      // Unlocked Mode: Interactive Label or Value
+      const display = (current_value && current_value.trim() !== "") ? current_value : label;
+      // Removing role="button" to prevent flexbox baseline misalignment (UA styles treating it as control)
+      return `<span class="smart-field-label" data-action="smart-edit" data-field="${parameter_name}" data-header="${label}" data-value="${current_value}" data-id="${uniq_id}" tabindex="0">${display}</span>`;
+    }
+  );
+
+  Handlebars.registerHelper("getItemByType", function (items, type) {
+    if (!items || !type) return null;
+    return items.find(i => i.type === type) || null;
+  });
+
   Handlebars.registerHelper("testing", function () {
     return "testing";
   });

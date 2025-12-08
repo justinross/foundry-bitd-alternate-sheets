@@ -1313,7 +1313,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
       .find(".effect-control")
       .click((ev) => BladesActiveEffect.onManageActiveEffect(ev, this.actor));
 
-    html.find(".toggle-expand").click((ev) => {
+    // super.activateListeners(html); // Removed duplicate
+    // if (!this.options.editable) return; // Removed duplicate
+
+    html.find('[data-action="smart-edit"]').click(this._handleSmartEdit.bind(this));
+    html.find('[data-action="smart-item-selector"]').click((e) => Utils.handleSmartItemSelector(e, this.actor));
+
+    html.find(".crew-name").click((event) => {
+      const crewId = event.currentTarget.dataset.crewId;
+      this._openCrewSheetById(crewId);
+    });
+
+    html.find(".toggle-expand").click((event) => {
       if (!this._element.hasClass("can-expand")) {
         this.setPosition({ height: 275 });
         this._element.addClass("can-expand");
@@ -1342,6 +1353,43 @@ export class BladesAlternateActorSheet extends BladesSheet {
   _getAvailableCrewActors() {
     if (!game?.actors) return [];
     return game.actors.filter((actor) => actor?.type === "crew");
+  }
+
+  async _handleSmartEdit(event) {
+    event.preventDefault();
+    const el = event.currentTarget;
+    const field = el.dataset.field;
+    const header = el.dataset.header;
+    const currentValue = el.dataset.value;
+
+    const content = `
+      <form>
+        <div class="form-group">
+          <label>${header}</label>
+          <input type="text" name="value" value="${currentValue}" autofocus/>
+        </div>
+      </form>
+      `;
+
+    new Dialog({
+      title: `${game.i18n.localize("bitd-alt.Edit")} ${header}`,
+      content: content,
+      buttons: {
+        save: {
+          label: game.i18n.localize("bitd-alt.Ok") || "Ok",
+          icon: '<i class="fas fa-check"></i>',
+          callback: async (html) => {
+            const newValue = html.find('[name="value"]').val();
+            await this.actor.update({ [field]: newValue });
+          }
+        },
+        cancel: {
+          label: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
+          icon: '<i class="fas fa-times"></i>'
+        }
+      },
+      default: "save"
+    }).render(true);
   }
 
   async _handleCrewFieldClick() {

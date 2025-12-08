@@ -380,6 +380,11 @@ header {
   }
 }
 
+// Adaptive Visibility for Lists
+.sheet-wrapper:not(.allow-edit) .list-meta-line .meta-label {
+  display: none;
+}
+
 .sheet-wrapper.allow-edit .crew-meta-line {
 
   .hunting-grounds .item-delete,
