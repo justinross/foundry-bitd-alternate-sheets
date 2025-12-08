@@ -62,7 +62,7 @@
               <div class="crew-meta-line list-meta-line">
                 {{#if allow_edit}}
                 <span class="smart-field-label" data-action="smart-item-selector" data-item-type="hunting_grounds"
-                  role="button" tabindex="0" data-tooltip="{{localize system.hunting_grounds_label}}">
+                  tabindex="0" data-tooltip="{{localize system.hunting_grounds_label}}">
                   {{#with (getItemByType items "hunting_grounds") as |item|}}
                   {{item.name}}
                   {{else}}
@@ -82,7 +82,7 @@
               <div class="crew-meta-line list-meta-line">
                 {{#if allow_edit}}
                 <span class="smart-field-label" data-action="smart-item-selector" data-item-type="crew_reputation"
-                  role="button" tabindex="0" data-tooltip="{{localize 'bitd-alt.CrewReputation'}}">
+                  tabindex="0" data-tooltip="{{localize 'bitd-alt.CrewReputation'}}">
                   {{#with (getItemByType items "crew_reputation") as |item|}}
                   {{item.name}}
                   {{else}}

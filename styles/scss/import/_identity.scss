@@ -88,7 +88,8 @@
     &:focus {
         color: var(--alt-red);
         text-shadow: 0 0 5px rgba(122, 45, 45, 0.4);
-        outline: none;
+        outline: 2px solid var(--alt-red);
+        outline-offset: 2px;
     }
 }
 

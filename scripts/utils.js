@@ -952,7 +952,12 @@ export class Utils {
       // Clear: Just delete existing
       const existingIds = actor.items.filter(i => i.type === itemType).map(i => i.id);
       if (existingIds.length > 0) {
-        await actor.deleteEmbeddedDocuments("Item", existingIds);
+        try {
+          await actor.deleteEmbeddedDocuments("Item", existingIds);
+        } catch (err) {
+          ui.notifications.error(`Failed to remove ${label}: ${err.message}`);
+          console.error("Item deletion error:", err);
+        }
       }
     } else {
       const selectedId = result;
@@ -970,17 +975,22 @@ export class Utils {
         // Check for existing item to update-in-place
         const existingItem = actor.items.find(i => i.type === itemType);
 
-        if (existingItem) {
-          // UPDATE existing item (Atomic, no race condition, no empty gap)
-          await actor.updateEmbeddedDocuments("Item", [{
-            _id: existingItem.id,
-            name: itemData.name,
-            system: itemData.system,
-            img: itemData.img
-          }]);
-        } else {
-          // CREATE if none exists
-          await actor.createEmbeddedDocuments("Item", [itemData]);
+        try {
+          if (existingItem) {
+            // UPDATE existing item (Atomic, no race condition, no empty gap)
+            await actor.updateEmbeddedDocuments("Item", [{
+              _id: existingItem.id,
+              name: itemData.name,
+              system: itemData.system,
+              img: itemData.img
+            }]);
+          } else {
+            // CREATE if none exists
+            await actor.createEmbeddedDocuments("Item", [itemData]);
+          }
+        } catch (err) {
+          ui.notifications.error(`Failed to set ${label}: ${err.message}`);
+          console.error("Item update/create error:", err);
         }
       }
     }

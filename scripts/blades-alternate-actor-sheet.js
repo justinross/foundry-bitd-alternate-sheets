@@ -1380,7 +1380,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
           icon: '<i class="fas fa-check"></i>',
           callback: async (html) => {
             const newValue = html.find('[name="value"]').val();
-            await this.actor.update({ [field]: newValue });
+            try {
+              await this.actor.update({ [field]: newValue });
+            } catch (err) {
+              ui.notifications.error(`Failed to update ${header}: ${err.message}`);
+              console.error("Smart field update error:", err);
+            }
           }
         },
         cancel: {
