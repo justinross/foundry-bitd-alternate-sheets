@@ -87,12 +87,14 @@
           {{else}}
           <span class="smart-field-value" data-tooltip="{{localize 'bitd-alt.CrewLabel'}}: {{crew.name}}">
             <a class="crew-name{{#if crew.hasLink}} crew-linked{{/if}}" data-crew-id="{{crew.id}}">
-              {{#if crew.name}}{{crew.name}}{{else}}{{localize "bitd-alt.CrewLabel"}}{{/if}}
+              {{#if crew.name}}{{crew.name}}{{else}}{{localize "bitd-alt.CrewLabel"}}{{/if}}&nbsp;<i class="fas fa-link"
+                style="font-size: 0.8em; opacity: 0.5;"></i>
             </a>
           </span>
           {{/if}}
         </div>
-        <div class="look bio">{{{smart-field allow_edit "system.look" (localize "bitd-alt.Look") system.look actor._id this}}}
+        <div class="look bio">{{{smart-field allow_edit "system.look" (localize "bitd-alt.Look") system.look actor._id
+          this}}}
           &bull; {{{smart-field allow_edit "flags.bitd-alternate-sheets.pronouns" (localize "bitd-alt.Pronouns")
           data.flags.bitd-alternate-sheets.pronouns actor._id this}}}</div>
         <div class="abilities-list">
@@ -175,8 +177,8 @@
               {{#each system.acquaintances}}
               <div class="acquaintance" data-acquaintance="{{this.id}}">
                 <i data-acquaintance="{{this.id}}" class="standing-toggle fas
-                    {{#if (eq this.standing "friend")}} fa-caret-up green-icon {{else if (eq this.standing "rival"
-                  )}} fa-caret-down red-icon {{else}}fa-minus {{/if}}"></i><strong
+                    {{#if (eq this.standing " friend")}} fa-caret-up green-icon {{else if (eq this.standing "rival" )}}
+                  fa-caret-down red-icon {{else}}fa-minus {{/if}}"></i><strong
                   class="standing-toggle">{{this.name}}</strong>{{#if (notempty this.description_short)}},
                 {{this.description_short}}{{/if}}
               </div>

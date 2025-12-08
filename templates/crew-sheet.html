@@ -61,26 +61,6 @@
               </div>
               <div class="crew-meta-line list-meta-line">
                 {{#if allow_edit}}
-                <span class="smart-field-label" data-action="smart-item-selector" data-item-type="hunting_grounds"
-                  tabindex="0" data-tooltip="{{localize system.hunting_grounds_label}}">
-                  {{#with (getItemByType items "hunting_grounds") as |item|}}
-                  {{item.name}}
-                  {{else}}
-                  {{localize system.hunting_grounds_label}}
-                  {{/with}}
-                </span>
-                {{else}}
-                <span class="smart-field-value" data-tooltip="{{localize system.hunting_grounds_label}}">
-                  {{#with (getItemByType items "hunting_grounds") as |item|}}
-                  {{item.name}}
-                  {{else}}
-                  {{localize system.hunting_grounds_label}}
-                  {{/with}}
-                </span>
-                {{/if}}
-              </div>
-              <div class="crew-meta-line list-meta-line">
-                {{#if allow_edit}}
                 <span class="smart-field-label" data-action="smart-item-selector" data-item-type="crew_reputation"
                   tabindex="0" data-tooltip="{{localize 'bitd-alt.CrewReputation'}}">
                   {{#with (getItemByType items "crew_reputation") as |item|}}
@@ -95,6 +75,25 @@
                   {{item.name}}
                   {{else}}
                   {{localize "bitd-alt.CrewReputation"}}
+                  {{/with}}
+                </span>
+                {{/if}}
+                &nbsp;&bull;&nbsp;
+                {{#if allow_edit}}
+                <span class="smart-field-label" data-action="smart-item-selector" data-item-type="hunting_grounds"
+                  tabindex="0" data-tooltip="{{localize system.hunting_grounds_label}}">
+                  {{#with (getItemByType items "hunting_grounds") as |item|}}
+                  {{item.name}}
+                  {{else}}
+                  {{localize system.hunting_grounds_label}}
+                  {{/with}}
+                </span>
+                {{else}}
+                <span class="smart-field-value" data-tooltip="{{localize system.hunting_grounds_label}}">
+                  {{#with (getItemByType items "hunting_grounds") as |item|}}
+                  {{item.name}}
+                  {{else}}
+                  {{localize system.hunting_grounds_label}}
                   {{/with}}
                 </span>
                 {{/if}}
@@ -307,8 +306,8 @@
       <div class="item flex-horizontal" data-item-id="{{item.id}}" data-item-type="{{item.type}}">
         <div class="acquaintance" data-acquaintance="{{this.id}}">
           <i data-acquaintance="{{this.id}}" class="standing-toggle fas
-                    {{#if (eq this.standing "friend")}} fa-caret-up green-icon {{else if (eq this.standing "rival"
-            )}} fa-caret-down red-icon {{else}}fa-minus {{/if}}" role="button" tabindex="0"
+                    {{#if (eq this.standing " friend")}} fa-caret-up green-icon {{else if (eq this.standing "rival" )}}
+            fa-caret-down red-icon {{else}}fa-minus {{/if}}" role="button" tabindex="0"
             aria-label="{{localize 'BITD.ToggleStanding' name=this.name standing=this.standing}}"></i>
           <class="standing-toggle"><a class="open-friend"><strong>{{this.name}}</strong></a>,
             {{this.description_short}}

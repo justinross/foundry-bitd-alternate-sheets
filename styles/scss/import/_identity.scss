@@ -67,11 +67,16 @@
 // Increased specificity to override generic role/button styles
 .sheet-wrapper .smart-field-label {
     font-family: inherit;
-    font-weight: bold;
+    font-weight: normal;
     // Reset box model
     padding: 0;
     margin: 0;
     border: none;
+    border-bottom: none;
+    padding: 0; // No padding to prevent layout shift
+    border-radius: 6px;
+    background-color: transparent;
+    box-shadow: 0 0 0 2px $darkgray; // "Outline" style without layout shift
     background: transparent;
     appearance: none; // Reset native OS button styling
     -webkit-appearance: none;
@@ -82,12 +87,12 @@
 
     cursor: pointer;
     color: $almost_black;
-    transition: text-shadow 0.2s ease, color 0.2s ease;
+    transition: text-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
     &:hover,
     &:focus {
         color: var(--alt-red);
-        text-shadow: 0 0 5px rgba(122, 45, 45, 0.4);
+        text-shadow: 0 0 8px rgba(204, 0, 0, 0.8); // Stronger glow
     }
 }
 

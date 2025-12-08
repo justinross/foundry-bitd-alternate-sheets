@@ -691,12 +691,18 @@
 }
 
 @mixin editable-style {
-  text-decoration: underline; // Original black underline
+  text-decoration: none;
   border-bottom: none;
+  background-color: transparent;
+  box-shadow: 0 0 0 2px $darkgray;
+  border-radius: 4px;
+  padding: 0;
   text-shadow: none;
 
   &:hover {
     cursor: pointer;
-    text-shadow: none;
+    border-bottom-color: $almost_black; // Keep this just in case, though border is gone
+    color: $red;
+    text-shadow: 0 0 8px rgba(204, 0, 0, 0.8);
   }
 }
