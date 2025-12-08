@@ -11,7 +11,7 @@
     margin-bottom: 10px;
 
     * {
-      margin-right: 10px;
+      margin-right: 0; // Removed 10px per user request
     }
 
     .item-description {
@@ -254,7 +254,7 @@ nav {
   margin-bottom: 0px;
 
   >* {
-    margin-right: 10px;
+    margin-right: 0; // Removed 10px per user request
 
     &:last-child {
       margin-right: 0px;
@@ -795,32 +795,54 @@ header {
 }
 
 // Header layout / visuals
-.crew-header {
-  margin-bottom: 1rem;
-  display: grid;
-  grid-template-columns: minmax(0, 27fr) minmax(0, 73fr);
-  grid-template-rows: auto auto;
-  grid-auto-rows: auto;
-  gap: 12px;
-  align-items: stretch;
-  width: 100%;
-  max-width: var(--alt-max-tabs);
-  margin-left: auto;
-  margin-right: auto;
-  flex: 1 1 auto;
-}
+// .crew-header removed from HTML - grid moved to .crew-upper-frame
+// .crew-header {
+//   margin-bottom: 1rem;
+//   display: grid;
+//   grid-template-columns: minmax(0, 27fr) minmax(0, 73fr);
+//   grid-template-rows: auto auto;
+//   grid-auto-rows: auto;
+//   gap: 12px;
+//   align-items: stretch;
+//   width: 100%;
+//   max-width: var(--alt-max-tabs);
+//   margin-left: auto;
+//   margin-right: auto;
+//   flex: 1 1 auto;
+// }
 
 .crew-upper-frame {
   width: 100%;
   max-width: var(--alt-max-tabs);
-  margin: 0 auto;
-  display: flex;
-  align-items: stretch;
+  margin: 0; // Left align per user request
+  display: grid;
+  grid-template-columns: 220px 1fr; // Fixed portrait column + fluid content
+  grid-template-rows: min-content min-content; // Auto height for rows
+  grid-template-areas:
+    "portrait identity"
+    "portrait stats";
+  gap: 12px;
+  align-items: start; // Top align content
 }
 
-.crew-header .character-portrait {
-  grid-row: 1;
-  grid-column: 1;
+.character-portrait.crew-left {
+  grid-area: portrait;
+}
+
+.character-info.crew-top-right {
+  grid-area: identity;
+}
+
+.crew-stats-grid.crew-bottom-right {
+  grid-area: stats;
+}
+
+
+// Portrait Styling
+.crew-upper-frame .character-portrait {
+  // Use grid positioning (handled by grid-area: portrait)
+  // grid-row: 1; -> OBSOLETE
+  // grid-column: 1; -> OBSOLETE
   align-self: stretch;
   justify-self: stretch;
   display: flex;
@@ -913,7 +935,7 @@ header {
   }
 }
 
-.crew-header .crew-header-body {
+.crew-upper-frame .crew-header-body {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -922,13 +944,8 @@ header {
   width: 100%;
 }
 
-.crew-header .crew-top-right,
-.crew-header .crew-bottom-right {
-  grid-column: 2;
-  align-self: stretch;
-  justify-self: stretch;
-  width: 100%;
-}
+// .crew-top-right and .crew-bottom-right handled by grid-area definitions above
+
 
 .crew-header .crew-top-right {
   grid-row: 1;
@@ -1075,41 +1092,43 @@ nav.tabs {
 
 .crew-stats-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 0.8fr) minmax(320px, 1.2fr);
+  grid-template-columns: max-content max-content; // Shrink-wrap content per user request
   grid-auto-rows: auto;
   column-gap: 14px;
   row-gap: 12px;
   // border: 1px solid var(--alt-border);
   // border-radius: 14px;
-  padding: 10px 12px;
+  padding: 0; // Removed 10px 12px
   // box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   width: 100%;
   max-width: none;
   align-self: stretch;
+  zoom: 0.85; // Adjusted to 0.9 per user request
   flex: 1 1 auto;
   height: auto;
 
-  >.rep-hold-row {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: minmax(320px, 0.8fr) minmax(320px, 1.2fr);
-    gap: 12px;
-    align-items: flex-start;
-    width: 100%;
-    max-width: var(--alt-max-row);
-    padding: 4px 0;
+  >.rep-turf-row {
+    grid-column: 1;
+    align-self: start;
+    padding: 0;
+  }
+
+  >.hold-tier-row {
+    grid-column: 2;
+    align-self: start;
+    padding: 0;
   }
 
   >.heat-wanted-row {
     grid-column: 1;
     align-self: flex-start;
-    padding: 4px 0;
+    padding: 0; // Removed 4px 0
   }
 
   >.coins-row {
     grid-column: 2;
     align-self: flex-start;
-    padding: 4px 0;
+    padding: 0; // Removed 4px 0
   }
 
   .rep-turf-row {
