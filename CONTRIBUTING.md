@@ -23,7 +23,9 @@
 - **Avoid Delete + Create**: When "replacing" a single item (e.g., swapping a Crew Ability or Changing Hunting Grounds), do **not** use `deleteEmbeddedDocuments` followed by `createEmbeddedDocuments`. This causes a race condition where the UI renders the "empty" state in between, leading to flickering or stale data display.
 - **Use Atomic Updates**: Instead, find the existing document and use `updateEmbeddedDocuments` to transform it in place (update `name`, `img`, `system`, etc.). This ensures a single atomic change event, guaranteeing the UI updates instantly and correctly without gaps.
 ### CSS authoring expectations (alt sheets)
-- Work in `styles/css/bitd-alt.css` using **plain CSS with custom properties**—no Sass build step. Keep design tokens in the `:root` block (colors, spacing, radii, shadows, grid percentages) and **add new values there first** instead of introducing literals.
+- Work in `styles/scss/` files. The entry point is `bitd-alt.scss` which imports others.
+- **Run `npm run build:css`** (or `npm run watch:css`) to compile SCSS to `styles/css/bitd-alt.css`.
+- Keep design tokens in `_variables.scss` or `_identity.scss` (colors, spacing, radii) and **add new values there first** instead of introducing literals.
 - Use existing shared utilities and patterns: flex grid (`.row`/`.col-*`), visibility helpers (`.show-*`/`.hide-*`), label styles, checklist/ability list bases, and toggle styles. Prefer extending these rather than creating one-off variants.
 - Keep selectors low-specificity and class-based; avoid IDs and descendant chains. Do not add `!important` outside the established visibility helpers.
 - Spacing/size/typography: use the token scale (`--space-*`, `--alt-radius*`, label heights) and avoid pixel magic numbers. Font sizes/line-heights should come from a shared scale (or a single shared “display” size), not bespoke per-component tokens. If alignment requires adjustment, prefer tokenized values over negatives; document any unavoidable negative offsets inline with a short comment.
