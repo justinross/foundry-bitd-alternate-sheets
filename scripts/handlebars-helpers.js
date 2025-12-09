@@ -41,13 +41,18 @@ export const registerHandlebarsHelpers = function () {
       uniq_id,
       context
     ) {
-      let html = "";
-      if (current_value?.length === 0 || !current_value) {
-        current_value = blank_value;
-      }
-      html += `<input  data-input="character-${uniq_id}-${parameter_name}" name="${parameter_name}" type="hidden" value="${current_value}" placeholder="${blank_value}"><span class="inline-input" ${context.owner && editable ? 'contenteditable="true"' : null
-        } spellcheck="false" data-target="character-${uniq_id}-${parameter_name}" data-placeholder="${blank_value}">${current_value}</span>`;
-      return html;
+      const rawValue = (current_value ?? "").toString();
+      const escapedParam = Handlebars.escapeExpression(parameter_name);
+      const escapedPlaceholder = Handlebars.escapeExpression(blank_value);
+      const escapedId = Handlebars.escapeExpression(uniq_id);
+      const escapedValue = Handlebars.escapeExpression(rawValue);
+      const isEmpty = rawValue.trim().length === 0;
+      const inputValue = isEmpty ? "" : escapedValue;
+      const displayValue = isEmpty ? escapedPlaceholder : escapedValue;
+
+      const html = `<input data-input="character-${escapedId}-${escapedParam}" name="${escapedParam}" type="hidden" value="${inputValue}" placeholder="${escapedPlaceholder}"><span class="inline-input" ${context?.owner && editable ? 'contenteditable="true"' : null
+        } spellcheck="false" data-target="character-${escapedId}-${escapedParam}" data-placeholder="${escapedPlaceholder}">${displayValue}</span>`;
+      return new Handlebars.SafeString(html);
     }
   );
 

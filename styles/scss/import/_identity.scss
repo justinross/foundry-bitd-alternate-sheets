@@ -52,6 +52,13 @@
             @include editable-style;
         }
     }
+
+    // Apply to all inline inputs in the header (bio, look, etc.)
+    .inline-input {
+        @at-root .sheet-wrapper.allow-edit & {
+            @include editable-style;
+        }
+    }
 }
 
 // Smart Field (Edit Dashboard) Styling

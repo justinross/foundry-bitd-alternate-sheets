@@ -72,11 +72,12 @@
         {{> "modules/bitd-alternate-sheets/templates/parts/identity-header.html" owner=this subtitle_type="alias"}}
         <div class="heritage-background bio">
           {{{smart-field allow_edit "system.heritage" (localize "BITD.Heritage") heritage actor._id this}}}
-          &bull; {{{smart-field allow_edit "system.background" (localize "BITD.Background") background
-          actor._id this}}} &bull; {{{smart-field allow_edit "system.background-details" (localize
-          "bitd-alt.BackgroundDetails") system.background-details actor._id this}}} &bull; {{{smart-field
-          allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this}}} &bull; {{{smart-field
-          allow_edit "system.vice-purveyor" (localize "bitd-alt.VicePurveyor") system.vice-purveyor actor._id this}}}
+          &bull; {{{smart-field allow_edit "system.background" (localize "BITD.Background") background actor._id this}}}
+          &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.background_details" (localize
+          "bitd-alt.BackgroundDetails") actor.flags.bitd-alternate-sheets.background_details actor._id this}}}
+          &bull; {{{smart-field allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this}}}
+          &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.vice_purveyor" (localize
+          "bitd-alt.VicePurveyor") actor.flags.bitd-alternate-sheets.vice_purveyor actor._id this}}}
         </div>
         <div class="crew-affiliation bio">
           {{#if allow_edit}}
@@ -93,9 +94,11 @@
           </span>
           {{/if}}
         </div>
-        <div class="look bio">{{{smart-field allow_edit "system.look" (localize "bitd-alt.Look") system.look actor._id
+        <div class="look bio">{{{inline-editable-text allow_edit "system.look" (localize "bitd-alt.Look") system.look
+          actor._id
           this}}}
-          &bull; {{{smart-field allow_edit "flags.bitd-alternate-sheets.pronouns" (localize "bitd-alt.Pronouns")
+          &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.pronouns" (localize
+          "bitd-alt.Pronouns")
           data.flags.bitd-alternate-sheets.pronouns actor._id this}}}</div>
         <div class="abilities-list">
           {{#each my_abilities}}<span data-tooltip="{{clean-html this.system.description}}"

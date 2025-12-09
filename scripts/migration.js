@@ -20,6 +20,9 @@ export class Migration {
 
                 // Step 2: Fix Equipped Items (Array -> Object)
                 await this.migrateEquippedItems(actor);
+
+                // Step 3: Migrate Legacy Fields (System -> Flags)
+                await this.migrateLegacyFields(actor);
             }
 
             await game.settings.set(MODULE_ID, "schemaVersion", targetVersion);
@@ -81,6 +84,46 @@ export class Migration {
             await actor.update(updates);
             console.log(
                 `BitD Alternate Sheets | Cleaned up orphaned progress flags for ${actor.name}`
+            );
+        }
+    }
+
+    static async migrateLegacyFields(actor) {
+        const updates = {};
+        let changed = false;
+
+        // Migrate system.background-details -> flags.bitd-alternate-sheets.background_details
+        const oldDetails = foundry.utils.getProperty(actor, "system.background-details");
+        const newDetails = actor.getFlag(MODULE_ID, "background_details");
+
+        if (oldDetails && !newDetails) {
+            updates[`flags.${MODULE_ID}.background_details`] = oldDetails;
+            updates["system.-=background-details"] = null;
+            changed = true;
+        } else if (oldDetails && newDetails) {
+            // Just clean up the old data if both exist (favoring the flag)
+            updates["system.-=background-details"] = null;
+            changed = true;
+        }
+
+        // Migrate system.vice-purveyor -> flags.bitd-alternate-sheets.vice_purveyor
+        const oldPurveyor = foundry.utils.getProperty(actor, "system.vice-purveyor");
+        const newPurveyor = actor.getFlag(MODULE_ID, "vice_purveyor");
+
+        if (oldPurveyor && !newPurveyor) {
+            updates[`flags.${MODULE_ID}.vice_purveyor`] = oldPurveyor;
+            updates["system.-=vice-purveyor"] = null;
+            changed = true;
+        } else if (oldPurveyor && newPurveyor) {
+            // Just clean up
+            updates["system.-=vice-purveyor"] = null;
+            changed = true;
+        }
+
+        if (changed) {
+            await actor.update(updates);
+            console.log(
+                `BitD Alternate Sheets | Migrated legacy system fields for ${actor.name}`
             );
         }
     }

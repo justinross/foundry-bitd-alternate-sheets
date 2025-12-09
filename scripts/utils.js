@@ -911,6 +911,8 @@ export class Utils {
     event.preventDefault();
     const itemType = event.currentTarget.dataset.itemType;
     const label = event.currentTarget.innerText;
+    const existingItems = actor.items.filter(i => i.type === itemType);
+    const existingItem = existingItems[0] ?? null;
 
     // 1. Fetch options via Utils
     const availableItems = await Utils.getSourcedItemsByType(itemType);
@@ -923,7 +925,6 @@ export class Utils {
     }));
 
     // 3. Determine Current Value (if any)
-    const existingItem = actor.items.find(i => i.type === itemType);
     const currentValue = existingItem ? existingItem.name : ""; // Use ID if possible? Source items have different IDs than owned. Match by Name usually safer for Compendium vs World? 
     // Wait, the "Unique" rule means we likely want to match by Source ID if we tracked it, but we don't always. 
     // And standard `availableItems` are the *Source* items. 
@@ -941,7 +942,7 @@ export class Utils {
       instructions: game.i18n.localize("bitd-alt.SelectToAddItem"),
       okLabel: game.i18n.localize("bitd-alt.Ok"),
       cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
-      clearLabel: game.i18n.localize("bitd-alt.DeleteItem"), // Reusing "Clear" as "Delete/None"
+      clearLabel: game.i18n.localize("bitd-alt.Clear"),
       choices: choices,
       currentValue: currentSourceId
     });
@@ -949,8 +950,8 @@ export class Utils {
     if (result === undefined) return; // Cancelled
 
     if (result === null) {
-      // Clear: Just delete existing
-      const existingIds = actor.items.filter(i => i.type === itemType).map(i => i.id);
+      // Clear: remove existing singleton entry (cannot represent "none" via update)
+      const existingIds = existingItems.map(i => i.id);
       if (existingIds.length > 0) {
         try {
           await actor.deleteEmbeddedDocuments("Item", existingIds);
@@ -968,13 +969,11 @@ export class Utils {
         const itemData = {
           name: selectedItem.name,
           type: selectedItem.type,
-          system: selectedItem.system,
+          system: foundry.utils.deepClone(selectedItem.system ?? {}),
           img: selectedItem.img
         };
 
         // Check for existing item to update-in-place
-        const existingItem = actor.items.find(i => i.type === itemType);
-
         try {
           if (existingItem) {
             // UPDATE existing item (Atomic, no race condition, no empty gap)
