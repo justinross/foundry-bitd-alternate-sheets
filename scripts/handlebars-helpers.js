@@ -81,15 +81,10 @@ export const registerHandlebarsHelpers = function () {
       const filterValue = Handlebars.escapeExpression(options.hash.filter_value || "");
 
       const description = options.hash.description || "";
-      let tooltip = "";
-      if (description) {
-        tooltip = description;
-      } else {
-        tooltip =
-          source === "compendium_item"
-            ? `${label}: ${display}`
-            : `${label}: ${display}`;
-      }
+      const rawValue = (current_value ?? "").toString().trim();
+      const tooltip = Handlebars.escapeExpression(
+        description || `${label}${rawValue ? `: ${rawValue}` : ""}`
+      );
 
       // Locked Mode: Clean Value
       if (!allow_edit) {
