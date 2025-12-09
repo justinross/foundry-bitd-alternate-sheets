@@ -59,7 +59,8 @@
             <div class="crew-meta-line list-meta-line">
               {{#if allow_edit}}
               <span class="smart-field-label" data-action="smart-item-selector" data-item-type="crew_reputation"
-                tabindex="0" data-tooltip="{{localize 'bitd-alt.CrewReputation'}}">
+                tabindex="0"
+                data-tooltip="{{#with (getItemByType items 'crew_reputation') as |item|}}{{#if item.system.description}}{{clean-html item.system.description}}{{else}}{{localize 'bitd-alt.CrewReputation'}}{{/if}}{{else}}{{localize 'bitd-alt.CrewReputation'}}{{/with}}">
                 {{#with (getItemByType items "crew_reputation") as |item|}}
                 {{item.name}}
                 {{else}}
@@ -67,7 +68,8 @@
                 {{/with}}
               </span>
               {{else}}
-              <span class="smart-field-value" data-tooltip="{{localize 'bitd-alt.CrewReputation'}}">
+              <span class="smart-field-value"
+                data-tooltip="{{#with (getItemByType items 'crew_reputation') as |item|}}{{#if item.system.description}}{{clean-html item.system.description}}{{else}}{{localize 'bitd-alt.CrewReputation'}}{{/if}}{{else}}{{localize 'bitd-alt.CrewReputation'}}{{/with}}">
                 {{#with (getItemByType items "crew_reputation") as |item|}}
                 {{item.name}}
                 {{else}}
@@ -78,7 +80,8 @@
               &nbsp;&bull;&nbsp;
               {{#if allow_edit}}
               <span class="smart-field-label" data-action="smart-item-selector" data-item-type="hunting_grounds"
-                tabindex="0" data-tooltip="{{localize system.hunting_grounds_label}}">
+                tabindex="0"
+                data-tooltip="{{#with (getItemByType items 'hunting_grounds') as |item|}}{{#if item.system.description}}{{clean-html item.system.description}}{{else}}{{localize system.hunting_grounds_label}}{{/if}}{{else}}{{localize system.hunting_grounds_label}}{{/with}}">
                 {{#with (getItemByType items "hunting_grounds") as |item|}}
                 {{item.name}}
                 {{else}}
@@ -86,7 +89,8 @@
                 {{/with}}
               </span>
               {{else}}
-              <span class="smart-field-value" data-tooltip="{{localize system.hunting_grounds_label}}">
+              <span class="smart-field-value"
+                data-tooltip="{{#with (getItemByType items 'hunting_grounds') as |item|}}{{#if item.system.description}}{{clean-html item.system.description}}{{else}}{{localize system.hunting_grounds_label}}{{/if}}{{else}}{{localize system.hunting_grounds_label}}{{/with}}">
                 {{#with (getItemByType items "hunting_grounds") as |item|}}
                 {{item.name}}
                 {{else}}

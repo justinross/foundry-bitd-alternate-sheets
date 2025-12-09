@@ -71,14 +71,17 @@
 
         {{> "modules/bitd-alternate-sheets/templates/parts/identity-header.html" owner=this subtitle_type="alias"}}
         <div class="heritage-background bio">
-          {{{smart-field allow_edit "system.heritage" (localize "BITD.Heritage") heritage actor._id this}}}
-          &bull; {{{smart-field allow_edit "system.background" (localize "BITD.Background") background actor._id this}}}
+          {{{smart-field allow_edit "system.heritage" (localize "BITD.Heritage") heritage actor._id this
+          description=heritage_description}}}
+          &bull; {{{smart-field allow_edit "system.background" (localize "BITD.Background") background actor._id this
+          description=background_description}}}
           &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.background_details" (localize
           "bitd-alt.BackgroundDetails") actor.flags.bitd-alternate-sheets.background_details actor._id this}}}
-          &bull; {{{smart-field allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this}}}
+          &bull; {{{smart-field allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this
+          description=vice_description}}}
           &bull; {{{smart-field allow_edit "flags.bitd-alternate-sheets.vice_purveyor" (localize
           "bitd-alt.VicePurveyor") actor.flags.bitd-alternate-sheets.vice_purveyor actor._id this source="actor"
-          filter_field="system.associated_class" filter_value="Vice Purveyor"}}}
+          filter_field="system.associated_class" filter_value="Vice Purveyor" description=vice_purveyor_description}}}
         </div>
         <div class="crew-affiliation bio">
           {{#if allow_edit}}

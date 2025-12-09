@@ -80,23 +80,30 @@ export const registerHandlebarsHelpers = function () {
       const filterField = Handlebars.escapeExpression(options.hash.filter_field || "");
       const filterValue = Handlebars.escapeExpression(options.hash.filter_value || "");
 
-      // Locked Mode: Clean Value
-      if (!allow_edit) {
-        // If empty, display label as placeholder (User Request)
-        const display = (!current_value || current_value.trim() === "") ? escapedLabel : escapedValue;
-        // Conditional tooltip: don't show ": " if value is empty
-        const tooltip =
+      const description = options.hash.description || "";
+      let tooltip = "";
+      if (description) {
+        tooltip = description;
+      } else {
+        tooltip =
           source === "compendium_item"
             ? `${label}: ${display}`
             : `${label}: ${display}`;
+      }
 
-        return `<span class="smart-field-value" data-tooltip="${tooltip}">${display}</span>`;
+      // Locked Mode: Clean Value
+      if (!allow_edit) {
+        // If empty, display label as placeholder (User Request)
+        const displayWithPlaceholder = (!current_value || current_value.trim() === "") ? escapedLabel : escapedValue;
+
+        return `<span class="smart-field-value" data-tooltip="${tooltip}">${displayWithPlaceholder}</span>`;
       }
 
       // Unlocked Mode: Interactive Label or Value
-      const display = (current_value && current_value.trim() !== "") ? escapedValue : escapedLabel;
+      const displayWithPlaceholder = (current_value && current_value.trim() !== "") ? escapedValue : escapedLabel;
       // Removing role="button" to prevent flexbox baseline misalignment (UA styles treating it as control)
-      return `<span class="smart-field-label" data-action="smart-edit" data-field="${escapedParam}" data-header="${escapedLabel}" data-value="${escapedValue}" data-id="${escapedId}" data-source="${sourceStr}" data-filter-field="${filterField}" data-filter-value="${filterValue}" tabindex="0">${display}</span>`;
+      // Added data-tooltip here as well so user sees description while editing
+      return `<span class="smart-field-label" data-action="smart-edit" data-field="${escapedParam}" data-header="${escapedLabel}" data-value="${escapedValue}" data-id="${escapedId}" data-source="${sourceStr}" data-filter-field="${filterField}" data-filter-value="${filterValue}" tabindex="0" data-tooltip="${tooltip}">${displayWithPlaceholder}</span>`;
     }
   );
 

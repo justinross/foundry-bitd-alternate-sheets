@@ -510,6 +510,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
           ? Utils.getOwnedObjectByType(this.actor, "vice").name
           : "";
 
+    // Resolve descriptions for tooltips
+    sheetData.heritage_description = await this._resolveDescription("heritage", sheetData.heritage);
+    sheetData.background_description = await this._resolveDescription("background", sheetData.background);
+    sheetData.vice_description = await this._resolveDescription("vice", sheetData.vice);
+
+    const purveyorName = this.actor.getFlag(MODULE_ID, "vice_purveyor");
+    sheetData.vice_purveyor_description = await this._resolveDescription("npc", purveyorName);
+
     if (game.settings.get("blades-in-the-dark", "DeepCutLoad")) {
       // Deep Cut: include Encumbered so mule/overmax can be represented
       sheetData.load_levels = {
@@ -711,6 +719,21 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
 
     return sheetData;
+  }
+
+  async _resolveDescription(type, name) {
+    if (!name || name.trim() === "") return "";
+
+    // 1. Check Owned Items first (skip for NPC as they are not usually owned items in this context)
+    if (type !== "npc") {
+      const owned = this.actor.items.find(i => i.type === type && i.name === name);
+      if (owned) return Utils.resolveDescription(owned);
+    }
+
+    // 2. Check World/Compendium
+    const candidates = await Utils.getSourcedItemsByType(type);
+    const match = candidates.find(i => i.name === name);
+    return match ? Utils.resolveDescription(match) : "";
   }
 
   _ownsAbility(abilityName) {
