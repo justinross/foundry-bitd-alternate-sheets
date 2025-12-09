@@ -1,5 +1,6 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { enrichHTML as compatEnrichHTML } from "./compat.js";
 
 export const MODULE_ID = "bitd-alternate-sheets";
 
@@ -464,11 +465,11 @@ export class Utils {
   static async enrichNotes(actor, rawNotes) {
     const notes = rawNotes || "";
     if (!notes) return "";
-    const intermediate = await TextEditor.enrichHTML(notes, {
+    const intermediate = await compatEnrichHTML(notes, {
       documents: false,
       async: true,
     });
-    return TextEditor.enrichHTML(intermediate, {
+    return compatEnrichHTML(intermediate, {
       relativeTo: actor,
       secrets: actor.isOwner,
       async: true,
