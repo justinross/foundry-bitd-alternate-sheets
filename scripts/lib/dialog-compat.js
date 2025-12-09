@@ -50,13 +50,14 @@ function getCardHtml(choices, currentValue) {
       const isSelected = choice.value === safeCurrentValue;
       const checked = isSelected ? "checked" : "";
 
-      // Inline styles for card content - changes based on selection
+      const description = choice.description ? escapeHTML(choice.description) : "";
+
       const cardContentStyle = isSelected
         ? "display: flex; flex-direction: column; align-items: center; padding: 0.5rem; border-radius: 5px; height: 100%; transition: all 0.2s; border: 2px solid #800000; background: rgba(128, 0, 0, 0.15); box-shadow: 0 0 8px #800000;"
         : "display: flex; flex-direction: column; align-items: center; padding: 0.5rem; border-radius: 5px; height: 100%; transition: all 0.2s; border: 2px solid transparent; background: rgba(0, 0, 0, 0.05);";
 
       return `
-        <label style="cursor: pointer; position: relative; display: block;">
+        <label style="cursor: pointer; position: relative; display: block;" title="${description}">
           <input type="radio" name="selectionId" value="${value}" ${checked} style="position: absolute; opacity: 0; width: 0; height: 0;">
           <div class="card-content" data-selection-value="${value}" style="${cardContentStyle}">
             <img src="${img}" alt="${label}" style="width: 48px; height: 48px; border: none; margin-bottom: 0.25rem; object-fit: cover; border-radius: 4px;" />

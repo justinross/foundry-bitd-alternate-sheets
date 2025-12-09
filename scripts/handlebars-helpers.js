@@ -64,7 +64,8 @@ export const registerHandlebarsHelpers = function () {
       label,
       current_value,
       uniq_id,
-      context
+      context,
+      options
     ) {
       if (!current_value) current_value = "";
 
@@ -74,19 +75,28 @@ export const registerHandlebarsHelpers = function () {
       const escapedParam = Handlebars.escapeExpression(parameter_name);
       const escapedId = Handlebars.escapeExpression(uniq_id);
 
+      const source = options.hash.source || "compendium_item";
+      const sourceStr = Handlebars.escapeExpression(source);
+      const filterField = Handlebars.escapeExpression(options.hash.filter_field || "");
+      const filterValue = Handlebars.escapeExpression(options.hash.filter_value || "");
+
       // Locked Mode: Clean Value
       if (!allow_edit) {
         // If empty, display label as placeholder (User Request)
         const display = (!current_value || current_value.trim() === "") ? escapedLabel : escapedValue;
         // Conditional tooltip: don't show ": " if value is empty
-        const tooltip = current_value ? `${escapedLabel}: ${escapedValue}` : escapedLabel;
+        const tooltip =
+          source === "compendium_item"
+            ? `${label}: ${display}`
+            : `${label}: ${display}`;
+
         return `<span class="smart-field-value" data-tooltip="${tooltip}">${display}</span>`;
       }
 
       // Unlocked Mode: Interactive Label or Value
       const display = (current_value && current_value.trim() !== "") ? escapedValue : escapedLabel;
       // Removing role="button" to prevent flexbox baseline misalignment (UA styles treating it as control)
-      return `<span class="smart-field-label" data-action="smart-edit" data-field="${escapedParam}" data-header="${escapedLabel}" data-value="${escapedValue}" data-id="${escapedId}" tabindex="0">${display}</span>`;
+      return `<span class="smart-field-label" data-action="smart-edit" data-field="${escapedParam}" data-header="${escapedLabel}" data-value="${escapedValue}" data-id="${escapedId}" data-source="${sourceStr}" data-filter-field="${filterField}" data-filter-value="${filterValue}" tabindex="0">${display}</span>`;
     }
   );
 

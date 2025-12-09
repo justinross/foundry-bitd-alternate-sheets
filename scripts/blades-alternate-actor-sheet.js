@@ -1375,54 +1375,90 @@ export class BladesAlternateActorSheet extends BladesSheet {
     const field = target.dataset.field;
     const header = target.dataset.header;
     const initialValue = target.dataset.value || "";
+    const source = target.dataset.source || "compendium_item";
+    const filterField = target.dataset.filterField || "";
+    const filterValue = target.dataset.filterValue || "";
 
-    // Map fields to Item Types (corresponding to pack suffixes)
-    const typeMap = {
-      "system.heritage": "heritage",
-      "system.background": "background",
-      "system.vice": "vice"
-    };
+    // 1. Determine Items
+    let availableItems = [];
 
-    const type = typeMap[field];
+    // Mode A: Actor Source (NPCs)
+    if (source === "actor") {
+      availableItems = await Utils.getFilteredActors(
+        "npc", // Hardcoded type 'npc' for now
+        filterField,
+        filterValue
+      );
 
-    // Smart Picker Mode (if mapped type exists)
-    if (type) {
-      // 1. Fetch options via Utils (respects World/Compendium settings)
-      // This reuses the logic from `handleSmartItemSelector` for fetching, ensuring consistency.
-      const availableItems = await Utils.getSourcedItemsByType(type);
-
-      if (availableItems && availableItems.length > 0) {
-        // 2. Prepare Choices
-        const choices = availableItems.map(i => ({
-          value: i.name, // We want the NAME for the string field, not the ID
-          label: i.name,
-          img: i.img || "icons/svg/mystery-man.svg",
-          description: i.system?.description ?? ""
-        }));
-
-        // 3. Open Chooser
-        const result = await openCardSelectionDialog({
-          title: `${game.i18n.localize("bitd-alt.Select")} ${header}`,
-          instructions: `Choose a ${header} from the list below.`,
-          okLabel: game.i18n.localize("bitd-alt.Select") || "Select",
-          cancelLabel: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
-          clearLabel: game.i18n.localize("bitd-alt.Clear") || "Clear",
-          choices: choices,
-          currentValue: initialValue
-        });
-
-        if (result === undefined) return; // Cancelled
-
-        const updateValue = result === null ? "" : result;
-        try {
-          await this.actor.update({ [field]: updateValue });
-        } catch (err) {
-          ui.notifications.error(`Failed to update ${header}: ${err.message}`);
-          console.error("Smart field update error:", err);
+      // Advanced Filtering: Vice Purveyor specific logic
+      if (filterValue === "Vice Purveyor") {
+        const currentVice = this.actor.system.vice; // Ensure we read from the actor data
+        if (currentVice && typeof currentVice === "string" && currentVice.trim().length > 0) {
+          const viceKey = currentVice.toLowerCase().trim();
+          availableItems = availableItems.filter(npc => {
+            const keywords = (npc.system.associated_crew_type || "").toLowerCase();
+            return keywords.includes(viceKey);
+          });
         }
-        return;
+      }
+
+      // If source is actor, we ALWAYS show the dialog, even if empty, to show "No Results"
+      // instead of falling back to text input which is confusing.
+      // But openCardSelectionDialog anticipates items. If 0 items, it might just render an empty list.
+      // Let's ensure we return early here if source was actor, regardless of count.
+      if (availableItems) { // Check if defined (it is [] if empty)
+        // ...
       }
     }
+    // Mode B: Compendium Source (Default)
+    else {
+      // Map fields to Item Types
+      const typeMap = {
+        "system.heritage": "heritage",
+        "system.background": "background",
+        "system.vice": "vice"
+      };
+      const type = typeMap[field];
+
+      if (type) {
+        availableItems = await Utils.getSourcedItemsByType(type);
+      }
+    }
+
+    // 2. Check if we should open the card selector
+    // We open it if we found items OR if we are in Actor mode (to show "No Results" instead of fallback)
+    if ((availableItems && availableItems.length > 0) || source === "actor") {
+      // 2. Prepare Choices
+      const choices = (availableItems || []).map((i) => ({
+        value: i.name || i._id,
+        label: i.name,
+        img: i.img || "icons/svg/mystery-man.svg",
+        description: i.system?.description ?? "",
+      }));
+
+      // 3. Open Chooser
+      const result = await openCardSelectionDialog({
+        title: `${game.i18n.localize("bitd-alt.Select")} ${header}`,
+        instructions: `Choose a ${header} from the list below.`,
+        okLabel: game.i18n.localize("bitd-alt.Select") || "Select",
+        cancelLabel: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
+        clearLabel: game.i18n.localize("bitd-alt.Clear") || "Clear",
+        choices: choices,
+        currentValue: initialValue,
+      });
+
+      if (result === undefined) return; // Cancelled
+
+      const updateValue = result === null ? "" : result;
+      try {
+        await this.actor.update({ [field]: updateValue });
+      } catch (err) {
+        ui.notifications.error(`Failed to update ${header}: ${err.message}`);
+        console.error("Smart field update error:", err);
+      }
+      return; // Stop here, do not fall through to text input
+    }
+
 
     // Default: Text Input Mode
     const content = `

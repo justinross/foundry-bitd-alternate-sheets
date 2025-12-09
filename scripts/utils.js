@@ -9,6 +9,44 @@ export class Utils {
   // ... (previous static methods)
 
 
+  static async getFilteredActors(type, filterPath, filterValue) {
+    // 1. Fetch Candidates (World + Compendium based on settings)
+    const rawList = await Utils.getSourcedItemsByType(type);
+
+    // 2. Filter Candidates
+    const filtered = rawList.filter((a) => {
+      const val = foundry.utils.getProperty(a, filterPath ?? "");
+      // Loose equality to handle potential string/number mismatches, though unlikely for class strings
+      return val === filterValue;
+    });
+
+    // 3. Map to Card Format
+    return filtered.map((actor) => ({
+      _id: actor._id || actor.id,
+      name: actor.name,
+      img: actor.img || actor.prototypeToken?.texture?.src || "icons/svg/mystery-man.svg",
+      type: actor.type,
+      system: {
+        description: Utils.resolveDescription(actor),
+        // Expose potential filtering fields
+        associated_crew_type: actor.system.associated_crew_type || actor.system.recruit_type || "",
+      },
+    }));
+  }
+
+  static resolveDescription(entity) {
+    if (!entity) return "";
+    const system = entity.system || {};
+    // Fallback chain: description_short -> description -> notes -> biography
+    return (
+      system.description_short ||
+      system.description ||
+      system.notes ||
+      system.biography ||
+      ""
+    );
+  }
+
   /**
    * Identifies duplicate items by type and returns a array of item ids to remove
    *
@@ -243,7 +281,14 @@ export class Utils {
         });
     }
 
-    let pack = game.packs.find((e) => e.metadata.name === item_type);
+    // Handle pluralization for pack lookup
+    const packName = item_type === "npc" ? "npcs" : item_type;
+    // Try explicit ID first, then generic name search
+    let pack = game.packs.get("blades-in-the-dark." + packName) ||
+      game.packs.get("blades-in-the-dark." + item_type) ||
+      game.packs.find((e) => e.metadata.name === packName) ||
+      game.packs.find((e) => e.metadata.name === item_type);
+
     if (pack && typeof pack.getDocuments === "function") {
       let compendium_content = await pack.getDocuments();
       compendium_items = compendium_content.map((e) => {
@@ -269,23 +314,52 @@ export class Utils {
       "bitd-alternate-sheets",
       "populateFromWorld"
     );
-    let limited_items;
+    const searchAllPacks = game.settings.get("bitd-alternate-sheets", "searchAllPacks");
+    let limited_items = [];
 
-    if (populateFromCompendia && populateFromWorld) {
-      limited_items = await this.getAllItemsByType(item_type);
-    } else if (populateFromCompendia && !populateFromWorld) {
-      const pack = game.packs.get("blades-in-the-dark." + item_type);
-      limited_items =
-        pack && typeof pack.getDocuments === "function"
-          ? await pack.getDocuments()
-          : [];
-    } else if (!populateFromCompendia && populateFromWorld) {
+    // 1. World Items (if enabled)
+    if (populateFromWorld) {
       if (item_type === "npc") {
-        limited_items = game.actors.filter((actor) => actor.type === item_type);
+        limited_items = limited_items.concat(game.actors.filter((actor) => actor.type === item_type));
       } else {
-        limited_items = game.items.filter((item) => item.type === item_type);
+        limited_items = limited_items.concat(game.items.filter((item) => item.type === item_type));
       }
-    } else {
+    }
+
+    // 2. Compendium Items (if enabled)
+    if (populateFromCompendia) {
+      if (searchAllPacks) {
+        // Universal Scan: Check ALL packs for matching content
+        const targetDocName = item_type === "npc" ? "Actor" : "Item";
+        for (const pack of game.packs) {
+          if (pack.documentName !== targetDocName) continue;
+
+          // Optimization: Check index if available? For now, fetch generic docs to be safe with filtering.
+          // Note: fetching all documents from all packs can be slow.
+          const docs = await pack.getDocuments();
+          const matches = docs.filter(d => d.type === item_type);
+          limited_items = limited_items.concat(matches);
+        }
+
+      } else {
+        // Default System-Only Scan
+        const packName = item_type === "npc" ? "npcs" : item_type;
+        const pack = game.packs.get("blades-in-the-dark." + packName) ||
+          game.packs.get("blades-in-the-dark." + item_type) ||
+          game.packs.find((e) => e.metadata.name === packName && e.metadata.packageName === "blades-in-the-dark") ||
+          game.packs.find((e) => e.metadata.name === item_type && e.metadata.packageName === "blades-in-the-dark");
+
+        if (pack) {
+          const docs = await pack.getDocuments();
+          limited_items = limited_items.concat(docs); // We assume the pack only contains the relevant type? No, compendiums can be mixed theoretically but usually typed.
+          // Filter just in case the pack is strict naming but loose content
+          // Actually system packs are usually strictly typed. But safer to filter if possible?
+          // Existing code didn't filter explicitly after getDocuments, it just mapped.
+        }
+      }
+    }
+
+    if (!populateFromCompendia && !populateFromWorld) {
       ui.notifications.error(
         `No playbook auto-population source has been selected in the system settings. Please choose at least one source.`,
         { permanent: true }
