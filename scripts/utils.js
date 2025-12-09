@@ -516,8 +516,19 @@ export class Utils {
    * @param {DocumentSheet} sheet
    */
   static ensureAllowEdit(sheet) {
+    const canEdit = Boolean(
+      sheet.options?.editable ?? sheet.isEditable ?? false
+    );
+    const savedStates =
+      game?.user?.getFlag(MODULE_ID, "allowEditStates") || {};
+    const key = Utils._getAllowEditKey(sheet);
+    const saved = key ? savedStates[key] : undefined;
+
     if (typeof sheet.allow_edit === "undefined") {
-      sheet.allow_edit = Boolean(sheet.options?.editable ?? true);
+      // Default to locked; allow unlock only when sheet is editable.
+      sheet.allow_edit = canEdit && Boolean(saved ?? false);
+    } else if (!canEdit && sheet.allow_edit) {
+      sheet.allow_edit = false;
     }
     return sheet.allow_edit;
   }
@@ -528,12 +539,31 @@ export class Utils {
    * @param {JQuery} html
    */
   static bindAllowEditToggle(sheet, html) {
-    html.find(".toggle-allow-edit").off("click").on("click", (event) => {
+    html.find(".toggle-allow-edit").off("click").on("click", async (event) => {
       event.preventDefault();
+      if (!sheet.options?.editable) return;
       // Trigger blur on any active inline-input fields to save their content before re-rendering
       html.find(".inline-input:focus").blur();
       sheet.allow_edit = !sheet.allow_edit;
+      await Utils._persistAllowEditState(sheet);
       sheet.render(false);
+    });
+  }
+
+  static _getAllowEditKey(sheet) {
+    return sheet?.actor?.id ?? sheet?.document?.id ?? null;
+  }
+
+  static async _persistAllowEditState(sheet) {
+    const key = Utils._getAllowEditKey(sheet);
+    if (!key) return;
+    const user = game?.user;
+    if (!user?.setFlag) return;
+
+    const current = user.getFlag(MODULE_ID, "allowEditStates") || {};
+    await user.setFlag(MODULE_ID, "allowEditStates", {
+      ...current,
+      [key]: Boolean(sheet.allow_edit),
     });
   }
 
