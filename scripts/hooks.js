@@ -14,6 +14,7 @@ export async function registerHooks() {
 
   Hooks.on("renderSidebarTab", (app, html, options) => {
     if (options.tabName !== "actors") return;
+    if (!game.user.isGM) return;
 
     Utils.replaceCharacterNamesInDirectory(app, html);
   });
