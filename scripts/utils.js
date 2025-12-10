@@ -110,11 +110,11 @@ export class Utils {
     if (isRemoval) {
       await actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null,
-      });
+      }, { render: false });
     } else {
       await actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.${key}`]: normalized,
-      });
+      }, { render: false });
     }
   }
 
