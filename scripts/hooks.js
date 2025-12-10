@@ -60,6 +60,9 @@ export async function registerHooks() {
 
   Hooks.on("deleteItem", async (item, options, id) => {
     if (!item?.parent) return;
+    const canModifyParent = item.isOwner || item.parent?.isOwner || game.user.isGM;
+    if (!canModifyParent) return;
+
     if (item.type === "item") {
       await Utils.toggleOwnership(false, item.parent, "item", item.id);
     }
@@ -75,6 +78,8 @@ export async function registerHooks() {
     });
     for (let index = 0; index < characters.length; index++) {
       const character = characters[index];
+      if (!character?.isOwner) continue;
+      if (!character.sheet?.rendered) continue;
       let notes = await character.getFlag("bitd-alternate-sheets", "notes");
       notes = notes ? notes : "";
       if (notes.includes(sheet.actor._id)) {

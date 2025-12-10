@@ -100,7 +100,14 @@ export class Utils {
     if (!actor || !key) return;
     const normalized = Math.max(0, Number(value) || 0);
 
-    if (normalized <= 1) {
+    const existingProgress = actor.getFlag(MODULE_ID, "multiAbilityProgress") || {};
+    const currentValue = existingProgress?.[key];
+    const isRemoval = normalized <= 1;
+    if ((isRemoval && currentValue === undefined) || (!isRemoval && currentValue === normalized)) {
+      return;
+    }
+
+    if (isRemoval) {
       await actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null,
       });
@@ -621,11 +628,20 @@ export class Utils {
           load: item_blueprint.system.load,
           name: item_blueprint.name,
         };
+        const existing = equipped_items[item_blueprint.id];
+        if (
+          existing &&
+          existing.load === newItem.load &&
+          existing.name === newItem.name
+        ) {
+          return;
+        }
         await actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
             newItem,
         });
       } else {
+        if (!equipped_items[item_blueprint.id]) return;
         // Atomic Remove
         await actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
