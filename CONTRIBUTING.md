@@ -18,6 +18,7 @@
 - Compatibility: Use `DialogV2` for Foundry V12+ support. Leverage `scripts/compat.js` and `scripts/compat-helpers.js` for cross-version compatibility layers.
 - Templates: Handlebars helpers live in `scripts/handlebars-helpers.js`; keep partial names aligned with filenames and avoid inline logic that belongs in helpers.
 - Templates: Handlebars helpers live in `scripts/handlebars-helpers.js`; keep partial names aligned with filenames and avoid listing inline logic that belongs in helpers.
+- Performance: see `docs/performance-update-guidelines.md` for avoiding multi-client update storms and rerender cascades.
 
 ### Updating Embedded Documents (Items/Effects)
 - **Avoid Delete + Create**: When "replacing" a single item (e.g., swapping a Crew Ability or Changing Hunting Grounds), do **not** use `deleteEmbeddedDocuments` followed by `createEmbeddedDocuments`. This causes a race condition where the UI renders the "empty" state in between, leading to flickering or stale data display.
