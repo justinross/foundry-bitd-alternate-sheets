@@ -639,13 +639,13 @@ export class Utils {
         await actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
             newItem,
-        });
+        }, { render: false });
       } else {
         if (!equipped_items[item_blueprint.id]) return;
         // Atomic Remove
         await actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
-        });
+        }, { render: false });
       }
     }
   }

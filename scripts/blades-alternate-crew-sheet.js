@@ -240,7 +240,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       if (!itemId || !turfId) return;
       await this.actor.updateEmbeddedDocuments("Item", [
         { _id: itemId, [`system.turfs.${turfId}.value`]: newValue },
-      ]);
+      ], { render: false });
       this.render(false);
     });
 
@@ -381,7 +381,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
           container.dataset.upgradeProgress = String(targetValue);
         }
       } else if (ownedItem && targetValue === 0) {
-        await this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id]);
+        await this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id], { render: false });
         if (container) {
           container.dataset.ownedId = "";
           container.classList.remove("owned");
@@ -393,7 +393,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
             _id: ownedItem.id,
             "system.boxes.value": targetValue,
           },
-        ]);
+        ], { render: false });
         if (container) {
           container.dataset.upgradeProgress = String(targetValue);
         }
