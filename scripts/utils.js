@@ -619,11 +619,11 @@ export class Utils {
             name: checked_item.name,
             system: checked_item.system,
           },
-        ], { render: false });
+        ], { render: false, renderSheet: false });
       } else {
         const ownedDoc = actor.getEmbeddedDocument("Item", id);
         if (ownedDoc) {
-          await actor.deleteEmbeddedDocuments("Item", [id], { render: false });
+          await actor.deleteEmbeddedDocuments("Item", [id], { render: false, renderSheet: false });
           return;
         }
 
@@ -635,7 +635,7 @@ export class Utils {
           (item) => item.name === item_source_name
         );
         if (matching_owned_item) {
-          await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], { render: false });
+          await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], { render: false, renderSheet: false });
         }
       }
     } else if (type == "item") {
