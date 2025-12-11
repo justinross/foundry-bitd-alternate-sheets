@@ -5,6 +5,7 @@ import { enrichHTML as compatEnrichHTML } from "./compat.js";
 export const MODULE_ID = "bitd-alternate-sheets";
 
 import { openCardSelectionDialog } from "./lib/dialog-compat.js";
+import { Profiler } from "./profiler.js";
 
 export class Utils {
   // ... (previous static methods)
@@ -503,8 +504,18 @@ export class Utils {
         if (pending) return;
         pending = true;
         try {
-          await entity.update({ "system.value": currentValue + 1 }, { render: false });
-          rerender(false);
+          await Profiler.time(
+            "clockIncrement",
+            async () => {
+              await entity.update({ "system.value": currentValue + 1 }, { render: false });
+              rerender(false);
+            },
+            {
+              uuid,
+              parentId: entity.parent?.id ?? null,
+              targetValue: currentValue + 1,
+            }
+          );
         } finally {
           pending = false;
         }
@@ -521,8 +532,18 @@ export class Utils {
         if (pending) return;
         pending = true;
         try {
-          await entity.update({ "system.value": currentValue - 1 }, { render: false });
-          rerender(false);
+          await Profiler.time(
+            "clockDecrement",
+            async () => {
+              await entity.update({ "system.value": currentValue - 1 }, { render: false });
+              rerender(false);
+            },
+            {
+              uuid,
+              parentId: entity.parent?.id ?? null,
+              targetValue: currentValue - 1,
+            }
+          );
         } finally {
           pending = false;
         }

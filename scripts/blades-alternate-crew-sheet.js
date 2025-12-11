@@ -1,5 +1,6 @@
 import { BladesCrewSheet as SystemCrewSheet } from "../../../systems/blades-in-the-dark/module/blades-crew-sheet.js";
 import { Utils, MODULE_ID } from "./utils.js";
+import { Profiler } from "./profiler.js";
 
 /**
  * Alternate crew sheet that mirrors the functionality of the system sheet
@@ -373,42 +374,53 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     checkboxList.forEach((el) => el.setAttribute("disabled", "disabled"));
 
     try {
-      if (!ownedItem && targetValue > 0) {
-        const created = await this._createOwnedUpgrade(sourceItem, targetValue);
-        if (container && created) {
-          container.dataset.ownedId = created.id;
-          container.classList.add("owned");
-          container.dataset.upgradeProgress = String(targetValue);
-        }
-      } else if (ownedItem && targetValue === 0) {
-        await this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id], { render: false });
-        if (container) {
-          container.dataset.ownedId = "";
-          container.classList.remove("owned");
-          container.dataset.upgradeProgress = "0";
-        }
-      } else if (ownedItem) {
-        await this.actor.updateEmbeddedDocuments("Item", [
-          {
-            _id: ownedItem.id,
-            "system.boxes.value": targetValue,
-          },
-        ], { render: false });
-        if (container) {
-          container.dataset.upgradeProgress = String(targetValue);
-        }
-      }
+      await Profiler.time(
+        "crewUpgradeToggle",
+        async () => {
+          if (!ownedItem && targetValue > 0) {
+            const created = await this._createOwnedUpgrade(sourceItem, targetValue);
+            if (container && created) {
+              container.dataset.ownedId = created.id;
+              container.classList.add("owned");
+              container.dataset.upgradeProgress = String(targetValue);
+            }
+          } else if (ownedItem && targetValue === 0) {
+            await this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id], { render: false });
+            if (container) {
+              container.dataset.ownedId = "";
+              container.classList.remove("owned");
+              container.dataset.upgradeProgress = "0";
+            }
+          } else if (ownedItem) {
+            await this.actor.updateEmbeddedDocuments("Item", [
+              {
+                _id: ownedItem.id,
+                "system.boxes.value": targetValue,
+              },
+            ], { render: false });
+            if (container) {
+              container.dataset.upgradeProgress = String(targetValue);
+            }
+          }
 
-      checkboxList.forEach((el) => {
-        const slot = Number(el.dataset.upgradeSlot) || 1;
-        const shouldCheck = slot <= targetValue;
-        el.checked = shouldCheck;
-        if (shouldCheck) {
-          el.setAttribute("checked", "checked");
-        } else {
-          el.removeAttribute("checked");
+          checkboxList.forEach((el) => {
+            const slot = Number(el.dataset.upgradeSlot) || 1;
+            const shouldCheck = slot <= targetValue;
+            el.checked = shouldCheck;
+            if (shouldCheck) {
+              el.setAttribute("checked", "checked");
+            } else {
+              el.removeAttribute("checked");
+            }
+          });
+        },
+        {
+          actorId: this.actor.id,
+          upgradeSourceId: sourceId,
+          ownedItemId: ownedItem?.id ?? null,
+          targetValue,
         }
-      });
+      );
     } finally {
       checkboxList.forEach((el) => el.removeAttribute("disabled"));
     }

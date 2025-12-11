@@ -45,4 +45,13 @@ export const registerSystemSettings = function () {
       },
     }
   );
+
+  game.settings.register("bitd-alternate-sheets", "enableProfilingLogs", {
+    name: "Enable performance profiling logs",
+    hint: "When enabled, logs structured timing data for key interactions to the browser console (client-side only).",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
 };

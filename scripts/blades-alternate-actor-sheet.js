@@ -1,6 +1,7 @@
 import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-sheet.js";
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
+import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
 import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
 import { enrichHTML } from "./compat.js";
@@ -1160,35 +1161,48 @@ export class BladesAlternateActorSheet extends BladesSheet {
       checkboxList.forEach((el) => el.setAttribute("disabled", "disabled"));
 
       try {
-        if (!hadProgress && willHaveProgress) {
-          await Utils.toggleOwnership(true, this.actor, "ability", abilityId);
-        } else if (hadProgress && !willHaveProgress) {
-          const targetId = abilityOwnedId || abilityId;
-          await Utils.toggleOwnership(false, this.actor, "ability", targetId);
-        }
+        await Profiler.time(
+          "abilityToggle",
+          async () => {
+            if (!hadProgress && willHaveProgress) {
+              await Utils.toggleOwnership(true, this.actor, "ability", abilityId);
+            } else if (hadProgress && !willHaveProgress) {
+              const targetId = abilityOwnedId || abilityId;
+              await Utils.toggleOwnership(false, this.actor, "ability", targetId);
+            }
 
-        abilityBlock.dataset.abilityProgress = String(targetProgress);
-        if (abilityKey) {
-          await Utils.updateAbilityProgressFlag(
-            this.actor,
-            abilityKey,
-            targetProgress
-          );
-        }
+            abilityBlock.dataset.abilityProgress = String(targetProgress);
+            if (abilityKey) {
+              await Utils.updateAbilityProgressFlag(
+                this.actor,
+                abilityKey,
+                targetProgress
+              );
+            }
 
-        checkboxList.forEach((el) => {
-          const slot = Number(el.dataset.abilitySlot) || 1;
-          const shouldCheck = slot <= targetProgress;
-          el.checked = shouldCheck;
-          if (shouldCheck) {
-            el.setAttribute("checked", "checked");
-          } else {
-            el.removeAttribute("checked");
+            checkboxList.forEach((el) => {
+              const slot = Number(el.dataset.abilitySlot) || 1;
+              const shouldCheck = slot <= targetProgress;
+              el.checked = shouldCheck;
+              if (shouldCheck) {
+                el.setAttribute("checked", "checked");
+              } else {
+                el.removeAttribute("checked");
+              }
+            });
+
+            const ownedIdAfterUpdate = this._findOwnedAbilityId(abilityName);
+            abilityBlock.dataset.abilityOwnedId = ownedIdAfterUpdate || "";
+          },
+          {
+            actorId: this.actor.id,
+            abilityId,
+            abilityName,
+            targetProgress,
+            hadProgress,
+            willHaveProgress,
           }
-        });
-
-        const ownedIdAfterUpdate = this._findOwnedAbilityId(abilityName);
-        abilityBlock.dataset.abilityOwnedId = ownedIdAfterUpdate || "";
+        );
       } finally {
         checkboxList.forEach((el) => el.removeAttribute("disabled"));
       }
