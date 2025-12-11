@@ -1,10 +1,13 @@
-import { MODULE_ID } from "./utils.js";
-
+const MODULE_ID = "bitd-alternate-sheets";
 const PREFIX = "[bitd-alt-profiler]";
 
 export class Profiler {
   static get enabled() {
-    return game?.settings?.get?.(MODULE_ID, "enableProfilingLogs") === true;
+    try {
+      return game?.settings?.get?.(MODULE_ID, "enableProfilingLogs") === true;
+    } catch (err) {
+      return false;
+    }
   }
 
   static log(label, data = {}) {
