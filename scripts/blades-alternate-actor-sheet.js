@@ -116,12 +116,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     await this._resetAbilityProgressFlags();
     await this.switchToPlaybookAcquaintances(newPlaybookItem);
     await this.setPlaybookAttributes(newPlaybookItem);
-    if (this._state == 1) {
-      Hooks.once("renderBladesAlternateActorSheet", () => {
-
-        setTimeout(() => this.render(false), 100);
-      });
-    }
+    // Rendering will occur from document updates; avoid extra scheduled rerenders here.
   }
 
   async switchToPlaybookAcquaintances(selected_playbook) {
