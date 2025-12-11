@@ -491,6 +491,7 @@ export class Utils {
   static bindClockControls(root, renderCallback) {
     const $root = root instanceof HTMLElement ? $(root) : root;
     const rerender = typeof renderCallback === "function" ? renderCallback : () => { };
+    let pending = false;
     $root.find("img.clockImage").on("click", async (e) => {
       const uuid = e.currentTarget.dataset.uuid;
       if (!uuid) return;
@@ -499,8 +500,14 @@ export class Utils {
       const currentValue = Number(entity.system?.value) || 0;
       const currentMax = Number(entity.system?.type) || 0;
       if (currentValue < currentMax) {
-        await entity.update({ "system.value": currentValue + 1 });
-        rerender(false);
+        if (pending) return;
+        pending = true;
+        try {
+          await entity.update({ "system.value": currentValue + 1 }, { render: false });
+          rerender(false);
+        } finally {
+          pending = false;
+        }
       }
     });
     $root.find("img.clockImage").on("contextmenu", async (e) => {
@@ -511,8 +518,14 @@ export class Utils {
       if (!entity) return;
       const currentValue = Number(entity.system?.value) || 0;
       if (currentValue > 0) {
-        await entity.update({ "system.value": currentValue - 1 });
-        rerender(false);
+        if (pending) return;
+        pending = true;
+        try {
+          await entity.update({ "system.value": currentValue - 1 }, { render: false });
+          rerender(false);
+        } finally {
+          pending = false;
+        }
       }
     });
   }
