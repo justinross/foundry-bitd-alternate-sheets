@@ -634,9 +634,9 @@ export class Utils {
         const matching_owned_item = actor.items.find(
           (item) => item.name === item_source_name
         );
-        if (!matching_owned_item) return;
-
-        await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], { render: false });
+        if (matching_owned_item) {
+          await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], { render: false });
+        }
       }
     } else if (type == "item") {
       let equipped_items = await actor.getFlag(

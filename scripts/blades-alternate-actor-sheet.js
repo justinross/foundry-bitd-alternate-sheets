@@ -1064,11 +1064,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
           abilityName
         );
         if (!deletionId) return;
-        await this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        await this.actor.deleteEmbeddedDocuments("Item", [deletionId], { render: false });
         if (abilityBlock) abilityBlock.dataset.abilityOwnedId = "";
       } else {
         if (!this.actor.items.get(targetId)) return;
-        await this.actor.deleteEmbeddedDocuments("Item", [targetId]);
+        await this.actor.deleteEmbeddedDocuments("Item", [targetId], { render: false });
       }
 
       element.slideUp(200, () => this.render(false));
