@@ -575,6 +575,51 @@ export class Utils {
   }
 
   /**
+   * Bind standing toggles for acquaintances (friend/rival/neutral) on a sheet.
+   * Applies changes locally and saves to the actor without triggering a render.
+   * @param {DocumentSheet} sheet
+   * @param {JQuery} html
+   */
+  static bindStandingToggles(sheet, html) {
+    const updateIcon = (icon, standing) => {
+      if (!icon) return;
+      icon.classList.remove("fa-caret-up", "fa-caret-down", "fa-minus", "green-icon", "red-icon");
+      switch (standing) {
+        case "friend":
+          icon.classList.add("fa-caret-up", "green-icon");
+          break;
+        case "rival":
+          icon.classList.add("fa-caret-down", "red-icon");
+          break;
+        default:
+          icon.classList.add("fa-minus");
+      }
+    };
+
+    html.find(".standing-toggle").off("click").on("click", async (ev) => {
+      ev.preventDefault();
+      const acqEl = ev.currentTarget.closest(".acquaintance");
+      const acqId = acqEl?.dataset?.acquaintance;
+      if (!acqId) return;
+
+      const acquaintances = foundry.utils.deepClone(sheet.actor.system?.acquaintances ?? []);
+      const idx = acquaintances.findIndex(
+        (item) => String(item?.id ?? item?._id ?? "") === String(acqId)
+      );
+      if (idx === -1) return;
+
+      const standing = (acquaintances[idx].standing ?? "neutral").toString().trim();
+      const nextStanding =
+        standing === "friend" ? "rival" : standing === "rival" ? "neutral" : "friend";
+      acquaintances[idx].standing = nextStanding;
+
+      updateIcon(ev.currentTarget, nextStanding);
+
+      await sheet.actor.update({ system: { acquaintances } }, { render: false });
+    });
+  }
+
+  /**
    * Wire up the lock/unlock toggle to flip allow_edit and rerender.
    * @param {DocumentSheet} sheet
    * @param {JQuery} html

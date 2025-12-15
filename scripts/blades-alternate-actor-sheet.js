@@ -1220,28 +1220,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
 
     //this could probably be cleaner. Numbers instead of text would be fine, but not much easier, really.
-    html.find(".standing-toggle").click((ev) => {
-      let acquaintances = this.actor.system.acquaintances;
-      let acqId = ev.target.closest(".acquaintance").dataset.acquaintance;
-      let clickedAcqIdx = acquaintances.findIndex((item) => item.id == acqId);
-      let clickedAcq = acquaintances[clickedAcqIdx];
-      let oldStanding = clickedAcq.standing;
-      let newStanding;
-      switch (oldStanding) {
-        case "friend":
-          newStanding = "rival";
-          break;
-        case "rival":
-          newStanding = "neutral";
-          break;
-        case "neutral":
-          newStanding = "friend";
-          break;
-      }
-      clickedAcq.standing = newStanding;
-      acquaintances.splice(clickedAcqIdx, 1, clickedAcq);
-      this.actor.update({ system: { acquaintances: acquaintances } });
-    });
+    Utils.bindStandingToggles(this, html);
 
     $(document).click((ev) => {
       let render = false;
