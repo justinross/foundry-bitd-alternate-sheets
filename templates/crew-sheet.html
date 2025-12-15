@@ -296,8 +296,16 @@
             <a class="add-custom-contact" data-tooltip="Add Custom Contact"><i class="fas fa-user-plus"></i></a>
           </p>
         </div>
-        {{#if system.acquaintances}}
-        {{#each system.acquaintances as |item id|}}
+        {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
+          label=(localize "BITD.Contacts")
+          flex=false
+          showFilter=true
+          isFiltered=showFilteredAcquaintances
+          filterTarget="acquaintances"
+          showAdd=false
+        }}
+        {{#if display_acquaintances}}
+        {{#each display_acquaintances as |item id|}}
         <div class="item flex-horizontal" data-item-id="{{item.id}}" data-item-type="{{item.type}}">
           <div class="acquaintance" data-acquaintance="{{this.id}}">
             {{> "modules/bitd-alternate-sheets/templates/parts/acquaintance-body.html" id=this.id name=this.name standing=this.standing description_short=this.description_short}}

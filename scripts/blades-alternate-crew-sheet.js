@@ -26,6 +26,9 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   async getData(options) {
     const sheetData = await super.getData(options);
     Utils.ensureAllowEdit(this);
+    if (typeof this.showFilteredAcquaintances === "undefined") {
+      this.showFilteredAcquaintances = false;
+    }
     // The system sheet returns a data object; mirror actor/system for template parity.
     sheetData.actor = sheetData.data ?? sheetData.actor ?? this.actor;
     sheetData.system = sheetData.system ?? this.actor.system;
@@ -49,6 +52,18 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     // Notes content (parity with alternate character sheet)
     const rawNotes = (await this.actor.getFlag(MODULE_ID, "notes")) || "";
     sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
+
+    const acquaintanceList = Array.isArray(sheetData.system?.acquaintances)
+      ? sheetData.system.acquaintances
+      : [];
+    const filteredAcqs = this.showFilteredAcquaintances
+      ? acquaintanceList.filter((acq) => {
+        const standing = (acq?.standing ?? "").toString().trim().toLowerCase();
+        return standing === "friend" || standing === "rival";
+      })
+      : acquaintanceList;
+    sheetData.display_acquaintances = filteredAcqs;
+    sheetData.showFilteredAcquaintances = this.showFilteredAcquaintances;
 
     return sheetData;
   }
@@ -185,6 +200,15 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+
+    html.find('[data-action="toggle-filter"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      const target = ev.currentTarget?.dataset?.filterTarget;
+      if (target === "acquaintances") {
+        this.showFilteredAcquaintances = !this.showFilteredAcquaintances;
+        this.render(false);
+      }
+    });
 
     if (!this.options.editable) return;
 

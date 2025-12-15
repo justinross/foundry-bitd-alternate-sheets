@@ -420,6 +420,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     if (typeof this.showFilteredItems === "undefined") {
       this.showFilteredItems = false;
     }
+    if (typeof this.showFilteredAcquaintances === "undefined") {
+      this.showFilteredAcquaintances = false;
+    }
     sheetData.editable = this.options.editable;
     sheetData.isGM = game.user.isGM;
     sheetData.showAliasInDirectory = this.actor.getFlag(
@@ -733,6 +736,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     sheetData.showFilteredAbilities = this.showFilteredAbilities;
     sheetData.showFilteredItems = this.showFilteredItems;
+    sheetData.showFilteredAcquaintances = this.showFilteredAcquaintances;
+
+    const acquaintanceList = Array.isArray(sheetData.system.acquaintances)
+      ? sheetData.system.acquaintances
+      : [];
+    const filteredAcqs = this.showFilteredAcquaintances
+      ? acquaintanceList.filter((acq) => {
+        const standing = (acq?.standing ?? "").toString().trim().toLowerCase();
+        return standing === "friend" || standing === "rival";
+      })
+      : acquaintanceList;
+    sheetData.display_acquaintances = filteredAcqs;
 
     return sheetData;
   }
@@ -987,6 +1002,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
         this.setLocalProp("showFilteredAbilities", !this.showFilteredAbilities);
       } else if (target === "items") {
         this.setLocalProp("showFilteredItems", !this.showFilteredItems);
+      } else if (target === "acquaintances") {
+        this.setLocalProp(
+          "showFilteredAcquaintances",
+          !this.showFilteredAcquaintances
+        );
       }
     });
 

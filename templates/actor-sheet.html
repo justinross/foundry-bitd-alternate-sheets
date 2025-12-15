@@ -192,9 +192,16 @@
               {{/each}}
             </section>
             <section class="friends-rivals">
-              <header class="full-bar">{{localize acquaintances_label}}</header>
-              {{#if system.acquaintances}}
-              {{#each system.acquaintances}}
+              {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
+                label=(localize acquaintances_label)
+                flex=false
+                showFilter=true
+                isFiltered=showFilteredAcquaintances
+                filterTarget="acquaintances"
+                showAdd=false
+              }}
+              {{#if display_acquaintances}}
+              {{#each display_acquaintances}}
               <div class="acquaintance" data-acquaintance="{{this.id}}">
                 {{> "modules/bitd-alternate-sheets/templates/parts/acquaintance-body.html" id=this.id name=this.name standing=this.standing description_short=this.description_short}}
               </div>
