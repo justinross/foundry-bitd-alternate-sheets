@@ -288,7 +288,7 @@
         </section>
       </div>
 
-      <div id="crew-{{_id}}-contacts" class="tab flex-vertical" data-tab="contacts">
+      <div id="crew-{{_id}}-contacts" class="tab flex-vertical section-block {{#if (lookup collapsedSections 'acquaintances')}}collapsed{{/if}}" data-tab="contacts" data-section-key="acquaintances">
         <div class="flex-horizontal contacts-actions">
           <p>
             <a class="import-contacts" data-tooltip="{{localize 'BITD.ImportPlaybookContacts'}}"><i
@@ -302,19 +302,22 @@
           showFilter=true
           isFiltered=showFilteredAcquaintances
           filterTarget="acquaintances"
+          sectionKey="acquaintances"
           showAdd=false
         }}
-        {{#if display_acquaintances}}
-        {{#each display_acquaintances as |item id|}}
-        <div class="item flex-horizontal" data-item-id="{{item.id}}" data-item-type="{{item.type}}">
-          <div class="acquaintance" data-acquaintance="{{this.id}}">
-            {{> "modules/bitd-alternate-sheets/templates/parts/acquaintance-body.html" id=this.id name=this.name standing=this.standing description_short=this.description_short}}
+        <div class="section-body">
+          {{#if display_acquaintances}}
+          {{#each display_acquaintances as |item id|}}
+          <div class="item flex-horizontal" data-item-id="{{item.id}}" data-item-type="{{item.type}}">
+            <div class="acquaintance" data-acquaintance="{{this.id}}">
+              {{> "modules/bitd-alternate-sheets/templates/parts/acquaintance-body.html" id=this.id name=this.name standing=this.standing description_short=this.description_short}}
+            </div>
+            <a class="acquaintance-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i
+                class="fas fa-trash"></i></a>
           </div>
-          <a class="acquaintance-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i
-              class="fas fa-trash"></i></a>
+          {{/each}}
+          {{/if}}
         </div>
-        {{/each}}
-        {{/if}}
       </div>
 
       <div id="crew-{{_id}}-cohorts" class="crew-cohorts tab grow-two flex-vertical" data-tab="cohorts">

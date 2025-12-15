@@ -140,66 +140,73 @@
       <section class="tab-content">
         <div class="tab" data-tab="playbook" data-group="primary-tabs">
           <div class="playbook">
-            <section class="abilities">
+            <section class="abilities section-block {{#if (lookup collapsedSections 'abilities')}}collapsed{{/if}}" data-section-key="abilities">
               {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
                 label=(localize "BITD.SpecialAbilities")
                 flex=false
                 showFilter=true
                 isFiltered=showFilteredAbilities
                 filterTarget="abilities"
+                sectionKey="abilities"
                 showAdd=allow_edit
                 addClass="ability-add-popup add-button"
                 addDataAttrs='data-item-type="ability" data-group-by="system.class"'
               }}
-              <div class="stripe-tooth-body right">
-                {{#multiboxes system.experience}}
-                <input type="radio" id="{{actor._id}}-experience-0" name="system.experience" value="0"
-                  checked="checked" class="zero">
+              <div class="section-body">
+                <div class="stripe-tooth-body right">
+                  {{#multiboxes system.experience}}
+                  <input type="radio" id="{{actor._id}}-experience-0" name="system.experience" value="0"
+                    checked="checked" class="zero">
                   {{#times_from_1 system.experience_max}}
-                  <input type="radio" id="character-{{../actor._id}}-experience-{{this}}" name="system.experience"
-                    value="{{this}}" dtype="Radio" class="radio-toggle">
-                  <label for="character-{{../actor._id}}-experience-{{this}}"
-                    class="{{#if (gte ../system.experience @this)}}on{{/if}} radio-toggle"></label>
-                  {{/times_from_1}}
-                  {{/multiboxes}}
-                </div>
-              </header>
-              <section class="ability-list check-list">
-                {{#each available_playbook_abilities as |ability index|}}
-                {{#with ../actor as |actor|}}
-                {{> "modules/bitd-alternate-sheets/templates/parts/ability.html" actor=actor ability=ability
-                allow_edit=../../allow_edit}}
-                {{/with}}
-                {{/each}}
-              </section>
+                    <input type="radio" id="character-{{../actor._id}}-experience-{{this}}" name="system.experience"
+                      value="{{this}}" dtype="Radio" class="radio-toggle">
+                    <label for="character-{{../actor._id}}-experience-{{this}}"
+                      class="{{#if (gte ../system.experience @this)}}on{{/if}} radio-toggle"></label>
+                    {{/times_from_1}}
+                    {{/multiboxes}}
+                  </div>
+                <section class="ability-list check-list">
+                  {{#each available_playbook_abilities as |ability index|}}
+                  {{#with ../actor as |actor|}}
+                  {{> "modules/bitd-alternate-sheets/templates/parts/ability.html" actor=actor ability=ability
+                  allow_edit=../../allow_edit}}
+                  {{/with}}
+                  {{/each}}
+                </section>
+              </div>
             </section>
-            <section class="playbook-items item-list">
+            <section class="playbook-items item-list section-block {{#if (lookup collapsedSections 'items')}}collapsed{{/if}}" data-section-key="items">
               {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
                 label=(localize "bitd-alt.items")
                 flex=true
-                showFilter=true
+                showFilter=false
                 isFiltered=showFilteredItems
                 filterTarget="items"
+                sectionKey="items"
                 showAdd=allow_edit
                 addClass="item-list-add add-button"
                 addDataAttrs='data-item-type="item" data-group-by="system.class"'
               }}
+              <div class="section-body">
               {{#each my_items as |item index|}}
               {{#with ../actor as |actor|}}
               {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item
               allow_edit=../../allow_edit}}
               {{/with}}
               {{/each}}
+              </div>
             </section>
-            <section class="friends-rivals">
+            <section class="friends-rivals section-block {{#if (lookup collapsedSections 'acquaintances')}}collapsed{{/if}}" data-section-key="acquaintances">
               {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
                 label=(localize acquaintances_label)
                 flex=false
                 showFilter=true
                 isFiltered=showFilteredAcquaintances
                 filterTarget="acquaintances"
+                sectionKey="acquaintances"
                 showAdd=false
               }}
+              <div class="section-body">
               {{#if display_acquaintances}}
               {{#each display_acquaintances}}
               <div class="acquaintance" data-acquaintance="{{this.id}}">
@@ -207,6 +214,7 @@
               </div>
               {{/each}}
               {{/if}}
+              </div>
             </section>
             <section class="all-items item-list">
               <header class="full-bar">&nbsp;</header>

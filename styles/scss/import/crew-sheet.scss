@@ -4,6 +4,7 @@
 @use "sass:color";
 @use "_identity"; // Import shared identity styling as coins;
 @use "./acquaintances";
+@use "./character-sheet" as *; // for shared partial styles
 
 .item {
   justify-content: space-between;

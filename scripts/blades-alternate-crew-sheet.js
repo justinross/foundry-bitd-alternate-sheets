@@ -32,6 +32,10 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
         persistedUi.showFilteredAcquaintances
       );
     }
+    this.collapsedSections =
+      this.collapsedSections ||
+      persistedUi.collapsedSections ||
+      {};
     // The system sheet returns a data object; mirror actor/system for template parity.
     sheetData.actor = sheetData.data ?? sheetData.actor ?? this.actor;
     sheetData.system = sheetData.system ?? this.actor.system;
@@ -51,6 +55,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       "crew_upgrade",
       crewTypeName
     );
+    sheetData.collapsedSections = this.collapsedSections;
 
     // Notes content (parity with alternate character sheet)
     const rawNotes = (await this.actor.getFlag(MODULE_ID, "notes")) || "";
@@ -213,6 +218,25 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
         Utils.saveUiState(this, { showFilteredAcquaintances: next });
         this.render(false);
       }
+    });
+
+    html.find('[data-action="toggle-section-collapse"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      const sectionKey = ev.currentTarget?.dataset?.sectionKey;
+      if (!sectionKey) return;
+      const section = ev.currentTarget.closest(".section-block");
+      if (!section) return;
+      const icon = ev.currentTarget.querySelector("i");
+      const isCollapsed = section.classList.toggle("collapsed");
+      if (icon) {
+        icon.classList.toggle("fa-caret-right", isCollapsed);
+        icon.classList.toggle("fa-caret-down", !isCollapsed);
+      }
+      this.collapsedSections = {
+        ...(this.collapsedSections || {}),
+        [sectionKey]: isCollapsed,
+      };
+      Utils.saveUiState(this, { collapsedSections: this.collapsedSections });
     });
 
     if (!this.options.editable) return;

@@ -53,6 +53,20 @@
       }
     }
 
+    .section-block {
+      .collapse-toggle {
+        color: white;
+        cursor: pointer;
+        margin-right: 6px;
+      }
+
+      &.collapsed {
+        .section-body {
+          display: none;
+        }
+      }
+    }
+
     a.delete-button {
       position: absolute;
       right: 5px;
