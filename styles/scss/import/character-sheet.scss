@@ -7,6 +7,7 @@
 @use "../mixin" as *;
 @use "_identity"; // Import shared identity styling
 @use "./coins" as coins;
+@use "./acquaintances";
 
 @mixin character-sheet {
   /*
@@ -850,26 +851,6 @@
               background: $lightgray;
               line-height: 0;
               font-size: 1.2em;
-
-              .acquaintance {
-                line-height: 1em;
-                padding: 2px 5px;
-
-                i {
-                  padding: 1px;
-                  margin-right: 3px;
-                  width: 1.2em;
-                  text-align: center;
-
-                  &.red-icon {
-                    color: #880000;
-                  }
-
-                  &.green-icon {
-                    color: #006600;
-                  }
-                }
-              }
             }
 
             .all-items {

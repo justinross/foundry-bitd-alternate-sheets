@@ -3,6 +3,7 @@
 @use "./coins" as coins;
 @use "sass:color";
 @use "_identity"; // Import shared identity styling as coins;
+@use "./acquaintances";
 
 .item {
   justify-content: space-between;
@@ -316,26 +317,6 @@ header {
 .contacts-actions,
 .add-item-row {
   margin-bottom: 0.5em;
-}
-
-.acquaintance {
-  line-height: 1em;
-  padding: 2px 5px;
-
-  .standing-toggle {
-    padding: 1px;
-    margin-right: 3px;
-    width: 1.2em;
-    text-align: center;
-
-    &.red-icon {
-      color: #880000;
-    }
-
-    &.green-icon {
-      color: #006600;
-    }
-  }
 }
 
 // Hover style removed - handled by _identity.scss
