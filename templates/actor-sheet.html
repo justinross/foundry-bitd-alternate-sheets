@@ -184,7 +184,7 @@
               {{#each system.acquaintances}}
               <div class="acquaintance" data-acquaintance="{{this.id}}">
                 <i data-acquaintance="{{this.id}}" class="standing-toggle fas
-                    {{#if (eq this.standing " friend")}} fa-caret-up green-icon {{else if (eq this.standing "rival" )}}
+                    {{#if (eq this.standing "friend")}} fa-caret-up green-icon {{else if (eq this.standing "rival" )}}
                   fa-caret-down red-icon {{else}}fa-minus {{/if}}"></i><strong
                   class="standing-toggle">{{this.name}}</strong>{{#if (notempty this.description_short)}},
                 {{this.description_short}}{{/if}}
