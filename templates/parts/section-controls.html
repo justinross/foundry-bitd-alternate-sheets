@@ -1,0 +1,13 @@
+<header class="full-bar {{#if flex}}flex-header context-items{{/if}}">
+  <span>{{label}}</span>
+  {{#if showFilter}}
+  <a class="filter-toggle {{#if isFiltered}}active{{/if}}" data-action="toggle-filter" data-filter-target="{{filterTarget}}" data-tooltip="Show checked only">
+    <i class="fas fa-filter"></i>
+  </a>
+  {{/if}}
+  {{#if showAdd}}
+  <a class="{{addClass}}" {{#if addDataAttrs}}{{{addDataAttrs}}}{{/if}}>
+    <i class="fas fa-plus"></i>
+  </a>
+  {{/if}}
+</header>

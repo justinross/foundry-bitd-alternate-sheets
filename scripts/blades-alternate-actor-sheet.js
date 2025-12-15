@@ -414,6 +414,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
   async getData() {
     let sheetData = await super.getData();
     Utils.ensureAllowEdit(this);
+    if (typeof this.showFilteredAbilities === "undefined") {
+      this.showFilteredAbilities = false;
+    }
+    if (typeof this.showFilteredItems === "undefined") {
+      this.showFilteredItems = false;
+    }
     sheetData.editable = this.options.editable;
     sheetData.isGM = game.user.isGM;
     sheetData.showAliasInDirectory = this.actor.getFlag(
@@ -623,7 +629,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
       ability._ownedId = ownedAbilityId || "";
     }
 
-    sheetData.available_playbook_abilities = combined_abilities_list;
+    const filteredAbilities = this.showFilteredAbilities
+      ? combined_abilities_list.filter((ab) => (Number(ab?._progress) || 0) > 0)
+      : combined_abilities_list;
+
+    sheetData.available_playbook_abilities = filteredAbilities;
 
     let armor = all_generic_items.findSplice((item) =>
       item.name.includes(game.i18n.localize("BITD.Armor"))
@@ -661,6 +671,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
       "bitd-alternate-sheets",
       "equipped-items"
     );
+    if (this.showFilteredItems) {
+      const equippedMap = equipped || {};
+      sheetData.my_items = (sheetData.my_items || []).filter((item) => {
+        const key = item?.id || item?._id;
+        return Boolean(key && equippedMap[key]);
+      });
+    }
     if (equipped) {
       for (const i of Object.values(equipped)) {
         loadout += parseInt(i.load);
@@ -713,6 +730,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
           break;
       }
     }
+
+    sheetData.showFilteredAbilities = this.showFilteredAbilities;
+    sheetData.showFilteredItems = this.showFilteredItems;
 
     return sheetData;
   }
@@ -959,6 +979,16 @@ export class BladesAlternateActorSheet extends BladesSheet {
     super.activateListeners(html);
 
     this.addTermTooltips(html);
+
+    html.find('[data-action="toggle-filter"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      const target = ev.currentTarget?.dataset?.filterTarget;
+      if (target === "abilities") {
+        this.setLocalProp("showFilteredAbilities", !this.showFilteredAbilities);
+      } else if (target === "items") {
+        this.setLocalProp("showFilteredItems", !this.showFilteredItems);
+      }
+    });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;

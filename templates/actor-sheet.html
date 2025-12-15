@@ -141,14 +141,20 @@
         <div class="tab" data-tab="playbook" data-group="primary-tabs">
           <div class="playbook">
             <section class="abilities">
-              <header class="full-bar">
-                <span class="context-abilities">{{localize "BITD.SpecialAbilities"}}</span>{{#if allow_edit}}<a
-                  class="ability-add-popup add-button" data-item-type="ability" data-group-by="system.class"><i
-                    class="fas fa-plus"></i></a>{{/if}}
-                <div class="stripe-tooth-body right">
-                  {{#multiboxes system.experience}}
-                  <input type="radio" id="{{actor._id}}-experience-0" name="system.experience" value="0"
-                    checked="checked" class="zero">
+              {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
+                label=(localize "BITD.SpecialAbilities")
+                flex=false
+                showFilter=true
+                isFiltered=showFilteredAbilities
+                filterTarget="abilities"
+                showAdd=allow_edit
+                addClass="ability-add-popup add-button"
+                addDataAttrs='data-item-type="ability" data-group-by="system.class"'
+              }}
+              <div class="stripe-tooth-body right">
+                {{#multiboxes system.experience}}
+                <input type="radio" id="{{actor._id}}-experience-0" name="system.experience" value="0"
+                  checked="checked" class="zero">
                   {{#times_from_1 system.experience_max}}
                   <input type="radio" id="character-{{../actor._id}}-experience-{{this}}" name="system.experience"
                     value="{{this}}" dtype="Radio" class="radio-toggle">
@@ -168,9 +174,16 @@
               </section>
             </section>
             <section class="playbook-items item-list">
-              <header class="full-bar flex-header context-items"><span>{{localize "bitd-alt.items"}}</span>{{#if
-                allow_edit}}<a class="item-list-add add-button" data-item-type="item" data-group-by="system.class"><i
-                    class="fas fa-plus"></i></a>{{/if}}</header>
+              {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
+                label=(localize "bitd-alt.items")
+                flex=true
+                showFilter=true
+                isFiltered=showFilteredItems
+                filterTarget="items"
+                showAdd=allow_edit
+                addClass="item-list-add add-button"
+                addDataAttrs='data-item-type="item" data-group-by="system.class"'
+              }}
               {{#each my_items as |item index|}}
               {{#with ../actor as |actor|}}
               {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item
