@@ -653,6 +653,32 @@ export class Utils {
     });
   }
 
+  /**
+   * Per-actor, per-user persisted UI states (e.g., filters).
+   */
+  static _getUiStateKey(sheet) {
+    return sheet?.actor?.id ?? sheet?.document?.id ?? null;
+  }
+
+  static async loadUiState(sheet) {
+    const key = Utils._getUiStateKey(sheet);
+    if (!key) return {};
+    const user = game?.user;
+    if (!user?.getFlag) return {};
+    const current = user.getFlag(MODULE_ID, "uiStates") || {};
+    return current[key] || {};
+  }
+
+  static async saveUiState(sheet, state) {
+    const key = Utils._getUiStateKey(sheet);
+    if (!key) return;
+    const user = game?.user;
+    if (!user?.setFlag) return;
+    const current = user.getFlag(MODULE_ID, "uiStates") || {};
+    const next = { ...current, [key]: { ...(current[key] || {}), ...state } };
+    await user.setFlag(MODULE_ID, "uiStates", next);
+  }
+
   static async toggleOwnership(state, actor, type, id) {
     if (type == "ability") {
       if (state) {

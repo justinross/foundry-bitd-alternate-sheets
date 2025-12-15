@@ -26,8 +26,11 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   async getData(options) {
     const sheetData = await super.getData(options);
     Utils.ensureAllowEdit(this);
+    const persistedUi = await Utils.loadUiState(this);
     if (typeof this.showFilteredAcquaintances === "undefined") {
-      this.showFilteredAcquaintances = false;
+      this.showFilteredAcquaintances = Boolean(
+        persistedUi.showFilteredAcquaintances
+      );
     }
     // The system sheet returns a data object; mirror actor/system for template parity.
     sheetData.actor = sheetData.data ?? sheetData.actor ?? this.actor;
@@ -205,7 +208,9 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       ev.preventDefault();
       const target = ev.currentTarget?.dataset?.filterTarget;
       if (target === "acquaintances") {
-        this.showFilteredAcquaintances = !this.showFilteredAcquaintances;
+        const next = !this.showFilteredAcquaintances;
+        this.showFilteredAcquaintances = next;
+        Utils.saveUiState(this, { showFilteredAcquaintances: next });
         this.render(false);
       }
     });

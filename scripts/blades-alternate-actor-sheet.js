@@ -414,14 +414,17 @@ export class BladesAlternateActorSheet extends BladesSheet {
   async getData() {
     let sheetData = await super.getData();
     Utils.ensureAllowEdit(this);
+    const persistedUi = await Utils.loadUiState(this);
     if (typeof this.showFilteredAbilities === "undefined") {
-      this.showFilteredAbilities = false;
+      this.showFilteredAbilities = Boolean(persistedUi.showFilteredAbilities);
     }
     if (typeof this.showFilteredItems === "undefined") {
-      this.showFilteredItems = false;
+      this.showFilteredItems = Boolean(persistedUi.showFilteredItems);
     }
     if (typeof this.showFilteredAcquaintances === "undefined") {
-      this.showFilteredAcquaintances = false;
+      this.showFilteredAcquaintances = Boolean(
+        persistedUi.showFilteredAcquaintances
+      );
     }
     sheetData.editable = this.options.editable;
     sheetData.isGM = game.user.isGM;
@@ -999,14 +1002,17 @@ export class BladesAlternateActorSheet extends BladesSheet {
       ev.preventDefault();
       const target = ev.currentTarget?.dataset?.filterTarget;
       if (target === "abilities") {
-        this.setLocalProp("showFilteredAbilities", !this.showFilteredAbilities);
+        const next = !this.showFilteredAbilities;
+        this.setLocalProp("showFilteredAbilities", next);
+        Utils.saveUiState(this, { showFilteredAbilities: next });
       } else if (target === "items") {
-        this.setLocalProp("showFilteredItems", !this.showFilteredItems);
+        const next = !this.showFilteredItems;
+        this.setLocalProp("showFilteredItems", next);
+        Utils.saveUiState(this, { showFilteredItems: next });
       } else if (target === "acquaintances") {
-        this.setLocalProp(
-          "showFilteredAcquaintances",
-          !this.showFilteredAcquaintances
-        );
+        const next = !this.showFilteredAcquaintances;
+        this.setLocalProp("showFilteredAcquaintances", next);
+        Utils.saveUiState(this, { showFilteredAcquaintances: next });
       }
     });
 
