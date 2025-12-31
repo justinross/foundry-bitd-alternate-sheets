@@ -1,0 +1,24 @@
+<section class="dock-section" data-section-key="{{sectionKey}}">
+  <section class="section-block {{sectionClass}} {{#if isCollapsed}}collapsed{{/if}}" data-section-key="{{sectionKey}}">
+    {{#if headerPartial}}
+      {{> (lookup . 'headerPartial') }}
+    {{else}}
+      {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
+        label=label
+        flex=flex
+        showFilter=showFilter
+        isFiltered=isFiltered
+        filterTarget=filterTarget
+        sectionKey=sectionKey
+        isCollapsed=isCollapsed
+        showAdd=showAdd
+        addClass=addClass
+        addDataAttrs=addDataAttrs
+        dockable=dockable
+      }}
+    {{/if}}
+    <div class="section-body">
+      {{> @partial-block}}
+    </div>
+  </section>
+</section>

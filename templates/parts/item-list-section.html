@@ -1,0 +1,9 @@
+<div class="{{listClass}} item-list">
+  <div class="two-col-list">
+    {{#each items as |item index|}}
+    {{#with ../actor as |actor|}}
+    {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item allow_edit=../../allow_edit}}
+    {{/with}}
+    {{/each}}
+  </div>
+</div>
