@@ -1,0 +1,14 @@
+@use "../../abstracts/tokens" as *;
+
+.bitd-alt.tooltip {
+  display: none;
+  position: absolute;
+  padding: 10px;
+  color: var(--alt-ink-light);
+  background-color: var(--alt-dark);
+  border: 1px solid var(--alt-border-strong);
+  //box-shadow: 0 1px 3px 1px rgba(0,0,0,0.5);
+  border-radius: 3px;
+  z-index: 9999999;
+  max-width: 300px;
+}

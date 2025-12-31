@@ -1,0 +1,197 @@
+@use "../../abstracts/tokens" as *;
+@use "../../abstracts/mixins" as *;
+
+.blades-alt {
+  .identity-header {
+    font-family: Kirsty, serif;
+    font-weight: bold;
+    font-size: 3em;
+    color: $almost_black;
+    line-height: 0.4em;
+    padding-bottom: 0.2em;
+    padding-top: 0.5em;
+    border-bottom: 1px solid $almost_black;
+
+    .inline-input {
+      text-underline-offset: -0.1em;
+    }
+
+    .identity-name {
+      min-width: 50px;
+    }
+
+    .identity-subtitle {
+      font-size: 0.6em;
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+
+      .crew-type-text {
+        text-transform: uppercase;
+      }
+
+      .inline-input {
+        font-family: inherit;
+        font-size: inherit;
+      }
+    }
+  }
+
+  .sheet-wrapper.allow-edit .identity-header .identity-subtitle .inline-input {
+    text-decoration: none;
+    border-bottom: none;
+    background-color: $alt-transparent;
+    box-shadow: 0 0 0 2px $alt-border-strong;
+    border-radius: 4px;
+    padding: 0;
+    text-shadow: none;
+  }
+
+  .sheet-wrapper.allow-edit .identity-header .identity-subtitle .inline-input:hover {
+    cursor: pointer;
+    border-bottom-color: $almost_black;
+    color: $alt-red;
+    text-shadow: 0 0 8px $alt-red-glow-80;
+  }
+
+  .sheet-wrapper.allow-edit .identity-header .identity-name .inline-input {
+    text-decoration: none;
+    border-bottom: none;
+    background-color: $alt-transparent;
+    box-shadow: 0 0 0 2px $alt-border-strong;
+    border-radius: 4px;
+    padding: 0;
+    text-shadow: none;
+  }
+
+  .sheet-wrapper.allow-edit .identity-header .identity-name .inline-input:hover {
+    cursor: pointer;
+    border-bottom-color: $almost_black;
+    color: $alt-red;
+    text-shadow: 0 0 8px $alt-red-glow-80;
+  }
+
+  .sheet-wrapper.allow-edit .identity-header .inline-input {
+    text-decoration: none;
+    border-bottom: none;
+    background-color: $alt-transparent;
+    box-shadow: 0 0 0 2px $alt-border-strong;
+    border-radius: 4px;
+    padding: 0;
+    text-shadow: none;
+  }
+
+  .sheet-wrapper.allow-edit .identity-header .inline-input:hover {
+    cursor: pointer;
+    border-bottom-color: $almost_black;
+    color: $alt-red;
+    text-shadow: 0 0 8px $alt-red-glow-80;
+  }
+
+  .smart-field-value {
+    cursor: help;
+    line-height: 1.5;
+    font-weight: normal;
+    padding: 0;
+    margin: 0;
+  }
+
+  .sheet-wrapper .smart-field-label {
+    font-family: inherit;
+    font-weight: normal;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-bottom: none;
+    border-radius: 6px;
+    background-color: $alt-transparent;
+    box-shadow: 0 0 0 2px $alt-border-strong;
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: inherit;
+    line-height: 1.5;
+    cursor: pointer;
+    color: $almost_black;
+    transition: text-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .sheet-wrapper .smart-field-label:hover,
+  .sheet-wrapper .smart-field-label:focus {
+    color: var(--alt-red);
+    text-shadow: 0 0 8px $alt-red-glow-80;
+  }
+
+  %identity-meta-row {
+    border-bottom: 1px solid $almost_black;
+    font-family: "Crimson Text", serif;
+    font-size: 1em;
+    line-height: 1.5;
+    margin-top: 0.25em;
+    padding-bottom: 0px;
+    margin-bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3em;
+  }
+
+  .identity-meta-row,
+  .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .bio {
+    @extend %identity-meta-row;
+  }
+
+  .identity-meta-row input,
+  .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .bio input,
+  .identity-meta-row .inline-input,
+  .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .bio .inline-input {
+    font-family: inherit;
+    font-size: inherit;
+    border: none;
+    background: $alt-transparent;
+    padding: 0;
+    min-width: 1em;
+  }
+
+  .sheet-wrapper.allow-edit .identity-meta-row input,
+  .blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .minimized-view .character-info .bio input,
+  .sheet-wrapper.allow-edit .identity-meta-row .inline-input,
+  .blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .minimized-view .character-info .bio .inline-input {
+    text-decoration: none;
+    border-bottom: none;
+    background-color: $alt-transparent;
+    box-shadow: 0 0 0 2px $alt-border-strong;
+    border-radius: 4px;
+    padding: 0;
+    text-shadow: none;
+  }
+
+  .sheet-wrapper.allow-edit .identity-meta-row input:hover,
+  .blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .minimized-view .character-info .bio input:hover,
+  .sheet-wrapper.allow-edit .identity-meta-row .inline-input:hover,
+  .blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .minimized-view .character-info .bio .inline-input:hover {
+    cursor: pointer;
+    border-bottom-color: $almost_black;
+    color: $alt-red;
+    text-shadow: 0 0 8px $alt-red-glow-80;
+  }
+
+  .identity-meta-row .meta-label,
+  .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .bio .meta-label {
+    font-weight: bold;
+    color: $almost_black;
+    white-space: nowrap;
+  }
+
+  .identity-meta-row .meta-value,
+  .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .bio .meta-value {
+    font-style: italic;
+    flex-grow: 1;
+  }
+
+  .identity-meta-row .meta-value input,
+  .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .bio .meta-value input,
+  .identity-meta-row .meta-value .inline-input,
+  .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .bio .meta-value .inline-input {
+    width: 100%;
+  }
+}

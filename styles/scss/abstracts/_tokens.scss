@@ -1,0 +1,113 @@
+// Token shim: exports legacy variables and introduces named tokens that
+// mirror the CSS custom properties defined in .blades-alt. Values are
+// intentionally identical to existing literals to avoid visual changes.
+@forward "../variables";
+
+// Colors
+$alt-dark: #191813;
+$alt-mid: #999;
+$alt-light: #bbb;
+$alt-white: #fff;
+$alt-tab-mid: rgba(187, 187, 187, 0.5);
+$alt-border: #888;
+$alt-border-strong: #666;
+$alt-paper: #e6e3da;
+$alt-ink: #000;
+$alt-ink-strong: #333;
+$alt-ink-light: #eeefff;
+$alt-transparent: rgba(0, 0, 0, 0);
+$alt-red: #cc0000;
+$alt-red-bright: #ff0000;
+$alt-red-dark: #800000;
+$alt-deep-red: #660000;
+$alt-green: #006600;
+$alt-green-bright: #008000;
+$alt-maroon: #880000;
+$alt-gold: #daa520;
+$alt-amber: #e07f1a;
+$alt-blue: #0058cc;
+$alt-harm-light: #197e00;
+$alt-harm-medium: #957c00;
+$alt-harm-heavy: #a00000;
+$alt-muted: #a2a2a2;
+$alt-turf: #d8d8d8;
+$alt-white-30: rgba(255, 255, 255, 0.3);
+$alt-white-50: rgba(255, 255, 255, 0.5);
+$alt-white-60: rgba(255, 255, 255, 0.6);
+$alt-white-10: rgba(255, 255, 255, 0.1);
+$alt-white-20: rgba(255, 255, 255, 0.2);
+$alt-white-40: rgba(255, 255, 255, 0.4);
+$alt-white-80: rgba(255, 255, 255, 0.8);
+$alt-black-10: rgba(0, 0, 0, 0.1);
+$alt-black-25: rgba(0, 0, 0, 0.25);
+$alt-black-30: rgba(0, 0, 0, 0.3);
+$alt-black-50: rgba(0, 0, 0, 0.5);
+$alt-red-glow-80: rgba(204, 0, 0, 0.8);
+$alt-paper-soft-80: rgba(224, 222, 210, 0.8);
+
+// Typography
+$font-display: 2em;
+$line-tight: 1.1;
+$font-accent: Kirsty, serif;
+$font-body: "Crimson Text", serif;
+
+// Radii & shadows
+$alt-radius: 12px;
+$alt-radius-sm: 6px;
+$alt-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+// Spacing
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-tight: 5px;
+
+// Grid columns (CSS var mirrors)
+$grid-gutter: 0px;
+$col-1: 8.333333%;
+$col-2: 16.666667%;
+$col-3: 25%;
+$col-4: 33.333333%;
+$col-5: 41.666667%;
+$col-6: 50%;
+$col-7: 58.333333%;
+$col-8: 66.666667%;
+$col-9: 75%;
+$col-10: 83.333333%;
+$col-11: 91.666667%;
+$col-12: 100%;
+
+// Max widths
+$alt-max-tabs: clamp(540px, 90vw, 850px);
+$alt-max-row: $alt-max-tabs;
+
+// Panels / status
+$alt-panel-bg: rgba(0, 0, 0, 0.03);
+$alt-status-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.35));
+
+// Breakpoints (mirrors flexbox/variables/_grid-variables.scss)
+$grid-columns: 12;
+$xs-max: 40rem;
+$sm-max: 64rem;
+$md-max: 90rem;
+$lg-max: 120rem;
+$gutter: 1rem;
+$content-well-max-width: "none";
+$sm-start: ($xs-max + 1);
+$md-start: ($sm-max + 1);
+$lg-start: ($md-max + 1);
+$xl-start: ($lg-max + 1);
+$breakpoint-xs-only: "only screen and (max-width: #{$xs-max})";
+$breakpoint-sm-up: "only screen and (min-width: #{$sm-start})";
+$breakpoint-sm-only: "only screen and (min-width: #{$sm-start}) and (max-width: #{$sm-max})";
+$breakpoint-md-up: "only screen and (min-width: #{$md-start})";
+$breakpoint-md-only: "only screen and (min-width: #{$md-start}) and (max-width: #{$md-max})";
+$breakpoint-lg-up: "only screen and (min-width: #{$lg-start})";
+$breakpoint-lg-only: "only screen and (min-width: #{$lg-start}) and (max-width: #{$lg-max})";
+$breakpoint-xl-up: "only screen and (min-width: #{$xl-start})";
+$breakpoints-all: ($breakpoint-xs-only, $breakpoint-sm-up, $breakpoint-sm-only, $breakpoint-md-up, $breakpoint-md-only, $breakpoint-lg-up, $breakpoint-lg-only, $breakpoint-xl-up);
+$breakpoint-ups: ($breakpoint-sm-up, $breakpoint-md-up, $breakpoint-lg-up, $breakpoint-xl-up);
+$breakpoint-all-prefixes: ("xs", "xs-only", "sm", "sm-only", "md", "md-only", "lg", "lg-only", "xl");
+$breakpoint-up-prefixes: ("xs", "sm", "md", "lg", "xl");

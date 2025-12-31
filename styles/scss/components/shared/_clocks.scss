@@ -1,0 +1,178 @@
+// ================================================================
+// GLOBAL CLOCK STYLES
+// ================================================================
+// These styles ensure .blades-clock elements work consistently
+// across ALL contexts: character sheets, crew sheets, journals,
+// chat messages, and enriched text fields.
+// This file is loaded at the TOP LEVEL (outside .blades-alt namespace)
+// to ensure clocks render correctly everywhere in Foundry.
+// ================================================================
+
+@use "sass:math";
+@use "../../abstracts/tokens" as *;
+
+// Clock container styling for enriched/linked clocks
+.blades-clock-container {
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+
+  .clock-label,
+  .clock-name {
+    display: block;
+    font-weight: bold;
+    margin-top: $space-1;
+  }
+}
+
+// Linked clock styling (from @UUID enricher)
+.linkedClock {
+  display: inline-block;
+  text-align: center;
+  margin: 0.5em;
+}
+
+// Base clock element - uses background-image from Handlebars helper
+.blades-clock {
+  position: relative;
+  padding: 0;
+  border-radius: 50%;
+  list-style: none;
+  overflow: hidden;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  // Hide radio inputs
+  input[type="radio"] {
+    position: absolute;
+    display: none;
+  }
+
+  // Interactive labels (click targets for segments)
+  label.radio-toggle {
+    overflow: hidden;
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0% 100%;
+    cursor: pointer;
+    transition: filter 0.1s;
+    // Transparent background - the clock image shows through
+    background-color: $alt-transparent;
+
+    &:hover {
+      filter: brightness(0.85);
+      background-color: $alt-white-10;
+    }
+  }
+}
+
+// Hide the zero-value label (usually placed outside the clock div)
+label.clock-zero-label {
+  display: none;
+}
+
+// Nullifier icon styling
+i.nullifier {
+  cursor: pointer;
+  transition: color 0.1s;
+
+  &:hover {
+    color: $alt-red;
+  }
+}
+
+// ================================================================
+// CLOCK SIZE VARIANTS WITH SEGMENT TRANSFORMS
+// ================================================================
+// Each size variant generates the correct rotation/skew for its segments.
+// The nth-child selector targets labels based on their position in the DOM.
+// Structure: input, label, input, label... so labels are at positions 3, 5, 7...
+// nth-child(i * 2 + 1) gives us: 3, 5, 7, 9... for i = 1, 2, 3, 4...
+
+// Mixin to generate clock segment transforms
+@mixin clock-segments($segments, $size) {
+  $angle: math.div(360, $segments);
+  $skew: 90 + $angle;
+
+  width: #{$size}px;
+  height: #{$size}px;
+
+  @for $i from 1 through $segments {
+    $rotate_angle: $angle * ($i - 1);
+
+    // Target the label at position (i * 2 + 1) - accounting for input/label pairs
+    // First input is at 1, first label at 2, second input at 3, second label at 4...
+    // But with input[value=0] being hidden/special, the pattern is:
+    // Position 1: input[value=0], Position 2: input[value=1], Position 3: label, Position 4: input[value=2], Position 5: label...
+    // So labels are at positions 3, 5, 7... which is (i-1)*2 + 3 = 2i + 1
+    *:nth-child(#{$i * 2 + 1}) {
+      transform: rotate(#{$rotate_angle}deg) skewY(#{$skew}deg);
+    }
+  }
+}
+
+// 4-segment clock (default for healing, common)
+.blades-clock.clock-4 {
+  @include clock-segments(4, 50);
+}
+
+// 6-segment clock
+.blades-clock.clock-6 {
+  @include clock-segments(6, 50);
+}
+
+// 8-segment clock
+.blades-clock.clock-8 {
+  @include clock-segments(8, 50);
+}
+
+// 10-segment clock
+.blades-clock.clock-10 {
+  @include clock-segments(10, 50);
+}
+
+// 12-segment clock
+.blades-clock.clock-12 {
+  @include clock-segments(12, 50);
+}
+
+// ================================================================
+// SIZE OVERRIDES FOR SPECIFIC CONTEXTS
+// ================================================================
+
+// Larger clocks for embedded/enriched content (100px)
+.linkedClock .blades-clock,
+.blades-clock-container .blades-clock {
+  width: 100px;
+  height: 100px;
+}
+
+// Re-apply transforms at 100px size for enriched clocks
+.linkedClock .blades-clock.clock-4,
+.blades-clock-container .blades-clock.clock-4 {
+  @include clock-segments(4, 100);
+}
+
+.linkedClock .blades-clock.clock-6,
+.blades-clock-container .blades-clock.clock-6 {
+  @include clock-segments(6, 100);
+}
+
+.linkedClock .blades-clock.clock-8,
+.blades-clock-container .blades-clock.clock-8 {
+  @include clock-segments(8, 100);
+}
+
+.linkedClock .blades-clock.clock-10,
+.blades-clock-container .blades-clock.clock-10 {
+  @include clock-segments(10, 100);
+}
+
+.linkedClock .blades-clock.clock-12,
+.blades-clock-container .blades-clock.clock-12 {
+  @include clock-segments(12, 100);
+}

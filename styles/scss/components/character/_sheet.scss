@@ -1,0 +1,8 @@
+@use "../../abstracts/tokens" as *;
+@use "../../abstracts/mixins" as *;
+@use "sass:meta";
+@use "./body" as charSheet;
+
+@mixin character-sheet {
+  @include charSheet.character-sheet();
+}

@@ -1,0 +1,970 @@
+@use "../../abstracts/tokens" as *;
+@use "sass:color";
+@use "sass:math";
+// Duplicate imports removed
+// @use "sass:color"; // Duplicated from line 2
+@use "../shared/attributes" as attrs;
+@use "../../abstracts/mixins" as *;
+@use "../shared/identity"; // Import shared identity styling
+@use "../shared/coins" as coins;
+@use "../shared/harm";
+@use "../shared/acquaintances";
+
+@mixin character-sheet {
+  /*
+   * General Styles - Redesign
+   */
+
+  & {
+    min-width: 800px;
+    min-height: 275px;
+  }
+
+  // Reserve gutter in the Foundry window so scrollbar appearance doesn't shift layout
+  @at-root .window-app.sheet.actor .window-content {
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+
+  .sheet-wrapper {
+    position: relative;
+    margin: $space-tight;
+    font-family: "Crimson Text", serif;
+
+    @include harm.harm-styles;
+
+    input[type="checkbox"] {
+      width: 1em;
+      height: 1em;
+    }
+
+    .rollable-text {
+      transition: color $transition-period;
+    }
+
+    .rollable-text:hover {
+      cursor: pointer;
+      color: $red;
+    }
+
+    a.add-button {
+      margin-left: $space-tight;
+      font-size: 0.9rem;
+    }
+
+    a.filter-toggle {
+      margin-left: $space-tight;
+      font-size: 0.9rem;
+
+      &.active i {
+        color: $red;
+      }
+    }
+
+    .section-block {
+      position: relative;
+
+      .collapse-toggle {
+        color: $alt-white;
+        cursor: pointer;
+        margin-right: 6px;
+      }
+
+      &.collapsed {
+        .section-body {
+          display: none;
+        }
+      }
+    }
+
+    a.delete-button {
+      position: absolute;
+      right: $space-tight;
+      top: 2px;
+      font-size: 1em;
+    }
+
+    [contenteditable]:not(.ProseMirror) {
+      user-select: auto !important;
+      @include editable-style;
+
+      &:active,
+      &:focus {
+        background-color: $alt-white-50;
+        border: none;
+        border-radius: 3px;
+      }
+    }
+
+    .linkedClock {
+      display: inline-block;
+      text-align: center;
+      margin: 1em;
+    }
+
+    .clockImage {
+      width: 100px;
+      border: none;
+    }
+
+    .editor {
+      background-color: $alt-white-20;
+      padding: 0.5em;
+      height: auto;
+      flex-grow: 1;
+    }
+
+    .editor.prosemirror {
+      height: 100%;
+      padding: auto;
+    }
+
+    // Global coin layout for docked coin section
+    .coin {
+      @include coins.coins($size: 15px, $margin: 3px);
+      @include coins.coin-layout;
+    }
+
+    .hover-details,
+    .hover-term,
+    .v10-tooltip {
+      cursor: help;
+      color: color.adjust($red, $lightness: -30%);
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    ul.diamond {
+      list-style: none;
+
+      li {
+        position: relative;
+
+        &:after {
+          content: "";
+          height: 0.4em;
+          width: 0.4em;
+          background: $almost_black;
+          display: block;
+          position: absolute;
+          transform: rotate(45deg);
+          top: 0.45em;
+          left: -1em;
+        }
+      }
+    }
+
+    @at-root {
+      .add-existing-dialog {
+        .items-list {
+          display: flex;
+          flex-wrap: wrap;
+          align-content: space-between;
+        }
+
+        .item-group {
+          background-color: $alt-white-40;
+          vertical-align: top;
+          flex-grow: 1;
+          margin: 0.5px;
+          padding: 0.5em;
+
+          header {
+            background-color: $almost-black;
+            padding: 0.1em 0.25em;
+            width: 100%;
+            font-size: 2em;
+            font-family: Kirsty, serif;
+            color: $almost_white;
+          }
+        }
+      }
+    }
+
+    #context-menu ol li * {
+      vertical-align: initial;
+    }
+
+    .clickable-edit {
+      text-decoration: underline;
+    }
+
+    .rollable-text {
+      cursor: pointer;
+    }
+
+    .crew-affiliation {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+
+      .crew-label {
+        font-family: Kirsty, serif;
+        // text-transform: uppercase; // Removed per user request
+        letter-spacing: 0.05em;
+        font-size: 0.85em;
+      }
+    }
+
+    // Force block layout for bio fields to prevent Flexbox baseline shifts when toggling bold text
+    .heritage-background.bio,
+    .crew-affiliation.bio,
+    .look.bio {
+      display: block;
+      line-height: 1.5;
+    }
+
+    input[type="text"] {
+      width: auto;
+      border: 0;
+    }
+
+    .edit-only {
+      display: none;
+    }
+
+    .non-edit {
+      display: initial;
+    }
+
+    .crew-affiliation .crew-linked {
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    &.allow-edit {
+      .crew-affiliation .crew-editable {
+        cursor: pointer;
+        text-decoration: underline;
+      }
+    }
+
+    header.full-bar {
+      @include full-bar-header();
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5em;
+
+      .header-left {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4em;
+      }
+
+      .header-right {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4em;
+        margin-left: auto;
+      }
+
+      .header-control.load-inline {
+        display: inline-flex;
+        align-items: center;
+        margin-left: $space-2;
+        gap: $space-1;
+
+        label {
+          font-size: 0.95em;
+        }
+
+        select {
+          height: 1.35em;
+          font-size: 0.9em;
+          padding: 0 $space-1;
+          line-height: 1.1;
+          max-width: 7rem;
+        }
+
+        .load-stats {
+          font-size: 0.9em;
+          color: $alt-white;
+        }
+      }
+
+      // Over-max: turn entire banner red with white text
+      &.over-max {
+        background-color: $red !important;
+
+        label,
+        .load-stats,
+        span {
+          color: $alt-white !important;
+        }
+
+        select {
+          background-color: color.adjust($red, $lightness: -10%) !important;
+          color: $alt-white !important;
+          border-color: color.adjust($red, $lightness: -20%) !important;
+        }
+      }
+    }
+
+    .stripe-tooth-body {
+
+      &.right {
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        @include teeth-track(25px,
+          10px,
+          "assets/teeth/xptooth-red.png",
+          "assets/teeth/xptooth-white.png",
+          $gap: 3px);
+
+        // Reinforce the active tooth state
+        input[type="radio"]:checked+label,
+        input[type="radio"]:checked+label.radio-toggle {
+          background-image: url("assets/teeth/xptooth-red.png");
+        }
+
+        &.abilities-xp-track {
+          right: 30px;
+        }
+      }
+
+      &.stress {
+        position: absolute;
+        top: 1px;
+        right: 1px;
+        @include teeth-track(25px,
+          10px,
+          "assets/teeth/xptooth-red.png",
+          "assets/teeth/xptooth-white.png",
+          $gap: 3px);
+
+        // Reinforce the active tooth state
+        input[type="radio"]:checked+label,
+        input[type="radio"]:checked+label.radio-toggle {
+          background-image: url("assets/teeth/xptooth-red.png");
+        }
+      }
+    }
+
+    .sheet-toggles {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+
+      >span {
+        display: inline-block;
+        padding: $space-1;
+        margin: 0 $space-tight;
+      }
+
+      span.toggle-expand {
+        background: $alt-blue;
+        color: $alt-white-60;
+        cursor: pointer;
+        border-radius: 3px;
+
+        i {
+          display: initial;
+        }
+      }
+
+    span.toggle-allow-edit {
+        @include toggle-pill($alt-green-bright);
+
+        .fa-lock-open {
+          display: none;
+        }
+      }
+    }
+
+    &.allow-edit .sheet-toggles .toggle-allow-edit {
+      background-color: $alt-red-dark;
+
+      .fa-lock-open {
+        display: inline-block;
+      }
+
+      .fa-lock {
+        display: none;
+      }
+    }
+
+    span.toggle-alias-display {
+      display: inline-block;
+      @include toggle-pill($alt-green-bright);
+
+      .fa-face-disguise {
+        display: none;
+      }
+    }
+
+    &.showing-alias .sheet-toggles .toggle-alias-display {
+      background-color: $alt-red-dark;
+
+      .fa-face-disguise {
+        display: inline-block;
+      }
+
+      .fa-face-smile {
+        display: none;
+      }
+    }
+
+    @at-root .sheet-wrapper .minimized-view {
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      .character-portrait {
+        margin-bottom: -35px;
+        position: relative;
+      }
+
+      .character-portrait.row {
+        align-items: center;
+      }
+
+      .character-portrait .portrait {
+        border-radius: 100px;
+        overflow: hidden;
+        border: 6px solid $gray;
+        width: 200px;
+        height: 200px;
+        position: relative;
+        top: -10px;
+      }
+
+      .character-portrait .portrait > img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        overflow: hidden;
+        border: 0;
+        border-radius: 50%;
+        box-shadow: 0 0 20px $alt-black-30 inset;
+      }
+
+      .character-portrait .status-buttons {
+        position: absolute;
+        top: 15px;
+        left: -15px;
+        background-color: $alt-paper-soft-80;
+        border-radius: 50px;
+        box-sizing: border-box;
+        padding: $space-tight $space-tight;
+        z-index: 500;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+      }
+
+      .character-portrait .status-buttons > div {
+        overflow: visible;
+        position: relative;
+      }
+
+      .character-portrait .status-buttons > div:not(:last-of-type) {
+        margin-bottom: $space-5;
+      }
+
+      .character-portrait .status-buttons .coins-box {
+        @include css_popup(30px, 30px, 250px, 50px);
+      }
+
+      .character-portrait .status-buttons .coins-box > div {
+        display: inline-block;
+      }
+
+      .character-portrait .status-buttons .coins-box .mini-view {
+        background-repeat: no-repeat;
+        background-image: url(assets/icons/coins.png);
+        background-size: contain;
+      }
+
+      .character-portrait .status-buttons .coins-box .full-view {
+        @include coins.coins($size: 15px, $margin: 3px);
+      }
+
+      .character-portrait .status-buttons .coins-box .full-view .coins {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .character-portrait .status-buttons .coins-box .full-view .coins .hand,
+      .character-portrait .status-buttons .coins-box .full-view .coins .stash {
+        display: inline-block;
+        text-align: left;
+      }
+
+      .character-portrait .status-buttons .coins-box .full-view .coins .coins-hands {
+        display: grid;
+        grid-template-columns: repeat(2, 15px);
+        gap: 3px;
+      }
+
+      .character-portrait .status-buttons .load-box {
+        @include css_popup(30px, 30px, null, 50px);
+      }
+
+      .character-portrait .status-buttons .load-box > div {
+        display: inline-block;
+      }
+
+      .character-portrait .status-buttons .load-box .mini-view {
+        background-repeat: no-repeat;
+        background-image: url(assets/icons/backpack.png);
+        background-size: contain;
+      }
+
+      .character-portrait .status-buttons .load-box .below-max {
+        color: $alt-green;
+      }
+
+      .character-portrait .status-buttons .load-box .at-max {
+        color: $alt-amber;
+      }
+
+      .character-portrait .status-buttons .load-box .over-max {
+        color: $alt-deep-red;
+      }
+
+      .character-portrait .stress-trauma-box {
+        width: 100%;
+        position: relative;
+        margin-bottom: 10px;
+        bottom: 30px;
+      }
+
+      .character-portrait .stress-trauma-box .stress-bar {
+        position: relative;
+        z-index: 100;
+      }
+
+      .character-portrait .stress-trauma-box .trauma-box {
+        padding: 0 0 2px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .character-portrait .stress-trauma-box .trauma-box .trauma-list {
+        width: 100%;
+        height: 100%;
+        background-color: $lightgray;
+        color: $almost_black;
+        text-align: center;
+        position: relative;
+        top: -$space-tight;
+        padding-top: $space-tight;
+        border-radius: 0 0 1em 1em;
+      }
+
+      .character-portrait .stress-trauma-box .trauma-box .trauma-list .trauma-item {
+        pointer-events: all;
+        display: inline-block;
+        font-weight: bold;
+        color: $alt-deep-red;
+      }
+
+      .character-portrait .stress-trauma-box .trauma-box .trauma-list .trauma-item:not(:last-of-type)::after {
+        content: \" \\2022\";
+      }
+
+      .character-portrait .stress-trauma-box .trauma-box .trauma-list .add_trauma {
+        font-size: 1em;
+      }
+
+      .character-info {
+        padding-left: 1em;
+      }
+
+      // .name-alias removed; replaced by .identity-header from _identity.scss
+
+      .character-info .bio {
+        @extend %identity-meta-row;
+      }
+
+      .character-info .abilities-list {
+        @include lined-section;
+      }
+
+      .character-info .attributes-actions {
+        @include attrs.attributes-sheet();
+      }
+    }
+
+    @at-root .sheet-wrapper .tab-space {
+      nav.tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 1em;
+        grid-template-rows: auto;
+        grid-template-areas: "tab1 tab2 ";
+      }
+
+      .tab-item {
+        flex-grow: 0;
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        background-color: $lightgray;
+        border-radius: 20px 20px 0 0;
+        font-family: Kirsty, serif;
+        text-transform: capitalize;
+        padding: $space-tight 15px;
+        font-size: 2.6em;
+      }
+
+      .tab-item select {
+        font-family: Kirsty;
+        font-size: 1em;
+        height: 80%;
+        position: relative;
+        top: -6px;
+        left: 2px;
+      }
+
+      .tab-item > div {
+        margin: $space-tight 10px;
+      }
+
+      .tab-item.playbook {
+        grid-area: tab1;
+      }
+
+      //&.downtime{
+      //  grid-area: tab2;
+      //}
+
+      .tab-item.notes {
+        grid-area: tab2;
+      }
+
+      .tab-item .playbook-description {
+        font-family: "Crimson Text", serif;
+        font-size: 0.4em;
+        font-variant: small-caps;
+        font-weight: bold;
+        color: $darkgray;
+        text-align: center;
+      }
+
+      .tab-item.active {
+        margin-bottom: 0;
+      }
+
+      .tab-item:not(.active) {
+        background-color: $alt-tab-mid;
+      }
+
+      .tab-content {
+        flex-basis: 100%;
+      }
+
+      .tab-content .tab .playbook {
+        display: grid;
+        align-items: stretch;
+        justify-items: stretch;
+        grid-template-columns: 2fr 1em 1fr 1fr;
+        grid-template-rows: repeat(3, min-content);
+        grid-template-areas:
+          "abilities gutter pb-items all-items"
+          "abilities gutter friends all-items"
+          "abilities gutter xp-notes xp-notes";
+      }
+      .tab-content .tab .playbook select {
+        font-family: Kirsty, serif;
+        text-transform: capitalize;
+        font-size: 2.6em;
+        border: none;
+        background-color: $alt-red-bright;
+      }
+
+      .tab-content .tab .playbook::after {
+        content: "";
+        background: $alt-light;
+        grid-area: gutter;
+        height: 100%;
+        width: 100%;
+      }
+
+      .tab-content .tab .playbook section {
+        padding-bottom: 2px;
+      }
+
+      .tab-content .tab .playbook .abilities {
+        grid-area: abilities;
+        background: $lightgray;
+        padding-bottom: 1em;
+        // Ability list styling inherited from general-styles.scss
+      }
+
+      .tab-content .tab .playbook .playbook-items {
+        grid-area: pb-items;
+        background: $lightgray;
+      }
+
+      .tab-content .tab .playbook .item-list {
+        font-size: 1.2em;
+      }
+
+      .tab-content .tab .playbook .item-list .free-item {
+        font-style: italic;
+      }
+
+      // Base .item-block styles (flex, padding, etc.) inherited from
+      // :is(.ability-block, .item-block) in general-styles.scss
+      // Item-specific overrides only below
+      .tab-content .tab .playbook .item-list .item-block:nth-child(even) {
+        background-color: $alt-black-10;
+      }
+
+      .tab-content .tab .playbook .item-list .item-block .item-name {
+        margin: 0;
+        line-height: 0.8em;
+        font-size: 1em;
+      }
+
+      .tab-content .tab .playbook .item-list .item-block .delete-button {
+        margin-left: auto;
+        opacity: 0.5;
+      }
+
+      .tab-content .tab .playbook .item-list .item-block .delete-button:hover {
+        opacity: 1;
+      }
+
+      .tab-content .tab .playbook .friends-rivals {
+        grid-area: friends;
+        background: $lightgray;
+        line-height: 0;
+        font-size: 1.2em;
+      }
+
+      .tab-content .tab .playbook .all-items {
+        grid-area: all-items;
+      }
+
+      .tab-content .tab .playbook .xp-notes {
+        grid-area: xp-notes;
+        @include xp-notes-base;
+        @include xp-notes-list;
+      }
+
+      .tab-content .tab .playbook .xp-notes p {
+        line-height: 1em;
+      }
+
+
+      .tab-content .tab .playbook header.full-bar {
+        background-color: $darkgray;
+        color: $almost_white;
+      }
+
+      /* Override playbook layout to two-column dock structure */
+      .tab-content .tab .playbook {
+        display: flex;
+        align-items: stretch; // Ensure columns are equal height
+        min-height: 500px; // Ensure columns have height even if empty
+        gap: 0;
+      }
+
+      .tab-content .tab .playbook::after {
+        display: none;
+      }
+
+      .tab-content .tab .playbook .dock-column {
+        flex: 1 0 50%;
+        max-width: 50%;
+        display: flex;
+        flex-direction: column;
+        min-width: 0; // Prevent flex blowout
+        min-height: 500px; // Ensure column creates a valid drop target even when empty
+      }
+
+      .tab-content .tab .playbook .dock-column[data-dock-column="left"] .abilities {
+        background: $alt-light;
+      }
+
+      .tab-content .tab .playbook .dock-column[data-dock-column="left"] .item-list {
+        background: $alt-light;
+      }
+
+      .tab-content .tab .playbook .dock-column[data-dock-column="right"] {
+        border-left: 1px solid $almost_black;
+        padding-left: 0;
+        scrollbar-gutter: stable;
+      }
+
+      .tab-content .tab .playbook .dock-column[data-dock-column="right"] > .dock-section {
+        margin-bottom: 0.5em;
+      }
+
+      .tab-content .tab .playbook .dock-column[data-dock-column="right"] > .dock-section:last-child {
+        margin-bottom: 0;
+      }
+
+      // Legacy/Shared styles adapted for dock-section wrappers
+      .tab-content .tab .playbook .dock-section {
+        // Ensure content fills width
+        width: 100%;
+      }
+
+      .tab-content .tab .playbook .section-block {
+        padding-bottom: 0.5em;
+      }
+
+      .tab-content .tab .playbook .item-list .two-col-list {
+        // Use CSS columns for column-first flow (items go down, then wrap to next column)
+        columns: 2;
+        column-gap: 0;
+        column-rule: 1px solid $almost_black; // Vertical divider line
+        width: 100%;
+      }
+
+      .tab-content .tab .playbook .item-list .two-col-list .item-block {
+        // Prevent items from breaking across columns
+        break-inside: avoid;
+        // Force items to fill full width within the column
+        width: 100%;
+        box-sizing: border-box;
+        // Remove right padding to align with container edge
+        padding-right: 0;
+        background: none;
+      }
+
+      // Zebra striping applied via JS classes for proper row alignment across columns
+      .tab-content .tab .playbook .item-list .two-col-list .item-block.zebra-odd {
+        background-color: $alt-black-10;
+      }
+
+      .tab-content .tab .playbook .friends-rivals .section-body .acquaintance:nth-child(even) {
+        background-color: $alt-black-10;
+      }
+
+      .tab-content .tab .playbook .coin {
+        // Use shared coins mixin for dock section layout
+        @include coins.coins($size: 15px, $margin: 3px);
+        @include coins.coin-layout;
+      }
+
+      .tab-content .tab .playbook .all-items .item-subsection {
+        padding: 0 0 0 0.4em; // Only left padding
+      }
+
+      .tab-content .tab .playbook .all-items .item-subsection:first-of-type {
+        background: $alt-light;
+        border-bottom: 1px solid $almost_black; // Divider between classed and unclassed items
+      }
+
+      .tab-content .tab .playbook .all-items header.full-bar .header-control.load-inline select {
+        font-family: "Crimson Text", serif;
+        text-transform: none;
+        font-size: 0.9em;
+        height: 1.35em;
+        padding: 0 $space-1;
+        line-height: 1.1;
+        max-width: 7rem;
+        background-color: $alt-border-strong;
+        color: $alt-white;
+        border: 1px solid $alt-ink-strong;
+      }
+
+      .tab-content .tab .playbook .all-items header.full-bar .header-control.load-inline .load-stats {
+        font-size: 0.9em;
+        color: $alt-white;
+      }
+
+      .tab-content .tab .playbook .xp-notes ul {
+        margin: 0;
+      }
+
+      .tab-content .tab.downtime {
+        line-height: 1em;
+      }
+
+      .tab-content .tab.downtime h3 {
+        text-align: center;
+        font-family: Kirsty, serif;
+        font-size: 2em;
+        margin: 0.5em;
+      }
+
+      .tab-content .tab.downtime header {
+        width: 100%;
+        font-family: Kirsty, serif;
+        background-color: $almost_black;
+        color: $almost_white;
+        padding: 3px;
+        text-align: center;
+      }
+
+      .tab-content .tab.downtime header .header-row {
+        display: flex;
+        justify-content: space-evenly;
+        margin: 2px 0;
+      }
+
+      .tab-content .tab.downtime .downtimeWrapper {
+        display: flex;
+      }
+
+      .tab-content .tab.downtime .downtimeWrapper table tr {
+        text-align: center;
+      }
+    }
+
+    // Global coin layout (non-playbook contexts)
+    .coin {
+      @include coins.coins($size: 15px, $margin: 3px);
+      @include coins.coin-layout;
+    }
+
+    .tab-space .tab-content .tab.downtime .downtimeWrapper table tr td,
+    .tab-space .tab-content .tab.downtime .downtimeWrapper table tr th {
+      padding: 3px;
+    }
+
+    .tab-space .tab-content .tab.downtime .downtimeWrapper table tr th {
+      background-color: $almost-black;
+      color: $almost-white;
+    }
+
+    .tab-space .tab-content .tab.downtime .downtimeWrapper .column {
+      display: flex;
+      flex-direction: column;
+      width: 50%;
+    }
+
+    .tab-space .tab-content .tab.downtime .downtimeWrapper .column section {
+      background-color: $lightgray;
+    }
+
+    .tab-space .tab-content .tab.downtime .downtimeWrapper .column section p {
+      text-align: center;
+    }
+
+    .tab-space .tab-content .tab.downtime .downtimeWrapper .column section ul {
+      padding-right: 1em;
+    }
+
+    .tab-space .tab-content .tab.downtime .downtimeWrapper .column section ul li {
+      margin-bottom: 3px;
+    }
+
+    .tab-space .tab-content .tab .character-notes-area {
+      background-color: $lightgray;
+      box-sizing: border-box;
+      padding: 10px;
+      font-size: 1.2em;
+      min-height: 650px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tab-space .tab-content .tab .character-notes-area header {
+      font-size: 0.9em;
+      flex-grow: 0;
+    }
+  }
+}
+
+/* SANITY CHECK */
+/*! SANITY CHECK */
