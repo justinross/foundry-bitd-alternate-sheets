@@ -1,0 +1,31 @@
+{
+  "name": "bitd-alternate-sheets",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Build scripts for the BitD alternate sheets CSS",
+  "license": "MIT",
+  "scripts": {
+    "build:css": "sass styles/scss/main.scss styles/css/bitd-alt.css --style=compressed --source-map",
+    "watch:css": "sass --watch styles/scss/main.scss styles/css/bitd-alt.css --style=compressed --source-map",
+    "lint:css": "stylelint \"styles/scss/**/*.scss\"",
+    "styles:snapshot:record": "node tools/style-snapshots/snapshot.js --record",
+    "styles:snapshot": "node tools/style-snapshots/snapshot.js",
+    "metrics:styles": "bash -lc 'scss_lines=$(find styles/scss -name \"*.scss\" ! -path \"*/flexbox/*\" -print0 | xargs -0 wc -l | awk \"END{print $1}\"); css_bytes=$(wc -c < styles/css/bitd-alt.css); echo \"scss_lines=$scss_lines css_bytes=$css_bytes\"'",
+    "metrics:clean": "node -e \"const fs=require('fs');const p='reports/metrics';if(fs.existsSync(p))fs.rmSync(p,{recursive:true,force:true});\"",
+    "metrics": "node scripts/metrics/run.js",
+    "metrics:diff": "node scripts/metrics/diff.js"
+  },
+  "devDependencies": {
+    "cloc": "^2.11.0",
+    "eslint": "^9.14.0",
+    "fast-glob": "^3.3.2",
+    "jscpd": "^4.0.2",
+    "postcss-scss": "^4.0.9",
+    "playwright-chromium": "^1.42.1",
+    "sass": "^1.94.2",
+    "stylelint": "^16.26.1",
+    "stylelint-config-standard": "^39.0.1",
+    "stylelint-config-standard-scss": "^16.0.0",
+    "stylelint-scss": "^6.13.0"
+  }
+}

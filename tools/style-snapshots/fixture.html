@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="../styles/css/bitd-alt.css">
+</head>
+<body>
+  <div id="char-fixture" class="blades-alt actor sheet pc">
+    <div class="sheet-wrapper">
+      <div class="sheet-toggles">
+        <span class="toggle-allow-edit"><i class="fa fa-lock"></i><i class="fa fa-lock-open"></i></span>
+        <span class="toggle-alias-display"><i class="fa fa-face-smile"></i><i class="fa fa-face-disguise"></i></span>
+      </div>
+      <div class="minimized-view">
+        <div class="character-portrait row">
+          <div class="portrait"><img src="https://via.placeholder.com/200" alt="portrait" /></div>
+          <div class="status-buttons">
+            <div class="coins-box">
+              <div class="mini-view"></div>
+              <div class="full-view">
+                <div class="coins">
+                  <div class="hand"></div>
+                  <div class="stash"></div>
+                  <div class="coins-hands"></div>
+                </div>
+                <div class="stash-grid">
+                  <div class="coins-stashed"></div>
+                  <div class="stash-labels"><div class="stash-tag">tag</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="character-info">
+          <div class="name-alias">Name</div>
+          <div class="bio">Bio</div>
+        </div>
+      </div>
+
+      <nav class="tabs">
+        <a class="tab-item active">Tab 1</a>
+        <a class="tab-item">Tab 2</a>
+      </nav>
+
+      <div class="tab" data-tab="playbook">
+        <div class="ability-list">
+          <div class="ability-block">
+            <span class="ability-checkboxes">
+              <span class="ability-checkbox"></span><span class="join-line"></span><span class="ability-checkbox"></span>
+            </span>
+            <label class="ability-name">Ability Name</label>
+            <div class="ability-description"><p>Description text.</p></div>
+          </div>
+        </div>
+
+        <div class="stripe tooth stripe-tooth-body right">
+          <div class="teeth">
+            <input type="radio" id="t0"><label for="t0"></label>
+            <input type="radio" id="t1"><label for="t1"></label>
+            <input type="radio" id="t2"><label for="t2"></label>
+          </div>
+        </div>
+
+        <div class="attributes-actions">
+          <div class="attribute">
+            <div class="action">
+              <input class="zero" type="radio"><label></label><label></label><label></label>
+              <span class="attribute-skill-label">Skirmish</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="harm-list">
+          <div class="harm-block light"><span class="harm">Harm Light</span></div>
+          <div class="harm-block medium"><span class="harm">Harm Medium</span></div>
+          <div class="harm-block heavy"><span class="harm">Harm Heavy</span></div>
+        </div>
+
+        <div class="over-max load-stats">
+          <label>Over</label><span>Max</span><select><option>1</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="crew-fixture" class="blades-alt actor sheet crew">
+    <div class="sheet-wrapper">
+      <div class="crew-identity-block">
+        <div class="sheet-toggles">
+          <span class="toggle-allow-edit"><i class="fa fa-lock"></i><i class="fa fa-lock-open"></i></span>
+        </div>
+      </div>
+
+      <div class="minimized-view">
+        <div class="character-portrait row">
+          <div class="portrait"><img src="https://via.placeholder.com/200" alt="portrait" /></div>
+          <div class="status-buttons">
+            <div class="coins-box">
+              <div class="mini-view"></div>
+              <div class="full-view">
+                <div class="coins">
+                  <div class="hand"></div>
+                  <div class="stash"></div>
+                  <div class="coins-hands"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="heat-wanted-row">
+        <div class="big-teeth">
+          <label></label>
+          <label></label>
+          <label></label>
+        </div>
+      </div>
+
+      <div class="turf-grid">
+        <label><input type="checkbox" class="turf-select" /></label>
+        <label><input type="checkbox" class="turf-select" /></label>
+        <label><input type="checkbox" class="turf-select" /></label>
+      </div>
+
+      <div class="ability-list">
+        <div class="ability-block">
+          <span class="ability-checkboxes">
+            <span class="ability-checkbox"></span>
+          </span>
+          <label class="ability-name">Crew Ability</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
