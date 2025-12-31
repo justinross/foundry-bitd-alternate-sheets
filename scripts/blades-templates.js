@@ -11,16 +11,24 @@ export const preloadHandlebarsTemplates = function () {
     // Actor Sheet Partials
     "modules/bitd-alternate-sheets/templates/parts/coins.html",
     "modules/bitd-alternate-sheets/templates/parts/attributes.html",
+    "modules/bitd-alternate-sheets/templates/parts/xp-tracks.html",
     "modules/bitd-alternate-sheets/templates/parts/harm.html",
     "modules/bitd-alternate-sheets/templates/parts/load.html",
     "modules/bitd-alternate-sheets/templates/parts/radiotoggles.html",
     "modules/bitd-alternate-sheets/templates/parts/ability.html",
     "modules/bitd-alternate-sheets/templates/parts/item.html",
+    "modules/bitd-alternate-sheets/templates/parts/item-list-section.html",
     "modules/bitd-alternate-sheets/templates/parts/item-header.html",
-    // "modules/bitd-alternate-sheets/templates/parts/turf-list.html",
+    "modules/bitd-alternate-sheets/templates/parts/dock-section.html",
+    "modules/bitd-alternate-sheets/templates/parts/crew-ability.html",
+    "modules/bitd-alternate-sheets/templates/parts/crew-upgrade.html",
+    "modules/bitd-alternate-sheets/templates/parts/turf-list.html",
+    "modules/bitd-alternate-sheets/templates/parts/section-controls.html",
+    "modules/bitd-alternate-sheets/templates/parts/acquaintance-body.html",
     // "modules/bitd-alternate-sheets/templates/parts/cohort-block.html",
     // "modules/bitd-alternate-sheets/templates/parts/factions.html",
     "modules/bitd-alternate-sheets/templates/parts/active-effects.html",
+    "modules/bitd-alternate-sheets/templates/parts/identity-header.html",
   ];
 
   // Load the template parts

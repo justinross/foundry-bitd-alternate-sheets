@@ -6,9 +6,31 @@ import {
 
 let cachedDocumentSheetConfig;
 
+const ACTOR_SPECIAL = {
+  register: registerActorSheet,
+  collection: () =>
+    foundry?.documents?.collections?.Actors ?? game?.actors ?? Actors ?? null,
+};
+
+const ITEM_SPECIAL = {
+  register: registerItemSheet,
+  collection: () =>
+    foundry?.documents?.collections?.Items ?? game?.items ?? Items ?? null,
+};
+
+function getSheetSpecialCase(documentClass) {
+  if (!documentClass) return null;
+  if (documentClass === CONFIG.Actor.documentClass) {
+    return ACTOR_SPECIAL;
+  }
+  if (documentClass === CONFIG.Item.documentClass) {
+    return ITEM_SPECIAL;
+  }
+  return null;
+}
+
 function getDocumentSheetConfig() {
-  if (cachedDocumentSheetConfig) return cachedDocumentSheetConfig;
-  cachedDocumentSheetConfig =
+  cachedDocumentSheetConfig ??=
     foundry?.applications?.apps?.DocumentSheetConfig ??
     foundry?.applications?.config?.DocumentSheetConfig ??
     foundry?.applications?.api?.DocumentSheetConfig ??
@@ -18,12 +40,8 @@ function getDocumentSheetConfig() {
 
 function getLegacyCollection(documentClass) {
   if (!documentClass) return null;
-  if (documentClass === CONFIG.Actor.documentClass) {
-    return foundry?.documents?.collections?.Actors ?? game?.actors ?? Actors ?? null;
-  }
-  if (documentClass === CONFIG.Item.documentClass) {
-    return foundry?.documents?.collections?.Items ?? game?.items ?? Items ?? null;
-  }
+  const special = getSheetSpecialCase(documentClass);
+  if (special) return special.collection();
   const collectionName = documentClass.collection;
   return (
     foundry?.documents?.collections?.[collectionName] ??
@@ -34,11 +52,9 @@ function getLegacyCollection(documentClass) {
 }
 
 export function registerDocumentSheet(documentClass, namespace, sheetClass, options) {
-  if (documentClass === CONFIG.Actor.documentClass) {
-    return registerActorSheet(namespace, sheetClass, options);
-  }
-  if (documentClass === CONFIG.Item.documentClass) {
-    return registerItemSheet(namespace, sheetClass, options);
+  const special = getSheetSpecialCase(documentClass);
+  if (special) {
+    return special.register(namespace, sheetClass, options);
   }
   const sheetConfig = getDocumentSheetConfig();
   if (sheetConfig?.registerSheet) {

@@ -1,4 +1,6 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
+import { Utils } from "./utils.js";
+import { BladesAlternateCrewSheet } from "./blades-alternate-crew-sheet.js";
 import { BladesAlternateItemSheet } from "./blades-alternate-item-sheet.js";
 import { BladesAlternateClassSheet } from "./blades-alternate-class-sheet.js";
 import { registerSystemSettings } from "./settings.js";
@@ -25,6 +27,10 @@ Hooks.once("ready", async function () {
     types: ["character"],
     makeDefault: true,
   });
+  registerDocumentSheet(CONFIG.Actor.documentClass, "bitd-alt", BladesAlternateCrewSheet, {
+    types: ["crew"],
+    makeDefault: true,
+  });
   // registerDocumentSheet(CONFIG.Item.documentClass, "bitd-alt", BladesAlternateItemSheet, { types: ["item"], makeDefault: true });
   registerDocumentSheet(CONFIG.Item.documentClass, "bitd-alt", BladesAlternateClassSheet, {
     types: ["class"],
@@ -33,15 +39,6 @@ Hooks.once("ready", async function () {
 
   await preloadHandlebarsTemplates();
 
-  // Register schema version setting
-  game.settings.register("bitd-alternate-sheets", "schemaVersion", {
-    name: "Schema Version",
-    scope: "world",
-    config: false,
-    type: Number,
-    default: 0,
-  });
-
-  // Trigger migration
+  // Trigger migration (schemaVersion setting registered in init via settings.js)
   await Migration.migrate();
 });

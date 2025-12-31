@@ -1,9 +1,26 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { enrichHTML as compatEnrichHTML } from "./compat.js";
+import * as collections from "./utils/collections.js";
+import * as textUtils from "./utils/text.js";
 
 export const MODULE_ID = "bitd-alternate-sheets";
 
+import { openCardSelectionDialog } from "./lib/dialog-compat.js";
+import { Profiler } from "./profiler.js";
+
 export class Utils {
+  // ... (previous static methods)
+
+
+  static async getFilteredActors(type, filterPath, filterValue) {
+    return collections.getFilteredActors(type, filterPath, filterValue);
+  }
+
+  static resolveDescription(entity) {
+    return textUtils.resolveDescription(entity);
+  }
+
   /**
    * Identifies duplicate items by type and returns a array of item ids to remove
    *
@@ -52,19 +69,76 @@ export class Utils {
     return id || "";
   }
 
+  /**
+   * Calculate the cost/price of an ability or item.
+   * @param {Object} abilityOrItem - An ability or item object with system data
+   * @returns {number} The cost (minimum 1)
+   */
+  static getAbilityCost(abilityOrItem) {
+    const raw = abilityOrItem?.system?.price ?? abilityOrItem?.system?.cost ?? 1;
+    const parsed = Number(raw);
+    if (Number.isNaN(parsed) || parsed < 1) return 1;
+    return Math.floor(parsed);
+  }
+
   static async updateAbilityProgressFlag(actor, key, value) {
     if (!actor || !key) return;
     const normalized = Math.max(0, Number(value) || 0);
 
-    if (normalized <= 1) {
-      await actor.update({
-        [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null,
-      });
+    const existingProgress =
+      foundry.utils.deepClone(
+        actor.getFlag(MODULE_ID, "multiAbilityProgress")
+      ) || {};
+
+    // Check if update is needed
+    if (existingProgress[key] === normalized) return;
+
+    if (normalized === 0) {
+      if (existingProgress[key] !== undefined) {
+        await actor.update({
+          [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null
+        }, { render: false });
+      }
     } else {
       await actor.update({
-        [`flags.${MODULE_ID}.multiAbilityProgress.${key}`]: normalized,
-      });
+        [`flags.${MODULE_ID}.multiAbilityProgress.${key}`]: normalized
+      }, { render: false });
     }
+  }
+
+  /**
+   * Get the list of added ability slot IDs for an actor.
+   * @param {Actor} actor
+   * @returns {string[]}
+   */
+  static getAbilitySlots(actor) {
+    return actor?.getFlag(MODULE_ID, "addedAbilitySlots") || [];
+  }
+
+  /**
+   * Add a source ability ID to the actor's added ability slots.
+   * @param {Actor} actor
+   * @param {string} sourceId - The source item ID (from compendium/world)
+   */
+  static async addAbilitySlot(actor, sourceId) {
+    if (!actor || !sourceId) return;
+    const slots = Utils.getAbilitySlots(actor);
+    if (slots.includes(sourceId)) return; // Already exists
+    await actor.setFlag(MODULE_ID, "addedAbilitySlots", [...slots, sourceId]);
+  }
+
+  /**
+   * Remove a source ability ID from the actor's added ability slots.
+   * @param {Actor} actor
+   * @param {string} sourceId - The source item ID to remove
+   */
+  static async removeAbilitySlot(actor, sourceId) {
+    if (!actor || !sourceId) return;
+    const slots = Utils.getAbilitySlots(actor);
+    const filtered = slots.filter((id) => id !== sourceId);
+    if (filtered.length === slots.length) return; // Nothing to remove
+    // Don't suppress render - let Foundry update the sheet with fresh data
+    await actor.setFlag(MODULE_ID, "addedAbilitySlots", filtered);
   }
 
   static capitalizeFirstLetter(string) {
@@ -193,22 +267,6 @@ export class Utils {
     }, obj);
   }
 
-  /**
-   * Add item functionality
-   */
-  // static _addOwnedItem(event, actor) {
-  //
-  //   event.preventDefault();
-  //   const a = event.currentTarget;
-  //   const item_type = a.dataset.itemType;
-  //
-  //   let data = {
-  //     name: randomID(),
-  //     type: item_type
-  //   };
-  //   return actor.createEmbeddedDocuments("Item", [data]);
-  // }
-
   static getOwnedObjectByType(actor, type) {
     return actor.items.find((item) => item.type === type);
   }
@@ -220,81 +278,11 @@ export class Utils {
    * @param {Object} game
    */
   static async getAllItemsByType(item_type) {
-    let list_of_items = [];
-    let world_items = [];
-    let compendium_items = [];
-
-    if (item_type === "npc") {
-      world_items = game.actors
-        .filter((e) => e.type === item_type)
-        .map((e) => {
-          return e;
-        });
-    } else {
-      world_items = game.items
-        .filter((e) => e.type === item_type)
-        .map((e) => {
-          return e;
-        });
-    }
-
-    let pack = game.packs.find((e) => e.metadata.name === item_type);
-    if (pack && typeof pack.getDocuments === "function") {
-      let compendium_content = await pack.getDocuments();
-      compendium_items = compendium_content.map((e) => {
-        return e;
-      });
-    }
-
-    list_of_items = world_items.concat(compendium_items);
-    list_of_items.sort(function (a, b) {
-      let nameA = a.name.toUpperCase();
-      let nameB = b.name.toUpperCase();
-      return nameA.localeCompare(nameB);
-    });
-    return list_of_items;
+    return collections.getAllItemsByType(item_type);
   }
 
   static async getSourcedItemsByType(item_type) {
-    const populateFromCompendia = game.settings.get(
-      "bitd-alternate-sheets",
-      "populateFromCompendia"
-    );
-    const populateFromWorld = game.settings.get(
-      "bitd-alternate-sheets",
-      "populateFromWorld"
-    );
-    let limited_items;
-
-    if (populateFromCompendia && populateFromWorld) {
-      limited_items = await this.getAllItemsByType(item_type);
-    } else if (populateFromCompendia && !populateFromWorld) {
-      const pack = game.packs.get("blades-in-the-dark." + item_type);
-      limited_items =
-        pack && typeof pack.getDocuments === "function"
-          ? await pack.getDocuments()
-          : [];
-    } else if (!populateFromCompendia && populateFromWorld) {
-      if (item_type === "npc") {
-        limited_items = game.actors.filter((actor) => actor.type === item_type);
-      } else {
-        limited_items = game.items.filter((item) => item.type === item_type);
-      }
-    } else {
-      ui.notifications.error(
-        `No playbook auto-population source has been selected in the system settings. Please choose at least one source.`,
-        { permanent: true }
-      );
-    }
-    if (limited_items) {
-      limited_items.sort(function (a, b) {
-        let nameA = a.name.toUpperCase();
-        let nameB = b.name.toUpperCase();
-        return nameA.localeCompare(nameB);
-      });
-    }
-
-    return limited_items;
+    return collections.getSourcedItemsByType(item_type);
   }
 
   static async getItemByType(item_type, item_id) {
@@ -351,6 +339,7 @@ export class Utils {
     //not sure what was getting linked rather than copied in empty_attributes, but the JSON hack below seems to fix the weirdness I was seeing
     let attributes_to_return = foundry.utils.deepClone(empty_attributes);
     try {
+      if (!playbook_item) return attributes_to_return;
       let selected_playbook = await fromUuid(playbook_item.uuid);
       let selected_playbook_base_skills = selected_playbook.system.base_skills;
       for (const [key, value] of Object.entries(empty_attributes)) {
@@ -376,22 +365,180 @@ export class Utils {
     }
   }
 
+  /**
+   * Enrich a stored notes string the same way the alt character sheet does.
+   * @param {Actor} actor
+   * @param {string} rawNotes
+   * @returns {Promise<string>}
+   */
+  static async enrichNotes(actor, rawNotes) {
+    const notes = rawNotes || "";
+    if (!notes) return "";
+    const intermediate = await compatEnrichHTML(notes, {
+      documents: false,
+      async: true,
+    });
+    return compatEnrichHTML(intermediate, {
+      relativeTo: actor,
+      secrets: actor.isOwner,
+      async: true,
+    });
+  }
+
+  // NOTE: Clock controls are now handled globally by setupGlobalClockHandlers() in hooks.js
+  // The legacy bindClockControls function has been removed since no img.clockImage elements exist.
+
+  /**
+   * Ensure a sheet has a local allow_edit flag initialized.
+   * Defaults to the sheet's editable option if unset.
+   * @param {DocumentSheet} sheet
+   */
+  static ensureAllowEdit(sheet) {
+    const canEdit = Boolean(
+      sheet.options?.editable ?? sheet.isEditable ?? false
+    );
+    const savedStates =
+      game?.user?.getFlag(MODULE_ID, "allowEditStates") || {};
+    const key = Utils._getAllowEditKey(sheet);
+    const saved = key ? savedStates[key] : undefined;
+
+    if (typeof sheet.allow_edit === "undefined") {
+      // Default to locked; allow unlock only when sheet is editable.
+      sheet.allow_edit = canEdit && Boolean(saved ?? false);
+    } else if (!canEdit && sheet.allow_edit) {
+      sheet.allow_edit = false;
+    }
+    return sheet.allow_edit;
+  }
+
+  /**
+   * Bind standing toggles for acquaintances (friend/rival/neutral) on a sheet.
+   * Applies changes locally and saves to the actor without triggering a render.
+   * @param {DocumentSheet} sheet
+   * @param {JQuery} html
+   */
+  static bindStandingToggles(sheet, html) {
+    const STANDING_CYCLE = { friend: "rival", rival: "neutral", neutral: "friend" };
+
+    const updateIcon = (icon, standing) => {
+      if (!icon) return;
+      icon.classList.remove("fa-caret-up", "fa-caret-down", "fa-minus", "green-icon", "red-icon");
+      switch (standing) {
+        case "friend":
+          icon.classList.add("fa-caret-up", "green-icon");
+          break;
+        case "rival":
+          icon.classList.add("fa-caret-down", "red-icon");
+          break;
+        default:
+          icon.classList.add("fa-minus");
+      }
+    };
+
+    html.find(".standing-toggle").off("click").on("click", async (ev) => {
+      ev.preventDefault();
+      const acqEl = ev.currentTarget.closest(".acquaintance");
+      const acqId = acqEl?.dataset?.acquaintance;
+      if (!acqId) return;
+
+      const acquaintances = foundry.utils.deepClone(sheet.actor.system?.acquaintances ?? []);
+      const idx = acquaintances.findIndex(
+        (item) => String(item?.id ?? item?._id ?? "") === String(acqId)
+      );
+      if (idx === -1) return;
+
+      const standing = (acquaintances[idx].standing ?? "neutral").toString().trim();
+      const nextStanding = STANDING_CYCLE[standing] ?? "friend";
+      acquaintances[idx].standing = nextStanding;
+
+      updateIcon(ev.currentTarget, nextStanding);
+
+      await sheet.actor.update({ system: { acquaintances } }, { render: false });
+    });
+  }
+
+  /**
+   * Wire up the lock/unlock toggle to flip allow_edit and rerender.
+   * @param {DocumentSheet} sheet
+   * @param {JQuery} html
+   */
+  static bindAllowEditToggle(sheet, html) {
+    html.find(".toggle-allow-edit").off("click").on("click", async (event) => {
+      event.preventDefault();
+      if (!sheet.options?.editable) return;
+      // Trigger blur on any active inline-input fields to save their content before re-rendering
+      html.find(".inline-input:focus").blur();
+      sheet.allow_edit = !sheet.allow_edit;
+      await Utils._persistAllowEditState(sheet);
+      sheet.render(false);
+    });
+  }
+
+  static _getAllowEditKey(sheet) {
+    return sheet?.actor?.id ?? sheet?.document?.id ?? null;
+  }
+
+  static async _persistAllowEditState(sheet) {
+    const key = Utils._getAllowEditKey(sheet);
+    if (!key) return;
+    const user = game?.user;
+    if (!user?.setFlag) return;
+
+    const current = user.getFlag(MODULE_ID, "allowEditStates") || {};
+    await user.setFlag(MODULE_ID, "allowEditStates", {
+      ...current,
+      [key]: Boolean(sheet.allow_edit),
+    });
+  }
+
+  /**
+   * Per-actor, per-user persisted UI states (e.g., filters).
+   */
+  static _getUiStateKey(sheet) {
+    return sheet?.actor?.id ?? sheet?.document?.id ?? null;
+  }
+
+  static async loadUiState(sheet) {
+    const key = Utils._getUiStateKey(sheet);
+    if (!key) return {};
+    const user = game?.user;
+    if (!user?.getFlag) return {};
+    const current = user.getFlag(MODULE_ID, "uiStates") || {};
+    return current[key] || {};
+  }
+
+  static async saveUiState(sheet, state) {
+    const key = Utils._getUiStateKey(sheet);
+    if (!key) return;
+    const user = game?.user;
+    if (!user?.setFlag) return;
+    const current = user.getFlag(MODULE_ID, "uiStates") || {};
+    const next = { ...current, [key]: { ...(current[key] || {}), ...state } };
+    await user.setFlag(MODULE_ID, "uiStates", next);
+  }
+
   static async toggleOwnership(state, actor, type, id) {
     if (type == "ability") {
       if (state) {
         let all_of_type = await Utils.getSourcedItemsByType(type);
         let checked_item = all_of_type.find((item) => item.id == id);
+        if (!checked_item) {
+          return;
+        }
         let added_item = await actor.createEmbeddedDocuments("Item", [
           {
             type: checked_item.type,
             name: checked_item.name,
             system: checked_item.system,
           },
-        ]);
+        ], { render: false, renderSheet: false });
       } else {
         const ownedDoc = actor.getEmbeddedDocument("Item", id);
         if (ownedDoc) {
-          await actor.deleteEmbeddedDocuments("Item", [id]);
+          await actor.deleteEmbeddedDocuments("Item", [id], {
+            render: false,
+            renderSheet: false,
+          });
           return;
         }
 
@@ -402,9 +549,12 @@ export class Utils {
         const matching_owned_item = actor.items.find(
           (item) => item.name === item_source_name
         );
-        if (!matching_owned_item) return;
-
-        await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id]);
+        if (matching_owned_item) {
+          await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], {
+            render: false,
+            renderSheet: false,
+          });
+        }
       }
     } else if (type == "item") {
       let equipped_items = await actor.getFlag(
@@ -422,6 +572,7 @@ export class Utils {
       } else {
         item_blueprint = await Utils.getItemByType(type, id);
       }
+      if (!item_blueprint || !item_blueprint.id) return;
 
       if (state) {
         // Atomic Add
@@ -430,15 +581,32 @@ export class Utils {
           load: item_blueprint.system.load,
           name: item_blueprint.name,
         };
+        const existing = equipped_items[item_blueprint.id];
+        if (
+          existing &&
+          existing.load === newItem.load &&
+          existing.name === newItem.name
+        ) {
+          return;
+        }
         await actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
             newItem,
-        });
+        }, { render: false });
       } else {
-        // Atomic Remove
-        await actor.update({
-          [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
-        });
+        const load = item_blueprint.system?.load;
+        if (load === 0 || load === "0") {
+          await actor.update({
+            [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
+              false,
+          }, { render: false });
+        } else {
+          if (!equipped_items[item_blueprint.id]) return;
+          // Atomic Remove
+          await actor.update({
+            [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
+          }, { render: false });
+        }
       }
     }
   }
@@ -598,25 +766,95 @@ export class Utils {
     duplicate_owned_items = false,
     include_owned_items = false
   ) {
-    let virtual_list = [];
-    let owned_items;
-    let all_game_items = await Utils.getSourcedItemsByType(type);
-    let sheet_items;
+    const sourceItems = await this._getFilteredSourceItems(type, filter_playbook);
+    const virtualItems = this._mapToVirtualItems(sourceItems, false);
 
-    sheet_items = all_game_items.filter((item) => {
+    let mergedList = this._sortVirtualItems(virtualItems, type);
+
+    if (include_owned_items) {
+      const ownedItems = this._getFilteredOwnedItems(data.actor, type, filter_playbook);
+      const virtualOwned = this._mapToVirtualItems(ownedItems, true);
+      mergedList = this._mergeVirtualLists(mergedList, virtualOwned, duplicate_owned_items);
+    }
+
+    if (type === "ability" && data.actor) {
+      mergedList = await this._addGhostSlotsForAbilities(mergedList, data.actor);
+    }
+
+    return mergedList;
+  }
+
+  /**
+   * Get source items filtered by type and playbook
+   * @private
+   */
+  static async _getFilteredSourceItems(type, filterPlaybook) {
+    const allGameItems = await Utils.getSourcedItemsByType(type);
+
+    return allGameItems.filter((item) => {
       if (item.system.class !== undefined) {
         if (item.system.class === "" && type === "ability") {
           return false;
         } else {
-          return item.system.class === filter_playbook;
+          return item.system.class === filterPlaybook;
         }
       } else if (item.system.associated_class) {
-        return item.system.associated_class === filter_playbook;
+        return item.system.associated_class === filterPlaybook;
       } else {
         return false;
       }
     });
-    sheet_items.sort((a, b) => {
+  }
+
+  /**
+   * Get owned items from actor filtered by type and playbook
+   * @private
+   */
+  static _getFilteredOwnedItems(actor, type, filterPlaybook) {
+    return actor.items.filter((item) => {
+      if (item.type !== type) return false;
+      const itemClass =
+        item.system?.class ?? item.system?.associated_class ?? "";
+
+      // Abilities should always be included if owned, regardless of playbook filtering
+      if (type === "ability") {
+        return true;
+      }
+
+      if (filterPlaybook) {
+        // When filtering for a playbook, only include owned items that match that playbook
+        if (!itemClass || itemClass !== filterPlaybook) return false;
+      } else {
+        // General list: only include classless items
+        if (itemClass) return false;
+      }
+      return true;
+    });
+  }
+
+  /**
+   * Map items to virtual item format
+   * @private
+   */
+  static _mapToVirtualItems(items, owned) {
+    return items.map((item) => {
+      // Clone to plain object and mark as virtual
+      const data = item.toObject ? item.toObject() : foundry.utils.deepClone(item);
+      data._id = item.id;
+      if (!data.system) data.system = {};
+      data.system.virtual = true;
+      data.owned = owned;
+      return data;
+    });
+  }
+
+  /**
+   * Sort virtual items according to type-specific rules
+   * @private
+   */
+  static _sortVirtualItems(items, type) {
+    const sorted = [...items];
+    sorted.sort((a, b) => {
       if (a.name.includes("Veteran") || b.system.class_default) {
         return 1;
       }
@@ -630,180 +868,245 @@ export class Utils {
         ? 1
         : -1;
     });
-    sheet_items = sheet_items.map((el) => {
-      el.system.virtual = true;
-      return el;
-    });
-    if (include_owned_items) {
-      owned_items = data.actor.items.filter((item) => {
-        item.owned = true;
-        return item.type === type;
-      });
-    } else {
-      owned_items = [];
-    }
-    virtual_list = sheet_items;
-    for (const item of owned_items) {
+    return sorted;
+  }
+
+  /**
+   * Merge two virtual item lists, optionally allowing duplicates
+   * @private
+   */
+  static _mergeVirtualLists(base, additions, allowDuplicates) {
+    const merged = [...base];
+    for (const item of additions) {
       if (
-        duplicate_owned_items ||
-        !virtual_list.some((i) => i.name === item.name)
+        allowDuplicates ||
+        !merged.some((i) => i.name === item.name)
       ) {
-        virtual_list.push(item);
+        merged.push(item);
       }
     }
+    return merged;
+  }
 
-    return virtual_list;
+  /**
+   * Add ghost slots for cross-playbook abilities
+   * @private
+   */
+  static async _addGhostSlotsForAbilities(list, actor) {
+    const resultList = [...list];
+
+    // Get the live actor document (actor is just the plain sheet data)
+    const liveActor = game.actors.get(actor._id);
+    if (!liveActor) {
+      return resultList;
+    }
+
+    const addedSlots = Utils.getAbilitySlots(liveActor);
+    const playbookName = liveActor.items.find((i) => i.type === "class")?.name;
+
+    // Fetch ALL abilities (not filtered by playbook) since ghost slots are for cross-playbook abilities
+    const allAbilities = await Utils.getSourcedItemsByType("ability");
+
+    for (const slotId of addedSlots) {
+      // Fetch the source item from all abilities
+      const sourceItem = allAbilities.find((i) => i.id === slotId);
+      if (!sourceItem) continue;
+
+      // Skip native playbook abilities (shouldn't happen, but defensive)
+      const sourceClass = sourceItem.system?.class ?? sourceItem.system?.associated_class;
+      if (sourceClass === playbookName) continue;
+
+      // Check if this ability is already in the list (e.g., as an owned item)
+      const existingItem = resultList.find((i) => i.name === sourceItem.name);
+      if (existingItem) {
+        // Mark it as an added slot so the trashcan appears
+        existingItem.addedSlot = true;
+        existingItem._sourceId = slotId;
+        continue;
+      }
+
+      // Create ghost for this slot
+      const ghostData = sourceItem.toObject ? sourceItem.toObject() : foundry.utils.deepClone(sourceItem);
+      ghostData._id = sourceItem.id;
+      ghostData._sourceId = slotId;
+      if (!ghostData.system) ghostData.system = {};
+      ghostData.system.virtual = true;
+      ghostData.owned = false;
+      ghostData.addedSlot = true; // Mark as added slot for trashcan visibility
+      resultList.push(ghostData);
+    }
+
+    return resultList;
   }
 
   static strip(html) {
-    let doc = new DOMParser().parseFromString(html, "text/html");
-    return doc.body.textContent || "";
+    return textUtils.strip(html);
   }
 
   static convertArrayToBooleanObject(arr) {
-    const obj = {};
-    for (const key of arr) {
-      obj[key] = true;
-    }
-    return obj;
+    return textUtils.convertArrayToBooleanObject(arr);
   }
 
   static convertBooleanObjectToArray(obj) {
-    return Object.keys(obj).filter((key) => obj[key]);
-    // if(Array.isArray(obj))
-    //
-    //   let arr = [];
-    //   if(!Array.isArray(object)){
-    //     for(const el in object){
-    //       if(object[el]){
-    //         arr.push(el);
-    //       }
-    //     }
-    //     return arr;
-    //   }
-    //   else{
-    //     // console.log("Can't use convertBooleanObjectToArray on an array. Returning object untouched.");
-    //     return object;
-    //   }
+    return textUtils.convertBooleanObjectToArray(obj);
   }
 
-  // This doesn't work as expected. It hasn't been updated
-  static async modifiedFromPlaybookDefault(actor) {
-    let skillsChanged = false;
-    let newAbilities = false;
-    let ownedAbilities = false;
-    let relationships = false;
-    let acquaintanceList = false;
-    let addedItems = false;
+  /**
+   * Smart Item Selector Logic (Shared)
+   * Enforces singleton pattern for specific item types (Hunting Grounds, Reputation, etc.)
+   */
+  static async handleSmartItemSelector(event, actor) {
+    event.preventDefault();
+    const itemType = event.currentTarget.dataset.itemType;
+    const label = event.currentTarget.innerText;
+    const existingItems = actor.items.filter(i => i.type === itemType);
+    const existingItem = existingItems[0] ?? null;
 
-    //get the original playbook
-    let selected_playbook_source;
-    if (actor.system.playbook !== "" && actor.system.playbook) {
-      // selected_playbook_source = await game.packs.get("blades-in-the-dark.class").getDocument(this.system.playbook);
-      selected_playbook_source = await Utils.getItemByType(
-        "class",
-        actor.system.playbook
-      );
+    // 1. Fetch options via Utils
+    const availableItems = await Utils.getSourcedItemsByType(itemType);
 
-      let startingAttributes = await Utils.getStartingAttributes(
-        selected_playbook_source.name
-      );
-      let currentAttributes = actor.system.attributes;
-      //vampire ActiveEffects make this think there's been a change to the base skills, so ignore the exp_max field
-      for (const attribute in currentAttributes) {
-        currentAttributes[attribute].exp = 0;
-        delete currentAttributes[attribute].exp_max;
-      }
-      for (const attribute in startingAttributes) {
-        startingAttributes[attribute].exp = 0;
-        delete startingAttributes[attribute].exp_max;
-      }
-      if (!isObjectEmpty(diffObject(currentAttributes, startingAttributes))) {
-        skillsChanged = true;
-      }
+    // 2. Prepare Choices for Card Dialog
+    const choices = availableItems.map(i => ({
+      value: i._id,
+      label: i.name,
+      img: i.img || "icons/svg/mystery-man.svg"
+    }));
 
-      //check for added abilities
-      let all_abilities = await Utils.getSourcedItemsByType("ability");
-      if (all_abilities) {
-        let pb_abilities = all_abilities.filter(
-          (ab) => ab.system.class === selected_playbook_source.name
-        );
-        let my_abilities = actor.system.items.filter(
-          (i) => i.type === "ability"
-        );
-        for (const ability of my_abilities) {
-          if (!pb_abilities.some((ab) => ab.name === ability.name)) {
-            newAbilities = true;
-          }
-          //check for purchased abilities that aren't class defaults
-          if (
-            ability.system.purchased &&
-            ability.system.class_default &&
-            ability.system.class ===
-            (await Utils.getPlaybookName(actor.system.playbook))
-          ) {
-            ownedAbilities = true;
-          }
+    // 3. Determine Current Value (if any)
+    const currentValue = existingItem ? existingItem.name : ""; // Use ID if possible? Source items have different IDs than owned. Match by Name usually safer for Compendium vs World? 
+    // Wait, the "Unique" rule means we likely want to match by Source ID if we tracked it, but we don't always. 
+    // And standard `availableItems` are the *Source* items. 
+    // If I select "Docks", I want "Docks" to be selected. The `value` is the Source ID.
+    // The owned item has a different ID. 
+    // BUT we can match by NAME? `dialog-compat` expects `value` match.
+    // Let's try to match by Name -> Find Source ID.
+    const currentName = existingItem?.name;
+    const currentSourceId = availableItems.find(i => i.name === currentName)?._id ?? "";
+
+
+    // 4. Open Chooser
+    const result = await openCardSelectionDialog({
+      title: `${game.i18n.localize("bitd-alt.Select")} ${label}`,
+      instructions: game.i18n.localize("bitd-alt.SelectToAddItem"),
+      okLabel: game.i18n.localize("bitd-alt.Ok"),
+      cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
+      clearLabel: game.i18n.localize("bitd-alt.Clear"),
+      choices: choices,
+      currentValue: currentSourceId
+    });
+
+    if (result === undefined) return; // Cancelled
+
+    if (result === null) {
+      // Clear: remove existing singleton entry (cannot represent "none" via update)
+      const existingIds = existingItems.map(i => i.id);
+      if (existingIds.length > 0) {
+        try {
+          await actor.deleteEmbeddedDocuments("Item", existingIds);
+        } catch (err) {
+          ui.notifications.error(`Failed to remove ${label}: ${err.message}`);
+          console.error("Item deletion error:", err);
         }
       }
-
-      //check for non-default acquaintances
-      let all_acquaintances = await Utils.getSourcedItemsByType("npc");
-      if (all_acquaintances) {
-        let pb_acquaintances = all_acquaintances.filter(
-          (acq) => acq.system.associated_class === selected_playbook_source.name
-        );
-        let my_acquaintances = actor.system.acquaintances;
-        for (const my_acq of my_acquaintances) {
-          if (
-            !pb_acquaintances.some(
-              (acq) => acq.id === my_acq.id || acq.id === my_acq._id
-            )
-          ) {
-            acquaintanceList = true;
-          }
-          //check for acquaintance relationships
-          if (my_acq.standing !== "neutral") {
-            relationships = true;
-          }
-        }
-      }
-
-      //check for added items
-      let all_items = await Utils.getSourcedItemsByType("item");
-      if (all_items) {
-        let pb_items = all_items.filter(
-          (i) => i.system.class === selected_playbook_source.name
-        );
-        let my_non_generic_items = actor.items.filter(
-          (i) => i.type === "item" && i.system.class !== ""
-        );
-        for (const myNGItem of my_non_generic_items) {
-          if (!pb_items.some((i) => i.name === myNGItem.name)) {
-            addedItems = true;
-          }
-        }
-      }
-    }
-
-    if (
-      skillsChanged ||
-      newAbilities ||
-      ownedAbilities ||
-      relationships ||
-      acquaintanceList ||
-      addedItems
-    ) {
-      return {
-        skillsChanged,
-        newAbilities,
-        ownedAbilities,
-        relationships,
-        acquaintanceList,
-        addedItems,
-      };
     } else {
-      return false;
+      const selectedId = result;
+      const selectedItem = availableItems.find(i => i._id === selectedId);
+
+      if (selectedItem) {
+        // Prepare data from selected source item
+        const itemData = {
+          name: selectedItem.name,
+          type: selectedItem.type,
+          system: foundry.utils.deepClone(selectedItem.system ?? {}),
+          img: selectedItem.img
+        };
+
+        // Check for existing item to update-in-place
+        try {
+          if (existingItem) {
+            // UPDATE existing item (Atomic, no race condition, no empty gap)
+            await actor.updateEmbeddedDocuments("Item", [{
+              _id: existingItem.id,
+              name: itemData.name,
+              system: itemData.system,
+              img: itemData.img
+            }]);
+          } else {
+            // CREATE if none exists
+            await actor.createEmbeddedDocuments("Item", [itemData]);
+          }
+        } catch (err) {
+          ui.notifications.error(`Failed to set ${label}: ${err.message}`);
+          console.error("Item update/create error:", err);
+        }
+      }
     }
+
+    // Force re-render to ensure UI reflects final state
+    if (actor.sheet && actor.sheet.rendered) {
+      actor.sheet.render(false);
+    }
+  }
+
+  /**
+   * Attach plain-text paste and single-line enforcement to contenteditable fields.
+   * @param {JQuery} html - root jQuery element for the sheet.
+   */
+  static bindContenteditableSanitizers(html) {
+    if (!html || typeof html.find !== "function") return;
+    const $fields = html.find('*[contenteditable="true"]');
+    $fields.on("paste", (e) => {
+      e.preventDefault();
+      const text = (e.originalEvent || e).clipboardData.getData("text/plain");
+      document.execCommand("insertText", false, text);
+    });
+    $fields.on("keydown", (e) => {
+      if (e.which === 13) {
+        e.preventDefault();
+        $(e.target).blur();
+      }
+    });
+  }
+
+  /**
+   * Bind toggle-filter click handlers with provided per-target callbacks.
+   * @param {JQuery} html
+   * @param {Object<string, Function>} handlers
+   */
+  static bindFilterToggles(html, handlers = {}) {
+    if (!html || typeof html.find !== "function") return;
+    html.find('[data-action="toggle-filter"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      const target = ev.currentTarget?.dataset?.filterTarget;
+      if (!target || typeof handlers[target] !== "function") return;
+      handlers[target](ev);
+    });
+  }
+
+  /**
+   * Bind collapse toggles for sections and persist UI state.
+   * @param {JQuery} html
+   * @param {DocumentSheet} sheet
+   */
+  static bindCollapseToggles(html, sheet) {
+    if (!html || typeof html.find !== "function" || !sheet) return;
+    html.find('[data-action="toggle-section-collapse"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      const sectionKey = ev.currentTarget?.dataset?.sectionKey;
+      if (!sectionKey) return;
+      const section = ev.currentTarget.closest(".section-block");
+      if (!section) return;
+      const icon = ev.currentTarget.querySelector("i");
+      const isCollapsed = section.classList.toggle("collapsed");
+      if (icon) {
+        icon.classList.toggle("fa-caret-right", isCollapsed);
+        icon.classList.toggle("fa-caret-down", !isCollapsed);
+      }
+      sheet.collapsedSections = {
+        ...(sheet.collapsedSections || {}),
+        [sectionKey]: isCollapsed,
+      };
+      Utils.saveUiState(sheet, { collapsedSections: sheet.collapsedSections });
+    });
   }
 }
