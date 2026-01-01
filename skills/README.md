@@ -172,6 +172,81 @@ This directory contains reusable Claude Code skills extracted from project docum
 
 ---
 
+### 8. foundry-vtt-virtual-lists
+
+**Purpose:** Display ALL available items/abilities for selection, not just owned items, enabling "check to add" UX instead of "drag from compendium" workflow.
+
+**Use when:**
+- Implementing playbook abilities (show all available for current playbook)
+- Creating item/gear selection lists
+- Displaying special abilities or talents with checkboxes
+- Showing cross-playbook abilities with "ghost" state
+- Any character option that can be selected/toggled
+
+**Key patterns:**
+- `getSourcedItemsByType()` - Fetch from world + compendia
+- Virtual item format: `{owned: boolean, ghost: boolean, source: Document}`
+- Merge source + owned items, replace source with owned if duplicate
+- Ghost slots for cross-playbook abilities (owned but progress=0)
+- Filter by playbook/class, group by category, sort by owned first
+
+**References:**
+- `scripts/utils/collections.js` - `getSourcedItemsByType()` implementation
+- `scripts/utils.js` - `getVirtualListOfItems()`, ghost slot logic
+- `templates/actor-sheet.html` - Abilities section display
+
+---
+
+### 9. foundry-vtt-dialog-compat
+
+**Purpose:** Create custom dialogs that work in both Foundry V11 (Dialog V1) and V12+ (DialogV2) by handling Shadow DOM styling and event listeners correctly.
+
+**Use when:**
+- Creating card selection dialogs with images and descriptions
+- Building multi-choice dialogs with custom styling
+- Implementing interactive confirmations with hover effects
+- Any custom-styled dialog beyond default Foundry appearance
+
+**Key patterns:**
+- Detect V2 support: `foundry?.applications?.api?.DialogV2?.wait`
+- ALL styles inline (no CSS classes, no `<style>` tags)
+- Event listeners in `render` callback (no inline `onclick`)
+- Query from `dialog.element` (not `document`)
+- V1 uses jQuery, V2 uses vanilla JS
+- FormDataExtended for robust form data extraction
+
+**References:**
+- Full guide: `docs/dialogv2-custom-styling-guide.md`
+- Implementation: `scripts/lib/dialog-compat.js`
+- Example: `scripts/sheets/actor/smart-edit.js` - Card selection dialogs
+
+---
+
+### 10. foundry-vtt-version-compat
+
+**Purpose:** Use compatibility wrappers to avoid deprecation warnings when APIs move from globals to namespaces across Foundry versions (V12/V13/V15+).
+
+**Use when:**
+- Importing Foundry classes (ActorSheet, ItemSheet, TextEditor)
+- Registering actor/item sheets
+- Loading Handlebars templates
+- Enriching HTML content (journal entries, descriptions)
+- Any Foundry API that has moved or will move to namespaces
+
+**Key patterns:**
+- Try modern namespace first: `foundry?.appv1?.sheets?.ActorSheet ?? ActorSheet`
+- Cache expensive lookups (DocumentSheetConfig, classes)
+- Defer sheet registration to `ready` hook (V13+ requirement)
+- Throw clear errors if API not found
+- Template: `export function getAPI() { return modern ?? legacy; }`
+
+**References:**
+- Implementation: `scripts/compat.js` - Core compatibility wrappers
+- Helpers: `scripts/compat-helpers.js` - Sheet registration, template loading
+- Guide: `docs/compat-helpers-guide.md`
+
+---
+
 ## How to Use These Skills
 
 ### With Claude Code CLI
