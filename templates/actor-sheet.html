@@ -1,96 +1,127 @@
-<form class="{{cssClass}}" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off" data-uuid="{{actor.uuid}}">
   <div class="sheet-wrapper {{#if allow_edit}}allow-edit{{/if}} {{#if showAliasInDirectory}}showing-alias{{/if}}">
-    <div class="sheet-toggles"><span class="toggle-alias-display"><i class="fas fa-face-disguise" data-tooltip="Show Character Name in Directory"></i><i class="fas fa-face-smile" data-tooltip="Show Character Alias in Directory"></i></span><span class="toggle-expand"><i class="fas fa-expand"></i><i class="fas fa-compress"></i></span><span class="toggle-allow-edit"><i class="fas fa-lock"></i><i class="fas fa-lock-open"></i></span><!--<span class="migrate-test">mig</span>--></div>
+    <div class="sheet-toggles"><span class="toggle-alias-display"><i class="fas fa-face-disguise"
+          data-tooltip="Show Character Name in Directory"></i><i class="fas fa-face-smile"
+          data-tooltip="Show Character Alias in Directory"></i></span><span class="toggle-expand"><i
+          class="fas fa-compress"></i></span><span class="toggle-allow-edit"><i
+          class="fas fa-lock"></i><i class="fas fa-lock-open"></i></span><!--<span class="migrate-test">mig</span>-->
+    </div>
     <section class="minimized-view row natural-height ">
       <section class="character-portrait col flex-lazy">
         <div class="portrait">
-          <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" >
+          <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}">
         </div>
         <div class="status-buttons">
-          <div class="coins-box {{#if coins_open}}open{{/if}} pointer">
-            <div class="mini-view"><div class="placeholder"></div><span class="coin-values label-text">{{system.coins}}/{{system.coins_stashed}}</span></div>
-            <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/coins.html" actor=actor}}</div>
-          </div>
-          <div class="load-box {{#if load_open}}open{{/if}} pointer">
-            <div class="mini-view"><div class="placeholder"></div><span class="load-amounts label-text {{#if (lt loadout max_load)}}below-max{{else if (eq loadout max_load)}}at-max{{else if (gt loadout max_load)}}over-max{{/if}}">{{loadout}}/{{max_load}}</span></div>
-            <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/load.html"}}</div>
-          </div>
-          <div class="harm-box {{#if harm_open}}open{{/if}} pointer">
-            <div class="mini-view harm{{#if (or system.harm.light.one system.harm.light.two)}}-1{{/if}}{{#if
-              (or system.harm.medium.one system.harm.medium.two)}}-2{{/if}}{{#if system.harm.heavy.one}}-3{{/if}}"><div class="placeholder"></div></div>
-            <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}</div>
-          </div>
 
-        </div><div class="stress-trauma-box">
+        </div>
+        <div class="stress-trauma-box">
           <header class="stress-bar full-bar">
             {{localize system.stress.name}}
             <div class="stripe-tooth-body stress">
-            {{#multiboxes system.stress.value}}
-              <input type="radio" id="{{../actor._id}}-stress-0"
-                     name="system.stress.value" value="0" checked="checked" class="zero">
+              {{#multiboxes system.stress.value}}
+              <input type="radio" id="{{../actor._id}}-stress-0" name="system.stress.value" value="0" checked="checked"
+                class="zero">
               {{#times_from_1 system.stress.max}}
-                <input type="radio" id="character-{{../actor._id}}-stress-{{this}}" name="system.stress.value" value="{{this}}" dtype="Radio" class="radio-toggle" >
-                <label for="character-{{../actor._id}}-stress-{{this}}" class="{{#if (gte ../system.stress.value @this)}}on{{/if}} radio-toggle"  ></label>
+              <input type="radio" id="character-{{../actor._id}}-stress-{{this}}" name="system.stress.value"
+                value="{{this}}" dtype="Radio" class="radio-toggle">
+              <label for="character-{{../actor._id}}-stress-{{this}}"
+                class="{{#if (gte ../system.stress.value @this)}}on{{/if}} radio-toggle"></label>
               {{/times_from_1}}
-            {{/multiboxes}}
+              {{/multiboxes}}
             </div>
           </header>
-            <div class="trauma-box">
-                <div class="trauma-list count-{{ownedTraumas.length}}">
-                {{#if (gt trauma_count 0)}}
-                {{#each trauma_array as |trauma index|}}
-                  <div class="trauma-item" data-trauma="{{trauma}}">{{localize (concat 'BITD.Trauma' (upper-first trauma))}}</div>
-                {{/each}}
-                {{else}}
-                  <em>{{localize system.trauma.name}}</em>
-                {{/if}}
-
-                <i class="fas fa-plus add_trauma pointer"></i>
+          <div class="trauma-box">
+            <div class="trauma-list count-{{ownedTraumas.length}}">
+              {{#if (gt trauma_count 0)}}
+              {{#each trauma_array as |trauma index|}}
+              <div class="trauma-item" data-trauma="{{trauma}}">{{localize (concat 'BITD.Trauma' (upper-first trauma))}}
               </div>
+              {{/each}}
+              {{else}}
+              <em>{{localize system.trauma.name}}</em>
+              {{/if}}
+
+              <i class="fas fa-plus add_trauma pointer"></i>
             </div>
+          </div>
         </div>
       </section>
       <section class="character-info col">
 
-      <div class="name-alias bio">
-        <span class="name">{{{inline-editable-text allow_edit "name" (localize "BITD.Name") actor.name actor._id this}}}</span> <span class="alias">&bull; "{{{inline-editable-text allow_edit "system.alias" (localize "BITD.Alias") system.alias actor._id this}}}"</span>
-        <!-- {{#if allow_edit}}
-          <input type="checkbox" id="actor-{{actor._id}}-showAliasInDirectory" data-tooltip="Display Alias in Directory" name="flags.bitd-alternate-sheets.showAliasInDirectory" {{checked showAliasInDirectory}} /><label class="showAliasCheckbox" for="actor-{{actor._id}}-showAliasInDirectory">Show Alias In Directory</label>
-        {{/if}} -->
-      </div>
-      <div class="heritage-background bio">
-        {{{inline-editable-text allow_edit "system.heritage" (localize "BITD.Heritage") heritage actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.background" (localize "BITD.Background") background actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.background-details" (localize "bitd-alt.BackgroundDetails") system.background-details actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this}}} &bull; {{{inline-editable-text allow_edit "system.vice-purveyor" (localize "bitd-alt.VicePurveyor") system.vice-purveyor actor._id this}}}
-      </div>
-      <div class="crew-affiliation bio">
-        <span class="crew-label">{{localize "bitd-alt.CrewLabel"}}:</span>
-        <span class="crew-name{{#if allow_edit}} crew-editable{{/if}}{{#if crew.hasLink}} crew-linked{{/if}}" data-action="select-crew" data-crew-id="{{crew.id}}" {{#if allow_edit}}tabindex="0" role="button"{{else}}{{#if crew.hasLink}}tabindex="0" role="button"{{/if}}{{/if}}>{{crew.name}}</span>
-      </div>
-      <div class="look bio">{{{inline-editable-text allow_edit "system.look" "Look" system.look actor._id this}}} &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.pronouns" "Pronouns" data.flags.bitd-alternate-sheets.pronouns actor._id this}}}</div>
-      <div class="abilities-list">
-        {{#each my_abilities}}<span data-tooltip="{{clean-html this.system.description}}" class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}
-      </div>
-      
-      {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.actor}}
+        {{> "modules/bitd-alternate-sheets/templates/parts/identity-header.html" owner=this subtitle_type="alias"}}
+        <div class="heritage-background bio">
+          {{{smart-field allow_edit "system.heritage" (localize "BITD.Heritage") heritage actor._id this
+          description=heritage_description}}}
+          &bull; {{{smart-field allow_edit "system.background" (localize "BITD.Background") background actor._id this
+          description=background_description}}}
+          &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.background_details" (localize
+          "bitd-alt.BackgroundDetails") actor.flags.bitd-alternate-sheets.background_details actor._id this}}}
+          &bull; {{{smart-field allow_edit "system.vice" (localize "BITD.Vice") vice actor._id this
+          description=vice_description}}}
+          &bull; {{{smart-field allow_edit "flags.bitd-alternate-sheets.vice_purveyor" (localize
+          "bitd-alt.VicePurveyor") actor.flags.bitd-alternate-sheets.vice_purveyor actor._id this source="actor"
+          filter_field="system.associated_class" filter_value="Vice Purveyor" description=vice_purveyor_description}}}
+        </div>
+        <div class="crew-affiliation bio">
+          {{#if allow_edit}}
+          <span class="smart-field-label" data-action="select-playbook" tabindex="0"
+            data-tooltip="{{#if selected_playbook_tooltip}}{{selected_playbook_tooltip}}{{else}}{{localize 'bitd-alt.SelectPlaybookTitle'}}{{/if}}">
+            {{#if selected_playbook.name}}{{selected_playbook.name}}{{else}}{{localize "bitd-alt.Playbook"}}{{/if}}
+          </span>
+          &bull;
+          <span class="smart-field-label" data-action="select-crew" tabindex="0"
+            data-tooltip="{{localize 'bitd-alt.CrewLabel'}}">
+            {{#if crew.name}}{{crew.name}}{{else}}{{localize "bitd-alt.CrewLabel"}}{{/if}}
+          </span>
+          {{else}}
+          {{#if selected_playbook.name}}
+          <span class="smart-field-value" data-tooltip="{{selected_playbook_tooltip}}">
+            {{selected_playbook.name}}
+          </span>
+          &bull;
+          {{/if}}
+          <span class="smart-field-value" data-tooltip="{{localize 'bitd-alt.CrewLabel'}}: {{crew.name}}">
+            <a class="crew-name{{#if crew.hasLink}} crew-linked{{/if}}" data-crew-id="{{crew.id}}">
+              {{#if crew.name}}{{crew.name}}{{else}}{{localize "bitd-alt.CrewLabel"}}{{/if}}&nbsp;<i class="fas fa-link"
+                style="font-size: 0.8em; opacity: 0.5;"></i>
+            </a>
+          </span>
+          {{/if}}
+        </div>
+        <div class="look bio">{{{inline-editable-text allow_edit "system.look" (localize "bitd-alt.Look") system.look
+          actor._id
+          this}}}
+          &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.pronouns" (localize
+          "bitd-alt.Pronouns")
+          data.flags.bitd-alternate-sheets.pronouns actor._id this}}}</div>
+        <div class="abilities-list">
+          {{#each my_abilities}}<span data-tooltip="{{clean-html this.system.description}}"
+            class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}
+        </div>
+
+        {{> "modules/bitd-alternate-sheets/templates/parts/attributes.html" owner=this.actor}}
       </section>
     </section>
     <section class="tab-space">
       <nav class="tabs" data-group="primary-tabs">
         <div class="tab-item playbook" data-tab="playbook">
           {{#if allow_edit}}
-              <div class="playbook-name">{{selected_playbook.name}}</div>
-              <div class="playbook-description" title="{{localize 'bitd-alt.PlaybookDisclaimer'}}">{{localize 'bitd-alt.PlaybookInstructions'}}</div>
+          <div class="playbook-name">{{selected_playbook.name}}</div>
+          <div class="playbook-description" title="{{localize 'bitd-alt.PlaybookDisclaimer'}}">{{localize
+            'bitd-alt.PlaybookInstructions'}}</div>
           {{else if selected_playbook}}
-              <div class="playbook-name">{{selected_playbook.name}}</div>
-              <div class="playbook-description">{{clean-html selected_playbook.system.description}}</div>
+          <div class="playbook-name">{{selected_playbook.name}}</div>
+          <div class="playbook-description">{{clean-html selected_playbook.system.description}}</div>
           {{else}}
-              <div class="playbook-name"></div>
-              <div class="playbook-description" title="{{localize 'bitd-alt.PlaybookDisclaimer'}}">{{localize 'bitd-alt.PlaybookInstructions'}}</div>
+          <div class="playbook-name"></div>
+          <div class="playbook-description" title="{{localize 'bitd-alt.PlaybookDisclaimer'}}">{{localize
+            'bitd-alt.PlaybookInstructions'}}</div>
           {{/if}}
         </div>
         <!-- todo: put the downtime tab back -->
-<!--        <div class="tab-item downtime" data-tab="downtime">-->
-<!--          <div class="">Downtime</div>-->
-<!--        </div>-->
+        <!--        <div class="tab-item downtime" data-tab="downtime">-->
+        <!--          <div class="">Downtime</div>-->
+        <!--        </div>-->
         <div class="tab-item notes-tab" data-tab="notes">
           <div class="notes-header">{{localize "BITD.Notes"}}</div>
         </div>
@@ -99,60 +130,141 @@
       <section class="tab-content">
         <div class="tab" data-tab="playbook" data-group="primary-tabs">
           <div class="playbook">
-            <section class="abilities">
-              <header class="full-bar">
-                <span class="context-abilities">{{localize "BITD.SpecialAbilities"}}</span>{{#if allow_edit}}<a class="ability-add-popup add-button" data-item-type="ability" data-group-by="system.class"><i class="fas fa-plus"></i></a>{{/if}}
-                <div class="stripe-tooth-body right">
-                {{#multiboxes system.experience}}
-                  <input type="radio" id="{{actor._id}}-experience-0"
-                        name="system.experience" value="0" checked="checked" class="zero">
-                  {{#times_from_1 system.experience_max}}
-                    <input type="radio" id="character-{{../actor._id}}-experience-{{this}}" name="system.experience" value="{{this}}" dtype="Radio" class="radio-toggle" >
-                    <label for="character-{{../actor._id}}-experience-{{this}}" class="{{#if (gte ../system.experience @this)}}on{{/if}} radio-toggle"  ></label>
-                  {{/times_from_1}}
-                {{/multiboxes}}
-                </div>
-              </header>
+            <!-- 2-Column Dock Layout -->
+            <div class="dock-column" data-dock-column="left">
+              {{#> "modules/bitd-alternate-sheets/templates/parts/dock-section.html"
+              sectionKey="abilities"
+              sectionClass="abilities"
+              isCollapsed=(lookup collapsedSections 'abilities')
+              label=(localize "BITD.SpecialAbilities")
+              flex=false
+              showFilter=true
+              isFiltered=showFilteredAbilities
+              filterTarget="abilities"
+              showAdd=allow_edit
+              addClass="ability-add-popup add-button"
+              addDataAttrs='data-item-type="ability" data-group-by="system.class"'
+              dockable=true
+              }}
+              {{> "modules/bitd-alternate-sheets/templates/parts/xp-tracks.html"
+              value=system.experience
+              max=system.experience_max
+              field="system.experience"
+              rootId=(concat actor._id "-experience")
+              cssClass="abilities-xp-track"
+              }}
               <section class="ability-list check-list">
                 {{#each available_playbook_abilities as |ability index|}}
                 {{#with ../actor as |actor|}}
-                  {{> "modules/bitd-alternate-sheets/templates/parts/ability.html" actor=actor ability=ability allow_edit=../../allow_edit}}
+                {{> "modules/bitd-alternate-sheets/templates/parts/ability.html" actor=actor ability=ability
+                allow_edit=../../allow_edit}}
                 {{/with}}
                 {{/each}}
               </section>
-            </section>
-            <section class="playbook-items item-list">
-              <header class="full-bar flex-header context-items"><span>{{localize "bitd-alt.items"}}</span>{{#if allow_edit}}<a class="item-list-add add-button" data-item-type="item" data-group-by="system.class"><i class="fas fa-plus"></i></a>{{/if}}</header>
-              {{#each my_items as |item index|}}
-                {{#with ../actor as |actor|}}
-                {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item allow_edit=../../allow_edit}}
-                {{/with}}
+              {{/ "modules/bitd-alternate-sheets/templates/parts/dock-section.html"}}
+
+              {{#> "modules/bitd-alternate-sheets/templates/parts/dock-section.html"
+              sectionKey="items"
+              sectionClass="all-items"
+              isCollapsed=(lookup collapsedSections 'items')
+              label=(localize "bitd-alt.items")
+              flex=true
+              showFilter=false
+              isFiltered=false
+              filterTarget="general-items"
+              showAdd=allow_edit
+              addClass="chooser-add-item add-button"
+              addDataAttrs='data-action="chooser-add-item" data-item-type="item" data-item-scope="all"'
+              showLoadSelector=true
+              dockable=true
+              }}
+              <div class="item-subsection">
+                {{> "modules/bitd-alternate-sheets/templates/parts/item-list-section.html"
+                listClass=""
+                items=my_items
+                actor=actor
+                allow_edit=allow_edit
+                }}
+              </div>
+              <div class="item-subsection">
+                {{> "modules/bitd-alternate-sheets/templates/parts/item-list-section.html"
+                listClass=""
+                items=generic_items
+                actor=actor
+                allow_edit=allow_edit
+                }}
+              </div>
+              {{/ "modules/bitd-alternate-sheets/templates/parts/dock-section.html"}}
+            </div>
+
+            <div class="dock-column" data-dock-column="right">
+              {{#> "modules/bitd-alternate-sheets/templates/parts/dock-section.html"
+              sectionKey="harm"
+              sectionClass="harm"
+              isCollapsed=(lookup collapsedSections 'harm')
+              label=(localize "BITD.Harm")
+              flex=false
+              showFilter=false
+              isFiltered=false
+              filterTarget="harm"
+              showAdd=false
+              dockable=true
+              }}
+              {{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}
+              {{/ "modules/bitd-alternate-sheets/templates/parts/dock-section.html"}}
+
+              {{#> "modules/bitd-alternate-sheets/templates/parts/dock-section.html"
+              sectionKey="coin"
+              sectionClass="coin"
+              isCollapsed=(lookup collapsedSections 'coin')
+              label=(localize "BITD.Coin")
+              flex=false
+              showFilter=false
+              isFiltered=false
+              filterTarget="coin"
+              showAdd=false
+              dockable=true
+              }}
+              {{> "modules/bitd-alternate-sheets/templates/parts/coins.html" actor=actor}}
+              {{/ "modules/bitd-alternate-sheets/templates/parts/dock-section.html"}}
+
+              {{#> "modules/bitd-alternate-sheets/templates/parts/dock-section.html"
+              sectionKey="acquaintances"
+              sectionClass="friends-rivals"
+              isCollapsed=(lookup collapsedSections 'acquaintances')
+              label=(localize acquaintances_label)
+              flex=false
+              showFilter=true
+              isFiltered=showFilteredAcquaintances
+              filterTarget="acquaintances"
+              showAdd=allow_edit
+              addClass="chooser-add-acquaintance add-button"
+              addDataAttrs='data-action="chooser-add-acquaintance"'
+              dockable=true
+              }}
+              {{#if display_acquaintances}}
+              {{#each display_acquaintances}}
+              <div class="acquaintance" data-acquaintance="{{this.id}}">
+                {{> "modules/bitd-alternate-sheets/templates/parts/acquaintance-body.html" id=this.id
+                name=this.name
+                standing=this.standing description_short=this.description_short}}
+              </div>
               {{/each}}
-            </section>
-            <section class="friends-rivals">
-              <header class="full-bar">{{localize acquaintances_label}}</header>
-              {{#if system.acquaintances}}
-              {{#each system.acquaintances}}
-                <div class="acquaintance" data-acquaintance="{{this.id}}">
-                  <i data-acquaintance="{{this.id}}" class="standing-toggle fas
-                    {{#if (eq this.standing "friend" )}} fa-caret-up green-icon
-                    {{else if (eq this.standing "rival")}} fa-caret-down red-icon
-                    {{else}}fa-minus
-                    {{/if}}"></i><strong class="standing-toggle">{{this.name}}</strong>{{#if (notempty this.description_short)}}, {{this.description_short}}{{/if}}
-                </div>
-              {{/each}}
-            {{/if}}
-            </section>
-            <section class="all-items item-list">
-              <header class="full-bar">&nbsp;</header>
-              {{#each generic_items as |item index|}}
-                {{#with ../actor as |actor|}}
-                  {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item allow_edit=../allow_edit}}
-                {{/with}}
-              {{/each}}
-            </section>
-            <section class="xp-notes">
-              <header class="full-bar">XP</header>
+              {{/if}}
+              {{/ "modules/bitd-alternate-sheets/templates/parts/dock-section.html"}}
+
+              {{#> "modules/bitd-alternate-sheets/templates/parts/dock-section.html"
+              sectionKey="xp-notes"
+              sectionClass="xp-notes"
+              isCollapsed=(lookup collapsedSections 'xp-notes')
+              label="XP"
+              flex=false
+              showFilter=false
+              isFiltered=false
+              filterTarget="xp-notes"
+              showAdd=false
+              dockable=true
+              }}
               <ul>
                 <li>{{localize "BITD.ClassExpClue1"}}</li>
                 <p>{{localize "BITD.ClassExpClueDescription"}}</p>
@@ -160,7 +272,8 @@
                 <li>{{localize "BITD.ClassExpClue2"}}</li>
                 <li>{{localize "BITD.ClassExpClue3"}}</li>
               </ul>
-            </section>
+              {{/ "modules/bitd-alternate-sheets/templates/parts/dock-section.html"}}
+            </div>
           </div>
         </div>
         <div class="tab" data-tab="notes" data-group="primary-tabs">
@@ -168,167 +281,168 @@
 
 
             <header>{{localize "bitd-alt.NotesInstructions"}}</header>
-            {{editor notes target="flags.bitd-alternate-sheets.notes" button=true editable=true documents=true engine="prosemirror" collaborate=true}}
+            {{editor notes target="flags.bitd-alternate-sheets.notes" button=true editable=true documents=true
+            engine="prosemirror" collaborate=true}}
           </div>
         </div>
         <!-- todo: put the downtime tab back once it's actually useful and maybe translated -->
-<!--        <div class="tab downtime" data-tab="downtime" data-group="primary-tabs">-->
-<!--          <header>I. Payoff &mdash; II. Heat &mdash; III. Entanglements &mdash; IV. Downtime Activities</header>-->
-<!--          <div class="downtimeWrapper">-->
-<!--            <div class="column">-->
-<!--              <section class="payoff">-->
-<!--                <h3>Payoff</h3>-->
-<!--                <ul>-->
-<!--                  <li>2 REP, +1 per Tier higher / -1 per Tier lower.</li>-->
-<!--                  <ul>-->
-<!--                    <li>Silent Operation: If no one knows about it, gain no REP.</li>-->
-<!--                  </ul>-->
-<!--                </ul>-->
-<!--                <ul>-->
-<!--                  <li>COIN</li>-->
-<!--                  <ul>-->
-<!--                    <li>2 COIN: A minor job; several full purses.</li>-->
-<!--                    <li>4 COIN: A small job; a strongbox.</li>-->
-<!--                    <li>6 COIN: A standard score; decent loot</li>-->
-<!--                    <li>8 COIN: A big score; serious loot.</li>-->
-<!--                    <li>10 COIN: A major score; impressive loot.</li>-->
-<!--                  </ul>-->
-<!--                </ul>-->
-<!--                <ul>-->
-<!--                  <li>TITHE: Pay Tier - 1 COIN to crime boss.</li>-->
-<!--                  <ul>-->
-<!--                    <li> Refusing to Pay: Start clock for that boss’ patience running out. -1 faction status-->
-<!--                      when clock fills.-->
-<!--                    </li>-->
-<!--                  </ul>-->
-<!--                </ul>-->
-<!--              </section>-->
-<!--              <section class="heat">-->
-<!--                <h3>Heat</h3>-->
-<!--                <ul>-->
-<!--                  <li>When HEAT track fills, clear it, mark a WANTED LEVEL, and roll over remaining HEAT.</li>-->
-<!--                  <li><strong>0 HEAT</strong>: Smooth & quiet; low exposure.</li>-->
-<!--                  <li><strong>2 HEAT</strong>: Contained; standard exposure.</li>-->
-<!--                  <li><strong>4 HEAT</strong>: Loud & chaotic; high exposure.</li>-->
-<!--                  <li><strong>6 HEAT</strong>: Wild; devastating exposure.</li>-->
-<!--                  <li><strong>+1 HEAT</strong></li>-->
-<!--                  <ul>-->
-<!--                    <li>High-profile / well-connected target.</li>-->
-<!--                    <li>Situation happened on hostile turf.</li>-->
-<!--                    <li>At war with another faction.</li>-->
-<!--                  </ul>-->
-<!--                  <li><strong>+2 HEAT</strong>: If killing was involved.</li>-->
-<!--                </ul>-->
-<!--              </section>-->
-<!--              <section class="entanglements">-->
-<!--                <h3>Entanglements</h3>-->
-<!--                <p>(1d per WANTED LEVEL)</p>-->
-<!--                <table>-->
-<!--                  <tr>-->
-<!--                    <th></th>-->
-<!--                    <th>Heat 0-3</th>-->
-<!--                    <th>Heat 4/5</th>-->
-<!--                    <th>Heat 6+</th>-->
-<!--                  </tr>-->
-<!--                  <tr>-->
-<!--                    <td>1-3</td>-->
-<!--                    <td><span class="hover-term">Gang Trouble</span> or<br/><span class="hover-term">Usual Suspects</span></td>-->
-<!--                    <td><span class="hover-term">Gang Trouble</span> or<br/><span class="hover-term">Questioning</span></td>-->
-<!--                    <td><span class="hover-term">Flipped</span> or<br/><span class="hover-term">Interrogation</span></td>-->
-<!--                  </tr>-->
-<!--                  <tr>-->
-<!--                    <td>4/5</td>-->
-<!--                    <td><span class="hover-term">Rivals</span> or<br/><span class="hover-term">Unquiet Dead</span></td>-->
-<!--                    <td><span class="hover-term">Reprisals</span> or<br/><span class="hover-term">Unquiet Dead</span></td>-->
-<!--                    <td><span class="hover-term">Demonic Notice</span> or<br/><span class="hover-term">Show of Force</span></td>-->
-<!--                  </tr>-->
-<!--                  <tr>-->
-<!--                    <td>6</td>-->
-<!--                    <td><span class="hover-term">Cooperation</span></td>-->
-<!--                    <td><span class="hover-term">Show of Force</span></td>-->
-<!--                    <td><span class="hover-term">Arrest</span></td>-->
-<!--                  </tr>-->
-<!--                </table>-->
-<!--              </section>-->
-<!--            </div>-->
-<!--            <div class="column">-->
-<!--              <section class="downtime-activities">-->
-<!--                <h3>Downtime Activities</h3>-->
-<!--                <header>-->
-<!--                  <div class="header-row"><span>Crit: 5 segments</span><span>6: 3 segments</span><span>4/5: 2 segments</span><span>1-3: 1 segment</span></div>-->
-<!--                  <div class="header-row"><span>Crit: Tier +2</span><span>6: Tier +1</span><span>4/5: Tier</span><span>1-3: Tier -1</span></div>-->
-<!--                </header>-->
-<!--                <p><em>(2 activities per downtime; 1 if at war &mdash; +1 action for 1 Coin or 1 Rep)</em></p>-->
-<!--                <h4>Acquire Asset <i class="fas fa-dice"></i></h4>-->
-<!--                <ul>-->
-<!--                  <li>Roll crew's Tier to determine relative quality of temporary asset (usually 1 score)</li>-->
-<!--                  <ul>-->
-<!--                    <li>Extra Quality: +1 quality per 2 COIN beyond Critical Effect</li>-->
-<!--                  </ul>-->
-<!--                  <li>Assets: special item, set of common items, cohort, vehicle, service</li>-->
-<!--                  <li>Minimum Quality: Set by the GM for certain assets</li>-->
-<!--                  <li>Reacquire Asset: +1d to re-acquire the same asset</li>-->
-<!--                  <li>Dangerous Items: +2 HEAT (alchemicals, poisons, bombs, etc.)</li>-->
-<!--                  <li>Permanent Acquisition: Crew Upgrade or long-term project</li>-->
-<!--                </ul>-->
-<!--                <h4>Long-Term Project</h4>-->
-<!--                <ul>-->
-<!--                  <li>Roll an action, fill a project clock defined by the GM.</li>-->
-<!--                  <li>Linked Projects: Some projects may require other projects before you attempt them.</li>-->
-<!--                </ul>-->
-<!--                <h4>Recover <i class="fas fa-dice"></i></h4>-->
-<!--                <ul>-->
-<!--                  <li>Physicker: Roll Tinker or NPC Quality, fill PC’s Healing clock.</li>-->
-<!--                  <ul>-->
-<!--                    <li>No Physicker: Pay 1 stress, roll 0d.</li>-->
-<!--                    <li>PC Physicker: Does not require downtime action to heal; only to recover</li>-->
-<!--                    <li>Healing Self: Costs 2 stress (requires Physicker special ability)</li>-->
-<!--                    <li>Acquiring Physicker: NPC physicker can be acquired as an asset</li>-->
-<!--                  </ul>-->
-<!--                  <li>Filled healing clock: Reduce all harms by one level (segments roll over)</li>-->
-<!--                </ul>-->
-<!--                <h4>Reduce Heat <i class="fas fa-dice"></i></h4>-->
-<!--                <ul>-->
-<!--                  <li>Roll an action to reduce HEAT segments</li>-->
-<!--                </ul>-->
-<!--                <h4>Train</h4>-->
-<!--                <ul>-->
-<!--                  <li>Mark 1 XP on an attribute or playbook track</li>-->
-<!--                </ul>-->
-<!--                <h4>Indulge Vice <i class="fas fa-dice"></i></h4>-->
-<!--                <ul>-->
-<!--                  <li>Specify how you indulge and which purveyor of vice you use</li>-->
-<!--                  <li>Roll weakest attribute rating most in thrall to the vice. Clear stress = result.</li>-->
-<!--                  <ul>-->
-<!--                    <li>Overindulge: If you clear more stress than you had, select an overindulgence.</li>-->
-<!--                  </ul>-->
-<!--                  <li>Ignoring Your Vice: If you do not indulge vice in downtime, take stress = Trauma</li>-->
-<!--                  <li>Lost in Vice: PC indulges vice for entire game session (Player uses different character)</li>-->
-<!--                </ul>-->
-<!--              </section>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </section>-->
-    </section>
+        <!--        <div class="tab downtime" data-tab="downtime" data-group="primary-tabs">-->
+        <!--          <header>I. Payoff &mdash; II. Heat &mdash; III. Entanglements &mdash; IV. Downtime Activities</header>-->
+        <!--          <div class="downtimeWrapper">-->
+        <!--            <div class="column">-->
+        <!--              <section class="payoff">-->
+        <!--                <h3>Payoff</h3>-->
+        <!--                <ul>-->
+        <!--                  <li>2 REP, +1 per Tier higher / -1 per Tier lower.</li>-->
+        <!--                  <ul>-->
+        <!--                    <li>Silent Operation: If no one knows about it, gain no REP.</li>-->
+        <!--                  </ul>-->
+        <!--                </ul>-->
+        <!--                <ul>-->
+        <!--                  <li>COIN</li>-->
+        <!--                  <ul>-->
+        <!--                    <li>2 COIN: A minor job; several full purses.</li>-->
+        <!--                    <li>4 COIN: A small job; a strongbox.</li>-->
+        <!--                    <li>6 COIN: A standard score; decent loot</li>-->
+        <!--                    <li>8 COIN: A big score; serious loot.</li>-->
+        <!--                    <li>10 COIN: A major score; impressive loot.</li>-->
+        <!--                  </ul>-->
+        <!--                </ul>-->
+        <!--                <ul>-->
+        <!--                  <li>TITHE: Pay Tier - 1 COIN to crime boss.</li>-->
+        <!--                  <ul>-->
+        <!--                    <li> Refusing to Pay: Start clock for that boss’ patience running out. -1 faction status-->
+        <!--                      when clock fills.-->
+        <!--                    </li>-->
+        <!--                  </ul>-->
+        <!--                </ul>-->
+        <!--              </section>-->
+        <!--              <section class="heat">-->
+        <!--                <h3>Heat</h3>-->
+        <!--                <ul>-->
+        <!--                  <li>When HEAT track fills, clear it, mark a WANTED LEVEL, and roll over remaining HEAT.</li>-->
+        <!--                  <li><strong>0 HEAT</strong>: Smooth & quiet; low exposure.</li>-->
+        <!--                  <li><strong>2 HEAT</strong>: Contained; standard exposure.</li>-->
+        <!--                  <li><strong>4 HEAT</strong>: Loud & chaotic; high exposure.</li>-->
+        <!--                  <li><strong>6 HEAT</strong>: Wild; devastating exposure.</li>-->
+        <!--                  <li><strong>+1 HEAT</strong></li>-->
+        <!--                  <ul>-->
+        <!--                    <li>High-profile / well-connected target.</li>-->
+        <!--                    <li>Situation happened on hostile turf.</li>-->
+        <!--                    <li>At war with another faction.</li>-->
+        <!--                  </ul>-->
+        <!--                  <li><strong>+2 HEAT</strong>: If killing was involved.</li>-->
+        <!--                </ul>-->
+        <!--              </section>-->
+        <!--              <section class="entanglements">-->
+        <!--                <h3>Entanglements</h3>-->
+        <!--                <p>(1d per WANTED LEVEL)</p>-->
+        <!--                <table>-->
+        <!--                  <tr>-->
+        <!--                    <th></th>-->
+        <!--                    <th>Heat 0-3</th>-->
+        <!--                    <th>Heat 4/5</th>-->
+        <!--                    <th>Heat 6+</th>-->
+        <!--                  </tr>-->
+        <!--                  <tr>-->
+        <!--                    <td>1-3</td>-->
+        <!--                    <td><span class="hover-term">Gang Trouble</span> or<br/><span class="hover-term">Usual Suspects</span></td>-->
+        <!--                    <td><span class="hover-term">Gang Trouble</span> or<br/><span class="hover-term">Questioning</span></td>-->
+        <!--                    <td><span class="hover-term">Flipped</span> or<br/><span class="hover-term">Interrogation</span></td>-->
+        <!--                  </tr>-->
+        <!--                  <tr>-->
+        <!--                    <td>4/5</td>-->
+        <!--                    <td><span class="hover-term">Rivals</span> or<br/><span class="hover-term">Unquiet Dead</span></td>-->
+        <!--                    <td><span class="hover-term">Reprisals</span> or<br/><span class="hover-term">Unquiet Dead</span></td>-->
+        <!--                    <td><span class="hover-term">Demonic Notice</span> or<br/><span class="hover-term">Show of Force</span></td>-->
+        <!--                  </tr>-->
+        <!--                  <tr>-->
+        <!--                    <td>6</td>-->
+        <!--                    <td><span class="hover-term">Cooperation</span></td>-->
+        <!--                    <td><span class="hover-term">Show of Force</span></td>-->
+        <!--                    <td><span class="hover-term">Arrest</span></td>-->
+        <!--                  </tr>-->
+        <!--                </table>-->
+        <!--              </section>-->
+        <!--            </div>-->
+        <!--            <div class="column">-->
+        <!--              <section class="downtime-activities">-->
+        <!--                <h3>Downtime Activities</h3>-->
+        <!--                <header>-->
+        <!--                  <div class="header-row"><span>Crit: 5 segments</span><span>6: 3 segments</span><span>4/5: 2 segments</span><span>1-3: 1 segment</span></div>-->
+        <!--                  <div class="header-row"><span>Crit: Tier +2</span><span>6: Tier +1</span><span>4/5: Tier</span><span>1-3: Tier -1</span></div>-->
+        <!--                </header>-->
+        <!--                <p><em>(2 activities per downtime; 1 if at war &mdash; +1 action for 1 Coin or 1 Rep)</em></p>-->
+        <!--                <h4>Acquire Asset <i class="fas fa-dice"></i></h4>-->
+        <!--                <ul>-->
+        <!--                  <li>Roll crew's Tier to determine relative quality of temporary asset (usually 1 score)</li>-->
+        <!--                  <ul>-->
+        <!--                    <li>Extra Quality: +1 quality per 2 COIN beyond Critical Effect</li>-->
+        <!--                  </ul>-->
+        <!--                  <li>Assets: special item, set of common items, cohort, vehicle, service</li>-->
+        <!--                  <li>Minimum Quality: Set by the GM for certain assets</li>-->
+        <!--                  <li>Reacquire Asset: +1d to re-acquire the same asset</li>-->
+        <!--                  <li>Dangerous Items: +2 HEAT (alchemicals, poisons, bombs, etc.)</li>-->
+        <!--                  <li>Permanent Acquisition: Crew Upgrade or long-term project</li>-->
+        <!--                </ul>-->
+        <!--                <h4>Long-Term Project</h4>-->
+        <!--                <ul>-->
+        <!--                  <li>Roll an action, fill a project clock defined by the GM.</li>-->
+        <!--                  <li>Linked Projects: Some projects may require other projects before you attempt them.</li>-->
+        <!--                </ul>-->
+        <!--                <h4>Recover <i class="fas fa-dice"></i></h4>-->
+        <!--                <ul>-->
+        <!--                  <li>Physicker: Roll Tinker or NPC Quality, fill PC’s Healing clock.</li>-->
+        <!--                  <ul>-->
+        <!--                    <li>No Physicker: Pay 1 stress, roll 0d.</li>-->
+        <!--                    <li>PC Physicker: Does not require downtime action to heal; only to recover</li>-->
+        <!--                    <li>Healing Self: Costs 2 stress (requires Physicker special ability)</li>-->
+        <!--                    <li>Acquiring Physicker: NPC physicker can be acquired as an asset</li>-->
+        <!--                  </ul>-->
+        <!--                  <li>Filled healing clock: Reduce all harms by one level (segments roll over)</li>-->
+        <!--                </ul>-->
+        <!--                <h4>Reduce Heat <i class="fas fa-dice"></i></h4>-->
+        <!--                <ul>-->
+        <!--                  <li>Roll an action to reduce HEAT segments</li>-->
+        <!--                </ul>-->
+        <!--                <h4>Train</h4>-->
+        <!--                <ul>-->
+        <!--                  <li>Mark 1 XP on an attribute or playbook track</li>-->
+        <!--                </ul>-->
+        <!--                <h4>Indulge Vice <i class="fas fa-dice"></i></h4>-->
+        <!--                <ul>-->
+        <!--                  <li>Specify how you indulge and which purveyor of vice you use</li>-->
+        <!--                  <li>Roll weakest attribute rating most in thrall to the vice. Clear stress = result.</li>-->
+        <!--                  <ul>-->
+        <!--                    <li>Overindulge: If you clear more stress than you had, select an overindulgence.</li>-->
+        <!--                  </ul>-->
+        <!--                  <li>Ignoring Your Vice: If you do not indulge vice in downtime, take stress = Trauma</li>-->
+        <!--                  <li>Lost in Vice: PC indulges vice for entire game session (Player uses different character)</li>-->
+        <!--                </ul>-->
+        <!--              </section>-->
+        <!--            </div>-->
+        <!--          </div>-->
+        <!--        </div>-->
+        <!--      </section>-->
+      </section>
     </section>
   </div>
   {{#if isGM}}
-    <i class="fas fa-bug debug-toggle {{#if show_debug}}on{{/if}} "></i>
-    {{#if show_debug}}
-        {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}</div>
-        <hr />
-        <h3>All Items</h3>
-        {{#each actor.items as |item id|}}
-            <div class="item flex-horizontal" data-item-id="{{item._id}}">
-                <div class="item-body item-sheet-open flex-horizontal">
-                    <img src="{{item.img}}" title="{{item.name}}" width="24" height="24"/>
-                    <div class="item-name">{{item.name}}</div>
-                </div>
-                <a class="item-control item-delete" title="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
-            </div>
-        {{/each}}
-        <button type="button" class="clearLoad">Clear Load</button>
-    {{/if}}
+  <i class="fas fa-bug debug-toggle {{#if show_debug}}on{{/if}} "></i>
+  {{#if show_debug}}
+  {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}</div>
+  <hr />
+  <h3>All Items</h3>
+  {{#each actor.items as |item id|}}
+  <div class="item flex-horizontal" data-item-id="{{item._id}}">
+    <div class="item-body item-sheet-open flex-horizontal">
+      <img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
+      <div class="item-name">{{item.name}}</div>
+    </div>
+    <a class="item-control item-delete" title="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
+  </div>
+  {{/each}}
+  <button type="button" class="clearLoad">Clear Load</button>
+  {{/if}}
   {{/if}}
 </form>

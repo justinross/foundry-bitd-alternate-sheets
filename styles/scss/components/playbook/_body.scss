@@ -1,0 +1,9 @@
+@use "../../abstracts/tokens" as *;
+@use "../../abstracts/mixins" as *;
+@use "../shared/attributes" as attrs;
+
+@mixin playbook-body {
+  .attributes-actions {
+    @include attrs.attributes-sheet();
+  }
+}

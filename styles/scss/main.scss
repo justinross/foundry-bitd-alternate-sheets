@@ -1,0 +1,99 @@
+// Utility imports
+@use "./abstracts/tokens" as *;
+@use "sass:meta";
+@use "./abstracts/mixins" as *;
+@use "./components/character/sheet" as char;
+@use "./components/crew/sheet" as crew;
+@use "./components/item/sheet" as item;
+@use "./components/playbook/sheet" as playbook;
+
+//namespacing to avoid conflicts with other modules
+.blades-alt {
+  font-family: "Crimson Text", serif;
+
+  // Shared CSS custom properties used by the alt sheets
+  --alt-dark: #{$alt-dark};
+  --alt-mid: #{$alt-mid};
+  --alt-light: #{$alt-light};
+  --alt-tab-mid: #{$alt-tab-mid};
+  --alt-border: #{$alt-border};
+  --alt-border-strong: #{$alt-border-strong};
+  --alt-paper: #{$alt-paper};
+  --alt-ink: #{$alt-ink};
+  --alt-ink-light: #{$alt-ink-light};
+  --alt-accent-font: #{$font-accent};
+  --alt-body-font: "Crimson Text", serif;
+  --alt-radius: #{$alt-radius};
+  --alt-radius-sm: #{$alt-radius-sm};
+  --alt-label-height: 30px;
+  --alt-max-tabs: #{$alt-max-tabs};
+  --alt-max-row: var(--alt-max-tabs);
+  --alt-panel-bg: #{$alt-panel-bg};
+  --alt-status-bg: #{$alt-status-bg};
+  --alt-shadow: #{$alt-shadow};
+  --alt-red: #{$alt-red};
+  --alt-red-dark: #{$alt-red-dark};
+  --alt-deep-red: #{$alt-deep-red};
+  --alt-green: #{$alt-green};
+  --alt-gold: #{$alt-gold};
+  --alt-amber: #{$alt-amber};
+  --alt-blue: #{$alt-blue};
+  --alt-harm-light: #{$alt-harm-light};
+  --alt-harm-medium: #{$alt-harm-medium};
+  --alt-harm-heavy: #{$alt-harm-heavy};
+  --alt-muted: #{$alt-muted};
+  --font-display: #{$font-display};
+  --line-tight: #{$line-tight};
+  --space-1: #{$space-1};
+  --space-2: #{$space-2};
+  --space-3: #{$space-3};
+  --space-4: #{$space-4};
+  --space-5: #{$space-5};
+  --space-tight: #{$space-tight};
+  --grid-gutter: #{$grid-gutter};
+  --col-1: #{$col-1};
+  --col-2: #{$col-2};
+  --col-3: #{$col-3};
+  --col-4: #{$col-4};
+  --col-5: #{$col-5};
+  --col-6: #{$col-6};
+  --col-7: #{$col-7};
+  --col-8: #{$col-8};
+  --col-9: #{$col-9};
+  --col-10: #{$col-10};
+  --col-11: #{$col-11};
+  --col-12: #{$col-12};
+
+  $gutter: $grid-gutter;
+  @include meta.load-css("./layout/main");
+
+  @include meta.load-css("./components/shared/globals");
+
+  &.actor.sheet.crew {
+    @include crew.crew-sheet();
+  }
+
+  &.actor.sheet.pc {
+    @include char.character-sheet();
+  }
+
+  &.item.sheet.class {
+    @include playbook.playbook-sheet();
+  }
+
+  //&.actor.clock{
+  //  @use './import/clock-sheet' as *;
+  //}
+  &.item.sheet {
+    @include item.item-sheet();
+  }
+}
+
+//top-level styles
+//@use './import/chat' as *;
+//@use './import/dialogs' as *;
+@include meta.load-css("./components/shared/tooltip");
+
+// Global clock styles - MUST be outside .blades-alt namespace
+// to work in chat, journals, and other non-sheet contexts
+@include meta.load-css("./components/shared/clocks");

@@ -1,4 +1,2 @@
-@import "variables/main.scss";
-@import "mixins/main.scss";
-@import "grid";
-@import "visibility"; // Visibility last for precedence
+@forward "../../layout/main";
+@forward "./mixins/main";

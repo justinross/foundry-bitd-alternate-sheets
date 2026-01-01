@@ -1,0 +1,8 @@
+@use "../../abstracts/tokens" as *;
+@use "../../abstracts/mixins" as *;
+@use "sass:meta";
+@use "./body" as crewSheet;
+
+@mixin crew-sheet {
+  @include meta.load-css("./body");
+}

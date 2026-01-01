@@ -1,0 +1,35 @@
+<header
+  class="full-bar {{#if flex}}flex-header context-items{{/if}} {{#if showLoadSelector}}{{#if (gt loadout max_load)}}over-max{{/if}}{{/if}}">
+  {{#if dockable}}
+  <a class="dock-handle" aria-label="{{localize 'bitd-alt.DragToReorder'}}"><i class="fas fa-grip-vertical"></i></a>
+  {{/if}}
+  <div class="header-left">
+    <a class="collapse-toggle section-toggle" data-action="toggle-section-collapse" data-section-key="{{sectionKey}}"
+      aria-label="{{localize 'BITD.ToggleSection'}}">
+      <i class="fas {{#if isCollapsed}}fa-caret-right{{else}}fa-caret-down{{/if}}"></i>
+    </a>
+    <span>{{label}}</span>
+    {{#if showFilter}}
+    <a class="filter-toggle {{#if isFiltered}}active{{/if}}" data-action="toggle-filter"
+      data-filter-target="{{filterTarget}}" data-tooltip="Show checked only">
+      <i class="fas fa-filter"></i>
+    </a>
+    {{/if}}
+    {{#if showAdd}}
+    <a class="{{addClass}}" {{#if addDataAttrs}}{{{addDataAttrs}}}{{/if}}>
+      <i class="fas fa-plus"></i>
+    </a>
+    {{/if}}
+  </div>
+  <div class="header-right">
+    {{#if showLoadSelector}}
+    <div class="load-inline header-control {{#if (gt loadout max_load)}}over-max{{/if}}">
+      <label for="{{sectionKey}}-load-selector">{{localize "BITD.Load"}}:</label>
+      <select id="{{sectionKey}}-load-selector" name="system.selected_load_level">
+        {{selectOptions load_levels selected=system.selected_load_level localize=true}}
+      </select>
+      <span class="load-stats">{{loadout}}/{{max_load}}</span>
+    </div>
+    {{/if}}
+  </div>
+</header>

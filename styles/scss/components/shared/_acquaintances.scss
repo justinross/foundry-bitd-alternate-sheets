@@ -1,0 +1,28 @@
+@use "../../abstracts/tokens" as *;
+
+.acquaintance {
+  line-height: 1em;
+  padding: 2px $space-tight;
+
+  .standing-toggle {
+    padding: 1px;
+    margin-right: 3px;
+    width: 1.2em;
+    text-align: center;
+
+    &.red-icon {
+      color: $alt-maroon;
+    }
+
+    &.green-icon {
+      color: $alt-green;
+    }
+  }
+
+  strong.standing-toggle {
+    margin-right: 0;
+    padding: 0;
+    width: auto;
+    text-align: left;
+  }
+}

@@ -1,0 +1,390 @@
+<form class="{{cssClass}} actor-sheet blades-alt crew actor" autocomplete="off" data-uuid="{{actor.uuid}}">
+  <div class="sheet-wrapper {{#if allow_edit}}allow-edit{{/if}}">
+
+    <div class="crew-upper-wrapper">
+      <div class="crew-upper-frame">
+        <section class="character-portrait crew-left">
+          <div class="portrait">
+            <img src="{{img}}" data-edit="img" title="{{name}}">
+          </div>
+          <div class="stress-trauma-box">
+            <header class="stress-bar full-bar">
+              {{localize "BITD.CrewXP"}}
+              <div class="stripe-tooth-body stress">
+                {{#if (getSetting 'ClockXP')}}
+                <div class="crew-xp-clock" style="display: inline-flex; position: relative; top: -8px;">
+                  <div class="flex-vertical" style="font-size: 16px; padding-left: 6px; padding-right: 2px">
+                    <a class="up-exp-clock" data-tooltip="{{localize 'BITD.AddXP'}}"><i class="fas fa-caret-up"></i></a>
+                    <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i
+                        class="fas fa-caret-down"></i></a>
+                  </div>
+                  <div style="width: 40px; height: 40px; position: relative;">
+                    {{{blades-clock "system.exp_clock.value" system.exp_clock.size system.exp_clock.value (concat _id
+                    "-exp") }}}
+                  </div>
+                </div>
+                {{else}}
+                {{#multiboxes system.experience}}
+                <input type="radio" id="crew-{{_id}}-experience-0" name="system.experience" value="0" dtype="Radio"
+                  class="zero">
+                {{#times_from 1 system.max.exp}}
+                <input id="crew-{{../_id}}-experience-{{this}}" type="radio" name="system.experience" value="{{this}}">
+                <label class="radio-toggle" for="crew-{{../_id}}-experience-{{this}}"></label>
+                {{/times_from}}
+                {{/multiboxes}}
+                {{/if}}
+              </div>
+            </header>
+            <div class="trauma-box">
+              <div class="trauma-list">
+                <!-- Decorative hanging element -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="character-info crew-top-right crew-header-body">
+          <div class="crew-identity-block">
+            <div class="sheet-toggles">
+              <span class="toggle-allow-edit" data-tooltip="{{localize 'bitd-alt.AllowEdit'}}">
+                <i class="fas fa-lock"></i><i class="fas fa-lock-open"></i>
+              </span>
+            </div>
+            {{> "modules/bitd-alternate-sheets/templates/parts/identity-header.html" owner=this
+            subtitle_type="crew_type"}}
+            <div class="crew-meta-line">
+              <span class="meta-label">{{localize "BITD.Lair"}}:</span>
+              <span class="meta-value">{{{inline-editable-text allow_edit "system.lair" (localize "BITD.Lair")
+                system.lair _id this}}}</span>
+            </div>
+            <div class="crew-meta-line list-meta-line">
+              {{#if allow_edit}}
+              <span class="smart-field-label" data-action="smart-item-selector" data-item-type="crew_reputation"
+                tabindex="0"
+                data-tooltip="{{#with (getItemByType items 'crew_reputation') as |item|}}{{#if item.system.description}}{{clean-html item.system.description}}{{else}}{{localize 'bitd-alt.CrewReputation'}}{{/if}}{{else}}{{localize 'bitd-alt.CrewReputation'}}{{/with}}">
+                {{#with (getItemByType items "crew_reputation") as |item|}}
+                {{item.name}}
+                {{else}}
+                {{localize "bitd-alt.CrewReputation"}}
+                {{/with}}
+              </span>
+              {{else}}
+              <span class="smart-field-value"
+                data-tooltip="{{#with (getItemByType items 'crew_reputation') as |item|}}{{#if item.system.description}}{{clean-html item.system.description}}{{else}}{{localize 'bitd-alt.CrewReputation'}}{{/if}}{{else}}{{localize 'bitd-alt.CrewReputation'}}{{/with}}">
+                {{#with (getItemByType items "crew_reputation") as |item|}}
+                {{item.name}}
+                {{else}}
+                {{localize "bitd-alt.CrewReputation"}}
+                {{/with}}
+              </span>
+              {{/if}}
+              &nbsp;&bull;&nbsp;
+              {{#if allow_edit}}
+              <span class="smart-field-label" data-action="smart-item-selector" data-item-type="hunting_grounds"
+                tabindex="0"
+                data-tooltip="{{#with (getItemByType items 'hunting_grounds') as |item|}}{{#if item.system.description}}{{clean-html item.system.description}}{{else}}{{localize system.hunting_grounds_label}}{{/if}}{{else}}{{localize system.hunting_grounds_label}}{{/with}}">
+                {{#with (getItemByType items "hunting_grounds") as |item|}}
+                {{item.name}}
+                {{else}}
+                {{localize system.hunting_grounds_label}}
+                {{/with}}
+              </span>
+              {{else}}
+              <span class="smart-field-value"
+                data-tooltip="{{#with (getItemByType items 'hunting_grounds') as |item|}}{{#if item.system.description}}{{clean-html item.system.description}}{{else}}{{localize system.hunting_grounds_label}}{{/if}}{{else}}{{localize system.hunting_grounds_label}}{{/with}}">
+                {{#with (getItemByType items "hunting_grounds") as |item|}}
+                {{item.name}}
+                {{else}}
+                {{localize system.hunting_grounds_label}}
+                {{/with}}
+              </span>
+              {{/if}}
+            </div>
+          </div>
+        </section>
+
+        <div class="crew-stats-grid crew-bottom-right">
+          <div class="rep-turf-row">
+            <div id="crew-{{_id}}-reputation" class="crew-reputation">
+              <div class="black-label">{{localize "BITD.Rep"}}</div>
+              {{#multiboxes system.reputation}}
+              <input type="radio" id="crew-{{../_id}}-reputation-0" name="system.reputation" value="0" dtype="Radio">
+              {{#repturf _id system.turfs_amount system.max.rep}}
+              {{/repturf}}
+              {{/multiboxes}}
+              <div class="gray-label">{{localize "BITD.Turf"}}</div>
+            </div>
+          </div>
+
+          <div class="teeth-row hold-tier-row">
+            <div id="crew-{{_id}}-hold-box" class="flex-horizontal crew-hold">
+              <div class="black-label">{{localize "BITD.Hold"}}</div>
+              {{#multiboxes system.hold}}
+              <div class="flex-horizontal">
+                <div class="gray-label">{{localize "BITD.Weak"}}</div>
+                <input id="crew-{{_id}}-hold-weak" type="radio" name="system.hold" value="weak">
+                <label for="crew-{{_id}}-hold-weak"></label>
+              </div>
+              <div class="flex-horizontal">
+                <div class="gray-label">{{localize "BITD.Strong"}}</div>
+                <input id="crew-{{_id}}-hold-strong" type="radio" name="system.hold" value="strong">
+                <label for="crew-{{_id}}-hold-strong"></label>
+              </div>
+              {{/multiboxes}}
+            </div>
+
+            <div class="crew-tier flex-horizontal">
+              <div class="black-label">{{localize "BITD.Tier"}}</div>
+              {{#multiboxes system.tier}}
+              <input id="crew-{{_id}}-tier-0" type="radio" name="system.tier" value="0">
+              {{#times_from 1 system.max.tier}}
+              <input id="crew-{{../_id}}-tier-{{this}}" type="radio" name="system.tier" value="{{this}}">
+              <label class="radio-toggle" for="crew-{{../_id}}-tier-{{this}}"></label>
+              {{/times_from}}
+              {{/multiboxes}}
+            </div>
+          </div>
+
+          <div class="heat-wanted-row">
+            <div id="crew-{{_id}}-heat" class="big-teeth">
+              <div class="black-label">{{localize "BITD.Heat"}}</div>
+              {{#multiboxes system.heat}}
+              <input type="radio" id="crew-{{_id}}-heat-0" name="system.heat" value="0" dtype="Radio">
+              {{#times_from 1 system.max.heat}}
+              <input id="crew-{{../_id}}-heat-{{this}}" type="radio" name="system.heat" value="{{this}}">
+              <label class="radio-toggle" for="crew-{{../_id}}-heat-{{this}}"></label>
+              {{/times_from}}
+              {{/multiboxes}}
+            </div>
+
+            <div id="crew-{{_id}}-wanted-container" class="small-teeth-container crew-wanted-container">
+              {{#multiboxes system.wanted}}
+              <div id="crew-{{_id}}-wanted" class="small-teeth-wrap">
+                <div class="black-label">{{localize "BITD.Wanted"}}</div>
+                <div class="small-teeth">
+                  <input type="radio" id="crew-{{_id}}-wanted-counter-0" name="system.wanted" value="0">
+                  {{#times_from 1 system.max.wanted}}
+                  <input id="crew-{{../_id}}-wanted-counter-{{this}}" type="radio" name="system.wanted"
+                    value="{{this}}">
+                  <label class="radio-toggle" for="crew-{{../_id}}-wanted-counter-{{this}}"></label>
+                  {{/times_from}}
+                </div>
+              </div>
+              {{/multiboxes}}
+            </div>
+          </div>
+
+          <div class="coins-row">
+            <div class="coins-block">
+              <div id="crew-{{_id}}-coins" class="crew-coins-container coins-grid">
+                <div class="coin-group hands-group">
+                  <div class="black-label coins-label">{{localize "BITD.Coins"}}</div>
+                  <div id="crew-{{_id}}-coins-hands" class="crew-coins-hands">
+                    <div class="crew-coins coins coins-hands">
+                      {{#multiboxes system.coins.value}}
+                      <input type="radio" id="crew-{{_id}}-coins-hands-0" name="system.coins.value" value="0" checked>
+                      {{#times_from 1 system.coins.max}}
+                      <input id="crew-{{../_id}}-coins-hands-{{this}}" type="radio" name="system.coins.value"
+                        value="{{this}}">
+                      <label class="radio-toggle" for="crew-{{../_id}}-coins-hands-{{this}}"></label>
+                      {{/times_from}}
+                      {{/multiboxes}}
+                    </div>
+                  </div>
+                </div>
+
+                {{#if system.vault.max}}
+                <div class="coin-group vault-group">
+                  <div class="gray-label coins-label vault-label">{{localize "BITD.Vault"}}</div>
+                  <div id="crew-{{_id}}-coins-vault" class="crew-coins-vault">
+                    <div class="crew-coins coins coins-vault">
+                      {{#multiboxes system.vault.value}}
+                      <input type="radio" id="crew-{{_id}}-coins-vault-0" name="system.vault.value" value="0"
+                        checked="checked">
+                      {{#times_from 1 system.vault.max}}
+                      <input id="crew-{{../_id}}-coins-vault-{{this}}" type="radio" name="system.vault.value"
+                        value="{{this}}">
+                      <label class="radio-toggle" for="crew-{{../_id}}-coins-vault-{{this}}"></label>
+                      {{/times_from}}
+                      {{/multiboxes}}
+                    </div>
+                  </div>
+                </div>
+                {{/if}}
+              </div>
+            </div>
+            <p class="coins-caption">{{localize "bitd-alt.CrewCoinsCaption"}}</p>
+          </div>
+        </div>
+        </section>
+        </section>
+      </div>
+    </div>
+
+    <section class="flex-horizontal crew-tabs-row" style="justify-content:flex-start; padding-top: 6px;">
+
+      <div class="flex-vertical">
+
+        <nav class="tabs flex-horizontal">
+          <a class="item" data-tab="xp">{{localize "BITD.XP"}}</a>
+          <a class="item" data-tab="turfs">{{localize "BITD.Claims"}}</a>
+          <a class="item" data-tab="upgrades">{{localize "BITD.Upgrades"}}</a>
+          <a class="item" data-tab="abilities">{{localize "BITD.Abilities"}}</a>
+          <a class="item" data-tab="contacts">{{localize "BITD.Contacts"}}</a>
+          <a class="item" data-tab="cohorts">{{localize "BITD.Cohorts"}}</a>
+          <a class="item" data-tab="prison">{{localize "BITD.Prison"}}</a>
+          <a class="item" data-tab="notes">{{localize "BITD.Notes"}}</a>
+          <a class="item" data-tab="all-items">{{localize "BITD.AllItems"}}</a>
+          {{#if isGM}}
+          <a class="item" data-tab="effects">{{localize "BITD.Effects"}}</a>
+          {{/if}}
+        </nav>
+      </div>
+
+
+
+
+    </section>
+
+    <section class="tab-content">
+      <div id="crew-{{_id}}-xp" class="tab flex-vertical" data-tab="xp">
+        <section class="crew-xp-notes xp-notes">
+          <header class="full-bar">Crew XP</header>
+          <p>{{localize "bitd-alt.CrewExpClue1"}}</p>
+          <ul>
+            {{#if selected_crew_type}}
+            <li>{{firstLine selected_crew_type.system.experience_clues}}</li>
+            {{/if}}
+            <li>{{localize "bitd-alt.CrewExpClue2"}}</li>
+            <li>{{localize "bitd-alt.CrewExpClue3"}}</li>
+            <li>{{localize "bitd-alt.CrewExpClue4"}}</li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="tab" data-tab="turfs">
+        {{#each items as |item id|}}
+        {{#if (eq item.type "crew_type")}}
+        <div class="item" data-item-id="{{item._id}}">
+          {{> "modules/bitd-alternate-sheets/templates/parts/turf-list.html" _id=../_id turfs_data=item.system.turfs
+          can_edit=false not_prison=true}}
+        </div>
+        {{/if}}
+        {{/each}}
+      </div>
+
+      <div id="crew-{{_id}}-upgrades" class="crew-upgrades tab grow-two flex-vertical" data-tab="upgrades">
+        <section class="ability-list check-list">
+          {{#each available_crew_upgrades as |upgrade index|}}
+          {{> "modules/bitd-alternate-sheets/templates/parts/crew-upgrade.html" upgrade}}
+          {{/each}}
+        </section>
+      </div>
+
+      <div id="crew-{{_id}}-abilities" class="crew-abilities tab grow-two flex-vertical" data-tab="abilities">
+        <section class="ability-list check-list">
+          {{#each available_crew_abilities as |ability index|}}
+          {{> "modules/bitd-alternate-sheets/templates/parts/crew-ability.html" ability}}
+          {{/each}}
+        </section>
+      </div>
+
+      <div id="crew-{{_id}}-contacts"
+        class="tab flex-vertical section-block {{#if (lookup collapsedSections 'acquaintances')}}collapsed{{/if}}"
+        data-tab="contacts" data-section-key="acquaintances">
+        <div class="flex-horizontal contacts-actions">
+          <p>
+            <a class="import-contacts" data-tooltip="{{localize 'BITD.ImportPlaybookContacts'}}"><i
+                class="fa-solid fa-file-import"></i></a>
+            <a class="add-custom-contact" data-tooltip="Add Custom Contact"><i class="fas fa-user-plus"></i></a>
+          </p>
+        </div>
+        {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
+        label=(localize "BITD.Contacts")
+        flex=false
+        showFilter=true
+        isFiltered=showFilteredAcquaintances
+        filterTarget="acquaintances"
+        sectionKey="acquaintances"
+        isCollapsed=(lookup collapsedSections 'acquaintances')
+        showAdd=false
+        }}
+        <div class="section-body">
+          {{#if display_acquaintances}}
+          {{#each display_acquaintances as |item id|}}
+          <div class="item flex-horizontal" data-item-id="{{item.id}}" data-item-type="{{item.type}}">
+            <div class="acquaintance" data-acquaintance="{{this.id}}">
+              {{> "modules/bitd-alternate-sheets/templates/parts/acquaintance-body.html" id=this.id name=this.name
+              standing=this.standing description_short=this.description_short}}
+            </div>
+            <a class="acquaintance-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i
+                class="fas fa-trash"></i></a>
+          </div>
+          {{/each}}
+          {{/if}}
+        </div>
+      </div>
+
+      <div id="crew-{{_id}}-cohorts" class="crew-cohorts tab grow-two flex-vertical" data-tab="cohorts">
+        <div class="label-stripe flex-horizontal add-item-row">
+          <p><a class="add-item" data-item-type="cohort"><i class="fas fa-plus-square"></i></a></p>
+        </div>
+        <div class="cohorts flex-horizontal">
+          {{#each items as |item id|}}
+          {{#if (eq item.type "cohort")}}
+
+          {{> "systems/blades-in-the-dark/templates/parts/cohort-block.html" item=item}}
+
+          {{/if}}
+          {{/each}}
+        </div>
+      </div>
+
+      <div id="crew-{{_id}}-prison" class="tab" data-tab="prison">
+        <div class="label-stripe flex-horizontal add-item-row">
+          <p><a class="item-add-popup" data-distinct="true" data-item-type="prison"><i
+                class="fas fa-plus-square"></i></a>
+          </p>
+        </div>
+        {{#each items as |item id|}}
+        {{#if (eq item.type "prison")}}
+        <div class="item" data-item-id="{{item._id}}">
+          {{> "modules/bitd-alternate-sheets/templates/parts/turf-list.html" _id=../_id turfs_data=item.system.turfs
+          can_edit=false not_prison=false}}
+        </div>
+        {{/if}}
+        {{/each}}
+      </div>
+
+      <div id="crew-{{_id}}-notes" class="notes tab grow-two flex-vertical character-notes-area" data-tab="notes">
+        <header>{{localize "bitd-alt.NotesInstructions"}}</header>
+        {{editor notes target=(concat "flags." "bitd-alternate-sheets" ".notes") button=true editable=editable
+        documents=true engine="prosemirror" collaborate=true}}
+      </div>
+
+      {{#if isGM}}
+      <div id="crew-{{_id}}-effects" class="tab effects flex-vertical" data-tab="effects">
+        {{> "modules/bitd-alternate-sheets/templates/parts/active-effects.html"}}
+      </div>
+      {{/if}}
+
+      <div class="tab grow-two flex-vertical" data-tab="all-items">
+        {{#each items as |item id|}}
+        <div class="item flex-horizontal" data-item-id="{{item._id}}">
+          <div class="item-body item-sheet-open flex-horizontal">
+            <img src="{{item.img}}" data-tooltip="{{item.name}}" width="24" height="24" />
+            <div class="item-name">{{item.name}}</div>
+          </div>
+          <a class="item-control item-delete" data-tooltip="{{localize 'BITD.TitleDeleteItem'}}"><i
+              class="fas fa-trash"></i></a>
+          <a class="item-control item-post" data-tooltip="{{localize 'BITD.TitlePostItem'}}"><i
+              class="fas fa-comment"></i></a>
+        </div>
+        {{/each}}
+      </div>
+
+    </section>
+
+  </div>
+
+</form>

@@ -1,22 +1,41 @@
 import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-sheet.js";
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
+import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
-import { openCrewSelectionDialog } from "./lib/dialog-compat.js";
+import { openCrewSelectionDialog, openCardSelectionDialog, confirmDialog } from "./lib/dialog-compat.js";
 import { enrichHTML } from "./compat.js";
+import { initDockableSections } from "./ui/dockable-sections.js";
+import { handleSmartEdit, openAcquaintanceChooser as openAcquaintanceChooserHelper, openItemChooser as openItemChooserHelper } from "./sheets/actor/smart-edit.js";
+import { bindInlineInputHandlers } from "./lib/sheet-helpers.js";
 
-// import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
+const LOAD_CONFIG = {
+  deepCut: {
+    levels: {
+      "BITD.Discreet": 4,
+      "BITD.Conspicuous": 6,
+      "BITD.Encumbered": 9,
+    },
+    defaultLevel: "BITD.Discreet",
+  },
+  standard: {
+    levels: {
+      "BITD.Light": 3,
+      "BITD.Normal": 5,
+      "BITD.Heavy": 6,
+    },
+    defaultLevel: "BITD.Normal",
+  }
+};
 
 /**
  * Pure chaos
  * @extends {BladesSheet}
  */
 export class BladesAlternateActorSheet extends BladesSheet {
-  // playbookChangeOptions = {};
-  coins_open = false;
   harm_open = false;
   load_open = false;
-  allow_edit = false;
+  allow_edit = undefined;
   show_debug = false;
 
   /** @override */
@@ -37,16 +56,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   /** @override **/
-  async _onDropItem(event, droppedItem) {
-    await super._onDropItem(event, droppedItem);
-    if (!this.actor.isOwner) {
-      ui.notifications.error(
-        `You do not have sufficient permissions to edit this character. Please speak to your GM if you feel you have reached this message in error.`,
-        { permanent: true }
-      );
+  async _onDropItem(event, data) {
+    if (!this.actor.isOwner) return false;
+
+    // Block playbook (class) drops; users should use the chooser
+    const item = await Item.fromDropData(data);
+    if (item?.type === "class") {
+      ui.notifications.warn(game.i18n.localize("bitd-alt.PlaybookInstructions"));
       return false;
     }
-    await this.handleDrop(event, droppedItem);
+
+    await super._onDropItem(event, data);
+    await this.handleDrop(event, data);
   }
 
   setLocalProp(propName, value) {
@@ -69,86 +90,80 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override **/
   async handleDrop(event, droppedEntity) {
-    let droppedEntityFull = await fromUuid(droppedEntity.uuid);
-    switch (droppedEntityFull.type) {
-      case "npc":
-        await Utils.addAcquaintance(this.actor, droppedEntityFull);
-        // await this.actor.addAcquaintance(droppedEntityFull);
-        break;
-      case "item":
-        // just let Foundry do its thing
-        break;
-      case "ability":
-        // just let Foundry do its thing
-        break;
-      case "class":
-        // let d = new Dialog({
-        //   title: game.i18n.localize("bitd-alt.SwitchPlaybook"),
-        //   content:  `<h3>This will reset your owned abilities, skill points, and acquaintances. Do you wish to continue?`,
-        //   buttons: {
-        //     ok: {
-        //       icon: "<i class='fas fa-check'></i>",
-        //       label: game.i18n.localize("bitd-alt.Ok"),
-        //       callback: async (html)=> {
-        //         await this.switchPlaybook(droppedEntityFull);
-        //       }
-        //     },
-        //     cancel: {
-        //       icon: "<i class='fas fa-times'></i>",
-        //       label: game.i18n.localize("bitd-alt.Cancel"),
-        //       callback: ()=> close()
-        //     }
-        //   },
-        //   close: (html) => {
-        //   }
-        // }, {classes:["add-existing-dialog"], width: "650"});
-        // d.render(true);
-        await this.switchPlaybook(droppedEntityFull);
-        break;
-      default:
-        // await this.actor.setUniqueDroppedItem(droppedEntityFull);
-        // await this.onDroppedDistinctItem(droppedEntityFull);
-        break;
+    if (!droppedEntity?.uuid) return;
+    const droppedEntityFull = await fromUuid(droppedEntity.uuid);
+    if (!droppedEntityFull) return;
+
+    // Only handle NPC drops specially; all other types handled by Foundry via super._onDropItem
+    if (droppedEntityFull.type === "npc") {
+      await Utils.addAcquaintance(this.actor, droppedEntityFull);
     }
   }
 
   async switchPlaybook(newPlaybookItem) {
-    await this._resetAbilityProgressFlags();
-    await this.switchToPlaybookAcquaintances(newPlaybookItem);
-    await this.setPlaybookAttributes(newPlaybookItem);
-    if (this._state == 1) {
-      Hooks.once("renderBladesAlternateActorSheet", () => {
+    try {
+      if (!newPlaybookItem) {
+        this.showFilteredAcquaintances = false;
+        Utils.saveUiState(this, { showFilteredAcquaintances: false });
+      }
 
-        setTimeout(() => this.render(false), 100);
+      const updates = { system: {} };
+
+      // 1. Progress Flags
+      const progressFlags = this.actor.getFlag(MODULE_ID, "multiAbilityProgress");
+      if (progressFlags) {
+        updates[`flags.${MODULE_ID}.-=multiAbilityProgress`] = null;
+      }
+
+      // 2. Acquaintances
+      let nextAcquaintances = [];
+      if (newPlaybookItem) {
+        const all_acquaintances = await Utils.getSourcedItemsByType("npc");
+        const playbook_acquaintances = all_acquaintances.filter((item) => {
+          return item.system.associated_class.trim() === newPlaybookItem.name;
+        });
+
+        const current_acquaintances = this.actor.system.acquaintances ?? [];
+        // Keep friend/rival/non-neutral
+        nextAcquaintances = current_acquaintances.filter(
+          (acq) => acq.standing && acq.standing !== "neutral"
+        );
+
+        // Add playbook-specific ones if not already present
+        for (const acq of playbook_acquaintances) {
+          if (!nextAcquaintances.some((existing) => (existing.id || existing._id) === (acq.id || acq._id))) {
+            nextAcquaintances.push({
+              id: acq.id,
+              name: acq.name,
+              description_short: acq.system.description_short,
+              standing: "neutral",
+            });
+          }
+        }
+      }
+      updates.system.acquaintances = nextAcquaintances;
+
+      // 3. Attributes
+      const startingAttributes = await Utils.getStartingAttributes(newPlaybookItem);
+      // Ensure all values are strings before updating (breaks multiboxes otherwise)
+      Object.keys(startingAttributes).forEach((key) => {
+        if (startingAttributes[key]) {
+          startingAttributes[key].exp = startingAttributes[key].exp.toString();
+          startingAttributes[key].exp_max = startingAttributes[key].exp_max.toString();
+        }
       });
+      updates.system.attributes = startingAttributes;
+
+      // Final unified update
+      await queueUpdate(async () => {
+        await this.actor.update(updates);
+      });
+      // Document update already triggers re-render via Foundry hooks
+    } catch (err) {
+      ui.notifications.error(`Failed to switch playbook: ${err.message}`);
+      console.error("Playbook switch error:", err);
     }
   }
-
-  async switchToPlaybookAcquaintances(selected_playbook) {
-    let all_acquaintances = await Utils.getSourcedItemsByType("npc");
-    let playbook_acquaintances = all_acquaintances.filter((item) => {
-      return item.system.associated_class.trim() === selected_playbook.name;
-    });
-    let current_acquaintances = this.actor.system.acquaintances;
-    let neutral_acquaintances = current_acquaintances.filter(
-      (acq) => acq.standing === "neutral"
-    );
-    await Utils.removeAcquaintanceArray(this.actor, neutral_acquaintances);
-    await Utils.addAcquaintanceArray(this.actor, playbook_acquaintances);
-  }
-
-  // async switchPlaybook(newPlaybookItem){
-  //   // show confirmation (ask for items to replace) - not doing this. can't be bothered. sry.
-  //   // remove old playbook (done automatically somewhere else. tbh I don't know where)
-  //   // add abilities - not adding. virtual!
-  //   // add items - virtual!
-  //   // add acquaintances - should be virtual?
-
-  //   await this.switchToPlaybookAcquaintances(newPlaybookItem);
-  //   await this.setPlaybookAttributes(newPlaybookItem);
-  //   // return newPlaybookItem;
-  //   // set skills
-  // }
 
   async generateAddExistingItemDialog(item_type) {
     let all_items = await Utils.getSourcedItemsByType(item_type);
@@ -202,15 +217,25 @@ export class BladesAlternateActorSheet extends BladesSheet {
             label: game.i18n.localize("BITD.Add"),
             callback: async (html) => {
               let itemInputs = html.find("input:checked");
-              let items = [];
+              let itemsToCreate = [];
               for (const itemelement of itemInputs) {
                 let item = await Utils.getItemByType(
                   item_type,
                   itemelement.dataset[item_type + "Id"]
                 );
-                items.push(item);
+                if (item) {
+                  // For abilities, register the slot so the ghost persists
+                  if (item_type === "ability") {
+                    await Utils.addAbilitySlot(this.actor, item.id);
+                  }
+                  // Ensure we pass a plain object for document creation
+                  const itemData = item.toObject ? item.toObject() : foundry.utils.deepClone(item);
+                  itemsToCreate.push(itemData);
+                }
               }
-              this.actor.createEmbeddedDocuments("Item", items);
+              if (itemsToCreate.length > 0) {
+                await this.actor.createEmbeddedDocuments("Item", itemsToCreate);
+              }
             },
           },
           cancel: {
@@ -416,7 +441,39 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override */
   async getData() {
-    let sheetData = await super.getData();
+    const baseData = await super.getData();
+    Utils.ensureAllowEdit(this);
+    const persistedUi = await Utils.loadUiState(this);
+    const sheetData = await this._initViewModel(baseData, persistedUi);
+
+    await this._applyCrewInfo(sheetData);
+    await this._applyAttributes(sheetData);
+    await this._applyDescriptions(sheetData);
+    this._applyLoadLevels(sheetData);
+    await this._applyPlaybookAndAbilities(sheetData);
+    await this._applyItems(sheetData);
+    await this._applyLoad(sheetData);
+    this._applyFilters(sheetData);
+
+    return sheetData;
+  }
+
+  async _initViewModel(sheetData, persistedUi) {
+    if (typeof this.showFilteredAbilities === "undefined") {
+      this.showFilteredAbilities = Boolean(persistedUi.showFilteredAbilities);
+    }
+    if (typeof this.showFilteredItems === "undefined") {
+      this.showFilteredItems = Boolean(persistedUi.showFilteredItems);
+    }
+    if (typeof this.showFilteredAcquaintances === "undefined") {
+      this.showFilteredAcquaintances = Boolean(
+        persistedUi.showFilteredAcquaintances
+      );
+    }
+    this.collapsedSections =
+      this.collapsedSections ||
+      persistedUi.collapsedSections ||
+      {};
     sheetData.editable = this.options.editable;
     sheetData.isGM = game.user.isGM;
     sheetData.showAliasInDirectory = this.actor.getFlag(
@@ -424,14 +481,24 @@ export class BladesAlternateActorSheet extends BladesSheet {
       "showAliasInDirectory"
     );
     const actorData = sheetData.data;
+    actorData.uuid = this.actor.uuid;
     sheetData.actor = actorData;
     sheetData.system = actorData.system;
-    sheetData.coins_open = this.coins_open;
     sheetData.harm_open = this.harm_open;
     sheetData.load_open = this.load_open;
     sheetData.allow_edit = this.allow_edit;
     sheetData.show_debug = this.show_debug;
+    sheetData.effects = BladesActiveEffect.prepareActiveEffectCategories(
+      this.actor.effects
+    );
+    const rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
+    if (rawNotes) {
+      sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
+    }
+    return sheetData;
+  }
 
+  async _applyCrewInfo(sheetData) {
     const systemCrewEntries = this._getSystemCrewEntries();
     const primaryCrew = this._getPrimaryCrewEntry(systemCrewEntries);
     const crewActor = primaryCrew?.id
@@ -446,7 +513,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       name: crewName,
       hasLink: Boolean(crewId),
     };
+  }
 
+  async _applyAttributes(sheetData) {
     const computedAttributes = this.actor.getComputedAttributes();
     sheetData.system.attributes = computedAttributes;
     sheetData.attributes = computedAttributes;
@@ -459,33 +528,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
       sheetData.system.acquaintances_label == "BITD.Acquaintances"
         ? "bitd-alt.Acquaintances"
         : sheetData.system.acquaintances_label;
-    let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
-    if (rawNotes) {
-      let pattern = /(@UUID\[([^]*?)]){[^}]*?}/gm;
-      let linkedEntities = [...rawNotes.matchAll(pattern)];
-      for (let index = 0; index < linkedEntities.length; index++) {
-        const entity = await fromUuid(linkedEntities[index][2]);
-        if (entity?.type === "🕛 clock") {
-        }
-      }
-      let clockNotes = await enrichHTML(rawNotes, {
-        documents: false,
-        async: true,
-      });
-      sheetData.notes = await enrichHTML(clockNotes, {
-        relativeTo: this.document,
-        secrets: this.document.isOwner,
-        async: true,
-      });
-    }
 
-    // Prepare active effects
-    sheetData.effects = BladesActiveEffect.prepareActiveEffectCategories(
-      this.actor.effects
-    );
-    let trauma_array = [];
     let trauma_object = {};
-
     if (Array.isArray(sheetData.system.trauma.list)) {
       trauma_object = Utils.convertArrayToBooleanObject(
         sheetData.system.trauma.list
@@ -495,15 +539,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
       });
       await this.actor.update(trauma_object);
     }
-    trauma_array = Utils.convertBooleanObjectToArray(
+    const trauma_array = Utils.convertBooleanObjectToArray(
       sheetData.system.trauma.list
     );
-
     sheetData.trauma_array = trauma_array;
     sheetData.trauma_count = trauma_array.length;
-    // system.acquaintances_array = this.getAcquaintances();
+  }
 
-    // @todo - fix this. display heritage, background, and vice based on owned objects (original sheet style) or stored string, with priority given to string if not empty and not default value
+  async _applyDescriptions(sheetData) {
     sheetData.heritage =
       sheetData.system.heritage != "" && sheetData.system.heritage != "Heritage"
         ? sheetData.system.heritage
@@ -524,35 +567,46 @@ export class BladesAlternateActorSheet extends BladesSheet {
           ? Utils.getOwnedObjectByType(this.actor, "vice").name
           : "";
 
+    sheetData.heritage_description = await this._resolveDescription("heritage", sheetData.heritage);
+    sheetData.background_description = await this._resolveDescription("background", sheetData.background);
+    sheetData.vice_description = await this._resolveDescription("vice", sheetData.vice);
+
+    const purveyorName = this.actor.getFlag(MODULE_ID, "vice_purveyor");
+    sheetData.vice_purveyor_description = await this._resolveDescription("npc", purveyorName);
+  }
+
+  _applyLoadLevels(sheetData) {
     if (game.settings.get("blades-in-the-dark", "DeepCutLoad")) {
-      // Deep Cut: include Encumbered so mule/overmax can be represented
       sheetData.load_levels = {
         "BITD.Discreet": "BITD.Discreet",
         "BITD.Conspicuous": "BITD.Conspicuous",
         "BITD.Encumbered": "BITD.Encumbered",
       };
     } else {
-      // Traditional Load Levels
       sheetData.load_levels = {
         "BITD.Light": "BITD.Light",
         "BITD.Normal": "BITD.Normal",
         "BITD.Heavy": "BITD.Heavy",
       };
     }
+  }
 
-    let owned_playbooks = this.actor.items.filter(
+  async _applyPlaybookAndAbilities(sheetData) {
+    const owned_playbooks = this.actor.items.filter(
       (item) => item.type == "class"
     );
     if (owned_playbooks.length == 1) {
-
       sheetData.selected_playbook = owned_playbooks[0];
-    } else {
-
+      const rawDesc = Utils.resolveDescription(owned_playbooks[0]);
+      sheetData.selected_playbook_tooltip = Utils.strip(rawDesc);
     }
 
+    const combined_abilities_list = await this._buildAbilityList(sheetData);
+    this._applyAbilityProgress(sheetData, combined_abilities_list);
+  }
+
+  async _buildAbilityList(sheetData) {
     let combined_abilities_list = [];
-    let all_generic_items = [];
-    let my_items = [];
     if (sheetData.selected_playbook) {
       combined_abilities_list = await Utils.getVirtualListOfItems(
         "ability",
@@ -562,15 +616,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
         false,
         true
       );
-      my_items = await Utils.getVirtualListOfItems(
-        "item",
-        sheetData,
-        true,
-        sheetData.selected_playbook.name,
-        true,
-        true
-      );
-
       sheetData.selected_playbook_full = sheetData.selected_playbook;
       sheetData.selected_playbook_full = await Utils.getItemByType(
         "class",
@@ -585,45 +630,25 @@ export class BladesAlternateActorSheet extends BladesSheet {
         false,
         true
       );
-
-      my_items = await Utils.getVirtualListOfItems(
-        "item",
-        sheetData,
-        true,
-        "noclassselectod",
-        true,
-        true
-      );
     }
+    return combined_abilities_list;
+  }
 
-    all_generic_items = await Utils.getVirtualListOfItems(
-      "item",
-      sheetData,
-      true,
-      "",
-      false,
-      false
-    );
-    const abilityCostFor = (ability) => {
-      const rawCost = ability?.system?.price ?? ability?.system?.cost ?? 1;
-      const parsed = Number(rawCost);
-      if (Number.isNaN(parsed) || parsed < 1) return 1;
-      return Math.floor(parsed);
-    };
-
+  _applyAbilityProgress(sheetData, combined_abilities_list) {
     const storedAbilityProgress =
       foundry.utils.duplicate(
         this.actor.getFlag(MODULE_ID, "multiAbilityProgress") || {}
       ) || {};
 
     for (const ability of combined_abilities_list) {
-      const cost = abilityCostFor(ability);
+      const cost = Utils.getAbilityCost(ability);
       const abilityKey = Utils.getAbilityProgressKey(ability);
       const storedProgress = Number(storedAbilityProgress[abilityKey]) || 0;
       const ownedAbilityId = this._findOwnedAbilityId(ability.name);
       const ownsAbility = Boolean(ownedAbilityId);
 
       let progress = Math.max(0, Math.min(storedProgress, cost));
+      // If owned, ensure at least 1 progress (checked)
       if (ownsAbility && progress < 1) {
         progress = 1;
       }
@@ -633,15 +658,33 @@ export class BladesAlternateActorSheet extends BladesSheet {
       ability._ownedId = ownedAbilityId || "";
     }
 
-    sheetData.available_playbook_abilities = combined_abilities_list;
+    const filteredAbilities = this.showFilteredAbilities
+      ? combined_abilities_list.filter((ab) => (Number(ab?._progress) || 0) > 0)
+      : combined_abilities_list;
 
-    let armor = all_generic_items.findSplice((item) =>
+    sheetData.available_playbook_abilities = filteredAbilities;
+    sheetData.my_abilities = sheetData.items.filter(
+      (ability) => ability.type == "ability"
+    );
+  }
+
+  async _applyItems(sheetData) {
+    const genericDefaultsRaw = await Utils.getVirtualListOfItems(
+      "item",
+      sheetData,
+      true,
+      "",
+      false,
+      false
+    );
+
+    let armor = genericDefaultsRaw.findSplice((item) =>
       item.name.includes(game.i18n.localize("BITD.Armor"))
     );
-    let heavy = all_generic_items.findSplice((item) =>
+    let heavy = genericDefaultsRaw.findSplice((item) =>
       item.name.includes(game.i18n.localize("BITD.Heavy"))
     );
-    all_generic_items.sort((a, b) => {
+    genericDefaultsRaw.sort((a, b) => {
       if (a.name === b.name) {
         return 0;
       }
@@ -651,33 +694,88 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
 
     if (armor) {
-      all_generic_items.splice(0, 0, armor);
+      genericDefaultsRaw.splice(0, 0, armor);
     }
     if (heavy) {
-      all_generic_items.splice(1, 0, heavy);
+      genericDefaultsRaw.splice(1, 0, heavy);
     }
 
-    sheetData.generic_items = all_generic_items;
-    sheetData.my_items = my_items;
+    const genericDefaults = genericDefaultsRaw.filter((def) => {
+      const cls = (def.system?.class || def.system?.associated_class || "").trim();
+      return !cls;
+    }).map(d => {
+      if (!d.system) d.system = {};
+      d.system.virtual = true;
+      d.owned = false;
+      return d;
+    });
 
-    let my_abilities = sheetData.items.filter(
-      (ability) => ability.type == "ability"
+    const genericOwned = this.actor.items.filter((i) => {
+      const cls = (i.system?.class || i.system?.associated_class || "").trim();
+      return i.type === "item" && !cls;
+    }).map(i => {
+      const data = i.toObject ? i.toObject() : foundry.utils.deepClone(i);
+      data._id = i.id;
+      if (!data.system) data.system = {};
+      data.system.virtual = false;
+      data.owned = true;
+      return data;
+    });
+
+    sheetData.generic_items = [...genericDefaults, ...genericOwned];
+
+    const currentPlaybookName = sheetData.selected_playbook ? sheetData.selected_playbook.name : "noclassselectod";
+    const classedDefaultsRaw = await Utils.getVirtualListOfItems(
+      "item",
+      sheetData,
+      true,
+      currentPlaybookName,
+      false,
+      false
     );
-    sheetData.my_abilities = my_abilities;
 
-    // Calculate Load
+    const classedDefaults = classedDefaultsRaw.map(d => {
+      if (!d.system) d.system = {};
+      d.system.virtual = true;
+      d.owned = false;
+      return d;
+    });
+
+    const classedOwned = this.actor.items.filter((i) => {
+      const cls = (i.system?.class || i.system?.associated_class || "").trim();
+      return i.type === "item" && !!cls;
+    }).map(i => {
+      const data = i.toObject ? i.toObject() : foundry.utils.deepClone(i);
+      data._id = i.id;
+      if (!data.system) data.system = {};
+      data.system.virtual = false;
+      data.owned = true;
+      return data;
+    });
+
+    sheetData.my_items = [...classedDefaults, ...classedOwned];
+  }
+
+  async _applyLoad(sheetData) {
     let loadout = 0;
-    let equipped = await this.actor.getFlag(
+    const equipped = await this.actor.getFlag(
       "bitd-alternate-sheets",
       "equipped-items"
     );
+    if (this.showFilteredItems) {
+      const equippedMap = equipped || {};
+      sheetData.my_items = (sheetData.my_items || []).filter((item) => {
+        const key = item?.id || item?._id;
+        return Boolean(key && equippedMap[key]);
+      });
+    }
     if (equipped) {
       for (const i of Object.values(equipped)) {
-        loadout += parseInt(i.load);
+        if (!i) continue;
+        loadout += parseInt(i.load) || 0;
       }
     }
 
-    //Sanity Check
     if (loadout < 0) {
       loadout = 0;
     }
@@ -687,44 +785,51 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     sheetData.loadout = loadout;
 
-    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
-      //Deep Cuts Load
-      switch (sheetData.system.selected_load_level) {
-        case "BITD.Discreet":
-          sheetData.max_load = sheetData.system.base_max_load + 4;
-          break;
-        case "BITD.Conspicuous":
-          sheetData.max_load = sheetData.system.base_max_load + 6;
-          break;
-        case "BITD.Encumbered":
-          sheetData.max_load = sheetData.system.base_max_load + 9;
-          break;
-        default:
-          sheetData.system.selected_load_level = "BITD.Discreet";
-          sheetData.max_load = sheetData.system.base_max_load + 4;
-          break;
-      }
+    const isDeepCut = game.settings.get('blades-in-the-dark', 'DeepCutLoad');
+    const config = isDeepCut ? LOAD_CONFIG.deepCut : LOAD_CONFIG.standard;
+    const selectedLevel = sheetData.system.selected_load_level;
+
+    if (config.levels[selectedLevel] !== undefined) {
+      sheetData.max_load = sheetData.system.base_max_load + config.levels[selectedLevel];
+    } else {
+      sheetData.system.selected_load_level = config.defaultLevel;
+      sheetData.max_load = sheetData.system.base_max_load + config.levels[config.defaultLevel];
     }
-    else {
-      //Traditional Load
-      switch (sheetData.system.selected_load_level) {
-        case "BITD.Light":
-          sheetData.max_load = sheetData.system.base_max_load + 3;
-          break;
-        case "BITD.Normal":
-          sheetData.max_load = sheetData.system.base_max_load + 5;
-          break;
-        case "BITD.Heavy":
-          sheetData.max_load = sheetData.system.base_max_load + 6;
-          break;
-        default:
-          sheetData.system.selected_load_level = "BITD.Normal";
-          sheetData.max_load = sheetData.system.base_max_load + 5;
-          break;
-      }
+  }
+
+  _applyFilters(sheetData) {
+    sheetData.showFilteredAbilities = this.showFilteredAbilities;
+    sheetData.showFilteredItems = this.showFilteredItems;
+    sheetData.showFilteredAcquaintances = this.showFilteredAcquaintances;
+    sheetData.collapsedSections = this.collapsedSections;
+
+    // Use live actor data to ensure fresh state during rapid updates
+    const liveAcquaintances = this.actor.system.acquaintances;
+    const acquaintanceList = Array.isArray(liveAcquaintances)
+      ? liveAcquaintances
+      : [];
+    const filteredAcqs = this.showFilteredAcquaintances
+      ? acquaintanceList.filter((acq) => {
+        const standing = (acq?.standing ?? "").toString().trim().toLowerCase();
+        return standing === "friend" || standing === "rival";
+      })
+      : acquaintanceList;
+    sheetData.display_acquaintances = filteredAcqs;
+  }
+
+  async _resolveDescription(type, name) {
+    if (!name || name.trim() === "") return "";
+
+    // 1. Check Owned Items first (skip for NPC as they are not usually owned items in this context)
+    if (type !== "npc") {
+      const owned = this.actor.items.find(i => i.type === type && i.name === name);
+      if (owned) return Utils.resolveDescription(owned);
     }
 
-    return sheetData;
+    // 2. Check World/Compendium
+    const candidates = await Utils.getSourcedItemsByType(type);
+    const match = candidates.find(i => i.name === name);
+    return match ? Utils.resolveDescription(match) : "";
   }
 
   _ownsAbility(abilityName) {
@@ -741,12 +846,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       return trimmedItem === trimmedTarget;
     });
     return owned?.id || "";
-  }
-
-  async _resetAbilityProgressFlags() {
-    const existing = this.actor.getFlag(MODULE_ID, "multiAbilityProgress");
-    if (!existing) return;
-    await this.actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
   }
 
   _resolveAbilityDeletionId(abilityBlock, fallbackId, abilityName) {
@@ -772,6 +871,97 @@ export class BladesAlternateActorSheet extends BladesSheet {
     await this.actor.update({
       "flags.bitd-alternate-sheets.-=equipped-items": null,
     });
+  }
+
+  async openItemChooser(filterPlaybook, itemScope = "") {
+    return openItemChooserHelper(this, filterPlaybook, itemScope);
+  }
+
+  async openPlaybookChooser() {
+    const playbooks = await Utils.getSourcedItemsByType("class");
+    const choices = playbooks.map((p) => ({
+      value: p._id,
+      label: p.name,
+      img: p.img || "icons/svg/item-bag.svg",
+      description: p.system?.description ?? "",
+    }));
+
+    const result = await openCardSelectionDialog({
+      title: game.i18n.localize("bitd-alt.SelectPlaybookTitle"),
+      instructions: game.i18n.localize("bitd-alt.SelectPlaybookInstructions"),
+      okLabel: game.i18n.localize("bitd-alt.Select"),
+      cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
+      clearLabel: game.i18n.localize("bitd-alt.Clear"),
+      choices,
+    });
+
+    if (result === null) {
+      await this._onPlaybookChange(null, true);
+      return;
+    }
+
+    if (!result) return; // Cancelled
+
+    const selected = playbooks.find((p) => p._id === result);
+    if (!selected) return;
+
+    await this._onPlaybookChange(selected);
+  }
+
+  async _onPlaybookChange(selected, isClear = false) {
+    const existingPlaybook = this.actor.items.find((i) => i.type === "class");
+
+    if (isClear) {
+      if (existingPlaybook) {
+        const confirm = await confirmDialog({
+          title: game.i18n.localize("bitd-alt.SwitchPlaybook"),
+          content: `<h4>${game.i18n.localize("bitd-alt.ClearPlaybookConfirmation")}</h4>`,
+          defaultYes: false,
+        });
+        if (!confirm) return;
+
+        await this.actor.deleteEmbeddedDocuments("Item", [existingPlaybook.id]);
+        await this.switchPlaybook(null);
+      }
+      return;
+    }
+
+    if (!selected) return;
+
+    if (existingPlaybook) {
+      if (existingPlaybook.name === selected.name) return; // Same playbook
+
+      const confirm = await confirmDialog({
+        title: game.i18n.localize("bitd-alt.SwitchPlaybook"),
+        content: `<h4>${game.i18n.localize("bitd-alt.SwitchPlaybookConfirmation")}</h4>`,
+        defaultYes: false,
+      });
+      if (!confirm) return;
+
+      await this.actor.deleteEmbeddedDocuments("Item", [existingPlaybook.id]);
+    }
+
+    // If it's a compendium item/virtual item, we need to create it
+    if (!this.actor.items.has(selected.id)) {
+      const itemData = {
+        name: selected.name,
+        type: "class",
+        system: foundry.utils.deepClone(selected.system ?? {}),
+        img: selected.img,
+      };
+
+      const created = await this.actor.createEmbeddedDocuments("Item", [itemData]);
+      if (created && created[0]) {
+        await this.switchPlaybook(created[0]);
+      }
+    } else {
+      // It's already an owned item (maybe dragged from another actor or just re-applied)
+      await this.switchPlaybook(selected);
+    }
+  }
+
+  async openAcquaintanceChooser() {
+    return openAcquaintanceChooserHelper(this);
   }
 
   addTermTooltips(html) {
@@ -808,143 +998,51 @@ export class BladesAlternateActorSheet extends BladesSheet {
       });
   }
 
-  async showPlaybookChangeDialog(changed) {
-    let modifications = await this.actor.modifiedFromPlaybookDefault(
-      this.actor.system.playbook
-    );
-    return new Promise(async (resolve, reject) => {
-      if (modifications) {
-        let abilitiesToKeepOptions = {
-          name: "abilities",
-          value: "none",
-          options: {
-            all: "Keep all Abilities",
-            custom: "Keep added abilities",
-            owned: "Keep owned abilities",
-            ghost: `Keep "Ghost" abilities`,
-            none: "Replace all",
-          },
-        };
-        let acquaintancesToKeepOptions = {
-          name: "acquaintances",
-          value: "none",
-          options: {
-            all: "All contacts",
-            friendsrivals: "Keep only friends and rivals",
-            custom: "Keep any added contacts",
-            both: "Keep added contacts and friends/rivals",
-            none: "Replace all",
-          },
-        };
-        let keepSkillPointsOptions = {
-          name: "skillpoints",
-          value: "reset",
-          options: {
-            keep: "Keep current skill points",
-            reset: "Reset to new playbook starting skill points",
-          },
-        };
-        let playbookItemsToKeepOptions = {
-          name: "playbookitems",
-          value: "none",
-          options: {
-            all: "Keep all playbook items",
-            custom: "Keep added items",
-            none: "Replace all",
-          },
-        };
-        let selectTemplate = Handlebars.compile(
-          `<select name="{{name}}" class="pb-migrate-options">{{selectOptions options selected=value}}</select>`
-        );
-        let dialogContent = `
-          <p>Changes have been made to this character that would be overwritten by a playbook switch. Please select how you'd like to handle this data and click "Ok", or click "Cancel" to cancel this change.</p>
-          <p>Note that this process only uses the Item, Ability, Playbook, and NPC compendia to decide what is "default". If you have created entities outside the relevant compendia and added them to your character, those items will be considered "custom" and removed unless you choose to save.</p>
-          <h2>Changes to keep</h2>
-          <div ${modifications.newAbilities || modifications.ownedAbilities
-            ? ""
-            : "hidden"
-          }>
-            <label>Abilities to keep</label>
-            ${selectTemplate(abilitiesToKeepOptions)}
-          </div>
-          <div ${modifications.addedItems ? "" : "hidden"}>
-            <label>Playbook Items</label>
-            ${selectTemplate(playbookItemsToKeepOptions)}
-          </div>
-          <div ${modifications.skillsChanged ? "" : "hidden"}>
-            <label>Skill Points</label>
-            ${selectTemplate(keepSkillPointsOptions)}
-          </div>
-          <div ${modifications.acquaintanceList || modifications.relationships
-            ? ""
-            : "hidden"
-          }>
-            <label>Acquaintances</label>
-            ${selectTemplate(acquaintancesToKeepOptions)}
-          </div>
-        `;
+  async _onRadioToggle(event) {
+    event.preventDefault();
 
-        let pbConfirm = new Dialog({
-          title: `Change playbook to ${await Utils.getPlaybookName(
-            changed.system.playbook
-          )}?`,
-          content: dialogContent,
-          buttons: {
-            ok: {
-              icon: '<i class="fas fa-check"></i>',
-              label: "Ok",
-              callback: async (html) => {
-                let selects = html.find("select.pb-migrate-options");
-                let selectedOptions = {};
-                for (const select of $.makeArray(selects)) {
-                  selectedOptions[select.name] = select.value;
-                }
-                resolve(selectedOptions);
-              },
-            },
-            cancel: {
-              icon: '<i class="fas fa-times"></i>',
-              label: "Cancel",
-              callback: () => {
-                reject();
-              },
-            },
-          },
-          close: () => {
-            reject();
-          },
-        });
-        pbConfirm.render(true);
-      } else {
-        let selectedOptions = {
-          abilities: "none",
-          playbookitems: "none",
-          skillpoints: "reset",
-          acquaintances: "none",
-        };
-        resolve(selectedOptions);
-      }
-    });
-  }
-
-  _onRadioToggle(event) {
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
     if (type == "label") {
       let labelID = $(target).attr("for");
-      target = $(`#${labelID}`).get(0);
+      target = document.getElementById(labelID);
     }
-    if (target.checked) {
-      //find the next lowest-value input with the same name and click that one instead
-      let name = target.name;
-      let value = parseInt(target.value) - 1;
-      this.element
-        .find(`input[name="${name}"][value="${value}"]`)
-        .trigger("click");
+
+    if (!target) return;
+
+    // Safety check: Ignore clock inputs (handled globally in hooks.js)
+    if ($(target).closest('.blades-clock').length || $(event.currentTarget).closest('.blades-clock').length) {
+      return;
+    }
+
+    const fieldName = target.name;
+    const clickedValue = parseInt(target.value);
+
+    // Get current value from actor data
+    const currentValue = foundry.utils.getProperty(this.actor, fieldName) ?? 0;
+
+    // Determine the new value based on visual state (red vs white)
+    // Red teeth: values 1 through currentValue
+    // White teeth: values greater than currentValue
+    let newValue;
+    if (clickedValue <= currentValue) {
+      // Clicking a red tooth → decrement (set to one below clicked)
+      newValue = clickedValue - 1;
     } else {
-      //trigger the click on this one
-      $(target).trigger("click");
+      // Clicking a white tooth → set to this value
+      newValue = clickedValue;
     }
+
+    // Optimistic UI update: find and check the correct input
+    const targetInput = this.element.find(`input[name="${fieldName}"][value="${newValue}"]`);
+    if (targetInput.length) {
+      targetInput.prop("checked", true);
+    }
+
+    // Direct Foundry update (will trigger render via hook)
+    await queueUpdate(async () => {
+      await this.actor.update({ [fieldName]: newValue });
+    });
   }
 
   /* -------------------------------------------- */
@@ -953,10 +1051,81 @@ export class BladesAlternateActorSheet extends BladesSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
+    // Initialize Dockable Sections (2-column drag-and-drop)
+    initDockableSections({
+      root: html[0], // Pass the raw DOM element
+      actorUuid: this.actor.uuid,
+      namespace: "bitd-alternate-sheets",
+      defaultLayout: {
+        left: ["abilities"],
+        right: ["items", "general-items", "acquaintances", "xp-notes"],
+      },
+    });
+
     this.addTermTooltips(html);
+
+    Utils.bindFilterToggles(html, {
+      abilities: () => {
+        const next = !this.showFilteredAbilities;
+        this.setLocalProp("showFilteredAbilities", next);
+        Utils.saveUiState(this, { showFilteredAbilities: next });
+      },
+      items: () => {
+        const next = !this.showFilteredItems;
+        this.setLocalProp("showFilteredItems", next);
+        Utils.saveUiState(this, { showFilteredItems: next });
+      },
+      acquaintances: () => {
+        const next = !this.showFilteredAcquaintances;
+        this.setLocalProp("showFilteredAcquaintances", next);
+        Utils.saveUiState(this, { showFilteredAcquaintances: next });
+      },
+    });
+
+    Utils.bindCollapseToggles(html, this);
+
+    // Apply zebra striping for two-column layouts with column-first flow
+    // CSS columns flow items down first column, then second, so we need JS to
+    // determine which items are on the same visual row and apply consistent backgrounds
+    html.find(".two-col-list").each((_, container) => {
+      const items = container.querySelectorAll(".item-block");
+      const totalItems = items.length;
+      const itemsPerColumn = Math.ceil(totalItems / 2);
+
+      items.forEach((item, index) => {
+        // Determine which visual row this item is on
+        // Items 0..itemsPerColumn-1 are in column 1
+        // Items itemsPerColumn..totalItems-1 are in column 2
+        const visualRow = index < itemsPerColumn
+          ? index
+          : index - itemsPerColumn;
+
+        // Remove any existing zebra class
+        item.classList.remove("zebra-even", "zebra-odd");
+
+        // Add appropriate class based on visual row
+        if (visualRow % 2 === 0) {
+          item.classList.add("zebra-even");
+        } else {
+          item.classList.add("zebra-odd");
+        }
+      });
+    });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
+
+    html.find('[data-action="chooser-add-item"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      const filterPlaybook = ev.currentTarget?.dataset?.filterPlaybook;
+      const itemScope = ev.currentTarget?.dataset?.itemScope;
+      this.openItemChooser(filterPlaybook, itemScope);
+    });
+
+    html.find('[data-action="chooser-add-acquaintance"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      this.openAcquaintanceChooser();
+    });
 
     const ContextMenuClass =
       foundry?.applications?.ux?.ContextMenu?.implementation ?? ContextMenu;
@@ -965,58 +1134,27 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     new ContextMenuClass(root, ".item-block.owned", this.itemContextMenu, contextMenuOptions);
     new ContextMenuClass(root, ".context-items > span", this.itemListContextMenu, contextMenuOptions);
-    new ContextMenuClass(root, ".item-list-add", this.itemListContextMenu, { ...contextMenuOptions, eventName: "click" });
     new ContextMenuClass(root, ".context-abilities", this.abilityListContextMenu, contextMenuOptions);
     new ContextMenuClass(root, ".ability-add-popup", this.abilityListContextMenu, { ...contextMenuOptions, eventName: "click" });
     new ContextMenuClass(root, ".trauma-item", this.traumaListContextMenu, contextMenuOptions);
     new ContextMenuClass(root, ".acquaintance", this.acquaintanceContextMenu, contextMenuOptions);
 
-    html.find('*[contenteditable="true"]').on("paste", (e) => {
-      e.preventDefault();
-      let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-      document.execCommand("insertText", false, text);
-    });
+    Utils.bindContenteditableSanitizers(html);
 
     html.on("click", "button.clearLoad", async (e) => {
       e.preventDefault();
       await this.clearLoad();
     });
-    html.find("img.clockImage").on("click", async (e) => {
-      let entity = await fromUuid(e.currentTarget.dataset.uuid);
-      let currentValue = entity.system.value;
-      let currentMax = entity.system.type;
-      if (currentValue < currentMax) {
-        currentValue++;
-        await entity.update({ system: { value: currentValue } });
-        this.render();
-      }
-    });
-    html.find("img.clockImage").on("contextmenu", async (e) => {
-      let entity = await fromUuid(e.currentTarget.dataset.uuid);
-      let currentValue = entity.system.value;
-      let currentMax = entity.system.type;
-      if (currentValue > 0) {
-        currentValue = currentValue - 1;
-        await entity.update({ system: { value: currentValue } });
-        this.render();
-      }
-    });
-    html
-      .find("input.radio-toggle, label.radio-toggle")
-      .click((e) => e.preventDefault());
-    html.find("input.radio-toggle, label.radio-toggle").mousedown((e) => {
-      this._onRadioToggle(e);
-    });
+    // NOTE: Clock controls are handled globally by setupGlobalClockHandlers() in hooks.js
+    // We handle exclusion inside _onRadioToggle to prevent double-firing
+    html.find("input.radio-toggle, label.radio-toggle")
+      .off("click.radioToggle mousedown.radioToggle")
+      .on("click.radioToggle", (e) => e.preventDefault())
+      .on("mousedown.radioToggle", (e) => {
+        this._onRadioToggle(e);
+      });
 
-    html.find(".inline-input").on("keyup", async (ev) => {
-      let input = ev.currentTarget.previousSibling;
-      input.value = ev.currentTarget.innerText;
-    });
-
-    html.find(".inline-input").on("blur", async (ev) => {
-      let input = ev.currentTarget.previousSibling;
-      $(input).change();
-    });
+    bindInlineInputHandlers(html);
 
     html.find(".debug-toggle").click(async (ev) => {
       this.setLocalProp("show_debug", !this.show_debug);
@@ -1042,6 +1180,99 @@ export class BladesAlternateActorSheet extends BladesSheet {
       ability.sheet.render(true);
     });
 
+    // Handle Item/Load Toggling
+    // Multi-cost items (e.g., Heavy with load 3) are treated as a single unit:
+    // clicking ANY checkbox toggles ALL checkboxes for that item together.
+    html.find(".item-checkbox").on("click change", async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      // If it's the change event, we just want to stop it from bubbling
+      // The logic is handled by the click event
+      if (ev.type === "change") return;
+
+      const input = ev.currentTarget;
+      const itemBlock = input.closest(".item-block");
+      const itemId = itemBlock?.dataset?.itemId;
+
+      if (!itemId) return;
+
+      // Read itemLoad from the DOM element's data-load attribute
+      // This works for both owned items AND virtual items (shown from compendium)
+      const itemLoad = parseInt(itemBlock.dataset.load) || 0;
+
+      // Replicate 'item-equipped' helper logic to determine current status
+      const equippedItemsFlag = this.actor.getFlag("bitd-alternate-sheets", "equipped-items") || {};
+      let isCurrentlyEquipped = false;
+
+      if (Object.prototype.hasOwnProperty.call(equippedItemsFlag, itemId)) {
+        isCurrentlyEquipped = !!equippedItemsFlag[itemId];
+      } else {
+        // Fallback checks
+        const item = this.actor.items.get(itemId);
+        if (itemLoad === 0) isCurrentlyEquipped = true;
+        else isCurrentlyEquipped = !!item?.system?.equipped;
+      }
+
+      const desiredState = !isCurrentlyEquipped;
+
+      // IDEMPOTENCY CHECK
+      // If we have already optimistically toggled this item to the desired state in this render cycle,
+      // ignore subsequent clicks (like the label ghost click caused by CSS overlap).
+      // We store the pending state on the DOM element itself.
+      if (itemBlock.dataset.optimisticState === String(desiredState)) {
+        return;
+      }
+      itemBlock.dataset.optimisticState = String(desiredState);
+
+      // OPTIMISTIC UPDATE
+      // 1. Update all checkboxes for this item visually immediately
+      // This satisfies the "Click one check all" requirement for multi-load items.
+      // We use requestAnimationFrame to ensure our state setting happens AFTER
+      // the browser's default click handling, which may have toggled the clicked checkbox.
+      const allItemCheckboxes = itemBlock.querySelectorAll("input[type='checkbox']");
+      requestAnimationFrame(() => {
+        for (const cb of allItemCheckboxes) {
+          cb.checked = desiredState;
+        }
+      });
+
+      // 2. Update Load Stats
+      if (itemLoad > 0) {
+        const loadStatsEl = this.element.find(".load-stats");
+        if (loadStatsEl.length) {
+          const text = loadStatsEl.text(); // e.g., "3/5"
+          const [currentLoadStr, maxLoadStr] = text.split("/");
+          let currentLoad = parseInt(currentLoadStr) || 0;
+          const maxLoad = parseInt(maxLoadStr) || 0;
+
+          // Adjust load
+          if (desiredState) {
+            currentLoad += itemLoad;
+          } else {
+            currentLoad = Math.max(0, currentLoad - itemLoad);
+          }
+
+          // Update Text
+          loadStatsEl.text(`${currentLoad}/${maxLoad}`);
+
+          // Update Classes for Overburdened (visual only)
+          const loadContainer = loadStatsEl.closest(".load-inline");
+          const headerEl = loadStatsEl.closest("header.full-bar");
+          if (currentLoad > maxLoad) {
+            loadContainer.addClass("over-max");
+            headerEl.addClass("over-max");
+          } else {
+            loadContainer.removeClass("over-max");
+            headerEl.removeClass("over-max");
+          }
+        }
+      }
+
+      // 3. Persist to actor flags
+      await Utils.toggleOwnership(desiredState, this.actor, "item", itemId);
+    });
+
     // Delete Inventory Item -- not used in new design
     html.find(".delete-button").click(async (ev) => {
       const element = $(ev.currentTarget);
@@ -1051,26 +1282,35 @@ export class BladesAlternateActorSheet extends BladesSheet {
       if (targetType === "ability") {
         const abilityBlock = ev.currentTarget.closest(".ability-block");
         const abilityName = abilityBlock?.dataset?.abilityName || "";
+        // Use the source ID for slot removal (for cross-playbook abilities)
+        const abilitySourceId = abilityBlock?.dataset?.abilitySourceId || abilityBlock?.dataset?.abilityId || "";
         const deletionId = this._resolveAbilityDeletionId(
           abilityBlock,
           targetId,
           abilityName
         );
-        if (!deletionId) return;
-        await this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+
+        // Delete the owned item first if it exists (uncheck the ability)
+        if (deletionId) {
+          await this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        }
+
+        // Now remove the slot from the flag (removes the ghost)
+        if (abilitySourceId) {
+          await Utils.removeAbilitySlot(this.actor, abilitySourceId);
+        }
+
         if (abilityBlock) abilityBlock.dataset.abilityOwnedId = "";
+        return;
       } else {
         if (!this.actor.items.get(targetId)) return;
-        await this.actor.deleteEmbeddedDocuments("Item", [targetId]);
+        await this.actor.deleteEmbeddedDocuments("Item", [targetId], { render: false });
       }
 
-      element.slideUp(200, () => this.render(false));
+      element.slideUp(200);
     });
 
-    html.find(".toggle-allow-edit").click(async (event) => {
-      event.preventDefault();
-      this.setLocalProp("allow_edit", !this.allow_edit);
-    });
+    Utils.bindAllowEditToggle(this, html);
 
     html.find(".toggle-alias-display").click(async (event) => {
       event.preventDefault();
@@ -1092,6 +1332,16 @@ export class BladesAlternateActorSheet extends BladesSheet {
       const crewId = event.currentTarget?.dataset?.crewId ?? "";
       await this._openCrewSheetById(crewId);
     });
+
+    const playbookSelector = html.find('[data-action="select-playbook"]');
+    playbookSelector.on("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (this.allow_edit) {
+        await this.openPlaybookChooser();
+        return;
+      }
+    });
     crewSelector.on("keydown", async (event) => {
       const triggerKeys = ["Enter", " ", "Space", "Spacebar"];
       if (!triggerKeys.includes(event.key)) return;
@@ -1105,20 +1355,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
       await this._openCrewSheetById(crewId);
     });
 
-    html.find(".item-block .main-checkbox").change((ev) => {
-      let checkbox = ev.target;
-      let itemId = checkbox.closest(".item-block").dataset.itemId;
-      let item = this.actor.items.get(itemId);
-      if (item) {
-        return item.update({ system: { equipped: checkbox.checked } });
-      }
-    });
-
-    html.find(".item-block .child-checkbox").click((ev) => {
-      let checkbox = ev.target;
-      let $main = $(checkbox).siblings(".main-checkbox");
-      $main.trigger("click");
-    });
+    // Legacy .main-checkbox and .child-checkbox handlers removed.
+    // Item toggling is now handled by the unified .item-checkbox handler above.
 
     html.find(".ability-checkbox").change(async (ev) => {
       ev.preventDefault();
@@ -1157,12 +1395,16 @@ export class BladesAlternateActorSheet extends BladesSheet {
       checkboxList.forEach((el) => el.setAttribute("disabled", "disabled"));
 
       try {
+
         if (!hadProgress && willHaveProgress) {
-          await Utils.toggleOwnership(true, this.actor, "ability", abilityId);
+          if (!abilityOwnedId) {
+            await Utils.toggleOwnership(true, this.actor, "ability", abilityId);
+          }
         } else if (hadProgress && !willHaveProgress) {
           const targetId = abilityOwnedId || abilityId;
           await Utils.toggleOwnership(false, this.actor, "ability", targetId);
         }
+
 
         abilityBlock.dataset.abilityProgress = String(targetProgress);
         if (abilityKey) {
@@ -1191,47 +1433,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     });
 
-    html.find(".item-block .main-checkbox").change(async (ev) => {
-      let checkbox = ev.target;
-      let item_id = checkbox.closest(".item-block").dataset.itemId;
-      await Utils.toggleOwnership(
-        checkbox.checked,
-        this.actor,
-        "item",
-        item_id
-      );
-    });
+    // Duplicate .main-checkbox change handler removed.
+    // Item toggling is now handled by the unified .item-checkbox handler above.
 
     //this could probably be cleaner. Numbers instead of text would be fine, but not much easier, really.
-    html.find(".standing-toggle").click((ev) => {
-      let acquaintances = this.actor.system.acquaintances;
-      let acqId = ev.target.closest(".acquaintance").dataset.acquaintance;
-      let clickedAcqIdx = acquaintances.findIndex((item) => item.id == acqId);
-      let clickedAcq = acquaintances[clickedAcqIdx];
-      let oldStanding = clickedAcq.standing;
-      let newStanding;
-      switch (oldStanding) {
-        case "friend":
-          newStanding = "rival";
-          break;
-        case "rival":
-          newStanding = "neutral";
-          break;
-        case "neutral":
-          newStanding = "friend";
-          break;
-      }
-      clickedAcq.standing = newStanding;
-      acquaintances.splice(clickedAcqIdx, 1, clickedAcq);
-      this.actor.update({ system: { acquaintances: acquaintances } });
-    });
+    Utils.bindStandingToggles(this, html);
 
     $(document).click((ev) => {
       let render = false;
-      if (!$(ev.target).closest(".coins-box").length) {
-        html.find(".coins-box").removeClass("open");
-        this.coins_open = false;
-      }
       if (!$(ev.target).closest(".harm-box").length) {
         html.find(".harm-box").removeClass("open");
         this.harm_open = false;
@@ -1239,13 +1448,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       if (!$(ev.target).closest(".load-box").length) {
         html.find(".load-box").removeClass("open");
         this.load_open = false;
-      }
-    });
-
-    html.find(".coins-box").click(async (ev) => {
-      if (!$(ev.target).closest(".coins-box .full-view").length) {
-        html.find(".coins-box").toggleClass("open");
-        this.coins_open = !this.coins_open;
       }
     });
 
@@ -1338,13 +1540,27 @@ export class BladesAlternateActorSheet extends BladesSheet {
       .find(".effect-control")
       .click((ev) => BladesActiveEffect.onManageActiveEffect(ev, this.actor));
 
-    html.find(".toggle-expand").click((ev) => {
-      if (!this._element.hasClass("can-expand")) {
+    // super.activateListeners(html); // Removed duplicate
+    // if (!this.options.editable) return; // Removed duplicate
+
+    html.find('[data-action="smart-edit"]').click(this._handleSmartEdit.bind(this));
+    html.find('[data-action="smart-item-selector"]').click((e) => Utils.handleSmartItemSelector(e, this.actor));
+
+    html.find(".crew-name").click((event) => {
+      const crewId = event.currentTarget.dataset.crewId;
+      this._openCrewSheetById(crewId);
+    });
+
+    html.find(".toggle-expand").click((event) => {
+      const icon = $(event.currentTarget).find("i");
+      if (icon.hasClass("fa-compress")) {
+        // Expanding - switch to expand icon
         this.setPosition({ height: 275 });
-        this._element.addClass("can-expand");
+        icon.removeClass("fa-compress").addClass("fa-expand");
       } else {
+        // Collapsing - switch to compress icon
         this.setPosition({ height: "auto" });
-        this._element.removeClass("can-expand");
+        icon.removeClass("fa-expand").addClass("fa-compress");
       }
     });
   }
@@ -1367,6 +1583,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
   _getAvailableCrewActors() {
     if (!game?.actors) return [];
     return game.actors.filter((actor) => actor?.type === "crew");
+  }
+
+  /**
+   * Handle Smart Edit (Text or Compendium Picker)
+   * @param {Event} event
+   */
+  async _handleSmartEdit(event) {
+    return handleSmartEdit(this, event);
   }
 
   async _handleCrewFieldClick() {
@@ -1490,17 +1714,4 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /* -------------------------------------------- */
 
-  async setPlaybookAttributes(newPlaybookItem) {
-    let attributes = await Utils.getStartingAttributes(newPlaybookItem);
-    let newAttributeData = { system: {} };
-    newAttributeData.system.attributes = attributes;
-    // this damned issue. For some reason exp and exp_max were getting grabbed as numbers instead of strings, which breaks the multiboxes helper somehow?
-    Object.keys(newAttributeData.system.attributes).map((key, index) => {
-      newAttributeData.system.attributes[key].exp =
-        newAttributeData.system.attributes[key].exp.toString();
-      newAttributeData.system.attributes[key].exp_max =
-        newAttributeData.system.attributes[key].exp_max.toString();
-    });
-    queueUpdate(() => this.actor.update(newAttributeData));
-  }
 }

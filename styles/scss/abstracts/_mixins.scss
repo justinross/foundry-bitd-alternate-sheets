@@ -1,0 +1,35 @@
+@use "./tokens" as *;
+@forward "../mixin";
+
+@mixin toggle-pill($bg, $text-color: $alt-white-60, $hover-color: $alt-white) {
+  cursor: pointer;
+  background: $bg;
+  color: $text-color;
+  border-radius: 3px;
+
+  &:hover {
+    color: $hover-color;
+  }
+
+  i {
+    width: 100%;
+    text-align: center;
+    padding: $space-1 6px;
+  }
+}
+
+@mixin xp-notes-base($background: $lightgray, $font-size: 1.2em) {
+  background: $background;
+  font-size: $font-size;
+}
+
+@mixin xp-notes-list {
+  ul {
+    list-style-type: square;
+    padding-right: $space-tight;
+  }
+
+  ul li {
+    font-style: italic;
+  }
+}

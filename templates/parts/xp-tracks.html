@@ -1,0 +1,9 @@
+<div class="stripe-tooth-body right {{cssClass}}">
+    {{#multiboxes value}}
+    <input type="radio" id="{{rootId}}-0" name="{{field}}" value="0" class="zero">
+    {{#times_from_1 max}}
+    <input type="radio" id="{{../rootId}}-{{this}}" name="{{../field}}" value="{{this}}" dtype="Radio"
+        class="radio-toggle"><label for="{{../rootId}}-{{this}}" class="radio-toggle"></label>
+    {{/times_from_1}}
+    {{/multiboxes}}
+</div>

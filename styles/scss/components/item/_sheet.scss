@@ -1,0 +1,7 @@
+@use "../../abstracts/tokens" as *;
+@use "../../abstracts/mixins" as *;
+@use "./body" as itemSheet;
+
+@mixin item-sheet {
+  @include itemSheet.item-sheet();
+}

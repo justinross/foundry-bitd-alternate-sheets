@@ -1,0 +1,28 @@
+@mixin item-sheet {
+  // ITEM
+  & {
+    justify-content: space-between;
+
+    section {
+      padding-bottom: 1em;
+
+      input.item_field {
+        font-size: 1.5em;
+      }
+
+      header {
+        width: 100%;
+
+        label {
+          display: block;
+          background-color: var(--alt-dark);
+          margin-bottom: 0;
+          color: var(--alt-ink-light);
+          font-family: Kirsty, serif;
+          font-size: 1rem;
+          padding: 2px;
+        }
+      }
+    }
+  }
+}

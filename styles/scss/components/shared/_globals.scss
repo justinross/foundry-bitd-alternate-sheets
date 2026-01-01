@@ -1,0 +1,336 @@
+@use "../../abstracts/tokens" as *;
+@use "../../abstracts/mixins" as *;
+
+textarea {
+  margin-top: 10px;
+  margin-bottom: $space-5;
+}
+
+.debug-toggle {
+  opacity: 0.1;
+}
+
+.debug-toggle.on {
+  opacity: 0.75;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+section.flex {
+  margin-bottom: 10px;
+  display: flex;
+  //flex-direction: column;
+  justify-content: space-between;
+}
+
+section.flex > *:not(.label-stripe) {
+  margin-right: 10px;
+}
+
+section.flex > *:not(.label-stripe):last-child {
+  margin-right: 0px;
+}
+
+section.flex .grow-one {
+  flex-grow: 1;
+}
+
+section.flex .grow-two {
+  flex-grow: 2;
+}
+
+section.flex.experience {
+  margin-bottom: 0px;
+  justify-content: center;
+}
+
+.flex-lazy {
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.tab[data-tab] {
+  display: none;
+}
+
+.tab[data-tab].active {
+  display: block;
+}
+
+.flex-horizontal {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.flex-vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+.black-label {
+  background-color: $almost_black;
+  color: $almost_white;
+  font-size: 21px;
+  text-align: center;
+  padding: 0px $space-tight;
+  height: 30px !important;
+  text-transform: capitalize;
+  font-family: Kirsty, serif;
+}
+
+.gray-label {
+  background-color: $gray;
+  color: $almost_black;
+  font-size: 21px;
+  text-align: center;
+  padding: 0px $space-tight;
+  height: 30px !important;
+  text-transform: capitalize;
+  font-family: Kirsty, serif;
+}
+
+.label-stripe {
+  text-transform: uppercase;
+  background-color: $almost_black;
+  color: $almost_white;
+  margin-bottom: 10px;
+  position: relative;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  font-weight: bold;
+}
+
+.label-stripe .dock-handle {
+  margin-right: $space-2;
+  cursor: grab;
+  color: $alt-white-50;
+}
+
+.label-stripe .dock-handle:hover {
+  color: $alt-white;
+}
+
+.label-stripe .dock-handle:active {
+  cursor: grabbing;
+}
+
+.label-stripe-gray {
+  text-transform: uppercase;
+  background-color: $gray;
+  margin-bottom: 10px;
+  position: relative;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  font-weight: bold;
+}
+
+.editor,
+.editor-content {
+  min-height: 150px;
+}
+
+.description {
+  font-style: italic;
+}
+
+/* Shared multi-checkbox container styling */
+// IMPORTANT: Firefox has a known bug with flex containers + checkbox inputs where
+// it miscalculates width: max-content, causing overflow. Using inline-block here
+// instead of flex/inline-flex sidesteps this issue entirely and works correctly
+// in all browsers. DO NOT change to display: flex without extensive testing.
+// See CONTRIBUTING.md "Firefox flexbox + checkbox width calculation bug" for details.
+// Shared checkbox container for abilities, crew upgrades, and character items
+:is(.ability-checkboxes, .item-checkboxes) {
+  display: inline-block;
+  white-space: nowrap;
+  margin-right: 0.5em;
+  vertical-align: top;
+}
+
+:is(.ability-checkboxes, .item-checkboxes) .join-line {
+  border-bottom: 2px solid var(--alt-border-strong);
+  width: 0.5em;
+  height: 1px;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 0.5em;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  line-height: 0;
+}
+
+:is(.ability-checkboxes, .item-checkboxes) :is(.ability-checkbox, .crew-upgrade-checkbox, .crew-ability-checkbox, .item-checkbox) {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  width: 1em;
+  min-width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* Shared block styling for abilities, upgrades, and items */
+:is(.ability-block, .item-block) {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: $space-tight;
+  width: 100%;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+/* Shared ability list styling */
+.ability-list .ability-block:nth-child(even) {
+  background-color: $alt-white-30;
+}
+
+.ability-list label {
+  margin: 0;
+  line-height: 0.8em;
+  font-size: 1.2em;
+  margin-bottom: 6px;
+  padding-right: 1em;
+}
+
+.ability-list label .ability-name {
+  font-weight: bold;
+  font-variant: small-caps;
+}
+
+.ability-list label .ability-description p {
+  display: inline;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Lock/unlock and alias toggles (shared across sheets)
+.sheet-wrapper :is(.toggle-allow-edit, .toggle-alias-display) {
+  display: inline-block;
+  padding: $space-1 6px;
+  margin: 0 var(--space-2);
+  background: $green;
+  color: $alt-white-60;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.sheet-wrapper :is(.toggle-allow-edit, .toggle-alias-display):hover {
+  color: $alt-white;
+}
+
+.sheet-wrapper :is(.toggle-allow-edit, .toggle-alias-display) i {
+  width: 100%;
+  text-align: center;
+}
+
+.sheet-wrapper .toggle-allow-edit .fa-lock-open {
+  display: none;
+}
+
+.sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit {
+  background-color: $red;
+}
+
+.sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit .fa-lock-open {
+  display: inline-block;
+}
+
+.sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit .fa-lock {
+  display: none;
+}
+
+// Toggle container positioning
+.sheet-wrapper .sheet-toggles {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+}
+
+i.nullifier {
+  @include changeable($transition-period,
+    $hover-brightness,
+    $hover-opacity,
+    $red );
+}
+
+#loadout select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+  background: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat right;
+  padding: 0 $space-5 0 0;
+  margin: 0.1em -6px 0 0;
+  background-color: $almost_black;
+  font-family: Georgia, "Bitstream Charter", "Times New Roman", serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: $alt-white;
+  text-align: right;
+}
+
+#loadout select option {
+  color: $alt-white;
+}
+
+#loadout select:hover {
+  color: $alt-red-bright;
+}
+
+#abilities .item-name,
+#loadout .item-name,
+#faction-items .item-name {
+  width: 100px;
+  margin-left: 10px;
+}
+
+#abilities .item-body,
+#loadout .item-body,
+#faction-items .item-body {
+  width: auto;
+}
+
+#abilities .item-description,
+#loadout .item-description,
+#faction-items .item-description {
+  width: 260px;
+}
+
+td {
+  padding: $space-tight;
+}
+
+// Shared italic note/caption style (used by character XP notes and crew coins caption)
+.xp-notes,
+.coins-caption {
+  margin: 0;
+  padding: 0;
+  font-style: italic;
+  font-size: 0.85em;
+  line-height: 1.2em;
+}
+
+// NOTE: Global clock styles are now in clocks.scss (loaded at top-level)
+// to ensure they work in chat, journals, and other non-sheet contexts.

@@ -1,0 +1,91 @@
+@use "../../abstracts/tokens" as *;
+@use "../../mixin" as *;
+
+@mixin attributes-sheet {
+& {
+  //   display: flex;
+  //   justify-content: space-between;
+  //   justify-items: stretch;
+  //   max-width: 600px;
+  background-color: $alt-black-10;
+  column-gap: 0.5rem;
+
+  header.full-bar {
+    @include full-bar-header();
+  }
+
+  .attribute {
+    flex-grow: 1;
+
+    .action {
+      padding: 0 $space-tight;
+      @include custom_radio(1em, 1em);
+
+      justify-content: flex-start;
+      align-items: stretch;
+
+      .attribute-skill-label {
+        font-weight: bold;
+        font-variant: small-caps;
+        padding: 3px 0;
+        margin-left: 0.4em;
+        line-height: 0.8em;
+      }
+
+      label {
+        margin: 2px;
+        border: 1px solid $alt-border-strong;
+        box-sizing: border-box;
+        position: relative;
+        &:not(.item):first-of-type::after {
+          content: "";
+          display: inline-block;
+          height: 150%;
+          width: 1%;
+          border-right: 1px solid $alt-black-50;
+          position: absolute;
+          right: -3px;
+          top: -3px;
+        }
+      }
+    }
+    input.zero {
+      display: none;
+    }
+  }
+  .harm-list {
+    text-align: center;
+    margin-top: 0.3rem;
+
+    span.dash:last-child {
+      display: none;
+    }
+    .harm-block {
+      color: $alt-white !important;
+      position: relative;
+      font-size: 1rem;
+      align-items: center;
+      line-height: 1em;
+      padding: 0.1em 0 0.2em;
+      &.light {
+        background-color: $alt-harm-light;
+      }
+      &.medium {
+        background-color: $alt-harm-medium;
+      }
+      &.heavy {
+        background-color: $alt-harm-heavy;
+      }
+      i {
+        flex-grow: 0;
+        margin: 0.2em;
+      }
+      .harm {
+        white-space: nowrap;
+        text-decoration: underline;
+        font-family: Kirsty, serif;
+      }
+    }
+  }
+}
+}

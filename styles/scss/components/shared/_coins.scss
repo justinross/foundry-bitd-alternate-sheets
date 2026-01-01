@@ -1,0 +1,104 @@
+@use "../../abstracts/tokens" as *;
+@use "../../mixin" as *;
+
+$coin_size: 15px;
+$coin_margin: 3px;
+
+// Generic coins mixin so sheets can set their own dimensions/layout
+@mixin coins(
+  $size: $coin_size,
+  $margin: $coin_margin,
+  $wrap-width: auto,
+  $grid-template: null,
+  $gap: null
+) {
+  .coins {
+    @include custom_radio_square($size);
+
+    flex-wrap: wrap;
+    @if $wrap-width != auto {
+      max-width: $wrap-width;
+    }
+
+    @if $grid-template != null {
+      display: grid;
+      grid-template-columns: $grid-template;
+      @if $gap != null {
+        gap: $gap;
+      }
+    }
+
+    input ~ label {
+      margin-right: $margin;
+      margin-bottom: $margin;
+
+      // Only the zero-value toggle should have the thicker border; avoid matching 10, 20, etc.
+      &[for$="-0"] {
+        border-width: 2px;
+      }
+
+      @include changeable($transition-period, $hover-brightness, $hover-opacity);
+    }
+
+    &.coins-hands {
+      width: 36px;
+    }
+
+    &.coins-stashed {
+      width: 190px;
+    }
+
+  }
+}
+
+@mixin coin-layout {
+  .stripe {
+    font-family: Kirsty, serif;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .coins .hand,
+  .coins .stash {
+    display: inline-block;
+    text-align: left;
+    vertical-align: top;
+    padding: 0 10px;
+  }
+
+  .coins .coins-hands {
+    display: grid;
+    grid-template-columns: repeat(2, 15px);
+    gap: 3px;
+  }
+
+  .stash-grid {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 6px;
+    align-items: start;
+  }
+
+  .stash-grid .coins-stashed {
+    display: grid;
+    grid-template-columns: repeat(10, 15px);
+    grid-auto-rows: 15px;
+    gap: 3px;
+  }
+
+  .stash-grid .stash-labels {
+    display: grid;
+    grid-template-rows: repeat(4, 15px);
+    gap: 3px;
+    align-content: start;
+  }
+
+  .stash-grid .stash-labels .stash-tag {
+    font-size: 0.85em;
+    font-style: italic;
+    font-weight: bold;
+    color: $darkgray;
+    white-space: nowrap;
+    line-height: 15px;
+  }
+}

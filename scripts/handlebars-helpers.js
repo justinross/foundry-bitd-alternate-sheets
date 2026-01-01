@@ -41,15 +41,71 @@ export const registerHandlebarsHelpers = function () {
       uniq_id,
       context
     ) {
-      let html = "";
-      if (current_value?.length === 0 || !current_value) {
-        current_value = blank_value;
-      }
-      html += `<input  data-input="character-${uniq_id}-${parameter_name}" name="${parameter_name}" type="hidden" value="${current_value}" placeholder="${blank_value}"><span class="inline-input" ${context.owner && editable ? 'contenteditable="true"' : null
-        } spellcheck="false" data-target="character-${uniq_id}-${parameter_name}" data-placeholder="${blank_value}">${current_value}</span>`;
-      return html;
+      const rawValue = (current_value ?? "").toString();
+      const escapedParam = Handlebars.escapeExpression(parameter_name);
+      const escapedPlaceholder = Handlebars.escapeExpression(blank_value);
+      const escapedId = Handlebars.escapeExpression(uniq_id);
+      const escapedValue = Handlebars.escapeExpression(rawValue);
+      const isEmpty = rawValue.trim().length === 0;
+      const inputValue = isEmpty ? "" : escapedValue;
+      const displayValue = isEmpty ? escapedPlaceholder : escapedValue;
+
+      const html = `<input data-input="character-${escapedId}-${escapedParam}" name="${escapedParam}" type="hidden" value="${inputValue}" placeholder="${escapedPlaceholder}"><span class="inline-input" ${context?.owner && editable ? 'contenteditable="true"' : null
+        } spellcheck="false" data-target="character-${escapedId}-${escapedParam}" data-placeholder="${escapedPlaceholder}">${displayValue}</span>`;
+      return new Handlebars.SafeString(html);
     }
   );
+
+  Handlebars.registerHelper(
+    "smart-field",
+    function (
+      allow_edit,
+      parameter_name,
+      label,
+      current_value,
+      uniq_id,
+      context,
+      options
+    ) {
+      if (!current_value) current_value = "";
+
+      // Escape all values to prevent XSS
+      const escapedLabel = Handlebars.escapeExpression(label);
+      const escapedValue = Handlebars.escapeExpression(current_value);
+      const escapedParam = Handlebars.escapeExpression(parameter_name);
+      const escapedId = Handlebars.escapeExpression(uniq_id);
+
+      const source = options.hash.source || "compendium_item";
+      const sourceStr = Handlebars.escapeExpression(source);
+      const filterField = Handlebars.escapeExpression(options.hash.filter_field || "");
+      const filterValue = Handlebars.escapeExpression(options.hash.filter_value || "");
+
+      const description = options.hash.description || "";
+      const rawValue = (current_value ?? "").toString().trim();
+      const tooltip = Handlebars.escapeExpression(
+        description || `${label}${rawValue ? `: ${rawValue}` : ""}`
+      );
+
+      // Locked Mode: Clean Value
+      if (!allow_edit) {
+        // If empty, display label as placeholder (User Request)
+        const displayWithPlaceholder = (!current_value || current_value.trim() === "") ? escapedLabel : escapedValue;
+
+        return `<span class="smart-field-value" data-tooltip="${tooltip}">${displayWithPlaceholder}</span>`;
+      }
+
+      // Unlocked Mode: Interactive Label or Value
+      const displayWithPlaceholder = (current_value && current_value.trim() !== "") ? escapedValue : escapedLabel;
+      // Removing role="button" to prevent flexbox baseline misalignment (UA styles treating it as control)
+      // Added data-tooltip here as well so user sees description while editing
+      return `<span class="smart-field-label" data-action="smart-edit" data-field="${escapedParam}" data-header="${escapedLabel}" data-value="${escapedValue}" data-id="${escapedId}" data-source="${sourceStr}" data-filter-field="${filterField}" data-filter-value="${filterValue}" tabindex="0" data-tooltip="${tooltip}">${displayWithPlaceholder}</span>`;
+    }
+  );
+
+  Handlebars.registerHelper("getItemByType", function (items, type) {
+    if (!items || !type) return null;
+    return items.find(i => i.type === type) || null;
+  });
 
   Handlebars.registerHelper("testing", function () {
     return "testing";
@@ -113,10 +169,7 @@ export const registerHandlebarsHelpers = function () {
   });
 
   Handlebars.registerHelper("ability-cost", function (ability) {
-    const raw = ability?.system?.price ?? ability?.system?.cost ?? 1;
-    const parsed = Number(raw);
-    if (Number.isNaN(parsed) || parsed < 1) return 1;
-    return Math.floor(parsed);
+    return Utils.getAbilityCost(ability);
   });
 
   Handlebars.registerHelper("inc", function (value) {
@@ -132,13 +185,46 @@ export const registerHandlebarsHelpers = function () {
     return accum;
   });
 
-  Handlebars.registerHelper("item-equipped", function (actor, id) {
-    let actor_doc = game.actors.get(actor._id);
-    let equipped_items = actor_doc.getFlag(
-      "bitd-alternate-sheets",
-      "equipped-items"
-    );
-    return equipped_items ? equipped_items[id] : false;
+  Handlebars.registerHelper("item-equipped", function (actor, itemOrId) {
+    const actorDoc = actor?.items ? actor : game.actors.get(actor?._id);
+    const equippedItems =
+      typeof actorDoc?.getFlag === "function"
+        ? actorDoc.getFlag("bitd-alternate-sheets", "equipped-items")
+        : actorDoc?.flags?.["bitd-alternate-sheets"]?.["equipped-items"];
+
+    // Resolve item ID and Item Object
+    let id = itemOrId;
+    let item = null;
+
+    if (typeof itemOrId === "object" && itemOrId !== null) {
+      id = itemOrId._id || itemOrId.id;
+      item = itemOrId;
+    }
+
+    // 1. Check for explicit flag (true or false)
+    if (equippedItems && Object.prototype.hasOwnProperty.call(equippedItems, id)) {
+      return Boolean(equippedItems[id]);
+    }
+
+    // 2. Resolve Item Object if we only had ID
+    if (!item && actorDoc) {
+      const items = actorDoc.items;
+      item =
+        items?.get?.(id) ||
+        (Array.isArray(items)
+          ? items.find((i) => i?.id === id || i?._id === id)
+          : null);
+    }
+
+    // 3. Check Default logic based on Load
+    const load = item?.system?.load ?? item?.load;
+    // Default to equipped if load is 0, "0", or undefined (assumed free/virtual default)
+    const isZeroLoad = load === 0 || load === "0" || load === undefined;
+
+    if (isZeroLoad) return true;
+
+    // 4. Fallback to underlying equipped state if it exists
+    return Boolean(item?.system?.equipped);
   });
 
   Handlebars.registerHelper("clean-html", function (html) {
@@ -197,5 +283,18 @@ export const registerHandlebarsHelpers = function () {
 
   Handlebars.registerHelper("upper-first", function (input) {
     return input.charAt(0).toUpperCase() + input.slice(1);
+  });
+
+  Handlebars.registerHelper("firstLine", function (text) {
+    if (!text) return "";
+    const lines = text.split("\n");
+    // Return first non-empty line, removing any leading "- " prefix
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed) {
+        return trimmed.replace(/^-\s*/, "");
+      }
+    }
+    return "";
   });
 };
