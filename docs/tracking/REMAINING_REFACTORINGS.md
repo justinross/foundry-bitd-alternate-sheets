@@ -1,0 +1,394 @@
+# Remaining Refactorings
+
+**Status:** Deferred low-priority improvements
+**Source:** REFACTOR_PLAN.md (archived 2025-12-31)
+**Last Updated:** 2025-12-31
+
+---
+
+## Summary
+
+These are **optional quality improvements** deferred from the main refactoring work. All high-priority (H1-H4) and medium-priority (M1-M8) items have been completed, plus L1 (break up `getVirtualListOfItems`).
+
+**Remaining:** 4 low-priority tasks
+**Total Estimated Effort:** ~4 hours 15 minutes
+**Impact:** Code quality and maintainability (not blocking functionality)
+
+| ID | Task | Effort | Priority | Status |
+|----|------|--------|----------|--------|
+| L2 | Standardize error handling patterns | 45 min | Low | ⬜ Not started |
+| L3 | Add JSDoc type annotations | 1 hour | Low | ⬜ Not started |
+| L4 | Centralize template path constants | 30 min | Low | ⬜ Not started |
+| L5 | Extract sheet state management | 2 hours | Very Low | ⬜ Not started |
+
+---
+
+## L2: Standardize Error Handling Patterns
+
+**Effort:** Medium (45 minutes)
+**Dependencies:** None
+**Priority:** Low
+
+### Issue
+
+Error handling is inconsistent across the codebase. Some errors use `console.error`, others use `console.log`. User notifications are inconsistent.
+
+### Current State
+
+**Good pattern** (in `smart-edit.js`):
+```javascript
+} catch (err) {
+  ui.notifications.error(`Failed to add item: ${err.message}`);
+  console.error("Item chooser error", err);
+}
+```
+
+**Inconsistent pattern** (in `utils.js`):
+```javascript
+} catch (e) {
+  console.log("Error: ", e);  // Should use console.error
+}
+```
+
+### Proposed Solution
+
+Apply this standard pattern to all catch blocks:
+
+```javascript
+} catch (err) {
+  const message = `[BitD-Alt] ${contextDescription}: ${err.message}`;
+  ui.notifications.error(message);
+  console.error(message, err);
+}
+```
+
+### Implementation Steps
+
+1. Search for all `catch` blocks in the codebase:
+   ```bash
+   grep -r "} catch" scripts/
+   ```
+
+2. For each catch block, apply the pattern:
+   - User-facing operations → Add `ui.notifications.error` with helpful message
+   - Always use `console.error` (not `console.log`) for errors
+   - Include original error object for debugging
+
+3. Test error paths to ensure notifications appear correctly
+
+### Files Likely Affected
+
+- `scripts/utils.js`
+- `scripts/sheets/actor/smart-edit.js`
+- `scripts/blades-alternate-actor-sheet.js`
+- `scripts/blades-alternate-crew-sheet.js`
+- `scripts/migration.js`
+
+### Benefits
+
+- Consistent user experience (predictable error notifications)
+- Easier debugging (all errors logged with context)
+- Clearer error messages for troubleshooting
+
+---
+
+## L3: Add JSDoc Type Annotations
+
+**Effort:** Medium (1 hour)
+**Dependencies:** None
+**Priority:** Low
+
+### Issue
+
+Many functions lack type annotations, making it harder for IDEs to provide autocomplete and for developers to understand function signatures.
+
+### Proposed Solution
+
+Add JSDoc comments to key functions with TypeScript-style type annotations.
+
+### Priority Functions to Document
+
+1. **`Utils` class public methods** (high impact)
+   - `getSourcedItemsByType()`
+   - `getVirtualListOfItems()`
+   - `loadUiState()`, `saveUiState()`
+   - `resolveDescription()`
+
+2. **Sheet class `getData` methods** (moderate impact)
+   - `BladesAlternateActorSheet.getData()`
+   - `BladesAlternateCrewSheet.getData()`
+
+3. **Dialog functions** in `dialog-compat.js` (moderate impact)
+   - `openCardSelectionDialog()`
+   - `confirmDialogV2()`
+
+4. **Update queue functions** (low impact, already clear)
+   - `queueUpdate()`
+
+### Example Format
+
+```javascript
+/**
+ * Get all items of a specific type from world and compendia.
+ * @param {string} itemType - The item type (e.g., "ability", "item", "npc")
+ * @param {Object} [options] - Optional filters
+ * @param {string} [options.playbook] - Filter by playbook name
+ * @returns {Promise<Item[]>} Array of matching items
+ */
+static async getAllItemsByType(itemType, options = {}) { ... }
+```
+
+### Implementation Steps
+
+1. Start with `Utils` class (highest impact)
+2. Add JSDoc to each public method
+3. Include parameter types, return types, and descriptions
+4. Move to sheet classes next
+5. Add types to helper functions last
+
+### Benefits
+
+- Better IDE autocomplete and IntelliSense
+- Self-documenting code (clearer function contracts)
+- Easier onboarding for new developers
+- Type checking without TypeScript overhead
+
+---
+
+## L4: Centralize Template Path Constants
+
+**Effort:** Medium (30 minutes)
+**Dependencies:** H3 (MODULE_ID centralization) - **COMPLETED**
+**Priority:** Low
+
+### Issue
+
+Template paths are hardcoded strings scattered throughout the codebase. Changing module structure requires finding and updating multiple locations.
+
+### Current State
+
+Template paths are hardcoded in multiple files:
+
+```javascript
+// In blades-alternate-actor-sheet.js
+static get defaultOptions() {
+  return mergeObject(super.defaultOptions, {
+    template: "modules/bitd-alternate-sheets/templates/actor-sheet.html",
+    // ...
+  });
+}
+
+// In blades-templates.js
+const templatePaths = [
+  "modules/bitd-alternate-sheets/templates/parts/ability.html",
+  "modules/bitd-alternate-sheets/templates/parts/item.html",
+  // ... 20+ more hardcoded paths
+];
+```
+
+### Proposed Solution
+
+Create `scripts/constants.js`:
+
+```javascript
+import { MODULE_ID } from "./utils.js";
+
+export const TEMPLATES = {
+  ACTOR_SHEET: `modules/${MODULE_ID}/templates/actor-sheet.html`,
+  CREW_SHEET: `modules/${MODULE_ID}/templates/crew-sheet.html`,
+  CLASS_SHEET: `modules/${MODULE_ID}/templates/class-sheet.html`,
+  ITEM_SHEET: `modules/${MODULE_ID}/templates/item-sheet.html`,
+};
+
+export const TEMPLATE_PARTS_PATH = `modules/${MODULE_ID}/templates/parts`;
+```
+
+### Implementation Steps
+
+1. Create `scripts/constants.js` with template path constants
+2. Update sheet classes to import and use `TEMPLATES`:
+   ```javascript
+   import { TEMPLATES } from "./constants.js";
+
+   static get defaultOptions() {
+     return mergeObject(super.defaultOptions, {
+       template: TEMPLATES.ACTOR_SHEET,
+       // ...
+     });
+   }
+   ```
+3. Update `blades-templates.js` to use `TEMPLATE_PARTS_PATH`
+4. Search for remaining hardcoded template paths and replace
+
+### Files to Update
+
+- `scripts/blades-alternate-actor-sheet.js`
+- `scripts/blades-alternate-crew-sheet.js`
+- `scripts/blades-alternate-class-sheet.js`
+- `scripts/blades-alternate-item-sheet.js`
+- `scripts/blades-templates.js`
+
+### Benefits
+
+- Single source of truth for template paths
+- Easier to refactor template directory structure
+- Reduces string duplication
+- Clearer intent (named constant vs magic string)
+
+---
+
+## L5: Extract Sheet State Management
+
+**Effort:** Large (2 hours)
+**Dependencies:** None
+**Priority:** Very Low (partially addressed by existing patterns)
+
+### Issue
+
+Multiple local state properties are scattered across sheet classes (`showFilteredAbilities`, `showFilteredItems`, `collapsedSections`, etc.), making state management inconsistent.
+
+### Current State
+
+Each sheet class manages state differently:
+
+```javascript
+// In BladesAlternateActorSheet
+this.showFilteredAbilities = persistedUi.showFilteredAbilities ?? true;
+this.showFilteredItems = persistedUi.showFilteredItems ?? true;
+this.collapsedSections = persistedUi.collapsedSections || {};
+```
+
+### Proposed Solution
+
+Create `scripts/lib/sheet-state.js`:
+
+```javascript
+import { Utils } from "../utils.js";
+
+/**
+ * Manages UI state for a document sheet with persistence.
+ */
+export class SheetState {
+  constructor(sheet, defaults = {}) {
+    this.sheet = sheet;
+    this.state = { ...defaults };
+    this._loaded = false;
+  }
+
+  async load() {
+    if (this._loaded) return this.state;
+    const persisted = await Utils.loadUiState(this.sheet);
+    this.state = { ...this.state, ...persisted };
+    this._loaded = true;
+    return this.state;
+  }
+
+  get(key) {
+    return this.state[key];
+  }
+
+  async set(key, value) {
+    this.state[key] = value;
+    await Utils.saveUiState(this.sheet, { [key]: value });
+  }
+
+  async toggle(key) {
+    const newValue = !this.state[key];
+    await this.set(key, newValue);
+    return newValue;
+  }
+}
+```
+
+### Usage Example
+
+```javascript
+// In BladesAlternateActorSheet
+import { SheetState } from "./lib/sheet-state.js";
+
+class BladesAlternateActorSheet extends BladesSheet {
+  constructor(...args) {
+    super(...args);
+    this.uiState = new SheetState(this, {
+      showFilteredAbilities: true,
+      showFilteredItems: true,
+      collapsedSections: {},
+    });
+  }
+
+  async getData() {
+    await this.uiState.load();
+    // Use: this.uiState.get('showFilteredAbilities')
+  }
+
+  async _onToggleFilter(event) {
+    await this.uiState.toggle('showFilteredAbilities');
+    this.render(false);
+  }
+}
+```
+
+### Implementation Steps
+
+1. Create `scripts/lib/sheet-state.js`
+2. Update `BladesAlternateActorSheet` to use `SheetState`
+3. Update `BladesAlternateCrewSheet` to use `SheetState`
+4. Remove scattered state properties
+5. Test all UI state persistence (filters, collapsed sections, etc.)
+
+### Benefits
+
+- Centralized state management (easier to reason about)
+- Consistent state persistence patterns
+- Easier to add new UI state properties
+- Single place to add state-related features (undo, state validation, etc.)
+
+### Note
+
+**This refactoring is lower priority** because:
+- Existing `loadUiState`/`saveUiState` pattern already works well (see `foundry-vtt-per-user-ui-state` skill)
+- State is already persisted correctly
+- This is primarily about code organization, not functionality
+
+Consider this only if adding significant new UI state features.
+
+---
+
+## When to Tackle These
+
+### Good Times to Implement
+
+- **L2 (Error Handling):** When fixing bugs or adding error-prone features
+- **L3 (JSDoc):** When onboarding new developers or improving documentation
+- **L4 (Template Constants):** When refactoring template structure
+- **L5 (Sheet State):** When adding complex new UI state features
+
+### Not Necessary If
+
+- Current code is working well
+- No active development planned
+- Team is small and familiar with codebase
+
+---
+
+## Progress Tracking
+
+Update this section when implementing tasks:
+
+- [ ] **L2:** Standardize error handling patterns
+- [ ] **L3:** Add JSDoc type annotations
+- [ ] **L4:** Centralize template path constants
+- [ ] **L5:** Extract sheet state management
+
+---
+
+## References
+
+- **Source:** `docs/archive/2025-12-31-refactor-plan.md` (archived)
+- **Related Skills:** `foundry-vtt-per-user-ui-state` (L5 partially addressed)
+- **Completed Refactorings:** H1-H4, M1-M8, L1 (all done in 2025-12)
+
+---
+
+**Last Updated:** 2025-12-31
+**Status:** Active tracking document for deferred improvements
