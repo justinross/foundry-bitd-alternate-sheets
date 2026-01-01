@@ -300,8 +300,10 @@ git commit --amend
 ```bash
 git push origin feat/descriptive-name
 
-# Create PR to rc-1.1.0
-gh pr create --base rc-1.1.0 \
+# Create PR to rc-1.1.0 (in fork)
+# IMPORTANT: Specify --repo for fork workflows
+gh pr create --repo ImproperSubset/foundry-bitd-alternate-sheets \
+  --base rc-1.1.0 \
   --title "feat: Add descriptive feature" \
   --body "$(cat <<'EOF'
 ## Summary
@@ -313,6 +315,12 @@ gh pr create --base rc-1.1.0 \
 - [ ] Test case 2
 EOF
 )"
+
+# Alternative: PR directly to upstream (less common)
+# gh pr create --repo justinross/foundry-bitd-alternate-sheets \
+#   --base rc-1.1.0 \
+#   --head ImproperSubset:feat/descriptive-name \
+#   --title "feat: Add descriptive feature"
 ```
 
 ### 7. After Merge
@@ -353,11 +361,18 @@ Branches:
 3. Push to your fork
    git push origin feat/my-feature
 
-4. PR to upstream rc-1.1.0
-   gh pr create --base rc-1.1.0
+4. PR to fork's rc-1.1.0 (IMPORTANT: specify --repo)
+   gh pr create --repo ImproperSubset/foundry-bitd-alternate-sheets \
+     --base rc-1.1.0
 
-5. After merge, rc-1.1.0 → master (release)
+5. After merge in fork, sync with upstream
+   git checkout rc-1.1.0
+   git pull origin rc-1.1.0
+
+6. Later: rc-1.1.0 → master (release)
 ```
+
+**Why specify --repo?** In fork workflows, `gh pr create` defaults to the upstream repo, but your feature branch only exists in your fork (origin). Explicitly specifying `--repo` creates the PR in the correct location.
 
 ### Documentation-Only Changes
 
