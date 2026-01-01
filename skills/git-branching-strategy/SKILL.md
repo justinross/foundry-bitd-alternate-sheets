@@ -382,6 +382,37 @@ git checkout rc-1.1.0
 # Make changes
 git commit -m "docs: update contributing guidelines"
 git push origin rc-1.1.0
+
+# CRITICAL: Push to upstream BEFORE creating feature branches
+git push upstream rc-1.1.0
+```
+
+**⚠️ Why push to upstream immediately?**
+
+If you make direct commits to rc-1.1.0 locally, then create a feature branch, that feature branch will include your unpushed rc-1.1.0 commits. This creates messy PRs with unrelated changes.
+
+**Example of what goes wrong:**
+```bash
+# You commit docs directly to rc-1.1.0
+git checkout rc-1.1.0
+git commit -m "docs: add skills"
+# ❌ MISTAKE: Didn't push to upstream yet
+
+# You create a feature branch
+git checkout -b feat/new-feature
+# ... work on feature ...
+git push origin feat/new-feature
+
+# ❌ PROBLEM: Your feature PR now includes the doc commits!
+```
+
+**Fix:** Always push rc-1.1.0 to upstream before branching:
+```bash
+# After committing to rc-1.1.0:
+git push upstream rc-1.1.0    # ← Don't skip this!
+
+# Then create feature branches
+git checkout -b feat/new-feature
 ```
 
 **Option B: Feature branch + PR (if larger)**
@@ -389,11 +420,11 @@ git push origin rc-1.1.0
 git checkout -b docs/descriptive-name
 # Make changes
 git push origin docs/descriptive-name
-gh pr create --base rc-1.1.0
+gh pr create --repo ImproperSubset/foundry-bitd-alternate-sheets --base rc-1.1.0
 ```
 
 **Rule of thumb:**
-- README fixes, typo corrections → Direct commit OK
+- README fixes, typo corrections → Direct commit OK (push to upstream immediately)
 - New documentation sections, skills, guides → Feature branch + PR
 
 ## Commit Message Conventions
