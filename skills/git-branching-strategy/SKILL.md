@@ -300,10 +300,11 @@ git commit --amend
 ```bash
 git push origin feat/descriptive-name
 
-# Create PR to rc-1.1.0 (in fork)
-# IMPORTANT: Specify --repo for fork workflows
-gh pr create --repo ImproperSubset/foundry-bitd-alternate-sheets \
+# Create PR from fork to upstream rc-1.1.0
+# IMPORTANT: Use --head to specify fork:branch format
+gh pr create --repo justinross/foundry-bitd-alternate-sheets \
   --base rc-1.1.0 \
+  --head ImproperSubset:feat/descriptive-name \
   --title "feat: Add descriptive feature" \
   --body "$(cat <<'EOF'
 ## Summary
@@ -315,13 +316,13 @@ gh pr create --repo ImproperSubset/foundry-bitd-alternate-sheets \
 - [ ] Test case 2
 EOF
 )"
-
-# Alternative: PR directly to upstream (less common)
-# gh pr create --repo justinross/foundry-bitd-alternate-sheets \
-#   --base rc-1.1.0 \
-#   --head ImproperSubset:feat/descriptive-name \
-#   --title "feat: Add descriptive feature"
 ```
+
+**Why PR to upstream, not fork?**
+- ✅ Documents changes going into the release candidate
+- ✅ Provides visibility to collaborators
+- ✅ Creates proper history on the authoritative repo
+- ✅ Enables code review process
 
 ### 7. After Merge
 
@@ -361,18 +362,20 @@ Branches:
 3. Push to your fork
    git push origin feat/my-feature
 
-4. PR to fork's rc-1.1.0 (IMPORTANT: specify --repo)
-   gh pr create --repo ImproperSubset/foundry-bitd-alternate-sheets \
-     --base rc-1.1.0
+4. PR from fork to upstream rc-1.1.0
+   gh pr create --repo justinross/foundry-bitd-alternate-sheets \
+     --base rc-1.1.0 \
+     --head ImproperSubset:feat/my-feature
 
-5. After merge in fork, sync with upstream
+5. After PR merges to upstream, sync local rc-1.1.0
    git checkout rc-1.1.0
-   git pull origin rc-1.1.0
+   git pull upstream rc-1.1.0
+   git push origin rc-1.1.0  # Keep fork in sync
 
 6. Later: rc-1.1.0 → master (release)
 ```
 
-**Why specify --repo?** In fork workflows, `gh pr create` defaults to the upstream repo, but your feature branch only exists in your fork (origin). Explicitly specifying `--repo` creates the PR in the correct location.
+**Why PR to upstream?** PRs document what's going into the release candidate. Creating PRs on upstream (not in your fork) provides proper visibility and history on the authoritative repository.
 
 ### Documentation-Only Changes
 
@@ -420,7 +423,9 @@ git checkout -b feat/new-feature
 git checkout -b docs/descriptive-name
 # Make changes
 git push origin docs/descriptive-name
-gh pr create --repo ImproperSubset/foundry-bitd-alternate-sheets --base rc-1.1.0
+gh pr create --repo justinross/foundry-bitd-alternate-sheets \
+  --base rc-1.1.0 \
+  --head ImproperSubset:docs/descriptive-name
 ```
 
 **Rule of thumb:**
