@@ -271,6 +271,32 @@ This directory contains reusable Claude Code skills extracted from project docum
 
 ---
 
+### 12. claude-code-development-workflow
+
+**Purpose:** Establish efficient, high-quality development practices using Claude Code agents and tools for this project.
+
+**Use when:**
+- Starting any feature or bug fix
+- Exploring unfamiliar code
+- Making commits or PRs
+- Unsure which agent or approach to use
+- Throughout the entire development lifecycle
+
+**Key patterns:**
+- Agent routing: When to use feature-dev, code-explorer, code-reviewer
+- Git discipline: Never raw git commands, always craft messages with attribution
+- Testing workflow: Build, lint, manual Foundry testing, multi-client verification
+- Knowledge boundaries: When to search vs assume (Foundry APIs, recent changes)
+- Proactive quality: Code review before declaring done, not after user asks
+- Planning discipline: Use EnterPlanMode for complex features, not ad-hoc implementation
+
+**References:**
+- Source: `CLAUDE.md` - Agent Routing Protocols, Commit Guidelines
+- Integrates all 11 technical skills into cohesive workflow
+- Project-specific policies (multi-client safety, Firefox bugs, design tokens)
+
+---
+
 ## How to Use These Skills
 
 ### With Claude Code CLI
