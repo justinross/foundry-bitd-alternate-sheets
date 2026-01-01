@@ -1,5 +1,6 @@
 import { BladesCrewSheet as SystemCrewSheet } from "../../../systems/blades-in-the-dark/module/blades-crew-sheet.js";
 import { Utils, MODULE_ID } from "./utils.js";
+import { TEMPLATES } from "./constants.js";
 import { Profiler } from "./profiler.js";
 import { bindInlineInputHandlers } from "./lib/sheet-helpers.js";
 
@@ -14,7 +15,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     const baseClasses = super.defaultOptions?.classes ?? [];
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: [...new Set([...baseClasses, "blades-alt"])],
-      template: "modules/bitd-alternate-sheets/templates/crew-sheet.html",
+      template: TEMPLATES.CREW_SHEET,
       width: 940,
       height: 940,
       tabs: [

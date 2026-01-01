@@ -1,5 +1,6 @@
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
+import { TEMPLATES } from "./constants.js";
 import { queueUpdate } from "./lib/update-queue.js";
 import { getItemSheetClass } from "./compat.js";
 import { guardDropAndHandle, setLocalPropAndRender, sheetDefaultOptions } from "./lib/sheet-helpers.js";
@@ -15,7 +16,7 @@ export class BladesAlternateClassSheet extends BaseItemSheet {
   static get defaultOptions() {
     return sheetDefaultOptions(super.defaultOptions, {
       classes: ["blades-alt", "sheet", "item", "class"],
-      template: "modules/bitd-alternate-sheets/templates/class-sheet.html",
+      template: TEMPLATES.CLASS_SHEET,
       width: 600,
       height: 600,
     });
