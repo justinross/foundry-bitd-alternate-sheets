@@ -300,8 +300,11 @@ git commit --amend
 ```bash
 git push origin feat/descriptive-name
 
-# Create PR to rc-1.1.0
-gh pr create --base rc-1.1.0 \
+# Create PR from fork to upstream rc-1.1.0
+# IMPORTANT: Use --head to specify fork:branch format
+gh pr create --repo justinross/foundry-bitd-alternate-sheets \
+  --base rc-1.1.0 \
+  --head ImproperSubset:feat/descriptive-name \
   --title "feat: Add descriptive feature" \
   --body "$(cat <<'EOF'
 ## Summary
@@ -314,6 +317,12 @@ gh pr create --base rc-1.1.0 \
 EOF
 )"
 ```
+
+**Why PR to upstream, not fork?**
+- ✅ Documents changes going into the release candidate
+- ✅ Provides visibility to collaborators
+- ✅ Creates proper history on the authoritative repo
+- ✅ Enables code review process
 
 ### 7. After Merge
 
@@ -353,11 +362,20 @@ Branches:
 3. Push to your fork
    git push origin feat/my-feature
 
-4. PR to upstream rc-1.1.0
-   gh pr create --base rc-1.1.0
+4. PR from fork to upstream rc-1.1.0
+   gh pr create --repo justinross/foundry-bitd-alternate-sheets \
+     --base rc-1.1.0 \
+     --head ImproperSubset:feat/my-feature
 
-5. After merge, rc-1.1.0 → master (release)
+5. After PR merges to upstream, sync local rc-1.1.0
+   git checkout rc-1.1.0
+   git pull upstream rc-1.1.0
+   git push origin rc-1.1.0  # Keep fork in sync
+
+6. Later: rc-1.1.0 → master (release)
 ```
+
+**Why PR to upstream?** PRs document what's going into the release candidate. Creating PRs on upstream (not in your fork) provides proper visibility and history on the authoritative repository.
 
 ### Documentation-Only Changes
 
@@ -367,6 +385,37 @@ git checkout rc-1.1.0
 # Make changes
 git commit -m "docs: update contributing guidelines"
 git push origin rc-1.1.0
+
+# CRITICAL: Push to upstream BEFORE creating feature branches
+git push upstream rc-1.1.0
+```
+
+**⚠️ Why push to upstream immediately?**
+
+If you make direct commits to rc-1.1.0 locally, then create a feature branch, that feature branch will include your unpushed rc-1.1.0 commits. This creates messy PRs with unrelated changes.
+
+**Example of what goes wrong:**
+```bash
+# You commit docs directly to rc-1.1.0
+git checkout rc-1.1.0
+git commit -m "docs: add skills"
+# ❌ MISTAKE: Didn't push to upstream yet
+
+# You create a feature branch
+git checkout -b feat/new-feature
+# ... work on feature ...
+git push origin feat/new-feature
+
+# ❌ PROBLEM: Your feature PR now includes the doc commits!
+```
+
+**Fix:** Always push rc-1.1.0 to upstream before branching:
+```bash
+# After committing to rc-1.1.0:
+git push upstream rc-1.1.0    # ← Don't skip this!
+
+# Then create feature branches
+git checkout -b feat/new-feature
 ```
 
 **Option B: Feature branch + PR (if larger)**
@@ -374,11 +423,13 @@ git push origin rc-1.1.0
 git checkout -b docs/descriptive-name
 # Make changes
 git push origin docs/descriptive-name
-gh pr create --base rc-1.1.0
+gh pr create --repo justinross/foundry-bitd-alternate-sheets \
+  --base rc-1.1.0 \
+  --head ImproperSubset:docs/descriptive-name
 ```
 
 **Rule of thumb:**
-- README fixes, typo corrections → Direct commit OK
+- README fixes, typo corrections → Direct commit OK (push to upstream immediately)
 - New documentation sections, skills, guides → Feature branch + PR
 
 ## Commit Message Conventions

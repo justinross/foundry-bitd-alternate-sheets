@@ -1,4 +1,5 @@
 import { Utils, MODULE_ID } from "./utils.js";
+import { TEMPLATES } from "./constants.js";
 import { queueUpdate } from "./lib/update-queue.js";
 import { getItemSheetClass } from "./compat.js";
 import { guardDropAndHandle, setLocalPropAndRender, sheetDefaultOptions } from "./lib/sheet-helpers.js";
@@ -14,7 +15,7 @@ export class BladesAlternateItemSheet extends BaseItemSheet {
   static get defaultOptions() {
     return sheetDefaultOptions(super.defaultOptions, {
       classes: ["blades-alt", "sheet", "item"],
-      template: "modules/bitd-alternate-sheets/templates/item-sheet.html",
+      template: TEMPLATES.ITEM_SHEET,
       width: 400,
       height: 600,
     });

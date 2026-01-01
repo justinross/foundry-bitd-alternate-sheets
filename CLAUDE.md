@@ -446,9 +446,12 @@ Migration.migrate() {
 ### Template Loading
 **`scripts/blades-templates.js`** - Preloads all partials in `templates/parts/`
 
-Templates are referenced by path relative to module root:
+Templates are centralized in `scripts/constants.js`:
 ```javascript
-"modules/bitd-alternate-sheets/templates/actor-sheet.html"
+import { TEMPLATES } from "./constants.js";
+
+// Sheet templates use constants
+template: TEMPLATES.ACTOR_SHEET
 ```
 
 ### Custom Helpers
@@ -529,19 +532,21 @@ const { BladesSheet } = await import(
 
 **Action**: Remove commented imports or uncomment if needed.
 
-### 🟢 LOW: Template Path Hardcoding
+### ✅ COMPLETED: Template Path Constants
 
-**Current**:
+**Status**: Completed (2025-12-31)
+
+**Implementation**: Template paths are now centralized in `scripts/constants.js`:
 ```javascript
-template: "modules/bitd-alternate-sheets/templates/actor-sheet.html"
+import { TEMPLATES } from "./constants.js";
+
+// Sheet classes use constants
+template: TEMPLATES.ACTOR_SHEET
 ```
 
-**Could use**:
-```javascript
-template: `modules/${MODULE_ID}/templates/actor-sheet.html`
-```
+**Files**: `scripts/constants.js`, all sheet classes, `blades-templates.js`
 
-**Benefit**: Single source of truth for module ID (already defined in `utils.js`).
+**Benefit**: Single source of truth for template paths, easier refactoring.
 
 ---
 

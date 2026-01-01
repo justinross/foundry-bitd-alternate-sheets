@@ -10,15 +10,15 @@
 
 These are **optional quality improvements** deferred from the main refactoring work. All high-priority (H1-H4) and medium-priority (M1-M8) items have been completed, plus L1 (break up `getVirtualListOfItems`).
 
-**Remaining:** 4 low-priority tasks
-**Total Estimated Effort:** ~4 hours 15 minutes
+**Remaining:** 3 low-priority tasks (L4 completed)
+**Total Estimated Effort:** ~3 hours 45 minutes
 **Impact:** Code quality and maintainability (not blocking functionality)
 
 | ID | Task | Effort | Priority | Status |
 |----|------|--------|----------|--------|
 | L2 | Standardize error handling patterns | 45 min | Low | ⬜ Not started |
 | L3 | Add JSDoc type annotations | 1 hour | Low | ⬜ Not started |
-| L4 | Centralize template path constants | 30 min | Low | ⬜ Not started |
+| L4 | Centralize template path constants | 30 min | Low | ✅ Completed (2025-12-31) |
 | L5 | Extract sheet state management | 2 hours | Very Low | ⬜ Not started |
 
 ---
@@ -377,7 +377,7 @@ Update this section when implementing tasks:
 
 - [ ] **L2:** Standardize error handling patterns
 - [ ] **L3:** Add JSDoc type annotations
-- [ ] **L4:** Centralize template path constants
+- [x] **L4:** Centralize template path constants (✅ 2025-12-31)
 - [ ] **L5:** Extract sheet state management
 
 ---

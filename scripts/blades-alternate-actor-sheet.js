@@ -1,6 +1,7 @@
 import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-sheet.js";
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
 import { Utils, MODULE_ID } from "./utils.js";
+import { TEMPLATES } from "./constants.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
 import { openCrewSelectionDialog, openCardSelectionDialog, confirmDialog } from "./lib/dialog-compat.js";
@@ -42,7 +43,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["blades-alt", "sheet", "pc", "actor"],
-      template: "modules/bitd-alternate-sheets/templates/actor-sheet.html",
+      template: TEMPLATES.ACTOR_SHEET,
       width: 800,
       height: 1200,
       tabs: [
