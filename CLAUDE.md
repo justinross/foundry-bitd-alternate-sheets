@@ -195,6 +195,8 @@ styles/scss/
 
 ### 1. Virtual Lists & Sourced Items
 
+**Skill**: See `skills/foundry-vtt-virtual-lists/SKILL.md` for full implementation details
+
 **Problem**: Default Foundry sheets only show owned items. BitD sheets need to show ALL available items for a playbook (even unowned), mimicking the official character sheets.
 
 **Solution**: `Utils.getSourcedItemsByType()` fetches items from:
@@ -212,7 +214,11 @@ const items = await Utils.getSourcedItemsByType(actor, "item", {
 
 **Ghost Slots**: Placeholder UI elements for cross-playbook abilities, allowing visual representation of empty ability slots.
 
+**Compendium Lookups**: The `searchAllPacks` setting (default: false) enables scanning ALL installed modules for matching documents, enabling homebrew support.
+
 ### 2. Update Queue Pattern
+
+**Skill**: See `skills/foundry-vtt-performance-safe-updates/SKILL.md` for complete multi-client safety patterns
 
 **Problem**: In multi-client Foundry sessions, concurrent updates from hooks can cause race conditions and update storms.
 
@@ -227,13 +233,15 @@ queueUpdate(async () => {
 });
 ```
 
-**Critical Rules** (from `docs/performance-update-guidelines.md`):
+**Critical Rules** (see skill for full details):
 1. **Guard with ownership checks**: Only update when `isOwner` or `isGM`
 2. **Skip no-op updates**: Compare target state before calling `actor.update()`
 3. **Batch updates**: Combine multiple field changes into single update object
 4. **Limit rerenders**: Only rerender owned, currently-open sheets
 
 ### 3. Compatibility Layer (V12/V13)
+
+**Skill**: See `skills/foundry-vtt-version-compat/SKILL.md` for full compatibility patterns
 
 **Files**: `scripts/compat.js`, `scripts/compat-helpers.js`
 
@@ -266,6 +274,8 @@ import { enrichHTML } from "./compat.js";
 
 ### 4. Dialog System (V1/V2 Compat)
 
+**Skill**: See `skills/foundry-vtt-dialog-compat/SKILL.md` for complete Shadow DOM styling patterns
+
 **File**: `scripts/lib/dialog-compat.js`
 
 **Problem**: Foundry V12+ uses `DialogV2` with Shadow DOM. External CSS and `<style>` tags don't work. Inline event handlers are stripped.
@@ -275,7 +285,9 @@ import { enrichHTML } from "./compat.js";
 - **V2**: All styles inline, event listeners attached in `render` callback
 - **V1**: Traditional approach
 
-**See**: `docs/dialogv2-custom-styling-guide.md` for Shadow DOM patterns.
+**Card Chooser**: Supports `description` property (rendered as tooltip `title` attribute on the card label).
+
+**Guide**: See `docs/guides/dialogv2-custom-styling-guide.md` for detailed Shadow DOM patterns.
 
 ### 5. Data Storage (Flags)
 
@@ -300,6 +312,7 @@ actor.getFlag("bitd-alternate-sheets", "added-ability-slots");
 ### 6. Smart Fields
 
 **File**: `scripts/sheets/actor/smart-edit.js`
+**Skill**: See `skills/foundry-vtt-smart-field-system/SKILL.md`
 
 Dynamic fields that open chooser dialogs based on `data-source` attribute:
 
@@ -310,10 +323,18 @@ Dynamic fields that open chooser dialogs based on `data-source` attribute:
 - `source="actor"` → Opens NPC/actor chooser with filtering
 - `source="item"` → Opens item chooser from world/compendia
 
+**Vice Purveyor Filtering (Recent Implementation):**
+- Uses `smart-field` with `source="actor"`
+- Filters available Actors based on `actor.system.vice` matching keywords in `npc.system.associated_crew_type`
+- Matching is strict lowercase contains check
+- Example: Actor with `vice: "gambling"` matches NPC with `associated_crew_type: "Pleasure, gambling, shows"`
+
 **Description Resolution**: `Utils.resolveDescription()` handles fallback chain:
 ```
 system.description_short → system.description → system.notes → system.biography
 ```
+
+**Note**: NPC description field is defined as `system.description_short` in template. `Utils.resolveDescription` handles fallback gracefully.
 
 ### 7. Clock System
 
@@ -326,6 +347,8 @@ Interactive SVG clocks that work in journals, chat, sheets:
 - **Click to increment** - Right-click to decrement
 
 ### 8. Migration System
+
+**Skill**: See `skills/foundry-vtt-data-migrations/SKILL.md` for migration patterns and schema versioning
 
 **File**: `scripts/migration.js`
 
@@ -342,6 +365,8 @@ Migration.migrate() {
 ---
 
 ## CSS Architecture
+
+**Skill**: See `skills/foundry-bitd-alt-css-authoring/SKILL.md` for complete CSS authoring guidelines
 
 ### Build Process
 1. Edit files in `styles/scss/`
@@ -571,13 +596,33 @@ Refactor ability progress flag handling
 
 ## Important Reference Documents
 
+### Skills (Detailed Patterns)
+| Skill | Purpose |
+|-------|---------|
+| `skills/foundry-vtt-performance-safe-updates/` | Multi-client update safety, ownership guards, queueUpdate |
+| `skills/foundry-bitd-alt-css-authoring/` | CSS authoring, design tokens, Firefox flexbox bug |
+| `skills/foundry-vtt-virtual-lists/` | Virtual lists, ghost slots, sourced items |
+| `skills/foundry-vtt-dialog-compat/` | DialogV2 Shadow DOM styling patterns |
+| `skills/foundry-vtt-version-compat/` | API compatibility layer (V12/V13) |
+| `skills/foundry-vtt-data-migrations/` | Data migrations, schema versioning |
+| `skills/foundry-vtt-smart-field-system/` | Smart fields, NPC integration, compendium lookups |
+| `skills/git-branching-strategy/` | Branch management, PR workflow |
+| `skills/documentation-management/` | Documentation organization policies |
+| `skills/claude-code-development-workflow/` | Agent routing, testing, commit guidelines |
+
+### Guides (How-To)
 | File | Purpose |
 |------|---------|
-| `CONTRIBUTING.md` | Detailed coding conventions, CSS rules, Firefox flexbox bug |
-| `AGENTS.md` | Quick reference for NPC integration, dialog compat |
-| `docs/performance-update-guidelines.md` | Multi-client update safety patterns |
-| `docs/dialogv2-custom-styling-guide.md` | Shadow DOM styling patterns |
-| `docs/compat-helpers-guide.md` | API compatibility layer usage |
+| `docs/guides/performance-update-guidelines.md` | Multi-client update safety quick reference |
+| `docs/guides/dialogv2-custom-styling-guide.md` | Shadow DOM styling detailed guide |
+| `docs/guides/compat-helpers-guide.md` | API compatibility layer usage examples |
+| `docs/guides/metrics.md` | Code metrics and tracking |
+
+### Other Documentation
+| File | Purpose |
+|------|---------|
+| `CONTRIBUTING.md` | Human developer onboarding, coding standards |
+| `AGENTS.md` | Pointer to CLAUDE.md (for Codex compatibility) |
 
 ---
 
