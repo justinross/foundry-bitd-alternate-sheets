@@ -146,6 +146,32 @@ This directory contains reusable Claude Code skills extracted from project docum
 
 ---
 
+### 7. git-branching-strategy
+
+**Purpose:** Prevent monster branches by following disciplined branching and merge practices suited to Foundry module development.
+
+**Use when:**
+- Starting new feature work
+- Mid-feature, wanting to add "just one more thing"
+- Branch has grown beyond 20 commits
+- Unsure whether to create new branch or continue current
+- Considering adding unrelated changes to current branch
+
+**Key patterns:**
+- **One feature, one branch, one PR** - Golden rule
+- Branch size targets: 5-15 commits ideal, 30 max, 50+ is a monster
+- Decision tree: Related to current feature? Ready to merge? Required dependency?
+- Branch naming: `feat/`, `fix/`, `refactor/`, `docs/`, `chore/`
+- Commit checkpoints: Check focus at 10, warning at 20, critical at 30
+- When to split: Extract completed features, start fresh if too messy
+
+**References:**
+- Monster branch example: `feature/alt-crew-sheet` (100+ commits, multiple features)
+- Good example: `refactor/scss-modules` (single purpose, clean history)
+- Integration workflow: Feature branches → `rc-1.1.0` → `master`
+
+---
+
 ## How to Use These Skills
 
 ### With Claude Code CLI
