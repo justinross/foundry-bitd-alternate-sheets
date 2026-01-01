@@ -247,6 +247,30 @@ This directory contains reusable Claude Code skills extracted from project docum
 
 ---
 
+### 11. documentation-management
+
+**Purpose:** Maintain clean, useful documentation by following clear guidelines for what to create, how to name it, where to put it, and when to archive or delete it.
+
+**Use when:**
+- About to create a new .md file
+- Completing an analysis or audit
+- Deciding whether to archive or delete docs
+- Uncertain if something should be documented
+
+**Key patterns:**
+- **Document types:** Guides (HOW), Architecture (WHY structure), ADRs (WHY decisions), Skills (repeatable patterns)
+- **Naming:** Guides: `{topic}-guide.md`, Architecture: `{COMPONENT}_ARCHITECTURE.md`, ADRs: `YYYY-MM-DD-{title}.md`
+- **The "Link Test":** Would you link to this in README? No → Delete it
+- **Extract to skills:** Repeatable patterns become skills, then delete audit docs
+- **Be ruthless:** Delete working documents after extracting to final format
+
+**References:**
+- This skill is self-referential - it defines its own purpose!
+- Example structure: `docs/{guides,architecture,decisions,archive}/`
+- ADR format: [Architecture Decision Records](https://adr.github.io/)
+
+---
+
 ## How to Use These Skills
 
 ### With Claude Code CLI
