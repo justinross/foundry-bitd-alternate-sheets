@@ -11,70 +11,119 @@
 These are **optional quality improvements** deferred from the main refactoring work. All high-priority (H1-H4) and medium-priority (M1-M8) items have been completed, plus L1 (break up `getVirtualListOfItems`).
 
 **Remaining:** 3 low-priority tasks (L4 completed)
-**Total Estimated Effort:** ~3 hours 45 minutes
+**Total Estimated Effort:** ~4 hours (revised: L2 updated with Foundry-native approach)
 **Impact:** Code quality and maintainability (not blocking functionality)
 
 | ID | Task | Effort | Priority | Status |
 |----|------|--------|----------|--------|
-| L2 | Standardize error handling patterns | 45 min | Low | ⬜ Not started |
+| L2 | Standardize error handling (Foundry-native) | 1 hour | Low | ⬜ Not started |
 | L3 | Add JSDoc type annotations | 1 hour | Low | ⬜ Not started |
 | L4 | Centralize template path constants | 30 min | Low | ✅ Completed (2025-12-31) |
 | L5 | Extract sheet state management | 2 hours | Very Low | ⬜ Not started |
 
 ---
 
-## L2: Standardize Error Handling Patterns
+## L2: Standardize Error Handling Patterns (Foundry-Native)
 
-**Effort:** Medium (45 minutes)
+**Effort:** Medium (1 hour - revised to use Foundry mechanisms)
 **Dependencies:** None
 **Priority:** Low
 
 ### Issue
 
-Error handling is inconsistent across the codebase. Some errors use `console.error`, others use `console.log`. User notifications are inconsistent.
+Error handling is inconsistent across the codebase. Some errors use `console.error`, others use `console.log`. User notifications are inconsistent and don't leverage Foundry's built-in error handling mechanisms.
 
 ### Current State
 
-**Good pattern** (in `smart-edit.js`):
+**Inconsistent patterns:**
 ```javascript
-} catch (err) {
-  ui.notifications.error(`Failed to add item: ${err.message}`);
-  console.error("Item chooser error", err);
-}
+// Pattern 1: Manual notification + console (duplicates Foundry functionality)
+ui.notifications.error(`Failed to add item: ${err.message}`);
+console.error("Item chooser error", err);
+
+// Pattern 2: Console.log instead of console.error
+console.log("Error: ", e);  // Wrong logging level
+
+// Pattern 3: No user notification when appropriate
 ```
 
-**Inconsistent pattern** (in `utils.js`):
+### Foundry V13 Best Practices
+
+Foundry provides two built-in mechanisms:
+
+**Option A: NotificationOptions.console (simplest)**
 ```javascript
-} catch (e) {
-  console.log("Error: ", e);  // Should use console.error
-}
+ui.notifications.error(message, { console: true, clean: true });
 ```
+- Automatically logs to console with stack trace
+- `clean: true` sanitizes untrusted input
+- Single call replaces manual notification + console.error
+
+**Option B: Hooks.onError (ecosystem-compatible)**
+```javascript
+Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
+  msg: "[BitD-Alt]",
+  log: "error",
+  notify: "error"
+});
+```
+- Triggers Foundry's centralized error funnel
+- Other modules can listen to error hooks
+- Consistent with core error reporting
 
 ### Proposed Solution
 
-Apply this standard pattern to all catch blocks:
+**Decision tree for catch blocks:**
 
-```javascript
-} catch (err) {
-  const message = `[BitD-Alt] ${contextDescription}: ${err.message}`;
-  ui.notifications.error(message);
-  console.error(message, err);
-}
-```
+1. **User-facing errors** (failed operations, validation errors):
+   ```javascript
+   } catch (err) {
+     const message = `[BitD-Alt] ${userFacingDescription}`;
+     ui.notifications.error(message, { console: true, clean: true });
+   }
+   ```
+
+2. **Developer-only errors** (silent failures, recoverable errors):
+   ```javascript
+   } catch (err) {
+     console.error(`[BitD-Alt] ${contextDescription}:`, err);
+     // No UI notification - error is diagnostic only
+   }
+   ```
+
+3. **Critical errors** (require ecosystem visibility):
+   ```javascript
+   } catch (err) {
+     const error = err instanceof Error ? err : new Error(String(err));
+     Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
+       msg: "[BitD-Alt]",
+       log: "error",
+       notify: "error"
+     });
+   }
+   ```
 
 ### Implementation Steps
 
-1. Search for all `catch` blocks in the codebase:
+1. **Audit all catch blocks:**
    ```bash
    grep -r "} catch" scripts/
    ```
 
-2. For each catch block, apply the pattern:
-   - User-facing operations → Add `ui.notifications.error` with helpful message
-   - Always use `console.error` (not `console.log`) for errors
-   - Include original error object for debugging
+2. **Classify each error:**
+   - User-actionable? → Use Option A (notification + console)
+   - Diagnostic only? → Use console.error only
+   - Ecosystem-critical? → Use Option B (Hooks.onError)
 
-3. Test error paths to ensure notifications appear correctly
+3. **Replace patterns:**
+   - `console.log` → `console.error` (minimum fix)
+   - Manual notification + console → `ui.notifications.*(msg, { console: true })`
+   - Consider `{ clean: true }` if error messages contain user/document data
+
+4. **Test error paths:**
+   - Verify notifications appear for user-facing errors
+   - Verify console logging includes stack traces
+   - Check that diagnostic errors don't spam UI
 
 ### Files Likely Affected
 
@@ -86,9 +135,22 @@ Apply this standard pattern to all catch blocks:
 
 ### Benefits
 
-- Consistent user experience (predictable error notifications)
-- Easier debugging (all errors logged with context)
-- Clearer error messages for troubleshooting
+- **Foundry-native:** Uses built-in NotificationOptions and error hooks
+- **Less redundant:** Single call instead of notification + console
+- **Ecosystem-compatible:** Hooks.onError allows other modules to listen
+- **Better UX:** Only notifies users for actionable errors (not diagnostic noise)
+- **Sanitization:** `{ clean: true }` prevents XSS from error messages
+- **Future-proof:** Aligns with Foundry V13+ error handling patterns
+
+### Optional Enhancement
+
+Consider localization for published modules:
+```javascript
+const message = game.i18n.format("BITD_ALT.Error.FailedToAddItem", {
+  error: err.message
+});
+ui.notifications.error(message, { console: true, clean: true });
+```
 
 ---
 
