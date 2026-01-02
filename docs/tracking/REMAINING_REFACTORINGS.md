@@ -55,9 +55,10 @@ Foundry provides two built-in mechanisms:
 ```javascript
 ui.notifications.error(message, { console: true, clean: true });
 ```
-- Automatically logs to console with stack trace
+- Automatically logs to console (string only - no stack trace unless you pass Error)
 - `clean: true` sanitizes untrusted input
 - Single call replaces manual notification + console.error
+- **Note**: For stack traces, pass the Error object or use Hooks.onError
 
 **Option B: Hooks.onError (ecosystem-compatible)**
 ```javascript
@@ -75,33 +76,61 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 
 **Decision tree for catch blocks:**
 
-1. **User-facing errors** (failed operations, validation errors):
+1. **User-facing failures** (unexpected errors, operations failed):
+   ```javascript
+   } catch (err) {
+     const error = err instanceof Error ? err : new Error(String(err));
+     Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
+       msg: `[BitD-Alt] ${userFacingDescription}`,
+       log: "error",
+       notify: "error"
+     });
+   }
+   ```
+   - Uses error funnel (stack traces included)
+   - Ecosystem visibility for unexpected failures
+
+2. **Expected validation/recoverable issues** (user input errors, missing data):
    ```javascript
    } catch (err) {
      const message = `[BitD-Alt] ${userFacingDescription}`;
-     ui.notifications.error(message, { console: true, clean: true });
+     ui.notifications.warn(message, { console: true, clean: true });
    }
    ```
+   - Uses `warn` severity (not `error`) for expected cases
+   - Simpler than Hooks.onError for routine validation
 
-2. **Developer-only errors** (silent failures, recoverable errors):
-   ```javascript
-   } catch (err) {
-     console.error(`[BitD-Alt] ${contextDescription}:`, err);
-     // No UI notification - error is diagnostic only
-   }
-   ```
-
-3. **Critical errors** (require ecosystem visibility):
+3. **Developer-only errors** (diagnostic logging, no user notification):
    ```javascript
    } catch (err) {
      const error = err instanceof Error ? err : new Error(String(err));
      Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
        msg: "[BitD-Alt]",
        log: "error",
-       notify: "error"
+       notify: null  // Log only, no UI spam
      });
    }
    ```
+   - Uses error funnel (consistency) but no notification
+   - Alternative: `console.error(...)` for truly isolated cases
+
+4. **High-frequency errors** (render loops, hooks):
+   ```javascript
+   } catch (err) {
+     // Throttle to prevent UI spam
+     if (!this._lastErrorTime || Date.now() - this._lastErrorTime > 5000) {
+       const error = err instanceof Error ? err : new Error(String(err));
+       Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
+         msg: "[BitD-Alt]",
+         log: "warn",
+         notify: "warn"
+       });
+       this._lastErrorTime = Date.now();
+     }
+   }
+   ```
+   - Throttles to prevent notification queue flood
+   - Uses `warn` severity for non-critical repeated errors
 
 ### Implementation Steps
 
@@ -111,19 +140,24 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
    ```
 
 2. **Classify each error:**
-   - User-actionable? → Use Option A (notification + console)
-   - Diagnostic only? → Use console.error only
-   - Ecosystem-critical? → Use Option B (Hooks.onError)
+   - Unexpected failure? → Hooks.onError with `notify: "error"`
+   - Expected validation/recoverable? → `ui.notifications.warn` (not error)
+   - Diagnostic only? → Hooks.onError with `notify: null` or console.error
+   - High-frequency? → Throttle + use `warn` severity
 
 3. **Replace patterns:**
-   - `console.log` → `console.error` (minimum fix)
-   - Manual notification + console → `ui.notifications.*(msg, { console: true })`
-   - Consider `{ clean: true }` if error messages contain user/document data
+   - `console.log` → `console.error` or Hooks.onError (minimum fix)
+   - Manual notification + console → Hooks.onError (for stack traces)
+   - Expected failures → `ui.notifications.warn` (not error)
+   - Use `{ clean: true }` if messages contain user/document data
+   - Throttle errors in render loops/hooks (prevent UI spam)
 
 4. **Test error paths:**
-   - Verify notifications appear for user-facing errors
-   - Verify console logging includes stack traces
+   - Verify notifications appear for unexpected failures
+   - Verify stack traces in console (Error objects via Hooks.onError)
+   - Verify `warn` used for expected validation errors
    - Check that diagnostic errors don't spam UI
+   - Test throttling for high-frequency error paths
 
 ### Files Likely Affected
 
@@ -135,11 +169,12 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 
 ### Benefits
 
-- **Foundry-native:** Uses built-in NotificationOptions and error hooks
-- **Less redundant:** Single call instead of notification + console
-- **Ecosystem-compatible:** Hooks.onError allows other modules to listen
-- **Better UX:** Only notifies users for actionable errors (not diagnostic noise)
+- **Foundry-native:** Uses built-in NotificationOptions and Hooks.onError
+- **Stack traces:** Error objects via Hooks.onError include full stack traces
+- **Ecosystem-compatible:** Error funnel allows other modules to listen
+- **Better UX:** Severity discipline (warn vs error) + throttling prevents spam
 - **Sanitization:** `{ clean: true }` prevents XSS from error messages
+- **Consistent:** All errors through same funnel (easier to monitor/debug)
 - **Future-proof:** Aligns with Foundry V13+ error handling patterns
 
 ### Optional Enhancement
