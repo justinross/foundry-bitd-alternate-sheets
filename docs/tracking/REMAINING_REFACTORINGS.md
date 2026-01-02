@@ -74,20 +74,31 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 
 ### Proposed Solution
 
-**Decision tree for catch blocks:**
+**Core Principle**: Always separate error funnel from user notification.
 
-**Note**: `msg` in Hooks.onError is a **prefix**, not a fully-controlled message. For complete UX control, use Hooks.onError with `notify: null` plus separate `ui.notifications.*` call. Also, `clean: true` only works in NotificationOptions (not Hooks.onError).
+- **Error funnel** (Hooks.onError): Logs stack traces, triggers ecosystem hooks, structured `data`
+- **User notification** (ui.notifications.*): Clean, sanitized messages with full UX control
+
+**Key constraints**:
+- `msg` in Hooks.onError is a **prefix**, not a fully-controlled message
+- `clean: true` only works in NotificationOptions (not Hooks.onError)
+- `notify` strings in Hooks.onError are undocumented - avoid relying on them
+- Use `{ console: false }` in ui.notifications.* to prevent double-logging
+
+**Decision tree for catch blocks:**
 
 1. **User-facing failures** (unexpected errors, operations failed):
    ```javascript
    } catch (err) {
-     const error = err instanceof Error ? err : new Error(String(err));
+     // Preserve original error as cause when wrapping non-Errors
+     const error = err instanceof Error ? err : new Error(String(err), { cause: err });
 
      // Error funnel: stack traces + ecosystem hooks (no UI)
      Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
        msg: "[BitD-Alt]",
        log: "error",
-       notify: null  // No UI from hook
+       notify: null,  // No UI from hook
+       data: { contextDescription, userFacingDescription }  // Structured context
      });
 
      // Fully controlled user message (sanitized)
@@ -97,6 +108,7 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
    - Separates error funnel (logs + hooks) from user message
    - Full UX control: user sees only `userFacingDescription`
    - Stack traces logged via Hooks.onError, UI via notifications
+   - Structured `data` for hook subscribers and debugging
    - Ecosystem visibility for unexpected failures
 
 2. **Expected validation/recoverable issues** (user input errors, missing data):
@@ -113,15 +125,17 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 3. **Developer-only errors** (diagnostic logging, no user notification):
    ```javascript
    } catch (err) {
-     const error = err instanceof Error ? err : new Error(String(err));
+     const error = err instanceof Error ? err : new Error(String(err), { cause: err });
      Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
        msg: "[BitD-Alt]",
        log: "error",
-       notify: null  // Log only, no UI spam
+       notify: null,  // Log only, no UI spam
+       data: { contextDescription }  // Structured context for debugging
      });
    }
    ```
    - Uses error funnel (consistency) but no notification
+   - Structured `data` for debugging and hook subscribers
    - Alternative: `console.error(...)` for truly isolated cases
 
 4. **High-frequency errors** (render loops, hooks):
@@ -136,12 +150,20 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 
      // Throttle: 5 second window per context
      if (Date.now() - lastError > 5000) {
-       const error = err instanceof Error ? err : new Error(String(err));
+       const error = err instanceof Error ? err : new Error(String(err), { cause: err });
 
+       // Error funnel (no UI)
        Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
          msg: "[BitD-Alt]",
          log: "warn",
-         notify: "warning"  // Use "warning" not "warn" for notifications
+         notify: null,  // No UI from hook
+         data: { contextDescription, userFacingDescription }
+       });
+
+       // Separate controlled notification (console: false prevents double-logging)
+       ui.notifications.warn(`[BitD-Alt] ${userFacingDescription}`, {
+         clean: true,
+         console: false  // Already logged via Hooks.onError
        });
 
        errorThrottles.set(throttleKey, Date.now());
@@ -149,9 +171,10 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
    }
    ```
    - Throttles to prevent notification queue flood
-   - Uses `warn` for console log level, `"warning"` for notification type
+   - Separates error funnel (logs only) from user notification
+   - Uses `console: false` to prevent double-logging (Hooks.onError already logs)
    - Module-scoped Map prevents spam across multiple instances
-   - **Critical**: Notification type must be `"warning"` (not `"warn"`)
+   - Avoids relying on undocumented `notify` strings in Hooks.onError
 
 ### Implementation Steps
 
@@ -164,24 +187,28 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
    - Unexpected failure? → Hooks.onError (`notify: null`) + ui.notifications.error
    - Expected validation/recoverable? → `ui.notifications.warn` (not error)
    - Diagnostic only? → Hooks.onError with `notify: null` or console.error
-   - High-frequency? → Throttle + use `"warning"` notification type
+   - High-frequency? → Throttle + Hooks.onError (`notify: null`) + ui.notifications.warn
 
 3. **Replace patterns:**
    - `console.log` → `console.error` or Hooks.onError (minimum fix)
    - Manual notification + console → Hooks.onError (`notify: null`) + ui.notifications.*
    - Expected failures → `ui.notifications.warn` (not error)
    - Use `{ clean: true }` on ui.notifications.* for user/document data
+   - Use `{ console: false }` when you've already logged via Hooks.onError
    - **Never** put untrusted strings in Hooks.onError `msg` (it's a prefix only)
-   - Use `"warning"` not `"warn"` for notification type in Hooks.onError
+   - **Always** separate error funnel from user notification for full UX control
+   - Preserve original error: `new Error(String(err), { cause: err })`
+   - Add structured `data` to Hooks.onError for debugging and hook subscribers
    - Throttle errors in render loops/hooks (prevent UI spam)
 
 4. **Test error paths:**
    - Verify user-facing errors show clean message (no technical details leaked)
    - Verify stack traces in console (Error objects via Hooks.onError)
-   - Verify `warn` used for expected validation errors
+   - Verify `warn` severity used for expected validation errors
    - Check that diagnostic errors don't spam UI (Hooks.onError with `notify: null`)
    - Test throttling for high-frequency error paths (5 second window)
-   - Verify notification types are "warning" not "warn"
+   - Verify no double-logging (Hooks.onError + ui.notifications with `console: false`)
+   - Verify structured `data` appears in error hooks for debugging
 
 ### Files Likely Affected
 
@@ -193,16 +220,18 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 
 ### Benefits
 
-- **Foundry-native:** Uses built-in NotificationOptions and Hooks.onError correctly
-- **Full UX control:** Separating error funnel from user message prevents technical leaks
+- **Foundry-native:** Uses only documented NotificationOptions and Hooks.onError APIs
+- **Full UX control:** Always separates error funnel from user message (no technical leaks)
 - **Stack traces:** Error objects via Hooks.onError include full stack traces in console
+- **Preserves context:** `{ cause: err }` retains original error when wrapping non-Errors
+- **Structured debugging:** `data` parameter provides context to hook subscribers and debugging
 - **Ecosystem-compatible:** Error funnel allows other modules to listen to BitD-Alt errors
 - **Better UX:** Severity discipline (warn vs error) + throttling prevents notification spam
 - **Sanitization:** `{ clean: true }` on ui.notifications.* prevents XSS from error messages
-- **Consistent:** All errors through same funnel (easier to monitor/debug)
-- **Correct notification types:** Uses documented `"warning"` type (not `"warn"`)
+- **No double-logging:** `{ console: false }` prevents duplicate console entries
+- **Consistent pattern:** All errors use same "funnel + notification" approach
 - **Robust throttling:** Module-scoped Map prevents spam across multiple instances
-- **Future-proof:** Aligns with Foundry V13 documented error handling patterns
+- **Future-proof:** Uses only documented Foundry V13 error handling mechanisms
 
 ### Optional Enhancement
 
