@@ -161,8 +161,26 @@ export class BladesAlternateActorSheet extends BladesSheet {
       });
       // Document update already triggers re-render via Foundry hooks
     } catch (err) {
-      ui.notifications.error(`Failed to switch playbook: ${err.message}`);
-      console.error("Playbook switch error:", err);
+      // Preserve original error as cause when wrapping non-Errors
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      // Error funnel: stack traces + ecosystem hooks (no UI)
+      Hooks.onError("BitD-Alt.PlaybookSwitch", error, {
+        msg: "[BitD-Alt]",
+        log: "error",
+        notify: null,
+        data: {
+          context: "PlaybookSwitch",
+          playbookName: newPlaybookItem?.name,
+          actorId: this.actor.id
+        }
+      });
+
+      // Fully controlled user message (sanitized, no console - already logged)
+      ui.notifications.error("[BitD-Alt] Failed to switch playbook", {
+        clean: true,
+        console: false
+      });
     }
   }
 

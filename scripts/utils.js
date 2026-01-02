@@ -350,8 +350,20 @@ export class Utils {
           }
         }
       }
-    } catch (e) {
-      console.log("Error: ", e);
+    } catch (err) {
+      // Preserve original error as cause when wrapping non-Errors
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      // Error funnel: stack traces + ecosystem hooks (no UI notification)
+      Hooks.onError("BitD-Alt.GetStartingAttributes", error, {
+        msg: "[BitD-Alt]",
+        log: "error",
+        notify: null,  // Developer-only, no UI spam
+        data: {
+          context: "GetStartingAttributes",
+          playbookUuid: playbook_item?.uuid
+        }
+      });
     }
     return attributes_to_return;
   }
@@ -1004,8 +1016,27 @@ export class Utils {
         try {
           await actor.deleteEmbeddedDocuments("Item", existingIds);
         } catch (err) {
-          ui.notifications.error(`Failed to remove ${label}: ${err.message}`);
-          console.error("Item deletion error:", err);
+          // Preserve original error as cause when wrapping non-Errors
+          const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+          // Error funnel: stack traces + ecosystem hooks (no UI)
+          Hooks.onError("BitD-Alt.ItemDeletion", error, {
+            msg: "[BitD-Alt]",
+            log: "error",
+            notify: null,
+            data: {
+              context: "ItemDeletion",
+              itemType: itemType,
+              label: label,
+              actorId: actor.id
+            }
+          });
+
+          // Fully controlled user message (sanitized, no console - already logged)
+          ui.notifications.error(`[BitD-Alt] Failed to remove ${label}`, {
+            clean: true,
+            console: false
+          });
         }
       }
     } else {
@@ -1036,8 +1067,28 @@ export class Utils {
             await actor.createEmbeddedDocuments("Item", [itemData]);
           }
         } catch (err) {
-          ui.notifications.error(`Failed to set ${label}: ${err.message}`);
-          console.error("Item update/create error:", err);
+          // Preserve original error as cause when wrapping non-Errors
+          const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+          // Error funnel: stack traces + ecosystem hooks (no UI)
+          Hooks.onError("BitD-Alt.ItemSet", error, {
+            msg: "[BitD-Alt]",
+            log: "error",
+            notify: null,
+            data: {
+              context: "ItemSet",
+              itemType: itemType,
+              label: label,
+              actorId: actor.id,
+              operation: existingItem ? "update" : "create"
+            }
+          });
+
+          // Fully controlled user message (sanitized, no console - already logged)
+          ui.notifications.error(`[BitD-Alt] Failed to set ${label}`, {
+            clean: true,
+            console: false
+          });
         }
       }
     }

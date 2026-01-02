@@ -46,8 +46,25 @@ export async function openItemChooser(sheet, filterPlaybook, itemScope = "") {
     const itemData = _buildEmbeddedItemData(selected, ctx);
     await sheet.actor.createEmbeddedDocuments("Item", [itemData]);
   } catch (err) {
-    ui.notifications.error(`Failed to add item: ${err.message}`);
-    console.error("Item chooser error", err);
+    // Preserve original error as cause when wrapping non-Errors
+    const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+    // Error funnel: stack traces + ecosystem hooks (no UI)
+    Hooks.onError("BitD-Alt.ItemChooser", error, {
+      msg: "[BitD-Alt]",
+      log: "error",
+      notify: null,
+      data: {
+        context: "ItemChooser",
+        actorId: sheet.actor.id
+      }
+    });
+
+    // Fully controlled user message (sanitized, no console - already logged)
+    ui.notifications.error("[BitD-Alt] Failed to add item", {
+      clean: true,
+      console: false
+    });
   }
 }
 
@@ -78,8 +95,25 @@ export async function openAcquaintanceChooser(sheet) {
 
     await Utils.addAcquaintance(sheet.actor, selected);
   } catch (err) {
-    ui.notifications.error(`Failed to add acquaintance: ${err.message}`);
-    console.error("Acquaintance chooser error", err);
+    // Preserve original error as cause when wrapping non-Errors
+    const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+    // Error funnel: stack traces + ecosystem hooks (no UI)
+    Hooks.onError("BitD-Alt.AcquaintanceChooser", error, {
+      msg: "[BitD-Alt]",
+      log: "error",
+      notify: null,
+      data: {
+        context: "AcquaintanceChooser",
+        actorId: sheet.actor.id
+      }
+    });
+
+    // Fully controlled user message (sanitized, no console - already logged)
+    ui.notifications.error("[BitD-Alt] Failed to add acquaintance", {
+      clean: true,
+      console: false
+    });
   }
 }
 
@@ -287,8 +321,27 @@ async function updateSmartField(sheet, field, value, header) {
   try {
     await sheet.actor.update({ [field]: value });
   } catch (err) {
-    ui.notifications.error(`Failed to update ${header}: ${err.message}`);
-    console.error("Smart field update error:", err);
+    // Preserve original error as cause when wrapping non-Errors
+    const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+    // Error funnel: stack traces + ecosystem hooks (no UI)
+    Hooks.onError("BitD-Alt.SmartFieldUpdate", error, {
+      msg: "[BitD-Alt]",
+      log: "error",
+      notify: null,
+      data: {
+        context: "SmartFieldUpdate",
+        field: field,
+        header: header,
+        actorId: sheet.actor.id
+      }
+    });
+
+    // Fully controlled user message (sanitized, no console - already logged)
+    ui.notifications.error(`[BitD-Alt] Failed to update ${header}`, {
+      clean: true,
+      console: false
+    });
   }
 }
 

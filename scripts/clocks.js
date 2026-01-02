@@ -23,8 +23,20 @@ export async function replaceClockLinks(container, messageContent = null) {
       const clockDiv = createClockDiv(uuid, model.isSnapshot, clockHtml);
 
       link.replaceWith(clockDiv);
-    } catch (e) {
-      console.warn("[BITD-ALT] Error processing clock link:", e);
+    } catch (err) {
+      // Preserve original error as cause when wrapping non-Errors
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      // Error funnel: stack traces + ecosystem hooks (no UI notification)
+      Hooks.onError("BitD-Alt.ClockRender", error, {
+        msg: "[BitD-Alt]",
+        log: "warn",  // Use warn for non-critical rendering errors
+        notify: null,  // Developer-only, no UI spam
+        data: {
+          context: "ClockRender",
+          uuid: uuid
+        }
+      });
     }
   }
 }

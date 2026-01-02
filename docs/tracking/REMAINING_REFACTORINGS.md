@@ -8,15 +8,15 @@
 
 ## Summary
 
-These are **optional quality improvements** deferred from the main refactoring work. All high-priority (H1-H4) and medium-priority (M1-M8) items have been completed, plus L1 (break up `getVirtualListOfItems`).
+These are **optional quality improvements** deferred from the main refactoring work. All high-priority (H1-H4) and medium-priority (M1-M8) items have been completed, plus L1 (break up `getVirtualListOfItems`), L2 (error handling), and L4 (template constants).
 
-**Remaining:** 3 low-priority tasks (L4 completed)
-**Total Estimated Effort:** ~4 hours (revised: L2 updated with Foundry-native approach)
+**Remaining:** 2 low-priority tasks (L2 and L4 completed)
+**Total Estimated Effort:** ~3 hours
 **Impact:** Code quality and maintainability (not blocking functionality)
 
 | ID | Task | Effort | Priority | Status |
 |----|------|--------|----------|--------|
-| L2 | Standardize error handling (Foundry-native) | 1 hour | Low | ⬜ Not started |
+| L2 | Standardize error handling (Foundry-native) | 1 hour | Low | ✅ Completed (2026-01-01) |
 | L3 | Add JSDoc type annotations | 1 hour | Low | ⬜ Not started |
 | L4 | Centralize template path constants | 30 min | Low | ✅ Completed (2025-12-31) |
 | L5 | Extract sheet state management | 2 hours | Very Low | ⬜ Not started |
@@ -541,7 +541,7 @@ Consider this only if adding significant new UI state features.
 
 Update this section when implementing tasks:
 
-- [ ] **L2:** Standardize error handling patterns
+- [x] **L2:** Standardize error handling patterns (✅ 2026-01-01)
 - [ ] **L3:** Add JSDoc type annotations
 - [x] **L4:** Centralize template path constants (✅ 2025-12-31)
 - [ ] **L5:** Extract sheet state management
@@ -551,10 +551,12 @@ Update this section when implementing tasks:
 ## References
 
 - **Source:** `docs/archive/2025-12-31-refactor-plan.md` (archived)
-- **Related Skills:** `foundry-vtt-per-user-ui-state` (L5 partially addressed)
-- **Completed Refactorings:** H1-H4, M1-M8, L1 (all done in 2025-12)
+- **Related Skills:**
+  - `foundry-vtt-error-handling` (L2 implementation guide)
+  - `foundry-vtt-per-user-ui-state` (L5 partially addressed)
+- **Completed Refactorings:** H1-H4, M1-M8, L1, L2, L4 (done in 2025-12 and 2026-01)
 
 ---
 
-**Last Updated:** 2025-12-31
+**Last Updated:** 2026-01-01
 **Status:** Active tracking document for deferred improvements

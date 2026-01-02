@@ -74,6 +74,84 @@ This is a Foundry VTT module providing alternate character sheets for the Blades
 
 ---
 
+## Git Workflow Check (CRITICAL)
+
+**BEFORE implementing ANY code changes, you MUST determine the git strategy.**
+
+### Trigger Keywords Requiring Git Strategy Check
+
+When the user says any of these, **STOP and check** `skills/git-branching-strategy/SKILL.md`:
+
+- "implement [feature/refactor/task]"
+- "add [feature/functionality]"
+- "refactor [code/component]"
+- "build [new thing]"
+- "create [new feature]"
+- "fix [non-trivial bug]"
+
+### Decision Tree
+
+```
+User says: "implement X" or "add feature Y" or "refactor Z"
+         ↓
+   Is this NON-TRIVIAL work?
+   - Changes >2 files?
+   - Refactoring existing code?
+   - New features/functionality?
+   - Implementing planned tasks (L2, L3, etc.)?
+         ↓ YES (non-trivial)
+   ⚠️ REQUIRED: Create feature branch FIRST
+         ↓
+   git checkout -b feature/descriptive-name
+   (or refactor/descriptive-name)
+         ↓
+   Make changes on branch
+         ↓
+   Commit changes on branch
+         ↓
+   Push to origin (fork): git push -u origin branch-name
+         ↓
+   Create PR to upstream:
+   gh pr create --repo justinross/foundry-bitd-alternate-sheets \
+     --base rc-1.1.0 \
+     --head ImproperSubset:branch-name
+         ↓
+   ✅ DONE (proper workflow)
+```
+
+### When to Commit Directly to rc-X.X.X
+
+**Rare exceptions only:**
+- Documentation-only changes (README, markdown files, NO code changes)
+- Critical hotfixes (must be discussed with user first)
+
+**Golden Rule**: When in doubt, **use a feature branch**. PRs provide:
+- Documentation of what was changed and why
+- Opportunity for review
+- Clear history of feature development
+
+### What Happens If You Skip This
+
+❌ **Direct commits to rc-X.X.X bypass**:
+- Code review process
+- PR documentation
+- Proper git workflow
+- Visibility into changes
+
+❌ **Result**: Must force-push revert and redo properly (wasteful)
+
+### Checklist Before Writing Code
+
+- [ ] User requested implementation work?
+- [ ] Is this non-trivial (>2 files OR refactoring OR new feature)?
+- [ ] If YES → Consulted `skills/git-branching-strategy/SKILL.md`?
+- [ ] If YES → Created feature branch?
+- [ ] If NO (trivial) → Documented why direct commit is appropriate?
+
+**Consult the skill**: `skills/git-branching-strategy/SKILL.md` for complete workflow details.
+
+---
+
 ## Development Commands
 
 ### SCSS Build (Required after any style changes)

@@ -25,6 +25,84 @@ Invoke this skill when:
 - Considering adding "just one more thing"
 - Ready to merge but branch feels messy
 
+---
+
+## ⚠️ Pre-Implementation Checklist
+
+**BEFORE writing ANY code, answer these questions:**
+
+### 1. Is this non-trivial work?
+
+**Non-trivial = ANY of these:**
+- ✅ Changes **>2 files**
+- ✅ Refactoring existing code
+- ✅ Adding new features/functionality
+- ✅ Implementing planned tasks (from REMAINING_REFACTORINGS.md, etc.)
+- ✅ Bug fixes requiring changes to multiple components
+
+**Trivial = ALL of these:**
+- ❌ Fixing typo in single file
+- ❌ Updating documentation only (markdown, comments)
+- ❌ One-line fix in single file
+
+### 2. If Non-Trivial → CREATE FEATURE BRANCH
+
+```bash
+# Ensure rc-1.1.0 is up to date
+git checkout rc-1.1.0
+git pull upstream rc-1.1.0
+
+# Create feature branch (choose appropriate prefix)
+git checkout -b feature/descriptive-name    # For new features
+git checkout -b refactor/descriptive-name   # For refactoring
+git checkout -b fix/descriptive-name        # For bug fixes
+```
+
+**Examples:**
+- `feature/crew-sheet` - New crew sheet implementation
+- `refactor/error-handling` - Standardize error handling (L2)
+- `fix/clock-rendering` - Fix clock rendering bug
+
+### 3. If Hotfix to rc-X.X.X?
+
+**Criteria for direct commit to rc-X.X.X:**
+- ✅ Critical bug discovered **after** RC created
+- ✅ Blocks testing or release
+- ✅ Discussed with user **first**
+- ✅ Single file, minimal change
+
+**Default**: USE FEATURE BRANCH
+
+### 4. Golden Rule
+
+**When in doubt, use a feature branch.**
+
+PRs provide:
+- 📝 Documentation of what changed and why
+- 👁️ Opportunity for review
+- 📊 Clear history of feature development
+- 🔄 Easy to revert if needed
+
+### 5. Workflow Summary
+
+```
+User says: "implement X"
+         ↓
+   STOP! Non-trivial?
+         ↓ YES
+   git checkout -b feature/x
+         ↓
+   Make changes on branch
+         ↓
+   git push -u origin feature/x
+         ↓
+   gh pr create --repo upstream --base rc-1.1.0 --head fork:feature/x
+         ↓
+   Review, merge, delete branch
+```
+
+---
+
 ## The Problem: Monster Branches
 
 ### What Happened: feature/alt-crew-sheet
