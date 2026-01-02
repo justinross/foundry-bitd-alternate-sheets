@@ -76,18 +76,27 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 
 **Decision tree for catch blocks:**
 
+**Note**: `msg` in Hooks.onError is a **prefix**, not a fully-controlled message. For complete UX control, use Hooks.onError with `notify: null` plus separate `ui.notifications.*` call. Also, `clean: true` only works in NotificationOptions (not Hooks.onError).
+
 1. **User-facing failures** (unexpected errors, operations failed):
    ```javascript
    } catch (err) {
      const error = err instanceof Error ? err : new Error(String(err));
+
+     // Error funnel: stack traces + ecosystem hooks (no UI)
      Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
-       msg: `[BitD-Alt] ${userFacingDescription}`,
+       msg: "[BitD-Alt]",
        log: "error",
-       notify: "error"
+       notify: null  // No UI from hook
      });
+
+     // Fully controlled user message (sanitized)
+     ui.notifications.error(`[BitD-Alt] ${userFacingDescription}`, { clean: true });
    }
    ```
-   - Uses error funnel (stack traces included)
+   - Separates error funnel (logs + hooks) from user message
+   - Full UX control: user sees only `userFacingDescription`
+   - Stack traces logged via Hooks.onError, UI via notifications
    - Ecosystem visibility for unexpected failures
 
 2. **Expected validation/recoverable issues** (user input errors, missing data):
@@ -99,6 +108,7 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
    ```
    - Uses `warn` severity (not `error`) for expected cases
    - Simpler than Hooks.onError for routine validation
+   - NotificationOptions.console logs to console automatically
 
 3. **Developer-only errors** (diagnostic logging, no user notification):
    ```javascript
@@ -116,21 +126,32 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 
 4. **High-frequency errors** (render loops, hooks):
    ```javascript
+   // Module-scoped throttle (outside class/function)
+   const errorThrottles = new Map();
+
+   // In catch block:
    } catch (err) {
-     // Throttle to prevent UI spam
-     if (!this._lastErrorTime || Date.now() - this._lastErrorTime > 5000) {
+     const throttleKey = contextDescription;
+     const lastError = errorThrottles.get(throttleKey) || 0;
+
+     // Throttle: 5 second window per context
+     if (Date.now() - lastError > 5000) {
        const error = err instanceof Error ? err : new Error(String(err));
+
        Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
          msg: "[BitD-Alt]",
          log: "warn",
-         notify: "warn"
+         notify: "warning"  // Use "warning" not "warn" for notifications
        });
-       this._lastErrorTime = Date.now();
+
+       errorThrottles.set(throttleKey, Date.now());
      }
    }
    ```
    - Throttles to prevent notification queue flood
-   - Uses `warn` severity for non-critical repeated errors
+   - Uses `warn` for console log level, `"warning"` for notification type
+   - Module-scoped Map prevents spam across multiple instances
+   - **Critical**: Notification type must be `"warning"` (not `"warn"`)
 
 ### Implementation Steps
 
@@ -140,24 +161,27 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
    ```
 
 2. **Classify each error:**
-   - Unexpected failure? → Hooks.onError with `notify: "error"`
+   - Unexpected failure? → Hooks.onError (`notify: null`) + ui.notifications.error
    - Expected validation/recoverable? → `ui.notifications.warn` (not error)
    - Diagnostic only? → Hooks.onError with `notify: null` or console.error
-   - High-frequency? → Throttle + use `warn` severity
+   - High-frequency? → Throttle + use `"warning"` notification type
 
 3. **Replace patterns:**
    - `console.log` → `console.error` or Hooks.onError (minimum fix)
-   - Manual notification + console → Hooks.onError (for stack traces)
+   - Manual notification + console → Hooks.onError (`notify: null`) + ui.notifications.*
    - Expected failures → `ui.notifications.warn` (not error)
-   - Use `{ clean: true }` if messages contain user/document data
+   - Use `{ clean: true }` on ui.notifications.* for user/document data
+   - **Never** put untrusted strings in Hooks.onError `msg` (it's a prefix only)
+   - Use `"warning"` not `"warn"` for notification type in Hooks.onError
    - Throttle errors in render loops/hooks (prevent UI spam)
 
 4. **Test error paths:**
-   - Verify notifications appear for unexpected failures
+   - Verify user-facing errors show clean message (no technical details leaked)
    - Verify stack traces in console (Error objects via Hooks.onError)
    - Verify `warn` used for expected validation errors
-   - Check that diagnostic errors don't spam UI
-   - Test throttling for high-frequency error paths
+   - Check that diagnostic errors don't spam UI (Hooks.onError with `notify: null`)
+   - Test throttling for high-frequency error paths (5 second window)
+   - Verify notification types are "warning" not "warn"
 
 ### Files Likely Affected
 
@@ -169,13 +193,16 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 
 ### Benefits
 
-- **Foundry-native:** Uses built-in NotificationOptions and Hooks.onError
-- **Stack traces:** Error objects via Hooks.onError include full stack traces
-- **Ecosystem-compatible:** Error funnel allows other modules to listen
-- **Better UX:** Severity discipline (warn vs error) + throttling prevents spam
-- **Sanitization:** `{ clean: true }` prevents XSS from error messages
+- **Foundry-native:** Uses built-in NotificationOptions and Hooks.onError correctly
+- **Full UX control:** Separating error funnel from user message prevents technical leaks
+- **Stack traces:** Error objects via Hooks.onError include full stack traces in console
+- **Ecosystem-compatible:** Error funnel allows other modules to listen to BitD-Alt errors
+- **Better UX:** Severity discipline (warn vs error) + throttling prevents notification spam
+- **Sanitization:** `{ clean: true }` on ui.notifications.* prevents XSS from error messages
 - **Consistent:** All errors through same funnel (easier to monitor/debug)
-- **Future-proof:** Aligns with Foundry V13+ error handling patterns
+- **Correct notification types:** Uses documented `"warning"` type (not `"warn"`)
+- **Robust throttling:** Module-scoped Map prevents spam across multiple instances
+- **Future-proof:** Aligns with Foundry V13 documented error handling patterns
 
 ### Optional Enhancement
 
