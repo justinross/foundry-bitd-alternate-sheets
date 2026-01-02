@@ -101,13 +101,17 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
        data: { contextDescription, userFacingDescription }  // Structured context
      });
 
-     // Fully controlled user message (sanitized)
-     ui.notifications.error(`[BitD-Alt] ${userFacingDescription}`, { clean: true });
+     // Fully controlled user message (sanitized, no console - already logged)
+     ui.notifications.error(`[BitD-Alt] ${userFacingDescription}`, {
+       clean: true,
+       console: false  // Hooks.onError already logged
+     });
    }
    ```
    - Separates error funnel (logs + hooks) from user message
    - Full UX control: user sees only `userFacingDescription`
    - Stack traces logged via Hooks.onError, UI via notifications
+   - Explicit `console: false` prevents double-logging if defaults change
    - Structured `data` for hook subscribers and debugging
    - Ecosystem visibility for unexpected failures
 
@@ -115,12 +119,19 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
    ```javascript
    } catch (err) {
      const message = `[BitD-Alt] ${userFacingDescription}`;
-     ui.notifications.warn(message, { console: true, clean: true });
+     ui.notifications.warn(message, {
+       clean: true,
+       console: false  // Expected failures - no console noise
+     });
    }
    ```
    - Uses `warn` severity (not `error`) for expected cases
    - Simpler than Hooks.onError for routine validation
-   - NotificationOptions.console logs to console automatically
+   - `console: false` avoids noise for common user-driven validation failures
+   - **Optional**: Gate console logging behind debug flag if needed:
+     ```javascript
+     console: game.settings.get("bitd-alternate-sheets", "enableProfiling")
+     ```
 
 3. **Developer-only errors** (diagnostic logging, no user notification):
    ```javascript
@@ -192,14 +203,15 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 3. **Replace patterns:**
    - `console.log` → `console.error` or Hooks.onError (minimum fix)
    - Manual notification + console → Hooks.onError (`notify: null`) + ui.notifications.*
-   - Expected failures → `ui.notifications.warn` (not error)
+   - Expected failures → `ui.notifications.warn` with `console: false` (not error)
    - Use `{ clean: true }` on ui.notifications.* for user/document data
-   - Use `{ console: false }` when you've already logged via Hooks.onError
+   - **Default to `console: false`** in ui.notifications.* (prevents noise + double-logging)
    - **Never** put untrusted strings in Hooks.onError `msg` (it's a prefix only)
    - **Always** separate error funnel from user notification for full UX control
    - Preserve original error: `new Error(String(err), { cause: err })`
    - Add structured `data` to Hooks.onError for debugging and hook subscribers
    - Throttle errors in render loops/hooks (prevent UI spam)
+   - **Optional**: Gate console logging behind debug flag for expected validation errors
 
 4. **Test error paths:**
    - Verify user-facing errors show clean message (no technical details leaked)
@@ -228,7 +240,8 @@ Hooks.onError(`BitD-Alt.${contextDescription}`, error, {
 - **Ecosystem-compatible:** Error funnel allows other modules to listen to BitD-Alt errors
 - **Better UX:** Severity discipline (warn vs error) + throttling prevents notification spam
 - **Sanitization:** `{ clean: true }` on ui.notifications.* prevents XSS from error messages
-- **No double-logging:** `{ console: false }` prevents duplicate console entries
+- **No double-logging:** Explicit `console: false` prevents duplicate entries + future-proofs against default changes
+- **Reduced console noise:** Expected validation errors don't clutter console by default
 - **Consistent pattern:** All errors use same "funnel + notification" approach
 - **Robust throttling:** Module-scoped Map prevents spam across multiple instances
 - **Future-proof:** Uses only documented Foundry V13 error handling mechanisms
