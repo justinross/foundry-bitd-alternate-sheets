@@ -609,6 +609,7 @@ Refactor ability progress flag handling
 | `skills/foundry-vtt-virtual-lists/` | Virtual lists, ghost slots, sourced items |
 | `skills/foundry-vtt-dialog-compat/` | DialogV2 Shadow DOM styling patterns |
 | `skills/foundry-vtt-version-compat/` | API compatibility layer (V12/V13) |
+| `skills/foundry-vtt-error-handling/` | Error handling patterns with Hooks.onError + NotificationOptions |
 | `skills/foundry-vtt-data-migrations/` | Data migrations, schema versioning |
 | `skills/foundry-vtt-smart-field-system/` | Smart fields, NPC integration, compendium lookups |
 | `skills/git-branching-strategy/` | Branch management, PR workflow |
