@@ -53,8 +53,10 @@ class UpdateQueue {
 let updateQueue = new UpdateQueue("All");
 
 /**
- * Safely manages concurrent updates to the provided entity type
- * @param {Function} updateFn   the function that handles the actual update (can be async)
+ * Safely manages concurrent updates by serializing them in a queue.
+ * Prevents race conditions when multiple hooks or events trigger document updates.
+ * @param {Function} updateFn - The function that handles the actual update (can be async)
+ * @returns {void}
  */
 export function queueUpdate(updateFn) {
   /** queue the update for this entity */

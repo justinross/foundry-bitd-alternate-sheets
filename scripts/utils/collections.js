@@ -37,6 +37,11 @@ export function invalidateCompendiumCache() {
   console.log(`[bitd-alt] Compendium cache invalidated (v${cacheVersion})`);
 }
 
+/**
+ * Get all items of a specific type from world and default compendia.
+ * @param {string} item_type - The item/actor type (e.g., "ability", "item", "npc")
+ * @returns {Promise<Array<unknown>>} Array of matching documents (Items or Actors)
+ */
 export async function getAllItemsByType(item_type) {
   let list_of_items = [];
   let world_items = [];
@@ -67,6 +72,12 @@ export async function getAllItemsByType(item_type) {
   return list_of_items;
 }
 
+/**
+ * Get items of a specific type from configured sources (world and/or compendia).
+ * Sources are controlled by module settings: populateFromWorld, populateFromCompendia, searchAllPacks.
+ * @param {string} item_type - The item/actor type (e.g., "ability", "item", "npc")
+ * @returns {Promise<Array<unknown>>} Array of matching documents from enabled sources
+ */
 export async function getSourcedItemsByType(item_type) {
   const populateFromCompendia = game.settings.get(
     "bitd-alternate-sheets",
@@ -130,6 +141,13 @@ export async function getSourcedItemsByType(item_type) {
   return limited_items;
 }
 
+/**
+ * Get actors filtered by a property value (e.g., vice purveyors filtered by vice type).
+ * @param {string} type - The actor type (e.g., "npc")
+ * @param {string} filterPath - Property path to filter on (e.g., "system.vice")
+ * @param {unknown} filterValue - Value to match against
+ * @returns {Promise<Array<unknown>>} Array of filtered actors with minimal shape
+ */
 export async function getFilteredActors(type, filterPath, filterValue) {
   const rawList = await getSourcedItemsByType(type);
 

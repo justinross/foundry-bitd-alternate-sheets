@@ -24,7 +24,13 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     });
   }
 
-  /** @override */
+  /**
+   * Prepare crew sheet data for rendering.
+   * Builds view model including crew type, abilities, upgrades, and acquaintances.
+   * @override
+   * @param {unknown} [options] - Application render options
+   * @returns {Promise<object>} The sheet data object for template rendering
+   */
   async getData(options) {
     const sheetData = await super.getData(options);
     Utils.ensureAllowEdit(this);

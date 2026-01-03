@@ -17,6 +17,12 @@ export class Utils {
     return collections.getFilteredActors(type, filterPath, filterValue);
   }
 
+  /**
+   * Resolve a description from an entity's various description fields.
+   * Tries description_short -> description -> notes -> biography in order.
+   * @param {unknown} entity - The entity (item/actor) to extract description from
+   * @returns {string} The resolved description text (empty string if none found)
+   */
   static resolveDescription(entity) {
     return textUtils.resolveDescription(entity);
   }
@@ -281,6 +287,12 @@ export class Utils {
     return collections.getAllItemsByType(item_type);
   }
 
+  /**
+   * Get items of a specific type from configured sources (world and/or compendia).
+   * Sources are controlled by module settings.
+   * @param {string} item_type - The item/actor type (e.g., "ability", "item", "npc")
+   * @returns {Promise<Array<unknown>>} Array of matching documents from enabled sources
+   */
   static async getSourcedItemsByType(item_type) {
     return collections.getSourcedItemsByType(item_type);
   }
@@ -510,6 +522,11 @@ export class Utils {
     return sheet?.actor?.id ?? sheet?.document?.id ?? null;
   }
 
+  /**
+   * Load persisted UI state for a sheet (e.g., collapsed sections, filters).
+   * @param {unknown} sheet - The sheet instance
+   * @returns {Promise<object>} The persisted UI state object (empty if none saved)
+   */
   static async loadUiState(sheet) {
     const key = Utils._getUiStateKey(sheet);
     if (!key) return {};
@@ -519,13 +536,29 @@ export class Utils {
     return current[key] || {};
   }
 
+  /**
+   * Save UI state for a sheet (e.g., collapsed sections, filters).
+   * Deep-merges new state with existing state for the sheet.
+   * @param {unknown} sheet - The sheet instance
+   * @param {object} state - The state object to merge and persist
+   * @returns {Promise<void>}
+   */
   static async saveUiState(sheet, state) {
     const key = Utils._getUiStateKey(sheet);
     if (!key) return;
     const user = game?.user;
     if (!user?.setFlag) return;
     const current = user.getFlag(MODULE_ID, "uiStates") || {};
-    const next = { ...current, [key]: { ...(current[key] || {}), ...state } };
+
+    // Deep merge to preserve nested objects (e.g., collapsedSections)
+    // Uses Foundry's mergeObject for proper plain-object handling
+    const merged = foundry.utils.mergeObject(
+      current[key] || {},
+      state,
+      { inplace: false, overwrite: true }
+    );
+
+    const next = { ...current, [key]: merged };
     await user.setFlag(MODULE_ID, "uiStates", next);
   }
 
@@ -770,6 +803,17 @@ export class Utils {
     await actor.update({ system: { acquaintances: current_acquaintances } });
   }
 
+  /**
+   * Build a virtual list of items combining source items and optionally owned items.
+   * Virtual items are plain objects marked with virtual=true and owned flags.
+   * @param {string} [type=""] - The item type (e.g., "ability", "item")
+   * @param {unknown} data - Sheet data containing actor reference
+   * @param {boolean} [sort=true] - Whether to sort the result
+   * @param {string} [filter_playbook=""] - Playbook name to filter by
+   * @param {boolean} [duplicate_owned_items=false] - Allow duplicates when merging owned items
+   * @param {boolean} [include_owned_items=false] - Include actor's owned items in the list
+   * @returns {Promise<Array<unknown>>} Array of virtual item objects
+   */
   static async getVirtualListOfItems(
     type = "",
     data,

@@ -268,56 +268,83 @@ ui.notifications.error(message, { console: true, clean: true });
 
 Many functions lack type annotations, making it harder for IDEs to provide autocomplete and for developers to understand function signatures.
 
-### Proposed Solution
+### Type Policy
 
-Add JSDoc comments to key functions with TypeScript-style type annotations.
+Add JSDoc annotations for **editor IntelliSense only**. Use lightweight structural types (@typedef for option objects and return shapes) rather than Foundry-specific types. This avoids brittleness from Foundry version changes and doesn't require external type packages or TypeScript configuration.
 
-### Priority Functions to Document
+**Typedef organization**: Put shared typedefs in `scripts/types.js` (or top of `utils.js`) and import via JSDoc `@typedef`/`@type` references as needed. This prevents typedef scatter across files.
 
-1. **`Utils` class public methods** (high impact)
+### Implementation Steps
+
+0. **Ensure editor support**: Verify/create `jsconfig.json` in project root so JSDoc types are respected by editors.
+   ```json
+   {
+     "compilerOptions": {
+       "checkJs": false,
+       "allowJs": true,
+       "target": "ES2022",
+       "module": "ESNext"
+     },
+     "exclude": ["node_modules"]
+   }
+   ```
+
+1. **Document `Utils` public methods** (highest ROI)
    - `getSourcedItemsByType()`
    - `getVirtualListOfItems()`
    - `loadUiState()`, `saveUiState()`
    - `resolveDescription()`
 
-2. **Sheet class `getData` methods** (moderate impact)
-   - `BladesAlternateActorSheet.getData()`
-   - `BladesAlternateCrewSheet.getData()`
-
-3. **Dialog functions** in `dialog-compat.js` (moderate impact)
+2. **Document dialog functions** in `dialog-compat.js` (option object shapes + return types)
    - `openCardSelectionDialog()`
    - `confirmDialogV2()`
 
-4. **Update queue functions** (low impact, already clear)
+3. **Document sheet `getData()` methods** with typedef for returned view-model shape
+   - `BladesAlternateActorSheet.getData()`
+   - `BladesAlternateCrewSheet.getData()`
+
+4. **Add JSDoc to remaining helpers** only where it clarifies non-obvious contracts
    - `queueUpdate()`
+
+5. **Quick consistency pass**: Ensure param names match signatures, all option objects use typedefs, return types are not overstated
+
+### Definition of Done
+
+- ✅ Every documented function has `@param` for each parameter
+- ✅ Every documented function has `@returns` (or `@yields`) for non-void returns
+- ✅ Any options object has either inline `@param {object} options` with dotted properties, OR a `@typedef` reused across functions
+- ✅ No function gets a misleading type (prefer `unknown` over wrong/uncertain types)
+- ✅ Default values for options are reflected in typedef docs (e.g., `[includeWorld=true]`)
+- ✅ Array types use consistent `Array<T>` style (not `T[]`)
 
 ### Example Format
 
+**Using @typedef for reusable option shapes:**
 ```javascript
+/**
+ * @typedef {object} ItemSourceOptions
+ * @property {string} [playbook] - Filter by playbook name
+ * @property {boolean} [includeWorld=true] - Include world items
+ * @property {boolean} [includeCompendia=true] - Include compendium items
+ */
+
 /**
  * Get all items of a specific type from world and compendia.
  * @param {string} itemType - The item type (e.g., "ability", "item", "npc")
- * @param {Object} [options] - Optional filters
- * @param {string} [options.playbook] - Filter by playbook name
- * @returns {Promise<Item[]>} Array of matching items
+ * @param {ItemSourceOptions} [options] - Optional filters
+ * @returns {Promise<Array<unknown>>} Array of matching items
  */
-static async getAllItemsByType(itemType, options = {}) { ... }
+static async getSourcedItemsByType(itemType, options = {}) { ... }
 ```
 
-### Implementation Steps
-
-1. Start with `Utils` class (highest impact)
-2. Add JSDoc to each public method
-3. Include parameter types, return types, and descriptions
-4. Move to sheet classes next
-5. Add types to helper functions last
+**Note**: Use `Array<unknown>` (not `Item[]` or `object[]`) since we're not configuring Foundry types. `unknown` communicates "opaque data" more honestly than `object`, which has odd edges (excludes primitives but doesn't describe shape). Always use `Array<T>` style for consistency.
 
 ### Benefits
 
-- Better IDE autocomplete and IntelliSense
-- Self-documenting code (clearer function contracts)
+- Better IDE autocomplete and IntelliSense (especially for option objects)
+- Clearer contracts without external dependencies
 - Easier onboarding for new developers
-- Type checking without TypeScript overhead
+- No TypeScript migration required
 
 ---
 
@@ -407,11 +434,14 @@ export const TEMPLATE_PARTS_PATH = `modules/${MODULE_ID}/templates/parts`;
 
 **Effort:** Large (2 hours)
 **Dependencies:** None
-**Priority:** Very Low (partially addressed by existing patterns)
+**Priority:** Very Low (defer until growth pressure)
+**Status:** Shallow merge bug fixed (2026-01-02), full refactor deferred
 
 ### Issue
 
 Multiple local state properties are scattered across sheet classes (`showFilteredAbilities`, `showFilteredItems`, `collapsedSections`, etc.), making state management inconsistent.
+
+**Critical bug fixed:** `Utils.saveUiState` now uses deep merge (`foundry.utils.mergeObject`) instead of shallow merge, preventing data loss in nested objects like `collapsedSections`.
 
 ### Current State
 
@@ -507,6 +537,73 @@ class BladesAlternateActorSheet extends BladesSheet {
 - Centralized state management (easier to reason about)
 - Consistent state persistence patterns
 - Easier to add new UI state properties
+
+### Known Limitations (Addressed in Future Refactor)
+
+The current basic implementation would have these issues (documented for when L5 becomes active):
+
+1. **No deep semantics for nested objects**
+   - Need `mapGet/mapSet/mapToggle` helpers for `collapsedSections`
+   - Without helpers: `set("collapsedSections", {...})` requires verbose spread operations
+   - Solution: Add map helpers or dot-path support (`setProperty/getProperty`)
+
+2. **Implicit scope (per-document only)**
+   - Currently hard-coded to per-document scope
+   - Some state might need global scope (user preferences)
+   - Solution: Add explicit `scope` option: `"document"` vs `"global"`
+
+3. **No dot-path support**
+   - Can't do `set("collapsedSections.foo", true)`
+   - Must manipulate entire object
+   - Solution: Use `foundry.utils.getProperty/setProperty`
+
+4. **Shallow merge in load()**
+   - `{ ...defaults, ...persisted }` is shallow
+   - Nested object defaults get clobbered
+   - Solution: Use `foundry.utils.mergeObject` for deep merge
+
+### Promote to Active When (Triggers for Doing L5)
+
+**DO NOT implement L5 until one of these conditions is met:**
+
+✅ **Trigger 1:** Adding another nested state object (besides `collapsedSections`)
+- If you need `expandedDetails`, `pinnedSections`, or similar map-like state
+- Indicates need for map helpers
+
+✅ **Trigger 2:** Reaching 6+ state keys or 3+ sheet classes with the pattern
+- State complexity is growing
+- Repetition across sheets indicates need for abstraction
+
+✅ **Trigger 3:** Need scope clarity or debounced writes
+- Per-actor vs global preference distinction becomes important
+- Search text, sort order, or other high-frequency state
+- Indicates need for more sophisticated state management
+
+✅ **Trigger 4:** Bugs from verbose state manipulation
+- If we see bugs like `collapsedSections` losing keys
+- Indicates the helpers would prevent real issues
+
+**Until then:** Current pattern is fine. The deep merge fix prevents data loss, and the verbosity is manageable for 2-3 state keys.
+
+### Recommended Implementation (When Triggered)
+
+When L5 becomes active, implement the enhanced `SheetState` class with:
+
+1. **Deep merge on load/save** (using `foundry.utils.mergeObject`)
+2. **Dot-path support** (using `foundry.utils.getProperty/setProperty`)
+3. **Map helpers** for nested objects:
+   ```javascript
+   mapGet(mapPath, key, fallback)
+   mapSet(mapPath, key, value)
+   mapToggle(mapPath, key)
+   ```
+4. **Explicit scope option**:
+   ```javascript
+   new SheetState(sheet, defaults, { scope: "document" | "global" })
+   ```
+5. **Storage key override** for special cases
+
+**See detailed implementation notes in commit history for full SheetState design.**
 - Single place to add state-related features (undo, state validation, etc.)
 
 ### Note
