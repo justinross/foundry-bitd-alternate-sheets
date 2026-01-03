@@ -458,7 +458,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /* -------------------------------------------- */
 
-  /** @override */
+  /**
+   * Prepare sheet data for rendering.
+   * Builds a comprehensive view model including playbook, abilities, items, load, etc.
+   * @override
+   * @returns {Promise<object>} The sheet data object for template rendering
+   */
   async getData() {
     const baseData = await super.getData();
     Utils.ensureAllowEdit(this);

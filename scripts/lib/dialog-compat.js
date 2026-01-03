@@ -5,20 +5,21 @@ const DEFAULT_DIALOG_WIDTH = 720;
 const DEFAULT_DIALOG_HEIGHT = 576;
 
 /**
-/**
  * Open a compatibility dialog that supports both Application V1 and V2
  * frameworks depending on the Foundry version in use.
  * Displays choices as selectable cards.
  *
- * @param {Object} options
- * @param {string} options.title
- * @param {string} options.instructions
- * @param {string} options.okLabel
- * @param {string} options.cancelLabel
- * @param {string} options.clearLabel
- * @param {Array<{ value: string, label: string, img?: string }>} options.choices
- * @param {string} [options.currentValue]
- * @returns {Promise<string|null|undefined>}
+ * @param {object} options - Dialog configuration options
+ * @param {string} options.title - Dialog window title
+ * @param {string} options.instructions - Instructional text shown above choices
+ * @param {string} options.okLabel - Label for OK/confirm button
+ * @param {string} options.cancelLabel - Label for cancel button
+ * @param {string} options.clearLabel - Label for clear button
+ * @param {Array<{value: string, label: string, img?: string, description?: string}>} options.choices - Array of selectable choices
+ * @param {string} [options.currentValue] - Currently selected value (if any)
+ * @param {number} [options.width=720] - Dialog width in pixels
+ * @param {number} [options.height=576] - Dialog height in pixels
+ * @returns {Promise<string|null|undefined>} Selected value (string), cleared (null), or cancelled (undefined)
  */
 export async function openCardSelectionDialog(options) {
   if (supportsDialogV2()) {
@@ -251,13 +252,13 @@ async function openCardSelectionDialogV1({
 /**
  * Open a compatibility confirmation dialog.
  *
- * @param {Object} options
- * @param {string} options.title
- * @param {string} options.content
- * @param {string} [options.yesLabel]
- * @param {string} [options.noLabel]
- * @param {boolean} [options.defaultYes=false]
- * @returns {Promise<boolean>}
+ * @param {object} options - Dialog configuration options
+ * @param {string} options.title - Dialog window title
+ * @param {string} options.content - HTML content to display
+ * @param {string} [options.yesLabel] - Label for yes/confirm button
+ * @param {string} [options.noLabel] - Label for no/cancel button
+ * @param {boolean} [options.defaultYes=false] - Whether yes is the default action
+ * @returns {Promise<boolean>} True if confirmed, false if declined or cancelled
  */
 export async function confirmDialog(options) {
   if (supportsDialogV2()) {
