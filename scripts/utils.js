@@ -538,7 +538,7 @@ export class Utils {
 
   /**
    * Save UI state for a sheet (e.g., collapsed sections, filters).
-   * Merges new state with existing state for the sheet.
+   * Deep-merges new state with existing state for the sheet.
    * @param {unknown} sheet - The sheet instance
    * @param {object} state - The state object to merge and persist
    * @returns {Promise<void>}
@@ -549,7 +549,16 @@ export class Utils {
     const user = game?.user;
     if (!user?.setFlag) return;
     const current = user.getFlag(MODULE_ID, "uiStates") || {};
-    const next = { ...current, [key]: { ...(current[key] || {}), ...state } };
+
+    // Deep merge to preserve nested objects (e.g., collapsedSections)
+    // Uses Foundry's mergeObject for proper plain-object handling
+    const merged = foundry.utils.mergeObject(
+      current[key] || {},
+      state,
+      { inplace: false, overwrite: true }
+    );
+
+    const next = { ...current, [key]: merged };
     await user.setFlag(MODULE_ID, "uiStates", next);
   }
 

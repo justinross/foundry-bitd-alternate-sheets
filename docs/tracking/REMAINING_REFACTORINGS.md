@@ -434,11 +434,14 @@ export const TEMPLATE_PARTS_PATH = `modules/${MODULE_ID}/templates/parts`;
 
 **Effort:** Large (2 hours)
 **Dependencies:** None
-**Priority:** Very Low (partially addressed by existing patterns)
+**Priority:** Very Low (defer until growth pressure)
+**Status:** Shallow merge bug fixed (2026-01-02), full refactor deferred
 
 ### Issue
 
 Multiple local state properties are scattered across sheet classes (`showFilteredAbilities`, `showFilteredItems`, `collapsedSections`, etc.), making state management inconsistent.
+
+**Critical bug fixed:** `Utils.saveUiState` now uses deep merge (`foundry.utils.mergeObject`) instead of shallow merge, preventing data loss in nested objects like `collapsedSections`.
 
 ### Current State
 
@@ -534,6 +537,73 @@ class BladesAlternateActorSheet extends BladesSheet {
 - Centralized state management (easier to reason about)
 - Consistent state persistence patterns
 - Easier to add new UI state properties
+
+### Known Limitations (Addressed in Future Refactor)
+
+The current basic implementation would have these issues (documented for when L5 becomes active):
+
+1. **No deep semantics for nested objects**
+   - Need `mapGet/mapSet/mapToggle` helpers for `collapsedSections`
+   - Without helpers: `set("collapsedSections", {...})` requires verbose spread operations
+   - Solution: Add map helpers or dot-path support (`setProperty/getProperty`)
+
+2. **Implicit scope (per-document only)**
+   - Currently hard-coded to per-document scope
+   - Some state might need global scope (user preferences)
+   - Solution: Add explicit `scope` option: `"document"` vs `"global"`
+
+3. **No dot-path support**
+   - Can't do `set("collapsedSections.foo", true)`
+   - Must manipulate entire object
+   - Solution: Use `foundry.utils.getProperty/setProperty`
+
+4. **Shallow merge in load()**
+   - `{ ...defaults, ...persisted }` is shallow
+   - Nested object defaults get clobbered
+   - Solution: Use `foundry.utils.mergeObject` for deep merge
+
+### Promote to Active When (Triggers for Doing L5)
+
+**DO NOT implement L5 until one of these conditions is met:**
+
+✅ **Trigger 1:** Adding another nested state object (besides `collapsedSections`)
+- If you need `expandedDetails`, `pinnedSections`, or similar map-like state
+- Indicates need for map helpers
+
+✅ **Trigger 2:** Reaching 6+ state keys or 3+ sheet classes with the pattern
+- State complexity is growing
+- Repetition across sheets indicates need for abstraction
+
+✅ **Trigger 3:** Need scope clarity or debounced writes
+- Per-actor vs global preference distinction becomes important
+- Search text, sort order, or other high-frequency state
+- Indicates need for more sophisticated state management
+
+✅ **Trigger 4:** Bugs from verbose state manipulation
+- If we see bugs like `collapsedSections` losing keys
+- Indicates the helpers would prevent real issues
+
+**Until then:** Current pattern is fine. The deep merge fix prevents data loss, and the verbosity is manageable for 2-3 state keys.
+
+### Recommended Implementation (When Triggered)
+
+When L5 becomes active, implement the enhanced `SheetState` class with:
+
+1. **Deep merge on load/save** (using `foundry.utils.mergeObject`)
+2. **Dot-path support** (using `foundry.utils.getProperty/setProperty`)
+3. **Map helpers** for nested objects:
+   ```javascript
+   mapGet(mapPath, key, fallback)
+   mapSet(mapPath, key, value)
+   mapToggle(mapPath, key)
+   ```
+4. **Explicit scope option**:
+   ```javascript
+   new SheetState(sheet, defaults, { scope: "document" | "global" })
+   ```
+5. **Storage key override** for special cases
+
+**See detailed implementation notes in commit history for full SheetState design.**
 - Single place to add state-related features (undo, state validation, etc.)
 
 ### Note
