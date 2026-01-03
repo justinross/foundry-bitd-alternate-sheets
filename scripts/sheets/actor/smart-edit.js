@@ -1,4 +1,5 @@
 import { openCardSelectionDialog } from "../../lib/dialog-compat.js";
+import { safeUpdate } from "../../lib/update-queue.js";
 import { Utils } from "../../utils.js";
 
 export async function handleSmartEdit(sheet, event) {
@@ -319,7 +320,8 @@ function _normalizeEmbeddedItemSystem(system, ctx) {
 
 async function updateSmartField(sheet, field, value, header) {
   try {
-    await sheet.actor.update({ [field]: value });
+    const didUpdate = await safeUpdate(sheet.actor, { [field]: value });
+    if (!didUpdate) return;
   } catch (err) {
     // Preserve original error as cause when wrapping non-Errors
     const error = err instanceof Error ? err : new Error(String(err), { cause: err });

@@ -63,4 +63,35 @@ export function queueUpdate(updateFn) {
   updateQueue.queueUpdate(updateFn);
 }
 
+/**
+ * Safely updates a document with ownership, no-op, and serialization guards.
+ * @param {ClientDocument} doc - The document to update
+ * @param {object} updateData - The update payload
+ * @param {object} [options] - Options to pass to doc.update()
+ * @returns {Promise<boolean>} - True if update was performed, false if skipped
+ */
+export async function safeUpdate(doc, updateData, options = {}) {
+  if (!doc?.isOwner) return false;
+
+  const entries = Object.entries(updateData || {});
+  if (entries.length === 0) return false;
+
+  const normalize = (value) =>
+    value === undefined || value === null || value === "" ? "" : value;
+
+  const hasChange = entries.some(([key, value]) => {
+    if (value !== null && typeof value === "object") return true;
+    const currentValue = normalize(foundry.utils.getProperty(doc, key));
+    const nextValue = normalize(value);
+    return currentValue !== nextValue;
+  });
+
+  if (!hasChange) return false;
+
+  await queueUpdate(async () => {
+    await doc.update(updateData, options);
+  });
+  return true;
+}
+
 // used under MIT license from https://github.com/trioderegion/dnd5e-helpers/

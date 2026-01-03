@@ -1,4 +1,4 @@
-import { queueUpdate } from "./lib/update-queue.js";
+import { safeUpdate } from "./lib/update-queue.js";
 
 /**
  * Find content-link elements pointing to clock actors and replace them with clock displays.
@@ -144,9 +144,7 @@ export function setupGlobalClockHandlers() {
       updateData["prototypeToken.texture.src"] = imgPath;
     }
 
-    await queueUpdate(async () => {
-      await doc.update(updateData, { render: false });
-    });
+    await safeUpdate(doc, updateData, { render: false });
   });
 
   $body.on("contextmenu", ".blades-clock", async (e) => {
@@ -180,9 +178,7 @@ export function setupGlobalClockHandlers() {
       updateData["prototypeToken.texture.src"] = imgPath;
     }
 
-    await queueUpdate(async () => {
-      await doc.update(updateData, { render: false });
-    });
+    await safeUpdate(doc, updateData, { render: false });
   });
 
   $body.on("change click", ".blades-clock input[type='radio']", (e) => {
