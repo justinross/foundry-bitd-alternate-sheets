@@ -35,6 +35,78 @@ This is a Foundry VTT module providing alternate character sheets for the Blades
 
 ---
 
+## Skills First Policy (CRITICAL)
+
+**BEFORE making recommendations or taking action, you MUST check if relevant skills exist and consult them.**
+
+### Why Skills Matter
+
+Skills codify project-specific best practices, patterns, and policies. They preserve institutional knowledge and prevent repeated mistakes. **Ignoring skills wastes user effort in creating them and leads to inconsistent behavior.**
+
+### Mandatory Skill Consultation Triggers
+
+When the user requests ANY of these, **STOP and check relevant skills FIRST**:
+
+| User Request | Skills to Check | Why |
+|-------------|----------------|-----|
+| "Implement [task/feature]" | `claude-code-delegation-policy`, `git-branching-strategy` | Determine delegation strategy + git workflow |
+| "Add [feature]", "Build [thing]" | Same as above | Same reasoning |
+| "Review code", "Check quality" | Project-specific review skills if they exist | Follow established review standards |
+| "How does [X] work?" | Relevant technical skills (foundry-vtt-*, etc.) | Use documented patterns instead of guessing |
+| "What's the process for [X]?" | `claude-code-development-workflow`, workflow skills | Follow established procedures |
+| Styling/CSS work | `foundry-bitd-alt-css-authoring` | Design tokens, Firefox bugs, etc. |
+| Error handling | `foundry-vtt-error-handling` | Foundry-native patterns |
+| Git operations | `git-branching-strategy` | Proper workflow |
+
+### Systematic Skill Check Process
+
+**Before responding to implementation requests:**
+
+1. **Identify relevant skills** - Which skills apply to this request?
+2. **Explicitly reference them** - "Let me check the delegation policy skill..."
+3. **Quote key guidance** - Show the user you consulted the skill
+4. **Apply the guidance** - Follow what the skill says, not assumptions
+
+### Example: Correct Skill Usage
+
+```
+User: "Implement L3"
+
+✅ CORRECT:
+You: "Before proceeding, let me check the relevant skills:
+      - claude-code-delegation-policy (should this be delegated?)
+      - git-branching-strategy (need a feature branch?)
+
+      Based on the delegation policy skill, L3 should be delegated because:
+      [quotes skill reasoning]
+
+      I'll create a feature branch and delegate to a Task agent."
+
+❌ WRONG:
+You: "I'll implement L3 now by reading files and adding JSDoc..."
+     (Ignored delegation policy, ignored git strategy, cluttered context)
+```
+
+### Available Skills Reference
+
+Check the table at the end of this document for complete skill list. Key skills:
+
+- **Process**: `claude-code-delegation-policy`, `git-branching-strategy`, `claude-code-development-workflow`
+- **Foundry Patterns**: `foundry-vtt-error-handling`, `foundry-vtt-dialog-compat`, `foundry-vtt-performance-safe-updates`, etc.
+- **Project-Specific**: `foundry-bitd-alt-css-authoring`
+
+### Consequences of Ignoring Skills
+
+- ❌ Repeat mistakes that skills were created to prevent
+- ❌ Waste user's effort in creating/maintaining skills
+- ❌ Inconsistent behavior across sessions
+- ❌ Miss optimizations (like delegation for context preservation)
+- ❌ Violate established policies (like git workflow)
+
+**Golden Rule**: When in doubt, check if a skill exists. Better to over-consult than under-consult.
+
+---
+
 ## Agent Routing Protocols
 
 *Adhere to these delegation rules. Do not perform these tasks yourself if a specialized agent or tool is available.*
@@ -71,6 +143,89 @@ This is a Foundry VTT module providing alternate character sheets for the Blades
 ### Testing & QA
 - **Triggers:** "Test", "Verify UI", "Check login flow"
 - **Action:** Run appropriate test commands (`npm test`, etc.) or use browser automation MCP if configured.
+
+### Implementation Work
+- **Triggers:** "Implement [plan/task]", "Add [feature]", "Refactor [component]"
+- **Decision:** Check `claude-code-delegation-policy` skill to determine:
+  - If well-defined (approved plan exists) → Delegate to Task (general-purpose or feature-dev)
+  - If needs design/exploration first → Use `/feature-dev` workflow
+- **Rationale:** Preserve main context for strategic discussion, delegate autonomous execution
+
+---
+
+## Context Window Preservation Through Delegation
+
+**Core Principle** (from Anthropic official guidance): Preserve main conversation context by delegating autonomous work to subagents.
+
+> "Each subagent operates in its own context, preventing pollution of the main conversation and keeping it focused on high-level objectives."
+
+### Three-Tier Context Strategy
+
+1. **Main thread** - High-level discussion, decisions, strategy, user interaction
+2. **Subagent threads** - Autonomous execution, file operations, detailed work
+3. **Result** - Longer sessions, clearer conversations, better focus
+
+### When to Delegate
+
+Delegate work to Task agents when:
+
+✅ **Context preservation matters**
+- Implementation work requiring multiple file reads/edits
+- Iterative refinement that would consume many tokens
+- Details that don't need to be in strategic conversation
+
+✅ **Task is well-defined**
+- Clear scope, approved plan, or specific instructions
+- Deliverables are understood
+- Success criteria are clear
+
+✅ **Specialized expertise helps**
+- Code review, exploration, architecture design
+- Specific agent types available for the task
+
+✅ **You want focused results**
+- Subagent returns clean summary
+- Main context stays strategic
+- Implementation noise abstracted away
+
+### Example: L3 JSDoc Implementation
+
+**❌ Without delegation:**
+- Read 5+ files (~10k tokens)
+- Write dozens of JSDoc blocks (~5k tokens)
+- Iterate and refine (~5k tokens)
+- **Total**: ~20k tokens consumed in main context
+- **Result**: Conversation cluttered, harder to continue
+
+**✅ With delegation:**
+- Delegation prompt (~500 tokens)
+- Agent works autonomously in isolated context
+- Agent summary (~1k tokens)
+- **Total**: ~1.5k tokens in main context
+- **Savings**: ~18.5k tokens preserved for strategy
+- **Result**: Clear conversation, room for next steps
+
+### Decision Tree
+
+```
+User requests implementation work
+         ↓
+   Will this consume significant context?
+   (multiple files, iteration, details)
+         ↓ YES
+   Is the task well-defined?
+   (approved plan, clear scope)
+         ↓ YES
+   ✅ DELEGATE to Task agent
+         ↓
+   Agent works autonomously
+         ↓
+   Review summary in main context
+         ↓
+   ✅ Context preserved for strategy
+```
+
+**See `skills/claude-code-delegation-policy/SKILL.md` for complete guidance.**
 
 ---
 
@@ -682,6 +837,9 @@ Refactor ability progress flag handling
 ### Skills (Detailed Patterns)
 | Skill | Purpose |
 |-------|---------|
+| `skills/claude-code-delegation-policy/` | When/how to delegate work to subagents, context window preservation |
+| `skills/git-branching-strategy/` | Branch management, PR workflow |
+| `skills/claude-code-development-workflow/` | Agent routing, testing, commit guidelines |
 | `skills/foundry-vtt-performance-safe-updates/` | Multi-client update safety, ownership guards, queueUpdate |
 | `skills/foundry-bitd-alt-css-authoring/` | CSS authoring, design tokens, Firefox flexbox bug |
 | `skills/foundry-vtt-virtual-lists/` | Virtual lists, ghost slots, sourced items |
@@ -690,9 +848,7 @@ Refactor ability progress flag handling
 | `skills/foundry-vtt-error-handling/` | Error handling patterns with Hooks.onError + NotificationOptions |
 | `skills/foundry-vtt-data-migrations/` | Data migrations, schema versioning |
 | `skills/foundry-vtt-smart-field-system/` | Smart fields, NPC integration, compendium lookups |
-| `skills/git-branching-strategy/` | Branch management, PR workflow |
 | `skills/documentation-management/` | Documentation organization policies |
-| `skills/claude-code-development-workflow/` | Agent routing, testing, commit guidelines |
 
 ### Guides (How-To)
 | File | Purpose |

@@ -268,56 +268,83 @@ ui.notifications.error(message, { console: true, clean: true });
 
 Many functions lack type annotations, making it harder for IDEs to provide autocomplete and for developers to understand function signatures.
 
-### Proposed Solution
+### Type Policy
 
-Add JSDoc comments to key functions with TypeScript-style type annotations.
+Add JSDoc annotations for **editor IntelliSense only**. Use lightweight structural types (@typedef for option objects and return shapes) rather than Foundry-specific types. This avoids brittleness from Foundry version changes and doesn't require external type packages or TypeScript configuration.
 
-### Priority Functions to Document
+**Typedef organization**: Put shared typedefs in `scripts/types.js` (or top of `utils.js`) and import via JSDoc `@typedef`/`@type` references as needed. This prevents typedef scatter across files.
 
-1. **`Utils` class public methods** (high impact)
+### Implementation Steps
+
+0. **Ensure editor support**: Verify/create `jsconfig.json` in project root so JSDoc types are respected by editors.
+   ```json
+   {
+     "compilerOptions": {
+       "checkJs": false,
+       "allowJs": true,
+       "target": "ES2022",
+       "module": "ESNext"
+     },
+     "exclude": ["node_modules"]
+   }
+   ```
+
+1. **Document `Utils` public methods** (highest ROI)
    - `getSourcedItemsByType()`
    - `getVirtualListOfItems()`
    - `loadUiState()`, `saveUiState()`
    - `resolveDescription()`
 
-2. **Sheet class `getData` methods** (moderate impact)
-   - `BladesAlternateActorSheet.getData()`
-   - `BladesAlternateCrewSheet.getData()`
-
-3. **Dialog functions** in `dialog-compat.js` (moderate impact)
+2. **Document dialog functions** in `dialog-compat.js` (option object shapes + return types)
    - `openCardSelectionDialog()`
    - `confirmDialogV2()`
 
-4. **Update queue functions** (low impact, already clear)
+3. **Document sheet `getData()` methods** with typedef for returned view-model shape
+   - `BladesAlternateActorSheet.getData()`
+   - `BladesAlternateCrewSheet.getData()`
+
+4. **Add JSDoc to remaining helpers** only where it clarifies non-obvious contracts
    - `queueUpdate()`
+
+5. **Quick consistency pass**: Ensure param names match signatures, all option objects use typedefs, return types are not overstated
+
+### Definition of Done
+
+- ✅ Every documented function has `@param` for each parameter
+- ✅ Every documented function has `@returns` (or `@yields`) for non-void returns
+- ✅ Any options object has either inline `@param {object} options` with dotted properties, OR a `@typedef` reused across functions
+- ✅ No function gets a misleading type (prefer `unknown` over wrong/uncertain types)
+- ✅ Default values for options are reflected in typedef docs (e.g., `[includeWorld=true]`)
+- ✅ Array types use consistent `Array<T>` style (not `T[]`)
 
 ### Example Format
 
+**Using @typedef for reusable option shapes:**
 ```javascript
+/**
+ * @typedef {object} ItemSourceOptions
+ * @property {string} [playbook] - Filter by playbook name
+ * @property {boolean} [includeWorld=true] - Include world items
+ * @property {boolean} [includeCompendia=true] - Include compendium items
+ */
+
 /**
  * Get all items of a specific type from world and compendia.
  * @param {string} itemType - The item type (e.g., "ability", "item", "npc")
- * @param {Object} [options] - Optional filters
- * @param {string} [options.playbook] - Filter by playbook name
- * @returns {Promise<Item[]>} Array of matching items
+ * @param {ItemSourceOptions} [options] - Optional filters
+ * @returns {Promise<Array<unknown>>} Array of matching items
  */
-static async getAllItemsByType(itemType, options = {}) { ... }
+static async getSourcedItemsByType(itemType, options = {}) { ... }
 ```
 
-### Implementation Steps
-
-1. Start with `Utils` class (highest impact)
-2. Add JSDoc to each public method
-3. Include parameter types, return types, and descriptions
-4. Move to sheet classes next
-5. Add types to helper functions last
+**Note**: Use `Array<unknown>` (not `Item[]` or `object[]`) since we're not configuring Foundry types. `unknown` communicates "opaque data" more honestly than `object`, which has odd edges (excludes primitives but doesn't describe shape). Always use `Array<T>` style for consistency.
 
 ### Benefits
 
-- Better IDE autocomplete and IntelliSense
-- Self-documenting code (clearer function contracts)
+- Better IDE autocomplete and IntelliSense (especially for option objects)
+- Clearer contracts without external dependencies
 - Easier onboarding for new developers
-- Type checking without TypeScript overhead
+- No TypeScript migration required
 
 ---
 
