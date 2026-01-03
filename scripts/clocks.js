@@ -1,3 +1,5 @@
+import { queueUpdate } from "./lib/update-queue.js";
+
 /**
  * Find content-link elements pointing to clock actors and replace them with clock displays.
  * This runs after Foundry's built-in @UUID enricher has processed the text.
@@ -87,6 +89,18 @@ export function setupGlobalClockHandlers() {
       || clockEl.closest('form')?.dataset.uuid;
   }
 
+  async function getUpdatableDoc(clockEl) {
+    const uuid = getDocumentUuid(clockEl);
+    if (!uuid) {
+      console.warn("[BITD-ALT] Clock has no UUID, cannot save");
+      return null;
+    }
+
+    const doc = await fromUuid(uuid);
+    if (!doc?.isOwner) return null;
+    return doc;
+  }
+
   $body.on("click", ".blades-clock label.radio-toggle", async (e) => {
     if ($(e.currentTarget).closest('[data-snapshot="true"]').length) return;
 
@@ -105,18 +119,16 @@ export function setupGlobalClockHandlers() {
 
     const clickedSegment = parseInt(input.value);
     const updatePath = getUpdatePath(input);
-    const uuid = getDocumentUuid(clockEl);
-
-    if (!uuid) {
-      console.warn("[BITD-ALT] Clock has no UUID, cannot save");
-      return;
-    }
 
     const bg = clockEl.style.backgroundImage || "";
     const bgMatch = bg.match(/(\d+)clock_(\d+)\./);
     const currentValue = bgMatch ? parseInt(bgMatch[2]) : 0;
 
     const newValue = clickedSegment <= currentValue ? clickedSegment - 1 : clickedSegment;
+    if (newValue === currentValue) return;
+
+    const doc = await getUpdatableDoc(clockEl);
+    if (!doc) return;
 
     const targetInput = clockEl.querySelector(`input[type="radio"][value="${newValue}"]`);
     if (targetInput) targetInput.checked = true;
@@ -124,8 +136,6 @@ export function setupGlobalClockHandlers() {
     optimisticUpdate(clockEl, newValue);
 
     const updateData = { [updatePath]: newValue };
-    const doc = await fromUuid(uuid);
-    if (!doc) return;
     if (isClockActor(doc)) {
       const type = doc.system?.type ?? 4;
       const color = doc.system?.theme ?? "black";
@@ -134,7 +144,9 @@ export function setupGlobalClockHandlers() {
       updateData["prototypeToken.texture.src"] = imgPath;
     }
 
-    await doc.update(updateData, { render: false });
+    await queueUpdate(async () => {
+      await doc.update(updateData, { render: false });
+    });
   });
 
   $body.on("contextmenu", ".blades-clock", async (e) => {
@@ -144,12 +156,6 @@ export function setupGlobalClockHandlers() {
     e.stopPropagation();
 
     const clockEl = e.currentTarget;
-    const uuid = getDocumentUuid(clockEl);
-
-    if (!uuid) {
-      console.warn("[BITD-ALT] Clock has no UUID, cannot save");
-      return;
-    }
 
     const bg = clockEl.style.backgroundImage || "";
     const bgMatch = bg.match(/(\d+)clock_(\d+)\./);
@@ -157,14 +163,15 @@ export function setupGlobalClockHandlers() {
     const newValue = Math.max(0, currentValue - 1);
     if (newValue === currentValue) return;
 
+    const doc = await getUpdatableDoc(clockEl);
+    if (!doc) return;
+
     const anyInput = clockEl.querySelector('input[type="radio"]');
     const updatePath = anyInput ? getUpdatePath(anyInput) : "system.value";
 
     optimisticUpdate(clockEl, newValue);
 
     const updateData = { [updatePath]: newValue };
-    const doc = await fromUuid(uuid);
-    if (!doc) return;
     if (isClockActor(doc)) {
       const type = doc.system?.type ?? 4;
       const color = doc.system?.theme ?? "black";
@@ -173,7 +180,9 @@ export function setupGlobalClockHandlers() {
       updateData["prototypeToken.texture.src"] = imgPath;
     }
 
-    await doc.update(updateData, { render: false });
+    await queueUpdate(async () => {
+      await doc.update(updateData, { render: false });
+    });
   });
 
   $body.on("change click", ".blades-clock input[type='radio']", (e) => {
@@ -207,15 +216,15 @@ function getClockRenderModel(doc, uuid, snapshotValues) {
   const renderInstance = foundry.utils.randomID();
   const parameter_name = `system.value-${uniq_id}-${renderInstance}`;
   const isSnapshot = snapshotValue !== undefined;
-  return { type, value, color, uniq_id, renderInstance, parameter_name, isSnapshot };
+  return { type, value, color, uniq_id, renderInstance, parameter_name, isSnapshot, uuid };
 }
 
 function buildClockHtml(model, name) {
-  const { type, value, color, uniq_id, renderInstance, parameter_name } = model;
+  const { type, value, color, uniq_id, renderInstance, parameter_name, uuid } = model;
   let clockHtml = `<div id="blades-clock-${uniq_id}-${renderInstance}" 
            class="blades-clock clock-${type} clock-${type}-${value}" 
            style="background-image:url('systems/blades-in-the-dark/themes/${color}/${type}clock_${value}.svg'); width: 100px; height: 100px;"
-           data-uuid="${uniq_id}">`;
+           data-uuid="${uuid}">`;
 
   const zero_checked = value === 0 ? "checked" : "";
   clockHtml += `<input type="radio" value="0" id="clock-0-${uniq_id}-${renderInstance}" data-dType="String" name="${parameter_name}" ${zero_checked}>`;
