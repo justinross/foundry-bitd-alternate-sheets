@@ -5,7 +5,7 @@ export const MODULE_ID = "bitd-alternate-sheets";
 export class Migration {
     static async migrate() {
         const currentVersion = game.settings.get(MODULE_ID, "schemaVersion") || 0;
-        const targetVersion = 1;
+        const targetVersion = 2;
 
         if (currentVersion < targetVersion) {
             ui.notifications.info(
@@ -15,11 +15,19 @@ export class Migration {
             for (const actor of game.actors) {
                 if (actor.type !== "character") continue;
 
-                // Step 1: Fix Multi-Ability Progress (Orphaned Flags)
-                await this.migrateAbilityProgress(actor);
+                // Migrations that run for all schema upgrades
+                if (currentVersion < 1) {
+                    // Step 1: Fix Multi-Ability Progress (Orphaned Flags)
+                    await this.migrateAbilityProgress(actor);
 
-                // Step 2: Fix Equipped Items (Array -> Object)
-                await this.migrateEquippedItems(actor);
+                    // Step 2: Fix Equipped Items (Array -> Object)
+                    await this.migrateEquippedItems(actor);
+                }
+
+                if (currentVersion < 2) {
+                    // Step 3: Migrate healing clock from legacy field
+                    await this.migrateHealingClock(actor);
+                }
             }
 
             await game.settings.set(MODULE_ID, "schemaVersion", targetVersion);
@@ -81,6 +89,32 @@ export class Migration {
             await actor.update(updates);
             console.log(
                 `BitD Alternate Sheets | Cleaned up orphaned progress flags for ${actor.name}`
+            );
+        }
+    }
+
+    /**
+     * Migrate healing clock data from the legacy field to the current system field.
+     *
+     * Alt-sheets was incorrectly using `system.healing-clock` while the system
+     * changed to `system.healing_clock.value` in v6.0.0. If the legacy field has
+     * data that differs from the current field, migrate it.
+     */
+    static async migrateHealingClock(actor) {
+        const legacyValue = actor.system["healing-clock"];
+        const currentValue = actor.system.healing_clock?.value;
+
+        // Normalize values for comparison (handle arrays like [2] vs numbers like 2)
+        const legacyNum = Array.isArray(legacyValue) ? legacyValue[0] : legacyValue;
+        const currentNum = Array.isArray(currentValue) ? currentValue[0] : currentValue;
+
+        // If legacy has a value and current is empty/zero, migrate
+        if (legacyNum && legacyNum > 0 && (!currentNum || currentNum === 0)) {
+            await actor.update({
+                "system.healing_clock.value": legacyValue
+            });
+            console.log(
+                `BitD Alternate Sheets | Migrated healing clock for ${actor.name}: ${legacyNum} -> system.healing_clock.value`
             );
         }
     }
