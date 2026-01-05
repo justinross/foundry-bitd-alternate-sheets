@@ -8,30 +8,61 @@ export class Migration {
         const targetVersion = 2;
 
         if (currentVersion < targetVersion) {
+            console.log(`[BitD Alternate Sheets] Starting migration from schema v${currentVersion} to v${targetVersion}`);
             ui.notifications.info(
                 "BitD Alternate Sheets: Migrating data, please wait..."
             );
 
-            for (const actor of game.actors) {
-                if (actor.type !== "character") continue;
-
-                // Migrations that run for all schema upgrades
-                if (currentVersion < 1) {
-                    // Step 1: Fix Multi-Ability Progress (Orphaned Flags)
-                    await this.migrateAbilityProgress(actor);
-
-                    // Step 2: Fix Equipped Items (Array -> Object)
-                    await this.migrateEquippedItems(actor);
+            try {
+                // Migrate world actors
+                for (const actor of game.actors) {
+                    await this.migrateActor(actor, currentVersion);
                 }
 
-                if (currentVersion < 2) {
-                    // Step 3: Migrate healing clock from legacy field
-                    await this.migrateHealingClock(actor);
+                // Migrate unlinked token actors in scenes
+                for (const scene of game.scenes) {
+                    for (const token of scene.tokens) {
+                        // Only migrate unlinked tokens (linked tokens use the world actor)
+                        if (token.actorLink) continue;
+                        if (!token.actor) continue;
+
+                        await this.migrateActor(token.actor, currentVersion);
+                    }
                 }
+
+                await game.settings.set(MODULE_ID, "schemaVersion", targetVersion);
+                ui.notifications.info("BitD Alternate Sheets: Migration complete.");
+
+            } catch (err) {
+                console.error("[BitD Alternate Sheets] Critical migration error:", err);
+                ui.notifications.error("BitD Alternate Sheets: Migration failed. See console for details.");
+            }
+        }
+    }
+
+    /**
+     * Run all applicable migrations for a single actor.
+     * Wrapped in try-catch to prevent one actor's failure from blocking others.
+     */
+    static async migrateActor(actor, currentVersion) {
+        if (actor.type !== "character") return;
+
+        try {
+            if (currentVersion < 1) {
+                // Step 1: Fix Multi-Ability Progress (Orphaned Flags)
+                await this.migrateAbilityProgress(actor);
+
+                // Step 2: Fix Equipped Items (Array -> Object)
+                await this.migrateEquippedItems(actor);
             }
 
-            await game.settings.set(MODULE_ID, "schemaVersion", targetVersion);
-            ui.notifications.info("BitD Alternate Sheets: Migration complete.");
+            if (currentVersion < 2) {
+                // Step 3: Migrate healing clock from legacy field
+                await this.migrateHealingClock(actor);
+            }
+        } catch (err) {
+            console.error(`[BitD Alternate Sheets] Migration failed for ${actor.name}:`, err);
+            ui.notifications.warn(`Migration failed for ${actor.name} - see console`);
         }
     }
 
@@ -44,7 +75,7 @@ export class Migration {
             }
             await actor.setFlag(MODULE_ID, "equipped-items", newMap);
             console.log(
-                `BitD Alternate Sheets | Migrated equipped items for ${actor.name}`
+                `[BitD Alternate Sheets] Migrated equipped items for ${actor.name}`
             );
         }
     }
@@ -88,7 +119,7 @@ export class Migration {
         if (changed) {
             await actor.update(updates);
             console.log(
-                `BitD Alternate Sheets | Cleaned up orphaned progress flags for ${actor.name}`
+                `[BitD Alternate Sheets] Cleaned up orphaned progress flags for ${actor.name}`
             );
         }
     }
@@ -114,7 +145,7 @@ export class Migration {
                 "system.healing_clock.value": legacyValue
             });
             console.log(
-                `BitD Alternate Sheets | Migrated healing clock for ${actor.name}: ${legacyNum} -> system.healing_clock.value`
+                `[BitD Alternate Sheets] Migrated healing clock for ${actor.name}: ${legacyNum} -> system.healing_clock.value`
             );
         }
     }
