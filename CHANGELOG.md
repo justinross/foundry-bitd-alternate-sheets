@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.18
+### Healing Clock Fix
+- The healing clock on the character sheet was not syncing with the system's default sheet due to a field name change in system version 6.0.0
+- Alt-sheets now uses the correct field (`system.healing_clock.value` instead of `system.healing-clock`)
+- A migration automatically copies any existing healing clock progress from the old field to the new field
+- Module now requires Blades in the Dark system version 6.0.0 or higher
+
 ## 1.0.17
 ### Crew Linking
 - Character sheets have a crew field in the header
