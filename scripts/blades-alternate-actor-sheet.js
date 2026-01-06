@@ -1118,9 +1118,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
       e.preventDefault();
       await this.clearLoad();
     });
-    html.find("img.clockImage").on("click", async (e) => {
-      Utils.bindClockControls(html, this.render.bind(this));
-    });
+
+    // Bind clock controls directly (not inside a click handler to avoid stacking)
+    Utils.bindClockControls(html, this.render.bind(this));
+
     // Use namespaced events with .off() to prevent handler stacking on re-render
     html.find("input.radio-toggle, label.radio-toggle")
       .off("click.radioToggle mousedown.radioToggle")
