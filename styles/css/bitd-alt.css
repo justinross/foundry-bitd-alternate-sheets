@@ -1216,6 +1216,17 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .rollable-text {
   cursor: pointer;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation .crew-label {
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.85em;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper input[type=text] {
   width: auto;
   border: 0;
@@ -1225,6 +1236,14 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .non-edit {
   display: initial;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation .crew-linked {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .crew-affiliation .crew-editable {
+  cursor: pointer;
+  text-decoration: underline;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar {
   background-color: #191813;
@@ -1242,7 +1261,6 @@
   top: 1px;
   right: 1px;
   display: flex;
-  /* Hide the browser's default checkbox */
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.right label {
   height: 25px;
@@ -1251,8 +1269,6 @@
   background-repeat: no-repeat;
   background-size: contain;
   margin-right: 3px;
-  transition: filter 0.1s;
-  cursor: pointer;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.right label:last-of-type {
   margin-right: 0px;
@@ -1266,9 +1282,16 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.right label[for$="-0"] i {
   margin-top: 4px;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.right label {
+  transition: filter 0.1s;
+  cursor: pointer;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.right label:hover {
   filter: brightness(0.8);
   opacity: 0.9;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.right {
+  /* Hide the browser's default checkbox */
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.right input {
   display: none;
@@ -1285,7 +1308,6 @@
   top: 1px;
   right: 1px;
   display: flex;
-  /* Hide the browser's default checkbox */
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.stress label {
   height: 25px;
@@ -1294,8 +1316,6 @@
   background-repeat: no-repeat;
   background-size: contain;
   margin-right: 3px;
-  transition: filter 0.1s;
-  cursor: pointer;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.stress label:last-of-type {
   margin-right: 0px;
@@ -1309,9 +1329,16 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.stress label[for$="-0"] i {
   margin-top: 4px;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.stress label {
+  transition: filter 0.1s;
+  cursor: pointer;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.stress label:hover {
   filter: brightness(0.8);
   opacity: 0.9;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.stress {
+  /* Hide the browser's default checkbox */
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper header.full-bar .stripe-tooth-body.stress input {
   display: none;
@@ -1395,25 +1422,6 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display .fa-face-disguise {
   display: none;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5em;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation .crew-linked {
-  cursor: pointer;
-  text-decoration: underline;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .crew-affiliation .crew-label {
-  font-family: Kirsty, serif;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.85em;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .crew-affiliation .crew-editable {
-  cursor: pointer;
-  text-decoration: underline;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper.showing-alias .sheet-toggles .toggle-alias-display {
   background-color: #800000;
@@ -1533,8 +1541,6 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins {
   display: flex;
-  /* Hide the browser's default checkbox */
-  flex-wrap: wrap;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins label {
   height: 15px;
@@ -1542,15 +1548,20 @@
   background-color: #daa520;
   vertical-align: middle;
   border: 1px solid #191813;
-  transition: filter 0.1s;
-  cursor: pointer;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins label[for$="-0"] {
   margin-right: 0px;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins label {
+  transition: filter 0.1s;
+  cursor: pointer;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins label:hover {
   filter: brightness(0.8);
   opacity: 0.9;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins {
+  /* Hide the browser's default checkbox */
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins input {
   display: none;
@@ -1561,14 +1572,19 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins input:checked + label {
   background-color: #daa520;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins {
+  flex-wrap: wrap;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins input ~ label {
   margin-right: 3px;
   margin-bottom: 3px;
-  transition: filter 0.2s;
-  cursor: pointer;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins input ~ label[for$="0"] {
   border-width: 2px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins input ~ label {
+  transition: filter 0.2s;
+  cursor: pointer;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .coins-box .full-view .coins input ~ label:hover {
   filter: brightness(0.8);
@@ -1688,7 +1704,7 @@
   height: 100%;
   width: 100%;
   border-radius: 0;
-  background-color: #a2a2a2;
+  background-color: rgb(161.5, 161.5, 161.5);
   z-index: 10;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm header {
@@ -1956,9 +1972,6 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action {
   padding: 0 5px;
   display: flex;
-  /* Hide the browser's default checkbox */
-  justify-content: flex-start;
-  align-items: stretch;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action label {
   height: 1em;
@@ -1967,8 +1980,6 @@
   vertical-align: middle;
   border: 2px solid #191813;
   border-radius: 24px;
-  transition: filter 0.1s;
-  cursor: pointer;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action label[for$="-0"] {
   height: 5px;
@@ -1978,9 +1989,16 @@
   background-color: red !important;
   margin-right: 0px;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action label {
+  transition: filter 0.1s;
+  cursor: pointer;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action label:hover {
   filter: brightness(0.7);
   opacity: 0.7;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action {
+  /* Hide the browser's default checkbox */
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action input {
   display: none;
@@ -1994,11 +2012,17 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action input:checked + label {
   transition: filter 0.1s;
   cursor: pointer;
-  background-color: #cc0000;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action input:checked + label:hover {
   filter: brightness(0.7);
   opacity: 0.7;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action input:checked + label {
+  background-color: #cc0000;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action {
+  justify-content: flex-start;
+  align-items: stretch;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .attribute .action .attribute-skill-label {
   font-weight: bold;
@@ -2354,9 +2378,6 @@
 .blades-alt.item.sheet.class .attributes-actions .attribute .action {
   padding: 0 5px;
   display: flex;
-  /* Hide the browser's default checkbox */
-  justify-content: flex-start;
-  align-items: stretch;
 }
 .blades-alt.item.sheet.class .attributes-actions .attribute .action label {
   height: 1em;
@@ -2365,8 +2386,6 @@
   vertical-align: middle;
   border: 2px solid #191813;
   border-radius: 24px;
-  transition: filter 0.1s;
-  cursor: pointer;
 }
 .blades-alt.item.sheet.class .attributes-actions .attribute .action label[for$="-0"] {
   height: 5px;
@@ -2376,9 +2395,16 @@
   background-color: red !important;
   margin-right: 0px;
 }
+.blades-alt.item.sheet.class .attributes-actions .attribute .action label {
+  transition: filter 0.1s;
+  cursor: pointer;
+}
 .blades-alt.item.sheet.class .attributes-actions .attribute .action label:hover {
   filter: brightness(0.7);
   opacity: 0.7;
+}
+.blades-alt.item.sheet.class .attributes-actions .attribute .action {
+  /* Hide the browser's default checkbox */
 }
 .blades-alt.item.sheet.class .attributes-actions .attribute .action input {
   display: none;
@@ -2392,11 +2418,17 @@
 .blades-alt.item.sheet.class .attributes-actions .attribute .action input:checked + label {
   transition: filter 0.1s;
   cursor: pointer;
-  background-color: #cc0000;
 }
 .blades-alt.item.sheet.class .attributes-actions .attribute .action input:checked + label:hover {
   filter: brightness(0.7);
   opacity: 0.7;
+}
+.blades-alt.item.sheet.class .attributes-actions .attribute .action input:checked + label {
+  background-color: #cc0000;
+}
+.blades-alt.item.sheet.class .attributes-actions .attribute .action {
+  justify-content: flex-start;
+  align-items: stretch;
 }
 .blades-alt.item.sheet.class .attributes-actions .attribute .action .attribute-skill-label {
   font-weight: bold;
@@ -2490,5 +2522,3 @@
   z-index: 9999999;
   max-width: 300px;
 }
-
-/*# sourceMappingURL=bitd-alt.css.map */
