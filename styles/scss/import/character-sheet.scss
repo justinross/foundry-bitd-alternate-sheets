@@ -88,16 +88,7 @@
       }
     }
 
-    .linkedClock {
-      display: inline-block;
-      text-align: center;
-      margin: 1em;
-    }
-
-    .clockImage {
-      width: 100px;
-      border: none;
-    }
+    // Clock styles moved to global _clocks.scss
 
     .editor {
       background-color: rgba(255, 255, 255, 0.2);

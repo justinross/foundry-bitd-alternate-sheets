@@ -441,6 +441,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       "showAliasInDirectory"
     );
     const actorData = sheetData.data;
+    actorData.uuid = this.actor.uuid;  // Add uuid for template access
     sheetData.actor = actorData;
     sheetData.system = actorData.system;
     sheetData.coins_open = this.coins_open;
@@ -1166,8 +1167,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       await this.clearLoad();
     });
 
-    // Bind clock controls directly (not inside a click handler to avoid stacking)
-    Utils.bindClockControls(html, this.render.bind(this));
+    // NOTE: Clock controls are handled globally by setupGlobalClockHandlers() in hooks.js
 
     // Use namespaced events with .off() to prevent handler stacking on re-render
     html.find("input.radio-toggle, label.radio-toggle")

@@ -94,6 +94,10 @@
 //@use './import/dialogs' as *;
 @include meta.load-css("./import/tooltip");
 
+// Global clock styles - MUST be outside .blades-alt namespace
+// to ensure clocks render correctly everywhere in Foundry
+@include meta.load-css("./import/clocks");
+
 // Target Foundry's scrolling container - .blades-alt is on the app element
 .app.blades-alt > .window-content {
   overflow-y: auto;

@@ -1,4 +1,4 @@
-<form class="{{cssClass}} actor-sheet blades-alt crew actor" autocomplete="off">
+<form class="{{cssClass}} actor-sheet blades-alt crew actor" autocomplete="off" data-uuid="{{actor.uuid}}">
   <div class="sheet-wrapper {{#if allow_edit}}allow-edit{{/if}}">
 
     <div class="crew-upper-wrapper">
@@ -18,9 +18,10 @@
                     <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i
                         class="fas fa-caret-down"></i></a>
                   </div>
-                  <img
-                    src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock {{system.exp_clock.size}}-{{system.exp_clock.value}}.svg"
-                    height="40" width="40" style="border: none;" />
+                  <div style="width: 40px; height: 40px; position: relative;">
+                    {{{blades-clock "system.exp_clock.value" system.exp_clock.size system.exp_clock.value (concat _id
+                    "-exp") }}}
+                  </div>
                 </div>
                 {{else}}
                 {{#multiboxes system.experience}}
