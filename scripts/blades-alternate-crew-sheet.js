@@ -364,7 +364,26 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
     // Ensure a fresh ID so Foundry treats this as a new embedded document.
     delete data._id;
-    await queueUpdate(() => this.actor.createEmbeddedDocuments("Item", [data]));
+
+    try {
+      await queueUpdate(() => this.actor.createEmbeddedDocuments("Item", [data]));
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      Hooks.onError("BitD-Alt.EnsureOwned", error, {
+        msg: "[BitD-Alt]",
+        log: "error",
+        notify: null,
+        data: { type, sourceId, actorId: this.actor.id }
+      });
+
+      ui.notifications.error(`[BitD-Alt] Failed to add ${type} to crew.`, {
+        console: false
+      });
+
+      // Re-render to reset checkbox state
+      this.render(false);
+    }
   }
 
   async _removeOwned(type, sourceId, itemName) {
@@ -372,7 +391,26 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       this.actor.items.find((i) => i.type === type && i.id === sourceId) ??
       this.actor.items.find((i) => i.type === type && i.name === itemName);
     if (!existing) return;
-    await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [existing.id]));
+
+    try {
+      await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [existing.id]));
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      Hooks.onError("BitD-Alt.RemoveOwned", error, {
+        msg: "[BitD-Alt]",
+        log: "error",
+        notify: null,
+        data: { type, sourceId, itemName, actorId: this.actor.id }
+      });
+
+      ui.notifications.error(`[BitD-Alt] Failed to remove ${type} from crew.`, {
+        console: false
+      });
+
+      // Re-render to reset checkbox state
+      this.render(false);
+    }
   }
 
   _deriveUpgradeMax(sourceItem, ownedItem) {
