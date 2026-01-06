@@ -5,6 +5,7 @@
 - The healing clock on the character sheet was not syncing with the system's default sheet due to a field name change in system version 6.0.0
 - Alt-sheets now uses the correct field (`system.healing_clock.value` instead of `system.healing-clock`)
 - A migration automatically copies any existing healing clock progress from the old field to the new field
+- If alt-sheets is set as the default character sheet, the migration treats the legacy field as authoritative and overwrites the current field
 - Module now requires Blades in the Dark system version 6.0.0 or higher
 
 ## 1.0.17

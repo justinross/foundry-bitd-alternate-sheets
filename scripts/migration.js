@@ -128,8 +128,9 @@ export class Migration {
      * Migrate healing clock data from the legacy field to the current system field.
      *
      * Alt-sheets was incorrectly using `system.healing-clock` while the system
-     * changed to `system.healing_clock.value` in v6.0.0. If the legacy field has
-     * data that differs from the current field, migrate it.
+     * changed to `system.healing_clock.value` in v6.0.0. If alt-sheets is the
+     * default character sheet, the legacy field is authoritative and should
+     * overwrite the current field when they differ.
      */
     static async migrateHealingClock(actor) {
         const legacyValue = actor.system["healing-clock"];
@@ -139,8 +140,19 @@ export class Migration {
         const legacyNum = Array.isArray(legacyValue) ? legacyValue[0] : legacyValue;
         const currentNum = Array.isArray(currentValue) ? currentValue[0] : currentValue;
 
-        // If legacy has a value and current is empty/zero, migrate
-        if (legacyNum && legacyNum > 0 && (!currentNum || currentNum === 0)) {
+        // No legacy data to migrate
+        if (!legacyNum || legacyNum === 0) return;
+
+        // Values already match, no migration needed
+        if (legacyNum === currentNum) return;
+
+        // Check if alt-sheets is the default character sheet
+        const altSheet = CONFIG.Actor.sheetClasses?.character?.["bitd-alt.BladesAlternateActorSheet"];
+        const isAltSheetsDefault = altSheet?.default === true;
+
+        // If current is empty/zero, always migrate (legacy is the only data)
+        // If current has data but alt-sheets is default, migrate (legacy is authoritative)
+        if ((!currentNum || currentNum === 0) || isAltSheetsDefault) {
             await actor.update({
                 "system.healing_clock.value": legacyValue
             });
