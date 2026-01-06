@@ -317,9 +317,9 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       const turfId = $(input).data("turfId");
       const newValue = Boolean(input.checked);
       if (!itemId || !turfId) return;
-      await this.actor.updateEmbeddedDocuments("Item", [
+      await queueUpdate(() => this.actor.updateEmbeddedDocuments("Item", [
         { _id: itemId, [`system.turfs.${turfId}.value`]: newValue },
-      ], { render: false });
+      ], { render: false }));
       this.render(false);
     });
 
@@ -364,7 +364,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
     // Ensure a fresh ID so Foundry treats this as a new embedded document.
     delete data._id;
-    await this.actor.createEmbeddedDocuments("Item", [data]);
+    await queueUpdate(() => this.actor.createEmbeddedDocuments("Item", [data]));
   }
 
   async _removeOwned(type, sourceId, itemName) {
@@ -372,7 +372,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       this.actor.items.find((i) => i.type === type && i.id === sourceId) ??
       this.actor.items.find((i) => i.type === type && i.name === itemName);
     if (!existing) return;
-    await this.actor.deleteEmbeddedDocuments("Item", [existing.id]);
+    await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [existing.id]));
   }
 
   _deriveUpgradeMax(sourceItem, ownedItem) {
@@ -421,7 +421,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     );
     // Ensure a fresh ID so Foundry treats this as a new embedded document.
     delete data._id;
-    const created = await this.actor.createEmbeddedDocuments("Item", [data]);
+    const created = await queueUpdate(() => this.actor.createEmbeddedDocuments("Item", [data]));
     return created?.[0] ?? null;
   }
 
@@ -464,19 +464,19 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
               container.dataset.upgradeProgress = String(targetValue);
             }
           } else if (ownedItem && targetValue === 0) {
-            await this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id], { render: false });
+            await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id], { render: false }));
             if (container) {
               container.dataset.ownedId = "";
               container.classList.remove("owned");
               container.dataset.upgradeProgress = "0";
             }
           } else if (ownedItem) {
-            await this.actor.updateEmbeddedDocuments("Item", [
+            await queueUpdate(() => this.actor.updateEmbeddedDocuments("Item", [
               {
                 _id: ownedItem.id,
                 "system.boxes.value": targetValue,
               },
-            ], { render: false });
+            ], { render: false }));
             if (container) {
               container.dataset.upgradeProgress = String(targetValue);
             }

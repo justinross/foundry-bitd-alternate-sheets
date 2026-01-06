@@ -724,17 +724,17 @@ export class Utils {
       if (state) {
         let all_of_type = await Utils.getSourcedItemsByType(type);
         let checked_item = all_of_type.find((item) => item.id == id);
-        let added_item = await actor.createEmbeddedDocuments("Item", [
+        let added_item = await queueUpdate(() => actor.createEmbeddedDocuments("Item", [
           {
             type: checked_item.type,
             name: checked_item.name,
             system: checked_item.system,
           },
-        ], { render: false, renderSheet: false });
+        ], { render: false, renderSheet: false }));
       } else {
         const ownedDoc = actor.getEmbeddedDocument("Item", id);
         if (ownedDoc) {
-          await actor.deleteEmbeddedDocuments("Item", [id], { render: false, renderSheet: false });
+          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", [id], { render: false, renderSheet: false }));
           return;
         }
 
@@ -746,7 +746,7 @@ export class Utils {
           (item) => item.name === item_source_name
         );
         if (matching_owned_item) {
-          await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], { render: false, renderSheet: false });
+          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], { render: false, renderSheet: false }));
         }
       }
     } else if (type == "item") {
@@ -1224,7 +1224,7 @@ export class Utils {
       const existingIds = existingItems.map(i => i.id);
       if (existingIds.length > 0) {
         try {
-          await actor.deleteEmbeddedDocuments("Item", existingIds);
+          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", existingIds));
         } catch (err) {
           ui.notifications.error(`Failed to remove ${label}: ${err.message}`);
           console.error("Item deletion error:", err);
@@ -1247,15 +1247,15 @@ export class Utils {
         try {
           if (existingItem) {
             // UPDATE existing item (Atomic, no race condition, no empty gap)
-            await actor.updateEmbeddedDocuments("Item", [{
+            await queueUpdate(() => actor.updateEmbeddedDocuments("Item", [{
               _id: existingItem.id,
               name: itemData.name,
               system: itemData.system,
               img: itemData.img
-            }]);
+            }]));
           } else {
             // CREATE if none exists
-            await actor.createEmbeddedDocuments("Item", [itemData]);
+            await queueUpdate(() => actor.createEmbeddedDocuments("Item", [itemData]));
           }
         } catch (err) {
           ui.notifications.error(`Failed to set ${label}: ${err.message}`);

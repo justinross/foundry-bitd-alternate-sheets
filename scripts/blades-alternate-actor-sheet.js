@@ -206,7 +206,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
                 );
                 items.push(item);
               }
-              this.actor.createEmbeddedDocuments("Item", items);
+              queueUpdate(() => this.actor.createEmbeddedDocuments("Item", items));
             },
           },
           cancel: {
@@ -232,7 +232,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       callback: (element) => {
         const itemId = this.getContextMenuElementData(element, "itemId");
         if (!itemId) return;
-        this.actor.deleteEmbeddedDocuments("Item", [itemId]);
+        queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [itemId]));
       },
     },
   ];
@@ -302,7 +302,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
           abilityName
         );
         if (!deletionId) return;
-        this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [deletionId]));
         if (block) block.dataset.abilityOwnedId = "";
       },
     },
@@ -379,11 +379,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
     new_item_data.system.class = "custom";
     new_item_data.system.load = 1;
 
-    let new_item = await this.actor.createEmbeddedDocuments(
-      "Item",
-      [new_item_data],
-      { renderSheet: true }
-    );
+    let new_item = await queueUpdate(async () => {
+      return await this.actor.createEmbeddedDocuments(
+        "Item",
+        [new_item_data],
+        { renderSheet: true }
+      );
+    });
     return new_item;
   }
 
@@ -397,13 +399,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
     };
     new_ability_data.system.class = "custom";
 
-    let new_abilities = await this.actor.createEmbeddedDocuments(
-      "Item",
-      [new_ability_data],
-      { renderSheet: true }
-    );
+    let new_abilities = await queueUpdate(async () => {
+      return await this.actor.createEmbeddedDocuments(
+        "Item",
+        [new_ability_data],
+        { renderSheet: true }
+      );
+    });
     let new_ability = new_abilities[0];
-    await new_ability.setFlag(MODULE_ID, "custom_ability", true);
+    await queueUpdate(() => new_ability.setFlag(MODULE_ID, "custom_ability", true));
 
     return new_ability;
   }
@@ -795,7 +799,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   async _resetAbilityProgressFlags() {
     const existing = this.actor.getFlag(MODULE_ID, "multiAbilityProgress");
     if (!existing) return;
-    await this.actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
+    await queueUpdate(() => this.actor.unsetFlag(MODULE_ID, "multiAbilityProgress"));
   }
 
   _resolveAbilityDeletionId(abilityBlock, fallbackId, abilityName) {
@@ -1184,11 +1188,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
           abilityName
         );
         if (!deletionId) return;
-        await this.actor.deleteEmbeddedDocuments("Item", [deletionId], { render: false });
+        await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [deletionId], { render: false }));
         if (abilityBlock) abilityBlock.dataset.abilityOwnedId = "";
       } else {
         if (!this.actor.items.get(targetId)) return;
-        await this.actor.deleteEmbeddedDocuments("Item", [targetId], { render: false });
+        await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [targetId], { render: false }));
       }
 
       element.slideUp(200, () => this.render(false));
@@ -1198,11 +1202,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     html.find(".toggle-alias-display").click(async (event) => {
       event.preventDefault();
-      this.actor.setFlag(
+      await queueUpdate(() => this.actor.setFlag(
         "bitd-alternate-sheets",
         "showAliasInDirectory",
         !this.actor.getFlag("bitd-alternate-sheets", "showAliasInDirectory")
-      );
+      ));
     });
 
     const crewSelector = html.find('[data-action="select-crew"]');

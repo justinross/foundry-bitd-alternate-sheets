@@ -1,4 +1,5 @@
 import { Utils } from "./utils.js";
+import { queueUpdate } from "./lib/update-queue.js";
 
 export const MODULE_ID = "bitd-alternate-sheets";
 
@@ -37,7 +38,7 @@ export class Migration {
             for (const i of equipped) {
                 if (i && i.id) newMap[i.id] = i;
             }
-            await actor.setFlag(MODULE_ID, "equipped-items", newMap);
+            await queueUpdate(() => actor.setFlag(MODULE_ID, "equipped-items", newMap));
             console.log(
                 `BitD Alternate Sheets | Migrated equipped items for ${actor.name}`
             );
