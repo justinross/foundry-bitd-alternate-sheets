@@ -282,13 +282,15 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     });
 
     html.find(".inline-input").on("keyup", async (ev) => {
-      let input = ev.currentTarget.previousSibling;
+      const input = ev.currentTarget.previousSibling;
+      if (!input) return;
       const text = ev.currentTarget.innerText ?? "";
       input.value = text.trim().length === 0 ? "" : text;
     });
 
     html.find(".inline-input").on("blur", async (ev) => {
-      let input = ev.currentTarget.previousSibling;
+      const input = ev.currentTarget.previousSibling;
+      if (!input) return;
       const placeholder = ev.currentTarget.dataset.placeholder ?? "";
       const text = ev.currentTarget.innerText ?? "";
       const trimmed = text.trim();
