@@ -376,6 +376,85 @@ export class Utils {
     }
   }
 
+  /**
+   * Enrich a stored notes string the same way the alt character sheet does.
+   * @param {Actor} actor
+   * @param {string} rawNotes
+   * @returns {Promise<string>}
+   */
+  static async enrichNotes(actor, rawNotes) {
+    const notes = rawNotes || "";
+    if (!notes) return "";
+    const intermediate = await TextEditor.enrichHTML(notes, {
+      documents: false,
+      async: true,
+    });
+    return TextEditor.enrichHTML(intermediate, {
+      relativeTo: actor,
+      secrets: actor.isOwner,
+      async: true,
+    });
+  }
+
+  /**
+   * Bind click/contextmenu handlers to clock images to increment/decrement value.
+   * @param {HTMLElement|JQuery} root
+   * @param {Function} renderCallback optional callback to rerender sheet
+   */
+  static bindClockControls(root, renderCallback) {
+    const $root = root instanceof HTMLElement ? $(root) : root;
+    const rerender = typeof renderCallback === "function" ? renderCallback : () => {};
+    $root.find("img.clockImage").on("click", async (e) => {
+      const uuid = e.currentTarget.dataset.uuid;
+      if (!uuid) return;
+      const entity = await fromUuid(uuid);
+      if (!entity) return;
+      const currentValue = Number(entity.system?.value) || 0;
+      const currentMax = Number(entity.system?.type) || 0;
+      if (currentValue < currentMax) {
+        await entity.update({ "system.value": currentValue + 1 });
+        rerender(false);
+      }
+    });
+    $root.find("img.clockImage").on("contextmenu", async (e) => {
+      e.preventDefault();
+      const uuid = e.currentTarget.dataset.uuid;
+      if (!uuid) return;
+      const entity = await fromUuid(uuid);
+      if (!entity) return;
+      const currentValue = Number(entity.system?.value) || 0;
+      if (currentValue > 0) {
+        await entity.update({ "system.value": currentValue - 1 });
+        rerender(false);
+      }
+    });
+  }
+
+  /**
+   * Ensure a sheet has a local allow_edit flag initialized.
+   * Defaults to the sheet's editable option if unset.
+   * @param {DocumentSheet} sheet
+   */
+  static ensureAllowEdit(sheet) {
+    if (typeof sheet.allow_edit === "undefined") {
+      sheet.allow_edit = Boolean(sheet.options?.editable ?? true);
+    }
+    return sheet.allow_edit;
+  }
+
+  /**
+   * Wire up the lock/unlock toggle to flip allow_edit and rerender.
+   * @param {DocumentSheet} sheet
+   * @param {JQuery} html
+   */
+  static bindAllowEditToggle(sheet, html) {
+    html.find(".toggle-allow-edit").off("click").on("click", (event) => {
+      event.preventDefault();
+      sheet.allow_edit = !sheet.allow_edit;
+      sheet.render(false);
+    });
+  }
+
   static async toggleOwnership(state, actor, type, id) {
     if (type == "ability") {
       if (state) {

@@ -1,6 +1,7 @@
 <div class="ability-block" data-ability-id="{{ability._id}}" data-ability-owned-id="{{ability._ownedId}}" data-ability-name="{{ability.name}}" data-ability-cost="{{ability-cost ability}}" data-ability-progress="{{#if ability._progress}}{{ability._progress}}{{else}}0{{/if}}" data-ability-key="{{ability._progressKey}}">
     <div class="ability-checkboxes">
         {{#times (ability-cost ability)}}
+            {{#if @index}}<span class="join-line"></span>{{/if}}
             <input
                 type="checkbox"
                 class="ability-checkbox"

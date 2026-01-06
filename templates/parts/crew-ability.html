@@ -1,0 +1,16 @@
+<div class="ability-block crew-choice {{#if owned}}owned{{/if}}" data-item-id="{{_id}}">
+  <div class="ability-checkboxes">
+    <input
+      type="checkbox"
+      class="crew-ability-checkbox"
+      id="crew-ability-{{_id}}"
+      data-item-id="{{_id}}"
+      data-item-name="{{name}}"
+      {{#if owned}}checked{{/if}}
+    >
+  </div>
+  <label for="crew-ability-{{_id}}">
+    <span class="ability-name">{{clean-name name}}:</span>
+    <span class="ability-description">{{{md system.description}}}</span>
+  </label>
+</div>
