@@ -1033,9 +1033,27 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
 
     // Direct Foundry update - let Foundry's hook handle the render
-    await queueUpdate(async () => {
-      await this.actor.update({ [fieldName]: newValue });
-    });
+    try {
+      await queueUpdate(async () => {
+        await this.actor.update({ [fieldName]: newValue });
+      });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      Hooks.onError("BitD-Alt.RadioToggle", error, {
+        msg: "[BitD-Alt]",
+        log: "error",
+        notify: null,
+        data: { fieldName, newValue, actorId: this.actor.id }
+      });
+
+      ui.notifications.error("[BitD-Alt] Failed to save change.", {
+        console: false
+      });
+
+      // Re-render to reset UI to database state
+      this.render(false);
+    }
   }
 
   /* -------------------------------------------- */
