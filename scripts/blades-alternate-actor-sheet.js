@@ -1620,8 +1620,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
       try {
         await safeUpdate(this.actor, { [field]: updateValue });
       } catch (err) {
-        ui.notifications.error(`Failed to update ${header}: ${err.message}`);
-        console.error("Smart field update error:", err);
+        const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+        Hooks.onError("BitD-Alt.SmartEdit", error, {
+          msg: "[BitD-Alt]",
+          log: "error",
+          notify: null,
+          data: { field, header, actorId: this.actor.id }
+        });
+
+        ui.notifications.error(`[BitD-Alt] Failed to update ${header}.`, {
+          console: false
+        });
       }
       return; // Stop here, do not fall through to text input
     }
@@ -1650,8 +1660,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
             try {
               await safeUpdate(this.actor, { [field]: newValue });
             } catch (err) {
-              ui.notifications.error(`Failed to update ${header}: ${err.message}`);
-              console.error("Smart field update error:", err);
+              const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+              Hooks.onError("BitD-Alt.SmartEdit", error, {
+                msg: "[BitD-Alt]",
+                log: "error",
+                notify: null,
+                data: { field, header, actorId: this.actor.id }
+              });
+
+              ui.notifications.error(`[BitD-Alt] Failed to update ${header}.`, {
+                console: false
+              });
             }
           }
         },
