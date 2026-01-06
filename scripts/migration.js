@@ -82,7 +82,7 @@ export class Migration {
         }
 
         if (changed) {
-            await actor.update(updates);
+            await queueUpdate(() => actor.update(updates));
             console.log(
                 `BitD Alternate Sheets | Cleaned up orphaned progress flags for ${actor.name}`
             );
@@ -122,7 +122,7 @@ export class Migration {
         }
 
         if (changed) {
-            await actor.update(updates);
+            await queueUpdate(() => actor.update(updates));
             console.log(
                 `BitD Alternate Sheets | Migrated legacy system fields for ${actor.name}`
             );
