@@ -449,8 +449,19 @@ export class Utils {
           }
         }
       }
-    } catch (e) {
-      console.log("Error: ", e);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      Hooks.onError("BitD-Alt.GetStartingAttributes", error, {
+        msg: "[BitD-Alt]",
+        log: "warn",
+        notify: null,
+        data: { playbookUuid: playbook_item?.uuid }
+      });
+
+      ui.notifications.warn("[BitD-Alt] Could not load playbook skills. Using defaults.", {
+        console: false
+      });
     }
     return attributes_to_return;
   }
