@@ -2272,6 +2272,24 @@
   padding: 4px;
   margin: 0 5px;
 }
+.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand {
+  background: #0058cc;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  border-radius: 3px;
+}
+.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand:hover {
+  color: #fff;
+}
+.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand i {
+  padding: 4px 6px;
+}
+.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand .fa-expand {
+  display: none;
+}
+.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand .fa-compress {
+  display: initial;
+}
 .blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-allow-edit {
   cursor: pointer;
   background: #008000;
@@ -2701,6 +2719,12 @@
   align-self: stretch;
   justify-self: stretch;
   width: 100%;
+}
+.blades-alt.actor.sheet.crew .can-expand span.toggle-expand .fa-expand {
+  display: initial !important;
+}
+.blades-alt.actor.sheet.crew .can-expand span.toggle-expand .fa-compress {
+  display: none !important;
 }
 .blades-alt.actor.sheet.crew .crew-header .crew-top-right {
   grid-row: 1;

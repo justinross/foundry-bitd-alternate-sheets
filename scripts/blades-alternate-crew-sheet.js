@@ -218,6 +218,22 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
         this._onRadioToggle(e);
       });
 
+    // Minimize/expand toggle
+    html.find(".toggle-expand").click((event) => {
+      if (!this._element.hasClass("can-expand")) {
+        // Compute height to show through bottom of coins-row
+        const coinsRow = html.find('.coins-row')[0];
+        const appRect = this._element[0].getBoundingClientRect();
+        const coinsRect = coinsRow.getBoundingClientRect();
+        const targetHeight = coinsRect.bottom - appRect.top;
+        this.setPosition({ height: targetHeight });
+        this._element.addClass("can-expand");
+      } else {
+        this.setPosition({ height: "auto" });
+        this._element.removeClass("can-expand");
+      }
+    });
+
     html.find('[data-action="toggle-filter"]').off("click").on("click", (ev) => {
       ev.preventDefault();
       const target = ev.currentTarget?.dataset?.filterTarget;

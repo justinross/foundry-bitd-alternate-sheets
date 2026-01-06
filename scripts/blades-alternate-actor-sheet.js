@@ -1474,7 +1474,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     html.find(".toggle-expand").click((event) => {
       if (!this._element.hasClass("can-expand")) {
-        this.setPosition({ height: 275 });
+        // Compute height to show through bottom of minimized-view
+        const minimizedView = html.find('.minimized-view')[0];
+        const appRect = this._element[0].getBoundingClientRect();
+        const viewRect = minimizedView.getBoundingClientRect();
+        const targetHeight = viewRect.bottom - appRect.top;
+        this.setPosition({ height: targetHeight });
         this._element.addClass("can-expand");
       } else {
         this.setPosition({ height: "auto" });

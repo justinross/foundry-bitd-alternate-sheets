@@ -514,6 +514,29 @@ header {
       margin: 0 5px;
     }
 
+    span.toggle-expand {
+      background: #0058cc;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      border-radius: 3px;
+
+      &:hover {
+        color: #fff;
+      }
+
+      i {
+        padding: 4px 6px;
+      }
+
+      .fa-expand {
+        display: none;
+      }
+
+      .fa-compress {
+        display: initial;
+      }
+    }
+
     span.toggle-allow-edit {
       cursor: pointer;
       background: #008000;
@@ -944,6 +967,19 @@ header {
   align-self: stretch;
   justify-self: stretch;
   width: 100%;
+}
+
+// Toggle expand icon when minimized
+@at-root .can-expand {
+  span.toggle-expand {
+    .fa-expand {
+      display: initial !important;
+    }
+
+    .fa-compress {
+      display: none !important;
+    }
+  }
 }
 
 // .crew-top-right and .crew-bottom-right handled by grid-area definitions above
