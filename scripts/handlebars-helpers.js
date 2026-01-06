@@ -213,6 +213,30 @@ export const registerHandlebarsHelpers = function () {
     return accum;
   });
 
+  Handlebars.registerHelper("max", function (a, b) {
+    return Math.max(Number(a) || 0, Number(b) || 0);
+  });
+
+  Handlebars.registerHelper("default", function (value, defaultValue) {
+    return value !== undefined && value !== null && value !== "" ? value : defaultValue;
+  });
+
+  Handlebars.registerHelper("lt", function (a, b) {
+    return Number(a) < Number(b);
+  });
+
+  Handlebars.registerHelper("gt", function (a, b) {
+    return Number(a) > Number(b);
+  });
+
+  Handlebars.registerHelper("lte", function (a, b) {
+    return Number(a) <= Number(b);
+  });
+
+  Handlebars.registerHelper("gte", function (a, b) {
+    return Number(a) >= Number(b);
+  });
+
   Handlebars.registerHelper("md", function (input) {
     let md = window.markdownit();
     input = Utils.strip(input);

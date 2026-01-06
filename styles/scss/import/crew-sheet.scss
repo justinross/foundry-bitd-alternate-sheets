@@ -502,77 +502,7 @@ header {
   padding-left: 1em;
   position: relative; // For sheet-toggles positioning
 
-  // Lock/Unlock Toggle Styling (Matched to Character Sheet)
-  .sheet-toggles {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-
-    >span {
-      display: inline-block;
-      padding: 4px;
-      margin: 0 5px;
-    }
-
-    span.toggle-expand {
-      background: #0058cc;
-      color: rgba(255, 255, 255, 0.6);
-      cursor: pointer;
-      border-radius: 3px;
-
-      &:hover {
-        color: #fff;
-      }
-
-      i {
-        padding: 4px 6px;
-      }
-
-      .fa-expand {
-        display: none;
-      }
-
-      .fa-compress {
-        display: initial;
-      }
-    }
-
-    span.toggle-allow-edit {
-      cursor: pointer;
-      background: #008000;
-      color: rgba(255, 255, 255, 0.6);
-      border-radius: 3px;
-
-      &:hover {
-        color: #fff;
-      }
-
-      i {
-        width: 100%;
-        text-align: center;
-        padding: 4px 6px;
-      }
-
-      .fa-lock-open {
-        display: none;
-      }
-    }
-  }
-
-  // Toggle behavior based on .allow-edit class on parent (mirrored from char sheet)
-  @at-root .sheet-wrapper.allow-edit .crew-identity-block .sheet-toggles {
-    .toggle-allow-edit {
-      background-color: #800000;
-
-      .fa-lock-open {
-        display: inline-block;
-      }
-
-      .fa-lock {
-        display: none;
-      }
-    }
-  }
+  // Toggle styles now in general-styles.scss
 
   // .name-line removed; replaced by .identity-header from _identity.scss
 
@@ -969,21 +899,7 @@ header {
   width: 100%;
 }
 
-// Toggle expand icon when minimized
-@at-root .can-expand {
-  span.toggle-expand {
-    .fa-expand {
-      display: initial !important;
-    }
-
-    .fa-compress {
-      display: none !important;
-    }
-  }
-}
-
 // .crew-top-right and .crew-bottom-right handled by grid-area definitions above
-
 
 .crew-header .crew-top-right {
   grid-row: 1;
@@ -997,14 +913,6 @@ header {
 // Crew-specific toggle positioning inside identity block
 .crew-identity-block {
   position: relative;
-
-  .sheet-toggles {
-    position: absolute;
-    top: var(--space-1);
-    right: var(--space-1);
-    z-index: 100;
-    margin: 0;
-  }
 }
 
 // Label tweaks

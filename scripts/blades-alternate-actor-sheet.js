@@ -675,6 +675,29 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.generic_items = all_generic_items;
     sheetData.my_items = my_items;
 
+    // Add progress to items (similar to abilities)
+    const equippedItems = this.actor.getFlag("bitd-alternate-sheets", "equipped-items") || {};
+    const addItemProgress = (item) => {
+      const itemId = item._id || item.id;
+      const equipped = equippedItems[itemId];
+      const rawLoad = Number(item.system?.load);
+      const load = Number.isNaN(rawLoad) ? 1 : rawLoad;
+      // For free items (load 0), treat as 1 slot for progress tracking
+      const effectiveLoad = Math.max(load, 1);
+      // Support both old format (no progress = full load) and new format (explicit progress)
+      if (equipped) {
+        item._progress = equipped.progress !== undefined ? equipped.progress : effectiveLoad;
+      } else {
+        item._progress = 0;
+      }
+    };
+    for (const item of my_items) {
+      addItemProgress(item);
+    }
+    for (const item of all_generic_items) {
+      addItemProgress(item);
+    }
+
     let my_abilities = sheetData.items.filter(
       (ability) => ability.type == "ability"
     );
@@ -695,7 +718,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
     if (equipped) {
       for (const i of Object.values(equipped)) {
-        loadout += parseInt(i.load);
+        // Use progress if defined, otherwise fall back to load (backwards compat)
+        if (i.progress !== undefined) {
+          loadout += parseInt(i.progress) || 0;
+        } else {
+          loadout += parseInt(i.load) || 0;
+        }
       }
     }
 
@@ -709,21 +737,22 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     sheetData.loadout = loadout;
 
+    const baseMaxLoad = Number(sheetData.system.base_max_load) || 0;
     if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
       //Deep Cuts Load
       switch (sheetData.system.selected_load_level) {
         case "BITD.Discreet":
-          sheetData.max_load = sheetData.system.base_max_load + 4;
+          sheetData.max_load = baseMaxLoad + 4;
           break;
         case "BITD.Conspicuous":
-          sheetData.max_load = sheetData.system.base_max_load + 6;
+          sheetData.max_load = baseMaxLoad + 6;
           break;
         case "BITD.Encumbered":
-          sheetData.max_load = sheetData.system.base_max_load + 9;
+          sheetData.max_load = baseMaxLoad + 9;
           break;
         default:
           sheetData.system.selected_load_level = "BITD.Discreet";
-          sheetData.max_load = sheetData.system.base_max_load + 4;
+          sheetData.max_load = baseMaxLoad + 4;
           break;
       }
     }
@@ -731,17 +760,17 @@ export class BladesAlternateActorSheet extends BladesSheet {
       //Traditional Load
       switch (sheetData.system.selected_load_level) {
         case "BITD.Light":
-          sheetData.max_load = sheetData.system.base_max_load + 3;
+          sheetData.max_load = baseMaxLoad + 3;
           break;
         case "BITD.Normal":
-          sheetData.max_load = sheetData.system.base_max_load + 5;
+          sheetData.max_load = baseMaxLoad + 5;
           break;
         case "BITD.Heavy":
-          sheetData.max_load = sheetData.system.base_max_load + 6;
+          sheetData.max_load = baseMaxLoad + 6;
           break;
         default:
           sheetData.system.selected_load_level = "BITD.Normal";
-          sheetData.max_load = sheetData.system.base_max_load + 5;
+          sheetData.max_load = baseMaxLoad + 5;
           break;
       }
     }
@@ -1254,26 +1283,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       await this._openCrewSheetById(crewId);
     });
 
-    html.find(".item-block .main-checkbox").change(async (ev) => {
-      const checkbox = ev.target;
-      const itemId = checkbox.closest(".item-block").dataset.itemId;
-      const item = this.actor.items.get(itemId);
-      if (!item) return;
-
-      // No-op check: skip if already in desired state
-      if (item.system.equipped === checkbox.checked) return;
-
-      await queueUpdate(async () => {
-        await item.update({ system: { equipped: checkbox.checked } });
-      });
-    });
-
-    html.find(".item-block .child-checkbox").click((ev) => {
-      let checkbox = ev.target;
-      let $main = $(checkbox).siblings(".main-checkbox");
-      $main.trigger("click");
-    });
-
     html.find(".ability-checkbox").change(async (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -1358,15 +1367,106 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     });
 
-    html.find(".item-block .main-checkbox").change(async (ev) => {
-      let checkbox = ev.target;
-      let item_id = checkbox.closest(".item-block").dataset.itemId;
-      await Utils.toggleOwnership(
-        checkbox.checked,
-        this.actor,
-        "item",
-        item_id
-      );
+    html.find(".item-checkbox").change(async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      const checkboxEl = ev.currentTarget;
+      const itemBlock = checkboxEl.closest(".item-block");
+      if (!itemBlock) return;
+
+      const itemId = itemBlock.dataset.itemId;
+      const itemName = itemBlock.dataset.itemName || "";
+
+      // Get load from data attribute, falling back to looking up the item
+      let itemLoad;
+      const rawLoad = itemBlock.dataset.itemLoad;
+      if (rawLoad !== "" && rawLoad !== undefined) {
+        itemLoad = Number(rawLoad);
+        if (Number.isNaN(itemLoad)) itemLoad = 1;
+      } else {
+        // Fallback: look up item to get actual load value
+        const item = await Utils.getItemByType("item", itemId);
+        itemLoad = Number(item?.system?.load) || 1;
+      }
+
+      // For checkbox display/interaction, use at least 1 slot
+      const effectiveSlots = Math.max(itemLoad, 1);
+      const previousProgress = Number(itemBlock.dataset.itemProgress) || 0;
+
+      // Binary toggle: if any checked → uncheck all, if none checked → check all
+      const targetProgress = previousProgress > 0 ? 0 : effectiveSlots;
+
+      const checkboxList = Array.from(itemBlock.querySelectorAll(".item-checkbox"));
+      checkboxList.forEach((el) => el.setAttribute("disabled", "disabled"));
+
+      try {
+        // Update equipped-items flag with progress
+        if (targetProgress > 0) {
+          await queueUpdate(() => this.actor.update({
+            [`flags.bitd-alternate-sheets.equipped-items.${itemId}`]: {
+              id: itemId,
+              load: itemLoad,
+              name: itemName,
+              progress: targetProgress
+            }
+          }, { render: false }));
+          itemBlock.classList.add("owned");
+        } else {
+          await queueUpdate(() => this.actor.update({
+            [`flags.bitd-alternate-sheets.equipped-items.-=${itemId}`]: null
+          }, { render: false }));
+          itemBlock.classList.remove("owned");
+        }
+
+        // Update data attribute and checkboxes
+        itemBlock.dataset.itemProgress = String(targetProgress);
+        checkboxList.forEach((el) => {
+          const slot = Number(el.dataset.itemSlot) || 1;
+          const shouldCheck = slot <= targetProgress;
+          el.checked = shouldCheck;
+          if (shouldCheck) {
+            el.setAttribute("checked", "checked");
+          } else {
+            el.removeAttribute("checked");
+          }
+        });
+
+        // Optimistically update loadout display (avoid full re-render)
+        const loadDelta = targetProgress - previousProgress;
+        const loadDisplay = this.element.find(".load-amounts");
+        if (loadDisplay.length && loadDelta !== 0) {
+          const [currentText, maxText] = loadDisplay.text().split("/");
+          const currentLoadout = Number(currentText) || 0;
+          const maxLoad = Number(maxText) || 0;
+          const newLoadout = Math.max(0, Math.min(currentLoadout + loadDelta, 10));
+
+          loadDisplay.text(`${newLoadout}/${maxLoad}`);
+          loadDisplay.removeClass("at-max over-max");
+          if (newLoadout === maxLoad) {
+            loadDisplay.addClass("at-max");
+          } else if (newLoadout > maxLoad) {
+            loadDisplay.addClass("over-max");
+          }
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+        Hooks.onError("BitD-Alt.ItemToggle", error, {
+          msg: "[BitD-Alt]",
+          log: "error",
+          notify: null,
+          data: { itemId, targetProgress, actorId: this.actor.id }
+        });
+
+        ui.notifications.error("[BitD-Alt] Failed to update item.", {
+          console: false
+        });
+
+        this.render(false);
+      } finally {
+        checkboxList.forEach((el) => el.removeAttribute("disabled"));
+      }
     });
 
     //this could probably be cleaner. Numbers instead of text would be fine, but not much easier, really.

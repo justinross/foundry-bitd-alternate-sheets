@@ -1167,24 +1167,48 @@
   white-space: nowrap;
   border: 0;
 }
-.blades-alt .sheet-wrapper :is(.toggle-allow-edit, .toggle-alias-display) {
+.blades-alt .sheet-wrapper .sheet-toggles {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}
+.blades-alt .sheet-wrapper .sheet-toggles > span {
   display: inline-block;
   padding: 4px 6px;
-  margin: 0 var(--space-2);
-  background: #008000;
-  color: rgba(255, 255, 255, 0.6);
+  margin: 0 3px;
   border-radius: 3px;
   cursor: pointer;
+  color: rgba(255, 255, 255, 0.6);
   transition: color 0.15s ease;
 }
-.blades-alt .sheet-wrapper :is(.toggle-allow-edit, .toggle-alias-display):hover {
+.blades-alt .sheet-wrapper .sheet-toggles > span:hover {
   color: #fff;
 }
-.blades-alt .sheet-wrapper :is(.toggle-allow-edit, .toggle-alias-display) i {
+.blades-alt .sheet-wrapper .sheet-toggles > span i {
   width: 100%;
   text-align: center;
 }
-.blades-alt .sheet-wrapper .toggle-allow-edit .fa-lock-open {
+.blades-alt .sheet-wrapper .sheet-toggles .toggle-expand {
+  background: #0058cc;
+}
+.blades-alt .sheet-wrapper .sheet-toggles .toggle-expand .fa-expand {
+  display: none;
+}
+.blades-alt .sheet-wrapper .sheet-toggles .toggle-expand .fa-compress {
+  display: initial;
+}
+.blades-alt .sheet-wrapper .sheet-toggles .toggle-allow-edit,
+.blades-alt .sheet-wrapper .sheet-toggles .toggle-alias-display {
+  background: #008000;
+}
+.blades-alt .sheet-wrapper .sheet-toggles .toggle-allow-edit .fa-lock-open,
+.blades-alt .sheet-wrapper .sheet-toggles .toggle-alias-display .fa-lock-open {
+  display: none;
+}
+.blades-alt .sheet-wrapper.can-expand .sheet-toggles .toggle-expand .fa-expand {
+  display: initial;
+}
+.blades-alt .sheet-wrapper.can-expand .sheet-toggles .toggle-expand .fa-compress {
   display: none;
 }
 .blades-alt .sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit {
@@ -1195,11 +1219,6 @@
 }
 .blades-alt .sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit .fa-lock {
   display: none;
-}
-.blades-alt .sheet-wrapper .sheet-toggles {
-  position: absolute;
-  top: var(--space-1);
-  right: var(--space-1);
 }
 .blades-alt i.nullifier {
   transition: filter 0.2s;
@@ -2262,60 +2281,6 @@
   padding-left: 1em;
   position: relative;
 }
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles > span {
-  display: inline-block;
-  padding: 4px;
-  margin: 0 5px;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand {
-  background: #0058cc;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  border-radius: 3px;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand:hover {
-  color: #fff;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand i {
-  padding: 4px 6px;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand .fa-expand {
-  display: none;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-expand .fa-compress {
-  display: initial;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-allow-edit {
-  cursor: pointer;
-  background: #008000;
-  color: rgba(255, 255, 255, 0.6);
-  border-radius: 3px;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-allow-edit:hover {
-  color: #fff;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-allow-edit i {
-  width: 100%;
-  text-align: center;
-  padding: 4px 6px;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles span.toggle-allow-edit .fa-lock-open {
-  display: none;
-}
-.blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .crew-identity-block .sheet-toggles .toggle-allow-edit {
-  background-color: #800000;
-}
-.blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .crew-identity-block .sheet-toggles .toggle-allow-edit .fa-lock-open {
-  display: inline-block;
-}
-.blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .crew-identity-block .sheet-toggles .toggle-allow-edit .fa-lock {
-  display: none;
-}
 .blades-alt.actor.sheet.crew .sheet-wrapper.allow-edit .crew-identity-block .crew-meta-line .inline-input {
   text-decoration: none;
   border-bottom: none;
@@ -2720,12 +2685,6 @@
   justify-self: stretch;
   width: 100%;
 }
-.blades-alt.actor.sheet.crew .can-expand span.toggle-expand .fa-expand {
-  display: initial !important;
-}
-.blades-alt.actor.sheet.crew .can-expand span.toggle-expand .fa-compress {
-  display: none !important;
-}
 .blades-alt.actor.sheet.crew .crew-header .crew-top-right {
   grid-row: 1;
 }
@@ -2735,13 +2694,6 @@
 }
 .blades-alt.actor.sheet.crew .crew-identity-block {
   position: relative;
-}
-.blades-alt.actor.sheet.crew .crew-identity-block .sheet-toggles {
-  position: absolute;
-  top: var(--space-1);
-  right: var(--space-1);
-  z-index: 100;
-  margin: 0;
 }
 .blades-alt.actor.sheet.crew :is(.black-label, .gray-label) {
   text-transform: uppercase;
@@ -3213,81 +3165,11 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress input:checked + label.radio-toggle {
   background-image: url("assets/teeth/xptooth-red.png");
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles > span {
-  display: inline-block;
-  padding: 4px;
-  margin: 0 5px;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles span.toggle-expand {
-  background: #0058cc;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  border-radius: 3px;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles span.toggle-expand .fa-expand {
-  display: none;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles span.toggle-expand .fa-compress {
-  display: initial;
-}
-.can-expand span.toggle-expand .fa-expand {
-  display: initial !important;
-}
-.can-expand span.toggle-expand .fa-compress {
-  display: none !important;
-}
-
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles span.toggle-allow-edit {
-  cursor: pointer;
-  background: #008000;
-  color: rgba(255, 255, 255, 0.6);
-  border-radius: 3px;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles span.toggle-allow-edit:hover {
-  color: #fff;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles span.toggle-allow-edit i {
-  width: 100%;
-  text-align: center;
-  padding: 4px 6px;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles span.toggle-allow-edit .fa-lock-open {
-  display: none;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit {
-  background-color: #800000;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit .fa-lock-open {
-  display: inline-block;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit .fa-lock {
-  display: none;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display {
-  display: inline-block;
-  cursor: pointer;
-  background: #008000;
-  color: rgba(255, 255, 255, 0.6);
-  border-radius: 3px;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display:hover {
-  color: #fff;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display i {
-  width: 100%;
-  text-align: center;
-  padding: 4px 6px;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper span.toggle-alias-display .fa-face-disguise {
+.blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles .toggle-alias-display .fa-face-disguise {
   display: none;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper.showing-alias .sheet-toggles .toggle-alias-display {
-  background-color: #800000;
+  background-color: #cc0000;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper.showing-alias .sheet-toggles .toggle-alias-display .fa-face-disguise {
   display: inline-block;
@@ -3743,14 +3625,16 @@
   background-image: url(assets/icons/backpack.png);
   background-size: contain;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .load-box .below-max {
-  color: #006600;
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .load-box .label-text {
+  color: #191813;
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .load-box .at-max {
-  color: #e07f1a;
+  background-color: #ccaa00;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .load-box .over-max {
-  color: #660000;
+  background-color: #cc3333;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box {
   width: 100%;

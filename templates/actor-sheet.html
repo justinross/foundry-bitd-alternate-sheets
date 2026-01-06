@@ -22,7 +22,7 @@
           <div class="load-box {{#if load_open}}open{{/if}} pointer">
             <div class="mini-view">
               <div class="placeholder"></div><span
-                class="load-amounts label-text {{#if (lt loadout max_load)}}below-max{{else if (eq loadout max_load)}}at-max{{else if (gt loadout max_load)}}over-max{{/if}}">{{loadout}}/{{max_load}}</span>
+                class="load-amounts label-text {{#if (eq loadout max_load)}}at-max{{else if (gt loadout max_load)}}over-max{{/if}}">{{loadout}}/{{max_load}}</span>
             </div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/load.html"}}</div>
           </div>

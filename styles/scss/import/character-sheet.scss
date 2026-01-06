@@ -243,117 +243,22 @@
       }
     }
 
-    .sheet-toggles {
-      position: absolute;
-      top: -10px;
-      right: -10px;
+    // Toggle base styles in general-styles.scss
 
-      >span {
-        display: inline-block;
-        padding: 4px;
-        margin: 0 5px;
-      }
-
-      span.toggle-expand {
-        background: #0058cc;
-        color: rgba(255, 255, 255, 0.6);
-        cursor: pointer;
-        border-radius: 3px;
-
-        .fa-expand {
-          display: none;
-        }
-
-        .fa-compress {
-          display: initial;
-        }
-      }
-
-      @at-root .can-expand {
-        span.toggle-expand {
-          .fa-expand {
-            display: initial !important;
-          }
-
-          .fa-compress {
-            display: none !important;
-          }
-        }
-      }
-
-      span.toggle-allow-edit {
-        cursor: pointer;
-        background: #008000;
-        color: rgba(255, 255, 255, 0.6);
-        border-radius: 3px;
-
-        &:hover {
-          color: #fff;
-        }
-
-        i {
-          width: 100%;
-          text-align: center;
-          padding: 4px 6px;
-        }
-
-        .fa-lock-open {
-          display: none;
-        }
-      }
+    // Alias toggle: hide disguise icon by default
+    .sheet-toggles .toggle-alias-display .fa-face-disguise {
+      display: none;
     }
 
-    &.allow-edit {
-      .sheet-toggles {
-        .toggle-allow-edit {
-          background-color: #800000;
-
-          .fa-lock-open {
-            display: inline-block;
-          }
-
-          .fa-lock {
-            display: none;
-          }
-        }
-      }
-    }
-
-    span.toggle-alias-display {
-      display: inline-block;
-      cursor: pointer;
-      background: #008000;
-      color: rgba(255, 255, 255, 0.6);
-      border-radius: 3px;
-
-      &:hover {
-        color: #fff;
-      }
-
-      i {
-        width: 100%;
-        text-align: center;
-        padding: 4px 6px;
-      }
+    // Alias toggle state when showing alias
+    &.showing-alias .sheet-toggles .toggle-alias-display {
+      background-color: $red;
 
       .fa-face-disguise {
-        display: none;
+        display: inline-block;
       }
-    }
-
-    &.showing-alias {
-      .sheet-toggles {
-        .toggle-alias-display {
-          background-color: #800000;
-
-          .fa-face-disguise {
-            display: inline-block;
-          }
-
-          .fa-face-smile {
-            display: none;
-          }
-        }
+      .fa-face-smile {
+        display: none;
       }
     }
 
@@ -624,16 +529,18 @@
               background-size: contain;
             }
 
-            .below-max {
-              color: #006600;
+            .label-text {
+              color: $almost_black;
+              padding: 1px 4px;
+              border-radius: 3px;
             }
 
             .at-max {
-              color: #e07f1a;
+              background-color: #ccaa00;
             }
 
             .over-max {
-              color: #660000;
+              background-color: #cc3333;
             }
           }
         }

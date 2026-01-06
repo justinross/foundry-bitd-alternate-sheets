@@ -204,33 +204,63 @@ section.flex {
   border: 0;
 }
 
-// Lock/unlock and alias toggles (shared across sheets)
-.sheet-wrapper :is(.toggle-allow-edit, .toggle-alias-display) {
-  display: inline-block;
-  padding: 4px 6px;
-  margin: 0 var(--space-2);
-  background: $green;
-  color: rgba(255, 255, 255, 0.6);
-  border-radius: 3px;
-  cursor: pointer;
-  transition: color 0.15s ease;
+// Sheet toggle buttons (shared across sheets)
+.sheet-wrapper .sheet-toggles {
+  position: absolute;
+  top: -10px;
+  right: -10px;
 
-  &:hover {
-    color: #fff;
+  > span {
+    display: inline-block;
+    padding: 4px 6px;
+    margin: 0 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: #fff;
+    }
+
+    i {
+      width: 100%;
+      text-align: center;
+    }
   }
 
-  i {
-    width: 100%;
-    text-align: center;
+  .toggle-expand {
+    background: #0058cc;
+
+    .fa-expand {
+      display: none;
+    }
+    .fa-compress {
+      display: initial;
+    }
+  }
+
+  .toggle-allow-edit,
+  .toggle-alias-display {
+    background: $green;
+
+    .fa-lock-open {
+      display: none;
+    }
   }
 }
 
-.sheet-wrapper .toggle-allow-edit {
-  .fa-lock-open {
+// Expand toggle state when sheet can expand
+.sheet-wrapper.can-expand .sheet-toggles .toggle-expand {
+  .fa-expand {
+    display: initial;
+  }
+  .fa-compress {
     display: none;
   }
 }
 
+// Edit toggle state when editing is enabled
 .sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit {
   background-color: $red;
 
@@ -240,13 +270,6 @@ section.flex {
   .fa-lock {
     display: none;
   }
-}
-
-// Toggle container positioning
-.sheet-wrapper .sheet-toggles {
-  position: absolute;
-  top: var(--space-1);
-  right: var(--space-1);
 }
 
 i {
