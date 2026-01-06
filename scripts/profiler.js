@@ -36,11 +36,15 @@ export class Profiler {
   static async time(label, fn, meta = {}) {
     if (!Profiler.enabled) return fn();
     const start = performance.now();
+    let success = true;
     try {
       return await fn();
+    } catch (err) {
+      success = false;
+      throw err;
     } finally {
       const duration = performance.now() - start;
-      Profiler.log(label, { duration, ...meta });
+      Profiler.log(label, { duration, success, ...meta });
     }
   }
 }
