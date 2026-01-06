@@ -1,8 +1,11 @@
 # How to build CSS
 
-Prereqs: Node.js installed.
+CSS must be regenerated manually after SCSS changes.
 
-1. Install dependencies (once): `npm install`
-2. Build: `npm run build:css`
-3. Watch (optional): `npm run watch:css`
+## Build Command
 
+```bash
+npx sass styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=expanded
+```
+
+Last generated with sass 1.97.2 (dart2js 3.10.7).
