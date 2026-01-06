@@ -83,7 +83,7 @@
           "bitd-alt.VicePurveyor") actor.flags.bitd-alternate-sheets.vice_purveyor actor._id this source="actor"
           filter_field="system.associated_class" filter_value="Vice Purveyor" description=vice_purveyor_description}}}
         </div>
-        <div class="crew-affiliation bio">
+        <div class="crew-look-line bio">
           {{#if allow_edit}}
           <span class="smart-field-label" data-action="select-crew" tabindex="0"
             data-tooltip="{{localize 'bitd-alt.CrewLabel'}}">
@@ -97,13 +97,13 @@
             </a>
           </span>
           {{/if}}
-        </div>
-        <div class="look bio">{{{inline-editable-text allow_edit "system.look" (localize "bitd-alt.Look") system.look
+          &bull; {{{inline-editable-text allow_edit "system.look" (localize "bitd-alt.Look") system.look
           actor._id
           this}}}
           &bull; {{{inline-editable-text allow_edit "flags.bitd-alternate-sheets.pronouns" (localize
           "bitd-alt.Pronouns")
-          data.flags.bitd-alternate-sheets.pronouns actor._id this}}}</div>
+          data.flags.bitd-alternate-sheets.pronouns actor._id this}}}
+        </div>
         <div class="abilities-list">
           {{#each my_abilities}}<span data-tooltip="{{clean-html this.system.description}}"
             class="v10-tooltip">{{clean-name this.name}}</span>&nbsp;{{#unless @last}}-&nbsp;{{/unless}}{{/each}}

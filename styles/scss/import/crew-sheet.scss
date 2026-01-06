@@ -47,7 +47,7 @@
 
 form {
   &.actor-sheet {
-    padding: 20px;
+    padding: 5px 0 5px 5px; // Less on right to account for scrollbar-gutter
   }
 }
 

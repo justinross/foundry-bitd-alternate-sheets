@@ -109,13 +109,13 @@ export class Utils {
     }
 
     if (isRemoval) {
-      await actor.update({
+      await queueUpdate(() => actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null,
-      }, { render: false });
+      }, { render: false }));
     } else {
-      await actor.update({
+      await queueUpdate(() => actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.${key}`]: normalized,
-      }, { render: false });
+      }, { render: false }));
     }
   }
 
@@ -493,60 +493,100 @@ export class Utils {
     const $root = root instanceof HTMLElement ? $(root) : root;
     const rerender = typeof renderCallback === "function" ? renderCallback : () => { };
     let pending = false;
+
+    /**
+     * Generate the clock image URL for a given value.
+     * @param {number} type - Max segments (e.g., 4, 6, 8)
+     * @param {number} value - Current filled segments
+     * @param {string} color - Clock color theme
+     * @returns {string} The image URL
+     */
+    const getClockImageUrl = (type, value, color = "black") => {
+      return `systems/blades-in-the-dark/themes/${color}/${type}clock_${value}.svg`;
+    };
+
     $root.find("img.clockImage").on("click", async (e) => {
       const uuid = e.currentTarget.dataset.uuid;
       if (!uuid) return;
+      if (pending) return;
+
       const entity = await fromUuid(uuid);
       if (!entity) return;
+
       const currentValue = Number(entity.system?.value) || 0;
       const currentMax = Number(entity.system?.type) || 0;
-      if (currentValue < currentMax) {
-        if (pending) return;
-        pending = true;
-        try {
-          await Profiler.time(
-            "clockIncrement",
-            async () => {
-              await entity.update({ "system.value": currentValue + 1 }, { render: false });
-              rerender(false);
-            },
-            {
-              uuid,
-              parentId: entity.parent?.id ?? null,
-              targetValue: currentValue + 1,
-            }
-          );
-        } finally {
-          pending = false;
-        }
+      const color = entity.system?.color ?? "black";
+
+      // Bounds check
+      if (currentValue >= currentMax) return;
+
+      const newValue = currentValue + 1;
+      pending = true;
+
+      try {
+        // Optimistic UI: Update image immediately
+        const imgElement = e.currentTarget;
+        imgElement.src = getClockImageUrl(currentMax, newValue, color);
+
+        await Profiler.time(
+          "clockIncrement",
+          async () => {
+            await queueUpdate(async () => {
+              await entity.update({ "system.value": newValue }, { render: false });
+            });
+            rerender(false);
+          },
+          {
+            uuid,
+            parentId: entity.parent?.id ?? null,
+            targetValue: newValue,
+          }
+        );
+      } finally {
+        pending = false;
       }
     });
+
     $root.find("img.clockImage").on("contextmenu", async (e) => {
       e.preventDefault();
       const uuid = e.currentTarget.dataset.uuid;
       if (!uuid) return;
+      if (pending) return;
+
       const entity = await fromUuid(uuid);
       if (!entity) return;
+
       const currentValue = Number(entity.system?.value) || 0;
-      if (currentValue > 0) {
-        if (pending) return;
-        pending = true;
-        try {
-          await Profiler.time(
-            "clockDecrement",
-            async () => {
-              await entity.update({ "system.value": currentValue - 1 }, { render: false });
-              rerender(false);
-            },
-            {
-              uuid,
-              parentId: entity.parent?.id ?? null,
-              targetValue: currentValue - 1,
-            }
-          );
-        } finally {
-          pending = false;
-        }
+      const currentMax = Number(entity.system?.type) || 0;
+      const color = entity.system?.color ?? "black";
+
+      // Bounds check
+      if (currentValue <= 0) return;
+
+      const newValue = currentValue - 1;
+      pending = true;
+
+      try {
+        // Optimistic UI: Update image immediately
+        const imgElement = e.currentTarget;
+        imgElement.src = getClockImageUrl(currentMax, newValue, color);
+
+        await Profiler.time(
+          "clockDecrement",
+          async () => {
+            await queueUpdate(async () => {
+              await entity.update({ "system.value": newValue }, { render: false });
+            });
+            rerender(false);
+          },
+          {
+            uuid,
+            parentId: entity.parent?.id ?? null,
+            targetValue: newValue,
+          }
+        );
+      } finally {
+        pending = false;
       }
     });
   }
@@ -615,7 +655,7 @@ export class Utils {
 
       updateIcon(ev.currentTarget, nextStanding);
 
-      await sheet.actor.update({ system: { acquaintances } }, { render: false });
+      await queueUpdate(() => sheet.actor.update({ system: { acquaintances } }, { render: false }));
     });
   }
 
@@ -741,16 +781,16 @@ export class Utils {
         ) {
           return;
         }
-        await actor.update({
+        await queueUpdate(() => actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
             newItem,
-        }, { render: false });
+        }, { render: false }));
       } else {
         if (!equipped_items[item_blueprint.id]) return;
         // Atomic Remove
-        await actor.update({
+        await queueUpdate(() => actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
-        }, { render: false });
+        }, { render: false }));
       }
     }
   }
@@ -851,10 +891,9 @@ export class Utils {
       return oldAcq.id == acq.id;
     });
     if (unique_id) {
-      // queueUpdate(()=> {actor.update({system: {acquaintances : current_acquaintances.concat([acquaintance])}});});
-      await actor.update({
+      await queueUpdate(() => actor.update({
         system: { acquaintances: current_acquaintances.concat([acquaintance]) },
-      });
+      }));
     } else {
       ui.notifications.info(
         "The dropped NPC is already an acquaintance of this character."
@@ -875,9 +914,9 @@ export class Utils {
         standing: "neutral",
       };
     });
-    await actor.update({
+    await queueUpdate(() => actor.update({
       system: { acquaintances: current_acquaintances.concat(acqArr) },
-    });
+    }));
   }
 
   static async removeAcquaintance(actor, acqId) {
@@ -885,21 +924,26 @@ export class Utils {
     let updated_acquaintances = current_acquaintances.filter(
       (acq) => acq._id !== acqId && acq.id !== acqId
     );
-    await actor.update({ system: { acquaintances: updated_acquaintances } });
+    // No-op check: skip if no change
+    if (updated_acquaintances.length === current_acquaintances.length) return;
+    await queueUpdate(() => actor.update({ system: { acquaintances: updated_acquaintances } }));
   }
 
   static async removeAcquaintanceArray(actor, acqArr) {
+    if (!acqArr?.length) return;
 
     //see who the current acquaintances are
     let current_acquaintances = actor.system.acquaintances;
+    const originalLength = current_acquaintances.length;
 
     //for each of the passed acquaintances
     for (const currAcq of acqArr) {
       //remove the matching acquaintance from the current acquaintances
       current_acquaintances.findSplice((acq) => acq.id == currAcq.id);
     }
-    // let new_acquaintances = current_acquaintances.filter(acq => acq._id !== acqId && acq.id !== acqId);
-    await actor.update({ system: { acquaintances: current_acquaintances } });
+    // No-op check: skip if no change
+    if (current_acquaintances.length === originalLength) return;
+    await queueUpdate(() => actor.update({ system: { acquaintances: current_acquaintances } }));
   }
 
   static async getVirtualListOfItems(
@@ -1225,4 +1269,35 @@ export class Utils {
       actor.sheet.render(false);
     }
   }
+}
+
+/**
+ * Safely updates a document with ownership, no-op, and render-suppression guards.
+ * @param {Document} doc - The Foundry document to update
+ * @param {object} updateData - The update data object
+ * @param {object} options - Additional options passed to update (render: true overrides suppression)
+ * @returns {Promise<boolean>} - True if update was performed, false if skipped
+ */
+export async function safeUpdate(doc, updateData, options = {}) {
+  // 1. Ownership guard - only owner should update
+  if (!doc?.isOwner) return false;
+
+  // 2. Empty update guard
+  const entries = Object.entries(updateData || {});
+  if (entries.length === 0) return false;
+
+  // 3. No-op detection - skip if values unchanged
+  const hasChange = entries.some(([key, value]) => {
+    // Objects always treated as changes (too complex to deep-compare)
+    if (value !== null && typeof value === "object") return true;
+    const currentValue = foundry.utils.getProperty(doc, key);
+    return currentValue !== value;
+  });
+  if (!hasChange) return false;
+
+  // 4. Queued, render-suppressed update
+  await queueUpdate(async () => {
+    await doc.update(updateData, { render: false, ...options });
+  });
+  return true;
 }

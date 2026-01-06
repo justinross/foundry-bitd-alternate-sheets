@@ -1,6 +1,7 @@
 import { BladesCrewSheet as SystemCrewSheet } from "../../../systems/blades-in-the-dark/module/blades-crew-sheet.js";
 import { Utils, MODULE_ID } from "./utils.js";
 import { Profiler } from "./profiler.js";
+import { queueUpdate } from "./lib/update-queue.js";
 
 /**
  * Alternate crew sheet that mirrors the functionality of the system sheet
@@ -14,7 +15,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: [...new Set([...baseClasses, "blades-alt"])],
       template: "modules/bitd-alternate-sheets/templates/crew-sheet.html",
-      width: 940,
+      width: 900,
       height: 940,
       tabs: [
         { navSelector: ".tabs", contentSelector: ".tab-content", initial: "turfs" },
@@ -208,6 +209,14 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+
+    // Use namespaced events with .off() to prevent handler stacking on re-render
+    html.find("input.radio-toggle, label.radio-toggle")
+      .off("click.radioToggle mousedown.radioToggle")
+      .on("click.radioToggle", (e) => e.preventDefault())
+      .on("mousedown.radioToggle", (e) => {
+        this._onRadioToggle(e);
+      });
 
     html.find('[data-action="toggle-filter"]').off("click").on("click", (ev) => {
       ev.preventDefault();
@@ -478,5 +487,57 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     } finally {
       checkboxList.forEach((el) => el.removeAttribute("disabled"));
     }
+  }
+
+  /**
+   * Handle radio toggle clicks with optimistic UI updates.
+   * Updates the UI immediately, then persists to database.
+   * @param {Event} event - The mousedown event
+   */
+  async _onRadioToggle(event) {
+    event.preventDefault();
+
+    let type = event.target.tagName.toLowerCase();
+    let target = event.target;
+    if (type === "label") {
+      const labelID = $(target).attr("for");
+      target = document.getElementById(labelID);
+    }
+
+    if (!target) return;
+
+    // Safety check: Ignore clock inputs (handled separately)
+    if ($(target).closest('.blades-clock').length || $(event.currentTarget).closest('.blades-clock').length) {
+      return;
+    }
+
+    const fieldName = target.name;
+    const clickedValue = parseInt(target.value);
+
+    // Get current value from actor data
+    const currentValue = foundry.utils.getProperty(this.actor, fieldName) ?? 0;
+
+    // Determine the new value based on visual state (red vs white teeth)
+    // Red teeth: values 1 through currentValue
+    // White teeth: values greater than currentValue
+    let newValue;
+    if (clickedValue <= currentValue) {
+      // Clicking a red tooth → decrement (set to one below clicked)
+      newValue = clickedValue - 1;
+    } else {
+      // Clicking a white tooth → set to this value
+      newValue = clickedValue;
+    }
+
+    // Optimistic UI update: find and check the correct input
+    const targetInput = this.element.find(`input[name="${fieldName}"][value="${newValue}"]`);
+    if (targetInput.length) {
+      targetInput.prop("checked", true);
+    }
+
+    // Direct Foundry update - let Foundry's hook handle the render
+    await queueUpdate(async () => {
+      await this.actor.update({ [fieldName]: newValue });
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-sheet.js";
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
-import { Utils, MODULE_ID } from "./utils.js";
+import { Utils, MODULE_ID, safeUpdate } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
 import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
@@ -491,7 +491,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
       trauma_object = foundry.utils.expandObject({
         "system.trauma.list": trauma_object,
       });
-      await this.actor.update(trauma_object);
+      // Data migration: convert array to object format. Use render: false to avoid loop.
+      queueUpdate(() => this.actor.update(trauma_object, { render: false }));
     }
     trauma_array = Utils.convertBooleanObjectToArray(
       sheetData.system.trauma.list
@@ -817,8 +818,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async clearLoad() {
-    await this.actor.update({
-      "flags.bitd-alternate-sheets.-=equipped-items": null,
+    // No-op check: skip if no equipped-items flag exists
+    const currentFlag = this.actor.getFlag("bitd-alternate-sheets", "equipped-items");
+    if (!currentFlag) return;
+
+    await queueUpdate(async () => {
+      await this.actor.update({
+        "flags.bitd-alternate-sheets.-=equipped-items": null,
+      });
     });
   }
 
@@ -975,24 +982,56 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
   }
 
-  _onRadioToggle(event) {
+  /**
+   * Handle radio toggle clicks with optimistic UI updates.
+   * Updates the UI immediately, then persists to database.
+   * @param {Event} event - The mousedown event
+   */
+  async _onRadioToggle(event) {
+    event.preventDefault();
+
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
-    if (type == "label") {
-      let labelID = $(target).attr("for");
-      target = $(`#${labelID}`).get(0);
+    if (type === "label") {
+      const labelID = $(target).attr("for");
+      target = document.getElementById(labelID);
     }
-    if (target.checked) {
-      //find the next lowest-value input with the same name and click that one instead
-      let name = target.name;
-      let value = parseInt(target.value) - 1;
-      this.element
-        .find(`input[name="${name}"][value="${value}"]`)
-        .trigger("click");
+
+    if (!target) return;
+
+    // Safety check: Ignore clock inputs (handled separately)
+    if ($(target).closest('.blades-clock').length || $(event.currentTarget).closest('.blades-clock').length) {
+      return;
+    }
+
+    const fieldName = target.name;
+    const clickedValue = parseInt(target.value);
+
+    // Get current value from actor data
+    const currentValue = foundry.utils.getProperty(this.actor, fieldName) ?? 0;
+
+    // Determine the new value based on visual state (red vs white teeth)
+    // Red teeth: values 1 through currentValue
+    // White teeth: values greater than currentValue
+    let newValue;
+    if (clickedValue <= currentValue) {
+      // Clicking a red tooth → decrement (set to one below clicked)
+      newValue = clickedValue - 1;
     } else {
-      //trigger the click on this one
-      $(target).trigger("click");
+      // Clicking a white tooth → set to this value
+      newValue = clickedValue;
     }
+
+    // Optimistic UI update: find and check the correct input
+    const targetInput = this.element.find(`input[name="${fieldName}"][value="${newValue}"]`);
+    if (targetInput.length) {
+      targetInput.prop("checked", true);
+    }
+
+    // Direct Foundry update - let Foundry's hook handle the render
+    await queueUpdate(async () => {
+      await this.actor.update({ [fieldName]: newValue });
+    });
   }
 
   /* -------------------------------------------- */
@@ -1078,12 +1117,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
     html.find("img.clockImage").on("click", async (e) => {
       Utils.bindClockControls(html, this.render.bind(this));
     });
-    html
-      .find("input.radio-toggle, label.radio-toggle")
-      .click((e) => e.preventDefault());
-    html.find("input.radio-toggle, label.radio-toggle").mousedown((e) => {
-      this._onRadioToggle(e);
-    });
+    // Use namespaced events with .off() to prevent handler stacking on re-render
+    html.find("input.radio-toggle, label.radio-toggle")
+      .off("click.radioToggle mousedown.radioToggle")
+      .on("click.radioToggle", (e) => e.preventDefault())
+      .on("mousedown.radioToggle", (e) => {
+        this._onRadioToggle(e);
+      });
 
     html.find(".inline-input").on("keyup", async (ev) => {
       let input = ev.currentTarget.previousSibling;
@@ -1189,13 +1229,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
       await this._openCrewSheetById(crewId);
     });
 
-    html.find(".item-block .main-checkbox").change((ev) => {
-      let checkbox = ev.target;
-      let itemId = checkbox.closest(".item-block").dataset.itemId;
-      let item = this.actor.items.get(itemId);
-      if (item) {
-        return item.update({ system: { equipped: checkbox.checked } });
-      }
+    html.find(".item-block .main-checkbox").change(async (ev) => {
+      const checkbox = ev.target;
+      const itemId = checkbox.closest(".item-block").dataset.itemId;
+      const item = this.actor.items.get(itemId);
+      if (!item) return;
+
+      // No-op check: skip if already in desired state
+      if (item.system.equipped === checkbox.checked) return;
+
+      await queueUpdate(async () => {
+        await item.update({ system: { equipped: checkbox.checked } });
+      });
     });
 
     html.find(".item-block .child-checkbox").click((ev) => {
@@ -1389,13 +1434,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
                 .val();
               newTrauma = newTrauma.replace("BITD.Trauma", "");
               newTrauma = newTrauma.toLowerCase();
+              // No-op check: skip if trauma already exists
+              if (this.actor.system.trauma?.list?.[newTrauma]) return;
               let newTraumaListValue = {
                 system: {
                   trauma: this.actor.system.trauma,
                 },
               };
               newTraumaListValue.system.trauma.list[newTrauma] = true;
-              await this.actor.update(newTraumaListValue);
+              await queueUpdate(() => this.actor.update(newTraumaListValue));
             },
           },
           cancel: {
@@ -1541,8 +1588,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       if (result === undefined) return; // Cancelled
 
       const updateValue = result === null ? "" : result;
+
       try {
-        await this.actor.update({ [field]: updateValue });
+        await safeUpdate(this.actor, { [field]: updateValue });
       } catch (err) {
         ui.notifications.error(`Failed to update ${header}: ${err.message}`);
         console.error("Smart field update error:", err);
@@ -1570,8 +1618,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
           icon: '<i class="fas fa-check"></i>',
           callback: async (html) => {
             const newValue = html.find('[name="value"]').val();
+
             try {
-              await this.actor.update({ [field]: newValue });
+              await safeUpdate(this.actor, { [field]: newValue });
             } catch (err) {
               ui.notifications.error(`Failed to update ${header}: ${err.message}`);
               console.error("Smart field update error:", err);
@@ -1664,7 +1713,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     if (!normalized) {
       if (systemCrewEntries.length === 0) return;
-      await this.actor.update({ system: { crew: [] } });
+      await queueUpdate(() => this.actor.update({ system: { crew: [] } }));
       return;
     }
 
@@ -1702,7 +1751,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     const needsUpdate =
       currentCrewId !== crewEntry.id || !foundry.utils.isEmpty(diff);
     if (needsUpdate) {
-      await this.actor.update({ system: { crew: nextCrewList } });
+      await queueUpdate(() => this.actor.update({ system: { crew: nextCrewList } }));
     }
   }
 
