@@ -511,7 +511,12 @@ export class Utils {
       if (pending) return;
 
       const entity = await fromUuid(uuid);
-      if (!entity) return;
+      if (!entity) {
+        ui.notifications.warn("[BitD-Alt] Clock not found. It may have been deleted.", {
+          console: false
+        });
+        return;
+      }
 
       const currentValue = Number(entity.system?.value) || 0;
       const currentMax = Number(entity.system?.type) || 0;
@@ -554,7 +559,12 @@ export class Utils {
       if (pending) return;
 
       const entity = await fromUuid(uuid);
-      if (!entity) return;
+      if (!entity) {
+        ui.notifications.warn("[BitD-Alt] Clock not found. It may have been deleted.", {
+          console: false
+        });
+        return;
+      }
 
       const currentValue = Number(entity.system?.value) || 0;
       const currentMax = Number(entity.system?.type) || 0;
