@@ -19,7 +19,11 @@
     "systems": [
       {
         "id": "blades-in-the-dark",
-        "manifest": "https://raw.githubusercontent.com/Dez384/foundryvtt-blades-in-the-dark/master/system.json"
+        "type": "system",
+        "manifest": "https://raw.githubusercontent.com/Dez384/foundryvtt-blades-in-the-dark/master/system.json",
+        "compatibility": {
+          "minimum": "6.0.0"
+        }
       }
     ],
     "requires": [],
