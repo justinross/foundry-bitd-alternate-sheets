@@ -1,0 +1,10 @@
+{
+  "name": "bitd-alternate-sheets",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Build scripts for the BitD alternate sheets CSS",
+  "license": "MIT",
+  "scripts": {
+    "build:css": "npx sass@1.97.2 styles/scss/bitd-alt.scss styles/css/bitd-alt.css --style=expanded"
+  }
+}

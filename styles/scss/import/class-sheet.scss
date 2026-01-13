@@ -1,3 +1,5 @@
+@use "./attributes" as attrs;
+
 .attributes-actions{
-  @import "attributes.scss";
+  @include attrs.attributes-sheet();
 }

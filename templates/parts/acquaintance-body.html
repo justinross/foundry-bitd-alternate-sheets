@@ -1,0 +1,5 @@
+<i data-acquaintance="{{id}}" class="standing-toggle fas
+    {{#if (eq standing "friend")}} fa-caret-up green-icon {{else if (eq standing "rival" )}} fa-caret-down red-icon
+    {{else}}fa-minus {{/if}}" role="button" tabindex="0"
+  aria-label="{{localize 'BITD.ToggleStanding' name=name standing=standing}}"></i><strong class="standing-toggle">{{name}}</strong>{{#if (notempty description_short)}},
+{{description_short}}{{/if}}

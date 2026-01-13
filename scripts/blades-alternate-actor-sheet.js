@@ -1,8 +1,9 @@
 import { BladesSheet } from "../../../systems/blades-in-the-dark/module/blades-sheet.js";
 import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/blades-active-effect.js";
-import { Utils, MODULE_ID } from "./utils.js";
+import { Utils, MODULE_ID, safeUpdate } from "./utils.js";
+import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
-import { openCrewSelectionDialog } from "./lib/dialog-compat.js";
+import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
 import { enrichHTML } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
@@ -16,7 +17,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   coins_open = false;
   harm_open = false;
   load_open = false;
-  allow_edit = false;
+  allow_edit = undefined;
   show_debug = false;
 
   /** @override */
@@ -116,12 +117,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     await this._resetAbilityProgressFlags();
     await this.switchToPlaybookAcquaintances(newPlaybookItem);
     await this.setPlaybookAttributes(newPlaybookItem);
-    if (this._state == 1) {
-      Hooks.once("renderBladesAlternateActorSheet", () => {
-
-        setTimeout(() => this.render(false), 100);
-      });
-    }
+    // Rendering will occur from document updates; avoid extra scheduled rerenders here.
   }
 
   async switchToPlaybookAcquaintances(selected_playbook) {
@@ -210,7 +206,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
                 );
                 items.push(item);
               }
-              this.actor.createEmbeddedDocuments("Item", items);
+              queueUpdate(() => this.actor.createEmbeddedDocuments("Item", items));
             },
           },
           cancel: {
@@ -236,7 +232,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       callback: (element) => {
         const itemId = this.getContextMenuElementData(element, "itemId");
         if (!itemId) return;
-        this.actor.deleteEmbeddedDocuments("Item", [itemId]);
+        queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [itemId]));
       },
     },
   ];
@@ -306,7 +302,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
           abilityName
         );
         if (!deletionId) return;
-        this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [deletionId]));
         if (block) block.dataset.abilityOwnedId = "";
       },
     },
@@ -383,11 +379,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
     new_item_data.system.class = "custom";
     new_item_data.system.load = 1;
 
-    let new_item = await this.actor.createEmbeddedDocuments(
-      "Item",
-      [new_item_data],
-      { renderSheet: true }
-    );
+    let new_item = await queueUpdate(async () => {
+      return await this.actor.createEmbeddedDocuments(
+        "Item",
+        [new_item_data],
+        { renderSheet: true }
+      );
+    });
     return new_item;
   }
 
@@ -401,13 +399,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
     };
     new_ability_data.system.class = "custom";
 
-    let new_abilities = await this.actor.createEmbeddedDocuments(
-      "Item",
-      [new_ability_data],
-      { renderSheet: true }
-    );
+    let new_abilities = await queueUpdate(async () => {
+      return await this.actor.createEmbeddedDocuments(
+        "Item",
+        [new_ability_data],
+        { renderSheet: true }
+      );
+    });
     let new_ability = new_abilities[0];
-    await new_ability.setFlag(MODULE_ID, "custom_ability", true);
+    await queueUpdate(() => new_ability.setFlag(MODULE_ID, "custom_ability", true));
 
     return new_ability;
   }
@@ -417,6 +417,23 @@ export class BladesAlternateActorSheet extends BladesSheet {
   /** @override */
   async getData() {
     let sheetData = await super.getData();
+    Utils.ensureAllowEdit(this);
+    const persistedUi = await Utils.loadUiState(this);
+    if (typeof this.showFilteredAbilities === "undefined") {
+      this.showFilteredAbilities = Boolean(persistedUi.showFilteredAbilities);
+    }
+    if (typeof this.showFilteredItems === "undefined") {
+      this.showFilteredItems = Boolean(persistedUi.showFilteredItems);
+    }
+    if (typeof this.showFilteredAcquaintances === "undefined") {
+      this.showFilteredAcquaintances = Boolean(
+        persistedUi.showFilteredAcquaintances
+      );
+    }
+    this.collapsedSections =
+      this.collapsedSections ||
+      persistedUi.collapsedSections ||
+      {};
     sheetData.editable = this.options.editable;
     sheetData.isGM = game.user.isGM;
     sheetData.showAliasInDirectory = this.actor.getFlag(
@@ -424,6 +441,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       "showAliasInDirectory"
     );
     const actorData = sheetData.data;
+    actorData.uuid = this.actor.uuid;  // Add uuid for template access
     sheetData.actor = actorData;
     sheetData.system = actorData.system;
     sheetData.coins_open = this.coins_open;
@@ -461,22 +479,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
         : sheetData.system.acquaintances_label;
     let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
     if (rawNotes) {
-      let pattern = /(@UUID\[([^]*?)]){[^}]*?}/gm;
-      let linkedEntities = [...rawNotes.matchAll(pattern)];
-      for (let index = 0; index < linkedEntities.length; index++) {
-        const entity = await fromUuid(linkedEntities[index][2]);
-        if (entity?.type === "🕛 clock") {
-        }
-      }
-      let clockNotes = await enrichHTML(rawNotes, {
-        documents: false,
-        async: true,
-      });
-      sheetData.notes = await enrichHTML(clockNotes, {
-        relativeTo: this.document,
-        secrets: this.document.isOwner,
-        async: true,
-      });
+      sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
     }
 
     // Prepare active effects
@@ -493,7 +496,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
       trauma_object = foundry.utils.expandObject({
         "system.trauma.list": trauma_object,
       });
-      await this.actor.update(trauma_object);
+      // Data migration: convert array to object format. Use render: false to avoid loop.
+      queueUpdate(() => this.actor.update(trauma_object, { render: false }));
     }
     trauma_array = Utils.convertBooleanObjectToArray(
       sheetData.system.trauma.list
@@ -523,6 +527,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
         : Utils.getOwnedObjectByType(this.actor, "vice")
           ? Utils.getOwnedObjectByType(this.actor, "vice").name
           : "";
+
+    // Resolve descriptions for tooltips
+    sheetData.heritage_description = await this._resolveDescription("heritage", sheetData.heritage);
+    sheetData.background_description = await this._resolveDescription("background", sheetData.background);
+    sheetData.vice_description = await this._resolveDescription("vice", sheetData.vice);
+
+    const purveyorName = this.actor.getFlag(MODULE_ID, "vice_purveyor");
+    sheetData.vice_purveyor_description = await this._resolveDescription("npc", purveyorName);
 
     if (game.settings.get("blades-in-the-dark", "DeepCutLoad")) {
       // Deep Cut: include Encumbered so mule/overmax can be represented
@@ -633,7 +645,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
       ability._ownedId = ownedAbilityId || "";
     }
 
-    sheetData.available_playbook_abilities = combined_abilities_list;
+    const filteredAbilities = this.showFilteredAbilities
+      ? combined_abilities_list.filter((ab) => (Number(ab?._progress) || 0) > 0)
+      : combined_abilities_list;
+
+    sheetData.available_playbook_abilities = filteredAbilities;
 
     let armor = all_generic_items.findSplice((item) =>
       item.name.includes(game.i18n.localize("BITD.Armor"))
@@ -660,6 +676,29 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.generic_items = all_generic_items;
     sheetData.my_items = my_items;
 
+    // Add progress to items (similar to abilities)
+    const equippedItems = this.actor.getFlag("bitd-alternate-sheets", "equipped-items") || {};
+    const addItemProgress = (item) => {
+      const itemId = item._id || item.id;
+      const equipped = equippedItems[itemId];
+      const rawLoad = Number(item.system?.load);
+      const load = Number.isNaN(rawLoad) ? 1 : rawLoad;
+      // For free items (load 0), treat as 1 slot for progress tracking
+      const effectiveLoad = Math.max(load, 1);
+      // Support both old format (no progress = full load) and new format (explicit progress)
+      if (equipped) {
+        item._progress = equipped.progress !== undefined ? equipped.progress : effectiveLoad;
+      } else {
+        item._progress = 0;
+      }
+    };
+    for (const item of my_items) {
+      addItemProgress(item);
+    }
+    for (const item of all_generic_items) {
+      addItemProgress(item);
+    }
+
     let my_abilities = sheetData.items.filter(
       (ability) => ability.type == "ability"
     );
@@ -671,9 +710,21 @@ export class BladesAlternateActorSheet extends BladesSheet {
       "bitd-alternate-sheets",
       "equipped-items"
     );
+    if (this.showFilteredItems) {
+      const equippedMap = equipped || {};
+      sheetData.my_items = (sheetData.my_items || []).filter((item) => {
+        const key = item?.id || item?._id;
+        return Boolean(key && equippedMap[key]);
+      });
+    }
     if (equipped) {
       for (const i of Object.values(equipped)) {
-        loadout += parseInt(i.load);
+        // Use progress if defined, otherwise fall back to load (backwards compat)
+        if (i.progress !== undefined) {
+          loadout += parseInt(i.progress) || 0;
+        } else {
+          loadout += parseInt(i.load) || 0;
+        }
       }
     }
 
@@ -687,21 +738,22 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     sheetData.loadout = loadout;
 
+    const baseMaxLoad = Number(sheetData.system.base_max_load) || 0;
     if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
       //Deep Cuts Load
       switch (sheetData.system.selected_load_level) {
         case "BITD.Discreet":
-          sheetData.max_load = sheetData.system.base_max_load + 4;
+          sheetData.max_load = baseMaxLoad + 4;
           break;
         case "BITD.Conspicuous":
-          sheetData.max_load = sheetData.system.base_max_load + 6;
+          sheetData.max_load = baseMaxLoad + 6;
           break;
         case "BITD.Encumbered":
-          sheetData.max_load = sheetData.system.base_max_load + 9;
+          sheetData.max_load = baseMaxLoad + 9;
           break;
         default:
           sheetData.system.selected_load_level = "BITD.Discreet";
-          sheetData.max_load = sheetData.system.base_max_load + 4;
+          sheetData.max_load = baseMaxLoad + 4;
           break;
       }
     }
@@ -709,22 +761,53 @@ export class BladesAlternateActorSheet extends BladesSheet {
       //Traditional Load
       switch (sheetData.system.selected_load_level) {
         case "BITD.Light":
-          sheetData.max_load = sheetData.system.base_max_load + 3;
+          sheetData.max_load = baseMaxLoad + 3;
           break;
         case "BITD.Normal":
-          sheetData.max_load = sheetData.system.base_max_load + 5;
+          sheetData.max_load = baseMaxLoad + 5;
           break;
         case "BITD.Heavy":
-          sheetData.max_load = sheetData.system.base_max_load + 6;
+          sheetData.max_load = baseMaxLoad + 6;
           break;
         default:
           sheetData.system.selected_load_level = "BITD.Normal";
-          sheetData.max_load = sheetData.system.base_max_load + 5;
+          sheetData.max_load = baseMaxLoad + 5;
           break;
       }
     }
 
+    sheetData.showFilteredAbilities = this.showFilteredAbilities;
+    sheetData.showFilteredItems = this.showFilteredItems;
+    sheetData.showFilteredAcquaintances = this.showFilteredAcquaintances;
+    sheetData.collapsedSections = this.collapsedSections;
+
+    const acquaintanceList = Array.isArray(sheetData.system.acquaintances)
+      ? sheetData.system.acquaintances
+      : [];
+    const filteredAcqs = this.showFilteredAcquaintances
+      ? acquaintanceList.filter((acq) => {
+        const standing = (acq?.standing ?? "").toString().trim().toLowerCase();
+        return standing === "friend" || standing === "rival";
+      })
+      : acquaintanceList;
+    sheetData.display_acquaintances = filteredAcqs;
+
     return sheetData;
+  }
+
+  async _resolveDescription(type, name) {
+    if (!name || name.trim() === "") return "";
+
+    // 1. Check Owned Items first (skip for NPC as they are not usually owned items in this context)
+    if (type !== "npc") {
+      const owned = this.actor.items.find(i => i.type === type && i.name === name);
+      if (owned) return Utils.resolveDescription(owned);
+    }
+
+    // 2. Check World/Compendium
+    const candidates = await Utils.getSourcedItemsByType(type);
+    const match = candidates.find(i => i.name === name);
+    return match ? Utils.resolveDescription(match) : "";
   }
 
   _ownsAbility(abilityName) {
@@ -746,7 +829,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
   async _resetAbilityProgressFlags() {
     const existing = this.actor.getFlag(MODULE_ID, "multiAbilityProgress");
     if (!existing) return;
-    await this.actor.unsetFlag(MODULE_ID, "multiAbilityProgress");
+    await queueUpdate(() => this.actor.unsetFlag(MODULE_ID, "multiAbilityProgress"));
   }
 
   _resolveAbilityDeletionId(abilityBlock, fallbackId, abilityName) {
@@ -769,8 +852,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async clearLoad() {
-    await this.actor.update({
-      "flags.bitd-alternate-sheets.-=equipped-items": null,
+    // No-op check: skip if no equipped-items flag exists
+    const currentFlag = this.actor.getFlag("bitd-alternate-sheets", "equipped-items");
+    if (!currentFlag) return;
+
+    await queueUpdate(async () => {
+      await this.actor.update({
+        "flags.bitd-alternate-sheets.-=equipped-items": null,
+      });
     });
   }
 
@@ -927,23 +1016,73 @@ export class BladesAlternateActorSheet extends BladesSheet {
     });
   }
 
-  _onRadioToggle(event) {
+  /**
+   * Handle radio toggle clicks with optimistic UI updates.
+   * Updates the UI immediately, then persists to database.
+   * @param {Event} event - The mousedown event
+   */
+  async _onRadioToggle(event) {
+    event.preventDefault();
+
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
-    if (type == "label") {
-      let labelID = $(target).attr("for");
-      target = $(`#${labelID}`).get(0);
+    if (type === "label") {
+      const labelID = $(target).attr("for");
+      target = document.getElementById(labelID);
     }
-    if (target.checked) {
-      //find the next lowest-value input with the same name and click that one instead
-      let name = target.name;
-      let value = parseInt(target.value) - 1;
-      this.element
-        .find(`input[name="${name}"][value="${value}"]`)
-        .trigger("click");
+
+    if (!target) return;
+
+    // Safety check: Ignore clock inputs (handled separately)
+    if ($(target).closest('.blades-clock').length || $(event.currentTarget).closest('.blades-clock').length) {
+      return;
+    }
+
+    const fieldName = target.name;
+    const clickedValue = parseInt(target.value);
+
+    // Get current value from actor data
+    const currentValue = foundry.utils.getProperty(this.actor, fieldName) ?? 0;
+
+    // Determine the new value based on visual state (red vs white teeth)
+    // Red teeth: values 1 through currentValue
+    // White teeth: values greater than currentValue
+    let newValue;
+    if (clickedValue <= currentValue) {
+      // Clicking a red tooth → decrement (set to one below clicked)
+      newValue = clickedValue - 1;
     } else {
-      //trigger the click on this one
-      $(target).trigger("click");
+      // Clicking a white tooth → set to this value
+      newValue = clickedValue;
+    }
+
+    // Optimistic UI update: find and check the correct input
+    const targetInput = this.element.find(`input[name="${fieldName}"][value="${newValue}"]`);
+    if (targetInput.length) {
+      targetInput.prop("checked", true);
+    }
+
+    // Direct Foundry update - let Foundry's hook handle the render
+    try {
+      await queueUpdate(async () => {
+        await this.actor.update({ [fieldName]: newValue });
+      });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      Hooks.onError("BitD-Alt.RadioToggle", error, {
+        msg: "[BitD-Alt]",
+        log: "error",
+        notify: null,
+        data: { fieldName, newValue, actorId: this.actor.id }
+      });
+
+      ui.notifications.error("[BitD-Alt] Failed to save change.", {
+        console: false
+      });
+
+      // Re-render to reset UI to database state
+      this.render(false);
     }
   }
 
@@ -954,6 +1093,43 @@ export class BladesAlternateActorSheet extends BladesSheet {
     super.activateListeners(html);
 
     this.addTermTooltips(html);
+
+    html.find('[data-action="toggle-filter"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      const target = ev.currentTarget?.dataset?.filterTarget;
+      if (target === "abilities") {
+        const next = !this.showFilteredAbilities;
+        this.setLocalProp("showFilteredAbilities", next);
+        Utils.saveUiState(this, { showFilteredAbilities: next });
+      } else if (target === "items") {
+        const next = !this.showFilteredItems;
+        this.setLocalProp("showFilteredItems", next);
+        Utils.saveUiState(this, { showFilteredItems: next });
+      } else if (target === "acquaintances") {
+        const next = !this.showFilteredAcquaintances;
+        this.setLocalProp("showFilteredAcquaintances", next);
+        Utils.saveUiState(this, { showFilteredAcquaintances: next });
+      }
+    });
+
+    html.find('[data-action="toggle-section-collapse"]').off("click").on("click", (ev) => {
+      ev.preventDefault();
+      const sectionKey = ev.currentTarget?.dataset?.sectionKey;
+      if (!sectionKey) return;
+      const section = ev.currentTarget.closest(".section-block");
+      if (!section) return;
+      const icon = ev.currentTarget.querySelector("i");
+      const isCollapsed = section.classList.toggle("collapsed");
+      if (icon) {
+        icon.classList.toggle("fa-caret-right", isCollapsed);
+        icon.classList.toggle("fa-caret-down", !isCollapsed);
+      }
+      this.collapsedSections = {
+        ...(this.collapsedSections || {}),
+        [sectionKey]: isCollapsed,
+      };
+      Utils.saveUiState(this, { collapsedSections: this.collapsedSections });
+    });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
@@ -977,44 +1153,49 @@ export class BladesAlternateActorSheet extends BladesSheet {
       document.execCommand("insertText", false, text);
     });
 
+    // Prevent multi-line edits in inline fields (Bio, Name, etc.)
+    html.find('*[contenteditable="true"]').on("keydown", (e) => {
+      // If Enter is pressed
+      if (e.which === 13) {
+        e.preventDefault();
+        $(e.target).blur(); // Trigger save on blur
+      }
+    });
+
     html.on("click", "button.clearLoad", async (e) => {
       e.preventDefault();
       await this.clearLoad();
     });
-    html.find("img.clockImage").on("click", async (e) => {
-      let entity = await fromUuid(e.currentTarget.dataset.uuid);
-      let currentValue = entity.system.value;
-      let currentMax = entity.system.type;
-      if (currentValue < currentMax) {
-        currentValue++;
-        await entity.update({ system: { value: currentValue } });
-        this.render();
-      }
-    });
-    html.find("img.clockImage").on("contextmenu", async (e) => {
-      let entity = await fromUuid(e.currentTarget.dataset.uuid);
-      let currentValue = entity.system.value;
-      let currentMax = entity.system.type;
-      if (currentValue > 0) {
-        currentValue = currentValue - 1;
-        await entity.update({ system: { value: currentValue } });
-        this.render();
-      }
-    });
-    html
-      .find("input.radio-toggle, label.radio-toggle")
-      .click((e) => e.preventDefault());
-    html.find("input.radio-toggle, label.radio-toggle").mousedown((e) => {
-      this._onRadioToggle(e);
-    });
+
+    // NOTE: Clock controls are handled globally by setupGlobalClockHandlers() in hooks.js
+
+    // Use namespaced events with .off() to prevent handler stacking on re-render
+    html.find("input.radio-toggle, label.radio-toggle")
+      .off("click.radioToggle mousedown.radioToggle")
+      .on("click.radioToggle", (e) => e.preventDefault())
+      .on("mousedown.radioToggle", (e) => {
+        this._onRadioToggle(e);
+      });
 
     html.find(".inline-input").on("keyup", async (ev) => {
-      let input = ev.currentTarget.previousSibling;
-      input.value = ev.currentTarget.innerText;
+      const input = ev.currentTarget.previousSibling;
+      if (!input) return;
+      const text = ev.currentTarget.innerText ?? "";
+      input.value = text.trim().length === 0 ? "" : text;
     });
 
     html.find(".inline-input").on("blur", async (ev) => {
-      let input = ev.currentTarget.previousSibling;
+      const input = ev.currentTarget.previousSibling;
+      if (!input) return;
+      const placeholder = ev.currentTarget.dataset.placeholder ?? "";
+      const text = ev.currentTarget.innerText ?? "";
+      const trimmed = text.trim();
+      if (trimmed.length === 0) {
+        ev.currentTarget.innerText = placeholder;
+        input.value = "";
+      } else {
+        input.value = text;
+      }
       $(input).change();
     });
 
@@ -1057,28 +1238,25 @@ export class BladesAlternateActorSheet extends BladesSheet {
           abilityName
         );
         if (!deletionId) return;
-        await this.actor.deleteEmbeddedDocuments("Item", [deletionId]);
+        await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [deletionId], { render: false }));
         if (abilityBlock) abilityBlock.dataset.abilityOwnedId = "";
       } else {
         if (!this.actor.items.get(targetId)) return;
-        await this.actor.deleteEmbeddedDocuments("Item", [targetId]);
+        await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [targetId], { render: false }));
       }
 
       element.slideUp(200, () => this.render(false));
     });
 
-    html.find(".toggle-allow-edit").click(async (event) => {
-      event.preventDefault();
-      this.setLocalProp("allow_edit", !this.allow_edit);
-    });
+    Utils.bindAllowEditToggle(this, html);
 
     html.find(".toggle-alias-display").click(async (event) => {
       event.preventDefault();
-      this.actor.setFlag(
+      await queueUpdate(() => this.actor.setFlag(
         "bitd-alternate-sheets",
         "showAliasInDirectory",
         !this.actor.getFlag("bitd-alternate-sheets", "showAliasInDirectory")
-      );
+      ));
     });
 
     const crewSelector = html.find('[data-action="select-crew"]');
@@ -1103,21 +1281,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
       const crewId = event.currentTarget?.dataset?.crewId ?? "";
       await this._openCrewSheetById(crewId);
-    });
-
-    html.find(".item-block .main-checkbox").change((ev) => {
-      let checkbox = ev.target;
-      let itemId = checkbox.closest(".item-block").dataset.itemId;
-      let item = this.actor.items.get(itemId);
-      if (item) {
-        return item.update({ system: { equipped: checkbox.checked } });
-      }
-    });
-
-    html.find(".item-block .child-checkbox").click((ev) => {
-      let checkbox = ev.target;
-      let $main = $(checkbox).siblings(".main-checkbox");
-      $main.trigger("click");
     });
 
     html.find(".ability-checkbox").change(async (ev) => {
@@ -1157,24 +1320,109 @@ export class BladesAlternateActorSheet extends BladesSheet {
       checkboxList.forEach((el) => el.setAttribute("disabled", "disabled"));
 
       try {
-        if (!hadProgress && willHaveProgress) {
-          await Utils.toggleOwnership(true, this.actor, "ability", abilityId);
-        } else if (hadProgress && !willHaveProgress) {
-          const targetId = abilityOwnedId || abilityId;
-          await Utils.toggleOwnership(false, this.actor, "ability", targetId);
+        await Profiler.time(
+          "abilityToggle",
+          async () => {
+            if (!hadProgress && willHaveProgress) {
+              await Utils.toggleOwnership(true, this.actor, "ability", abilityId);
+            } else if (hadProgress && !willHaveProgress) {
+              const targetId = abilityOwnedId || abilityId;
+              await Utils.toggleOwnership(false, this.actor, "ability", targetId);
+            }
+
+            abilityBlock.dataset.abilityProgress = String(targetProgress);
+            if (abilityKey) {
+              await Utils.updateAbilityProgressFlag(
+                this.actor,
+                abilityKey,
+                targetProgress
+              );
+            }
+
+            checkboxList.forEach((el) => {
+              const slot = Number(el.dataset.abilitySlot) || 1;
+              const shouldCheck = slot <= targetProgress;
+              el.checked = shouldCheck;
+              if (shouldCheck) {
+                el.setAttribute("checked", "checked");
+              } else {
+                el.removeAttribute("checked");
+              }
+            });
+
+            const ownedIdAfterUpdate = this._findOwnedAbilityId(abilityName);
+            abilityBlock.dataset.abilityOwnedId = ownedIdAfterUpdate || "";
+          },
+          {
+            actorId: this.actor.id,
+            abilityId,
+            abilityName,
+            targetProgress,
+            hadProgress,
+            willHaveProgress,
+          }
+        );
+      } finally {
+        checkboxList.forEach((el) => el.removeAttribute("disabled"));
+      }
+    });
+
+    html.find(".item-checkbox").change(async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      const checkboxEl = ev.currentTarget;
+      const itemBlock = checkboxEl.closest(".item-block");
+      if (!itemBlock) return;
+
+      const itemId = itemBlock.dataset.itemId;
+      const itemName = itemBlock.dataset.itemName || "";
+
+      // Get load from data attribute, falling back to looking up the item
+      let itemLoad;
+      const rawLoad = itemBlock.dataset.itemLoad;
+      if (rawLoad !== "" && rawLoad !== undefined) {
+        itemLoad = Number(rawLoad);
+        if (Number.isNaN(itemLoad)) itemLoad = 1;
+      } else {
+        // Fallback: look up item to get actual load value
+        const item = await Utils.getItemByType("item", itemId);
+        itemLoad = Number(item?.system?.load) || 1;
+      }
+
+      // For checkbox display/interaction, use at least 1 slot
+      const effectiveSlots = Math.max(itemLoad, 1);
+      const previousProgress = Number(itemBlock.dataset.itemProgress) || 0;
+
+      // Binary toggle: if any checked → uncheck all, if none checked → check all
+      const targetProgress = previousProgress > 0 ? 0 : effectiveSlots;
+
+      const checkboxList = Array.from(itemBlock.querySelectorAll(".item-checkbox"));
+      checkboxList.forEach((el) => el.setAttribute("disabled", "disabled"));
+
+      try {
+        // Update equipped-items flag with progress
+        if (targetProgress > 0) {
+          await queueUpdate(() => this.actor.update({
+            [`flags.bitd-alternate-sheets.equipped-items.${itemId}`]: {
+              id: itemId,
+              load: itemLoad,
+              name: itemName,
+              progress: targetProgress
+            }
+          }, { render: false }));
+          itemBlock.classList.add("owned");
+        } else {
+          await queueUpdate(() => this.actor.update({
+            [`flags.bitd-alternate-sheets.equipped-items.-=${itemId}`]: null
+          }, { render: false }));
+          itemBlock.classList.remove("owned");
         }
 
-        abilityBlock.dataset.abilityProgress = String(targetProgress);
-        if (abilityKey) {
-          await Utils.updateAbilityProgressFlag(
-            this.actor,
-            abilityKey,
-            targetProgress
-          );
-        }
-
+        // Update data attribute and checkboxes
+        itemBlock.dataset.itemProgress = String(targetProgress);
         checkboxList.forEach((el) => {
-          const slot = Number(el.dataset.abilitySlot) || 1;
+          const slot = Number(el.dataset.itemSlot) || 1;
           const shouldCheck = slot <= targetProgress;
           el.checked = shouldCheck;
           if (shouldCheck) {
@@ -1184,47 +1432,45 @@ export class BladesAlternateActorSheet extends BladesSheet {
           }
         });
 
-        const ownedIdAfterUpdate = this._findOwnedAbilityId(abilityName);
-        abilityBlock.dataset.abilityOwnedId = ownedIdAfterUpdate || "";
+        // Optimistically update loadout display (avoid full re-render)
+        const loadDelta = targetProgress - previousProgress;
+        const loadDisplay = this.element.find(".load-amounts");
+        if (loadDisplay.length && loadDelta !== 0) {
+          const [currentText, maxText] = loadDisplay.text().split("/");
+          const currentLoadout = Number(currentText) || 0;
+          const maxLoad = Number(maxText) || 0;
+          const newLoadout = Math.max(0, Math.min(currentLoadout + loadDelta, 10));
+
+          loadDisplay.text(`${newLoadout}/${maxLoad}`);
+          loadDisplay.removeClass("at-max over-max");
+          if (newLoadout === maxLoad) {
+            loadDisplay.addClass("at-max");
+          } else if (newLoadout > maxLoad) {
+            loadDisplay.addClass("over-max");
+          }
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+        Hooks.onError("BitD-Alt.ItemToggle", error, {
+          msg: "[BitD-Alt]",
+          log: "error",
+          notify: null,
+          data: { itemId, targetProgress, actorId: this.actor.id }
+        });
+
+        ui.notifications.error("[BitD-Alt] Failed to update item.", {
+          console: false
+        });
+
+        this.render(false);
       } finally {
         checkboxList.forEach((el) => el.removeAttribute("disabled"));
       }
     });
 
-    html.find(".item-block .main-checkbox").change(async (ev) => {
-      let checkbox = ev.target;
-      let item_id = checkbox.closest(".item-block").dataset.itemId;
-      await Utils.toggleOwnership(
-        checkbox.checked,
-        this.actor,
-        "item",
-        item_id
-      );
-    });
-
     //this could probably be cleaner. Numbers instead of text would be fine, but not much easier, really.
-    html.find(".standing-toggle").click((ev) => {
-      let acquaintances = this.actor.system.acquaintances;
-      let acqId = ev.target.closest(".acquaintance").dataset.acquaintance;
-      let clickedAcqIdx = acquaintances.findIndex((item) => item.id == acqId);
-      let clickedAcq = acquaintances[clickedAcqIdx];
-      let oldStanding = clickedAcq.standing;
-      let newStanding;
-      switch (oldStanding) {
-        case "friend":
-          newStanding = "rival";
-          break;
-        case "rival":
-          newStanding = "neutral";
-          break;
-        case "neutral":
-          newStanding = "friend";
-          break;
-      }
-      clickedAcq.standing = newStanding;
-      acquaintances.splice(clickedAcqIdx, 1, clickedAcq);
-      this.actor.update({ system: { acquaintances: acquaintances } });
-    });
+    Utils.bindStandingToggles(this, html);
 
     $(document).click((ev) => {
       let render = false;
@@ -1313,13 +1559,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
                 .val();
               newTrauma = newTrauma.replace("BITD.Trauma", "");
               newTrauma = newTrauma.toLowerCase();
+              // No-op check: skip if trauma already exists
+              if (this.actor.system.trauma?.list?.[newTrauma]) return;
               let newTraumaListValue = {
                 system: {
                   trauma: this.actor.system.trauma,
                 },
               };
               newTraumaListValue.system.trauma.list[newTrauma] = true;
-              await this.actor.update(newTraumaListValue);
+              await queueUpdate(() => this.actor.update(newTraumaListValue));
             },
           },
           cancel: {
@@ -1338,9 +1586,25 @@ export class BladesAlternateActorSheet extends BladesSheet {
       .find(".effect-control")
       .click((ev) => BladesActiveEffect.onManageActiveEffect(ev, this.actor));
 
-    html.find(".toggle-expand").click((ev) => {
+    // super.activateListeners(html); // Removed duplicate
+    // if (!this.options.editable) return; // Removed duplicate
+
+    html.find('[data-action="smart-edit"]').click(this._handleSmartEdit.bind(this));
+    html.find('[data-action="smart-item-selector"]').click((e) => Utils.handleSmartItemSelector(e, this.actor));
+
+    html.find(".crew-name").click((event) => {
+      const crewId = event.currentTarget.dataset.crewId;
+      this._openCrewSheetById(crewId);
+    });
+
+    html.find(".toggle-expand").click((event) => {
       if (!this._element.hasClass("can-expand")) {
-        this.setPosition({ height: 275 });
+        // Compute height to show through bottom of minimized-view
+        const minimizedView = html.find('.minimized-view')[0];
+        const appRect = this._element[0].getBoundingClientRect();
+        const viewRect = minimizedView.getBoundingClientRect();
+        const targetHeight = viewRect.bottom - appRect.top;
+        this.setPosition({ height: targetHeight });
         this._element.addClass("can-expand");
       } else {
         this.setPosition({ height: "auto" });
@@ -1367,6 +1631,159 @@ export class BladesAlternateActorSheet extends BladesSheet {
   _getAvailableCrewActors() {
     if (!game?.actors) return [];
     return game.actors.filter((actor) => actor?.type === "crew");
+  }
+
+  /**
+   * Handle Smart Edit (Text or Compendium Picker)
+   * @param {Event} event
+   */
+  async _handleSmartEdit(event) {
+    event.preventDefault();
+    const target = event.currentTarget;
+    const field = target.dataset.field;
+    const header = target.dataset.header;
+    const initialValue = target.dataset.value || "";
+    const source = target.dataset.source || "compendium_item";
+    const filterField = target.dataset.filterField || "";
+    const filterValue = target.dataset.filterValue || "";
+
+    // 1. Determine Items
+    let availableItems = [];
+
+    // Mode A: Actor Source (NPCs)
+    if (source === "actor") {
+      availableItems = await Utils.getFilteredActors(
+        "npc", // Hardcoded type 'npc' for now
+        filterField,
+        filterValue
+      );
+
+      // Advanced Filtering: Vice Purveyor specific logic
+      if (filterValue === "Vice Purveyor") {
+        const currentVice = this.actor.system.vice; // Ensure we read from the actor data
+        if (currentVice && typeof currentVice === "string" && currentVice.trim().length > 0) {
+          const viceKey = currentVice.toLowerCase().trim();
+          availableItems = availableItems.filter(npc => {
+            const keywords = (npc.system.associated_crew_type || "").toLowerCase();
+            return keywords.includes(viceKey);
+          });
+        }
+      }
+
+      // If source is actor, we ALWAYS show the dialog, even if empty, to show "No Results"
+      // instead of falling back to text input which is confusing.
+      // But openCardSelectionDialog anticipates items. If 0 items, it might just render an empty list.
+      // Let's ensure we return early here if source was actor, regardless of count.
+      if (availableItems) { // Check if defined (it is [] if empty)
+        // ...
+      }
+    }
+    // Mode B: Compendium Source (Default)
+    else {
+      // Map fields to Item Types
+      const typeMap = {
+        "system.heritage": "heritage",
+        "system.background": "background",
+        "system.vice": "vice"
+      };
+      const type = typeMap[field];
+
+      if (type) {
+        availableItems = await Utils.getSourcedItemsByType(type);
+      }
+    }
+
+    // 2. Check if we should open the card selector
+    // We open it if we found items OR if we are in Actor mode (to show "No Results" instead of fallback)
+    if ((availableItems && availableItems.length > 0) || source === "actor") {
+      // 2. Prepare Choices
+      const choices = (availableItems || []).map((i) => ({
+        value: i.name || i._id,
+        label: i.name,
+        img: i.img || "icons/svg/mystery-man.svg",
+        description: i.system?.description ?? "",
+      }));
+
+      // 3. Open Chooser
+      const result = await openCardSelectionDialog({
+        title: `${game.i18n.localize("bitd-alt.Select")} ${header}`,
+        instructions: `Choose a ${header} from the list below.`,
+        okLabel: game.i18n.localize("bitd-alt.Select") || "Select",
+        cancelLabel: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
+        clearLabel: game.i18n.localize("bitd-alt.Clear") || "Clear",
+        choices: choices,
+        currentValue: initialValue,
+      });
+
+      if (result === undefined) return; // Cancelled
+
+      const updateValue = result === null ? "" : result;
+
+      try {
+        await safeUpdate(this.actor, { [field]: updateValue });
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+        Hooks.onError("BitD-Alt.SmartEdit", error, {
+          msg: "[BitD-Alt]",
+          log: "error",
+          notify: null,
+          data: { field, header, actorId: this.actor.id }
+        });
+
+        ui.notifications.error(`[BitD-Alt] Failed to update ${header}.`, {
+          console: false
+        });
+      }
+      return; // Stop here, do not fall through to text input
+    }
+
+
+    // Default: Text Input Mode
+    const content = `
+      <form>
+        <div class="form-group">
+          <label>${header}</label>
+          <input type="text" name="value" value="${initialValue}" autofocus/>
+        </div>
+      </form>
+      `;
+
+    new Dialog({
+      title: `${game.i18n.localize("bitd-alt.Edit")} ${header}`,
+      content: content,
+      buttons: {
+        save: {
+          label: game.i18n.localize("bitd-alt.Ok") || "Ok",
+          icon: '<i class="fas fa-check"></i>',
+          callback: async (html) => {
+            const newValue = html.find('[name="value"]').val();
+
+            try {
+              await safeUpdate(this.actor, { [field]: newValue });
+            } catch (err) {
+              const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+              Hooks.onError("BitD-Alt.SmartEdit", error, {
+                msg: "[BitD-Alt]",
+                log: "error",
+                notify: null,
+                data: { field, header, actorId: this.actor.id }
+              });
+
+              ui.notifications.error(`[BitD-Alt] Failed to update ${header}.`, {
+                console: false
+              });
+            }
+          }
+        },
+        cancel: {
+          label: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
+          icon: '<i class="fas fa-times"></i>'
+        }
+      },
+      default: "save"
+    }).render(true);
   }
 
   async _handleCrewFieldClick() {
@@ -1446,7 +1863,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     if (!normalized) {
       if (systemCrewEntries.length === 0) return;
-      await this.actor.update({ system: { crew: [] } });
+      await queueUpdate(() => this.actor.update({ system: { crew: [] } }));
       return;
     }
 
@@ -1484,7 +1901,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     const needsUpdate =
       currentCrewId !== crewEntry.id || !foundry.utils.isEmpty(diff);
     if (needsUpdate) {
-      await this.actor.update({ system: { crew: nextCrewList } });
+      await queueUpdate(() => this.actor.update({ system: { crew: nextCrewList } }));
     }
   }
 

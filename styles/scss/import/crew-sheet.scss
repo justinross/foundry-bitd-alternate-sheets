@@ -1,17 +1,19 @@
-$coin_size: 15px;
-$coin_margin: 3px;
-
-@import 'coins.scss';
+@use "../variables" as *;
+@use "../mixin" as *;
+@use "./coins" as coins;
+@use "sass:color";
+@use "_identity"; // Import shared identity styling as coins;
+@use "./acquaintances";
+@use "./character-sheet" as *; // for shared partial styles
 
 .item {
-
   justify-content: space-between;
 
   .item-body {
-
     margin-bottom: 10px;
+
     * {
-      margin-right: 10px;
+      margin-right: 0; // Removed 10px per user request
     }
 
     .item-description {
@@ -23,9 +25,11 @@ $coin_margin: 3px;
   div {
     flex-grow: 2;
   }
+
   .item-control {
     flex-grow: 1;
   }
+
   .item-body,
   .item-class-label {
     width: 100px;
@@ -37,33 +41,25 @@ $coin_margin: 3px;
 }
 
 #name,
-#lair,
-{
+#lair {
   margin-bottom: 10px;
 }
 
 form {
   &.actor-sheet {
-    padding: 20px;
+    padding: 5px 0 5px 5px; // Less on right to account for scrollbar-gutter
   }
 }
 
-nav{
+nav {
   padding-bottom: 10px;
 }
 
 
-// Crew Coins
-.crew-coins {
-  @include custom_radio_square($coin_size);
-  flex-wrap: wrap;
-  max-width: 4 * ($coin_size + $coin_margin);
 
-  label {
-    margin-right: $coin_margin;
-    margin-bottom: $coin_margin;
-  }
-}
+// Crew Coins
+// Use shared coins mixin (size/margin tuned for crew coin chips)
+@include coins.coins($size: 15px, $margin: 3px, $wrap-width: 4 * (15px + 3px));
 
 
 // Reputation
@@ -71,7 +67,7 @@ nav{
   border-top: 3px solid $almost_black;
   @include toothradio(17px, 50px, "assets/teeth/stresstooth-halfgrey.png", "assets/teeth/stresstooth-red.png");
 
-  input[disabled="disabled"] + label {
+  input[disabled="disabled"]+label {
     background-image: url(assets/teeth/stresstooth-black.png);
   }
 }
@@ -84,7 +80,6 @@ nav{
 }
 
 #turf-list {
-
   display: flex;
   flex-direction: column;
   width: 855px;
@@ -97,6 +92,7 @@ nav{
     *:first-child {
       margin-left: 0px;
     }
+
     *:last-child {
       margin-right: 0px;
     }
@@ -116,33 +112,39 @@ nav{
 }
 
 #crew-hold {
-  border-top: 3px solid $almost_black;
   @include toothradio_single(17px, 50px, "assets/teeth/stresstooth-halfgrey.png", "assets/teeth/stresstooth-red.png");
-  width: 221px;
+
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: auto;
 }
 
 #crew-tier {
-
   background-color: $gray;
   height: 33px;
   width: 145px;
   display: flex;
   align-items: center;
-  border-top: 3px solid $almost_black;
 
   @include custom_radio_round(18px, gray, $almost_white, $almost_black);
 
-  > * {
+  >* {
     margin-right: 5px;
   }
 
 }
 
+#crew-hold label {
+  margin-right: 0;
+}
+
 #heat-wanted {
-  //justify-content: none;
-  .small-teeth{
+
+  .small-teeth {
     height: 20px;
-    label{
+
+    label {
       height: 100%;
       width: 100%;
       cursor: default;
@@ -171,7 +173,7 @@ nav{
 
     &:checked {
 
-      & + label {
+      &+label {
         color: $red;
       }
 
@@ -193,24 +195,24 @@ nav{
   .cohort-block-wrapper {
     width: 400px;
   }
+
   .label-stripe {
     margin-bottom: 0px;
   }
 
   .cohort-body {
-    > div {
+    >div {
       margin-bottom: 10px;
     }
   }
 
   .cohort-block-harm {
-
     justify-content: space-around;
 
     input[type="radio"] {
       display: none;
 
-      &:checked + label {
+      &:checked+label {
         color: $almost_white;
         font-weight: bold;
         background-color: $almost_black;
@@ -248,14 +250,13 @@ nav{
 }
 
 .big-teeth-section {
-
   border-top: 3px solid $almost_black;
   display: flex;
   flex-direction: row;
   margin-bottom: 0px;
 
-  > * {
-    margin-right: 10px;
+  >* {
+    margin-right: 0; // Removed 10px per user request
 
     &:last-child {
       margin-right: 0px;
@@ -276,6 +277,7 @@ nav{
 
     .small-teeth-wrap {
       @include toothradio(17px, 50px, "assets/teeth/shorttooth-grey.png", "assets/teeth/shorttooth-red.png", false);
+
       flex-direction: column;
 
       .small-teeth {
@@ -287,6 +289,7 @@ nav{
 
   #trauma-list {
     @include check_underscore();
+
     justify-content: space-between;
     align-items: flex-start;
   }
@@ -295,4 +298,889 @@ nav{
 
 header {
   margin-bottom: 10px;
+}
+
+// Abilities/upgrades list container styling
+.ability-list.check-list {
+  background: var(--alt-light); // match alt abilities section
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ability-list {
+  margin: 0;
+  width: 100%;
+}
+
+.contacts-actions,
+.add-item-row {
+  margin-bottom: 0.5em;
+}
+
+// Hover style removed - handled by _identity.scss
+
+.crew-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.3em;
+
+  .meta-value {
+    font-style: italic;
+    min-width: 200px;
+
+    input {
+      font-style: italic;
+      font-family: inherit;
+      font-size: inherit;
+      border: none;
+      background: rgba(255, 255, 255, 0.5);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--alt-radius-sm);
+      min-width: 200px;
+      width: 100%;
+
+      &:focus {
+        outline: 2px solid var(--alt-blue);
+        background: rgba(255, 255, 255, 0.8);
+      }
+    }
+  }
+
+  .hunting-grounds,
+  .crew-reputation-items {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .hunting-grounds .item-delete,
+  .hunting-grounds .item-add-popup,
+  .crew-reputation-items .item-delete,
+  .crew-reputation-items .item-add-popup {
+    display: none;
+  }
+
+  .crew-reputation-items .item {
+    // background: rgba(0, 0, 0, 0.05); // Removed per user request
+    // border-radius: 6px; // Removed
+    // padding: 2px 6px; // Removed to match Hunting Grounds
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    // transition: box-shadow 0.15s ease, filter 0.15s ease; // Removed
+
+    .item-delete {
+      @include editable-style; // Ensure delete icon interacts nicely?
+      // actually, just default icon behavior is fine.
+    }
+  }
+}
+
+// Adaptive Visibility for Lists
+.sheet-wrapper:not(.allow-edit) .list-meta-line .meta-label {
+  display: none;
+}
+
+.sheet-wrapper.allow-edit .crew-meta-line {
+
+  .hunting-grounds .item-delete,
+  .hunting-grounds .item-add-popup,
+  .crew-reputation-items .item-delete,
+  .crew-reputation-items .item-add-popup {
+    display: inline-flex;
+  }
+}
+
+// Claims / turf styling overrides
+.turf-list {
+  --turf-bg: #d8d8d8;
+  --turf-bg-selected: var(--alt-mid);
+  --turf-checkbox-size: 1em;
+
+  .turf-block {
+    background-color: var(--turf-bg);
+
+    &.turf-selected {
+      background-color: var(--turf-bg-selected);
+    }
+
+    .connector {
+      background-color: var(--turf-bg);
+    }
+
+    &.turf-selected .connector {
+      background-color: var(--turf-bg-selected);
+    }
+
+    .turf-control {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--turf-checkbox-size);
+      height: var(--turf-checkbox-size);
+      padding: 0;
+      margin: 0;
+      z-index: 2;
+
+      input.turf-select[type="checkbox"] {
+        width: var(--turf-checkbox-size);
+        height: var(--turf-checkbox-size);
+        margin: 0;
+        padding: 0;
+        display: block;
+      }
+    }
+  }
+}
+
+// Crew sheet layout and teeth overrides aligned with the alt PC sheet
+.sheet-wrapper .minimized-view {
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  .character-portrait {
+    margin-bottom: -35px;
+    position: relative;
+
+    &.row {
+      align-items: flex-start;
+    }
+
+    .portrait {
+      border-radius: 100px;
+      overflow: hidden;
+      border: 6px solid var(--alt-mid);
+      width: 200px;
+      height: 200px;
+      position: relative;
+      top: -10px;
+
+      >img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        overflow: hidden;
+        border: 0;
+        border-radius: 50%;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
+      }
+    }
+  }
+
+  .character-info {
+    padding-left: 20px;
+
+    .name-alias {
+      font-family: Kirsty, serif;
+      font-size: 2em;
+      line-height: 1em;
+      margin-bottom: 0.2em;
+    }
+
+    .bio {
+      font-family: "Crimson Text", serif;
+      font-size: 1.2em;
+    }
+  }
+}
+
+.crew-identity-block {
+  grid-row: 1;
+  grid-column: 2;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding-left: 1em;
+  position: relative; // For sheet-toggles positioning
+
+  // Toggle styles now in general-styles.scss
+
+  // .name-line removed; replaced by .identity-header from _identity.scss
+
+
+  .crew-meta-line {
+    @extend .identity-meta-row;
+    // Local overrides if absolutely necessary, but try to avoid them.
+    // .meta-label and .meta-value are handled in _identity.scss
+  }
+
+  // .meta-value handled by _identity.scss
+}
+
+// Editable state indicators for inputs
+@at-root .sheet-wrapper.allow-edit .crew-identity-block .crew-meta-line {
+
+  // Target the inline-input span generated by the helper
+  .inline-input {
+    @include editable-style;
+  }
+}
+
+// Teeth styling / layout
+.big-teeth,
+.small-teeth {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.heat-wanted-row .big-teeth,
+.xp-coins-row .big-teeth {
+  border-top: 3px solid var(--alt-dark);
+  padding-top: 0;
+  margin-top: 0;
+  width: fit-content;
+  flex: 0 0 auto;
+}
+
+.big-teeth,
+.rep-turf-row .crew-reputation {
+  @include teeth-track(35px,
+    12px,
+    "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png",
+    "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png"
+  );
+}
+
+.crew-reputation input[disabled]+label.radio-toggle {
+  background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-black.png");
+}
+
+.small-teeth-wrap {
+  @include teeth-track(35px,
+    12px,
+    "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png",
+    "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png"
+  );
+}
+
+.teeth-row {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+
+  &.hold-tier-row {
+    gap: 0;
+  }
+}
+
+.small-teeth-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.small-teeth-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.rep-turf-row .crew-reputation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.xp-coins-row {
+  gap: var(--space-2);
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.coins-block {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.portrait-xp {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+
+  .crew-xp-clock {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .black-label {
+      min-width: 80px;
+    }
+  }
+
+  .portrait-xp-track {
+    width: 100%;
+    flex: 0 0 auto;
+
+    &.big-teeth {
+      border-top: 3px solid var(--alt-dark);
+      padding-top: 0;
+      margin-top: 0;
+      width: fit-content;
+      flex: 0 0 auto;
+    }
+  }
+}
+
+.portrait-coins {
+  width: 100%;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.crew-coins {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15px, max-content));
+  column-gap: 3px;
+  row-gap: 3px;
+  align-items: center;
+
+  label.radio-toggle {
+    flex-shrink: 0;
+    margin: 0;
+  }
+}
+
+.portrait-coins-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.coins-grid {
+  /* Coin layout for crew sheet */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  column-gap: 0;
+  row-gap: 6px;
+  align-items: start;
+}
+
+.coins-grid .coin-group {
+  --coin-size: 15px;
+  --coin-gap: 3px;
+
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: max-content;
+}
+
+.coins-grid .vault-group {
+  // 12 boxes + 11 gaps + two grouping offsets (5th and 9th)
+  width: calc(12 * var(--coin-size) + 11 * var(--coin-gap) + 20px + 12px);
+}
+
+.coins-grid .coin-group .coins-label {
+  width: 100%;
+  padding: 2px 10px;
+  text-align: left;
+}
+
+.coins-grid .coin-group .crew-coins {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: var(--coin-gap);
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.coins-grid .vault-group .crew-coins {
+  margin-left: 12px;
+}
+
+.coins-grid .vault-group .crew-coins label:nth-of-type(5),
+.coins-grid .vault-group .crew-coins label:nth-of-type(9) {
+  margin-left: 10px;
+}
+
+.hold-tier-row {
+  flex-wrap: nowrap;
+  border-top: 3px solid $almost_black;
+
+  .gray-label {
+    padding-right: 0;
+  }
+
+  .crew-hold>.flex-horizontal {
+    justify-content: flex-start;
+    gap: 0;
+  }
+}
+
+.crew-hold,
+.crew-tier {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0;
+  align-items: flex-start;
+  flex-shrink: 0;
+  min-width: fit-content;
+}
+
+.crew-tier {
+  align-items: center;
+  align-self: flex-start;
+  margin-left: 0;
+}
+
+.crew-hold {
+  margin-right: 0;
+}
+
+// Header layout / visuals
+// .crew-header removed from HTML - grid moved to .crew-upper-frame
+// .crew-header {
+//   margin-bottom: 1rem;
+//   display: grid;
+//   grid-template-columns: minmax(0, 27fr) minmax(0, 73fr);
+//   grid-template-rows: auto auto;
+//   grid-auto-rows: auto;
+//   gap: 12px;
+//   align-items: stretch;
+//   width: 100%;
+//   max-width: var(--alt-max-tabs);
+//   margin-left: auto;
+//   margin-right: auto;
+//   flex: 1 1 auto;
+// }
+
+.crew-upper-frame {
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  margin: 0; // Left align per user request
+  display: grid;
+  grid-template-columns: 220px 1fr; // Fixed portrait column + fluid content
+  grid-template-rows: min-content min-content; // Auto height for rows
+  grid-template-areas:
+    "portrait identity"
+    "portrait stats";
+  gap: 12px;
+  align-items: start; // Top align content
+}
+
+.character-portrait.crew-left {
+  grid-area: portrait;
+}
+
+.character-info.crew-top-right {
+  grid-area: identity;
+}
+
+.crew-stats-grid.crew-bottom-right {
+  grid-area: stats;
+}
+
+
+// Portrait Styling
+.crew-upper-frame .character-portrait {
+  // Use grid positioning (handled by grid-area: portrait)
+  // grid-row: 1; -> OBSOLETE
+  // grid-column: 1; -> OBSOLETE
+  align-self: stretch;
+  justify-self: stretch;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center; // Ensure centering
+  justify-content: flex-start; // Pack items at the top to prevent spreading
+  gap: 0; // Remove any gap that might interfere with margins
+  margin-bottom: -35px; // Mimic PC sheet's layout squeeze exactly
+
+
+
+  // New Portrait Styling (Adapted from Character Sheet)
+  .portrait {
+    border-radius: 50%; // Perfect circle
+    overflow: hidden;
+    border: 6px solid var(--alt-mid);
+    box-sizing: border-box; // Ensure border is included in width for sizing
+    width: 100%; // Fill the grid column (touch edges)
+    height: auto; // Maintain aspect ratio
+    min-width: 0; // Allow shrinking if needed
+    min-height: 0;
+    top: -10px; // Mimic character sheet lifted look
+    aspect-ratio: 1 / 1; // Force 1:1 aspect ratio to avoid squashing
+    flex: 0 0 auto; // Prevent flex shrinking
+    position: relative;
+    margin: 0 auto; // Center the portrait horizontally
+    z-index: 0;
+
+    >img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      overflow: hidden;
+      border: 0;
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
+    }
+  }
+
+  .stress-trauma-box {
+    width: 100%;
+    position: relative;
+    bottom: 45px; // Increased overlap per feedback
+    margin-bottom: 0px; // Reset margin to let flow handle it, or adjust if needed.
+    margin-top: 0; // Reset margin-top
+    z-index: 10; // Ensure it sits on top of the portrait
+
+    .stress-bar {
+      position: relative;
+      z-index: 100;
+
+      &.full-bar {
+        @include full-bar-header();
+
+        // Crew Specific: Teeth positioning for XP
+        .stripe-tooth-body {
+          position: absolute;
+          top: 1px;
+          right: 1px;
+
+          // Using teeth-track mixin with crew XP assets if needed, or standard XP assets per character sheet
+          @include teeth-track(25px,
+            10px,
+            "assets/teeth/xptooth-red.png",
+            "assets/teeth/xptooth-white.png",
+            $gap: 3px);
+        }
+      }
+    }
+
+    .trauma-box {
+      padding: 0 0 2px;
+      position: relative;
+      z-index: 1;
+
+      .trauma-list {
+        width: 100%;
+        height: 100%;
+        background-color: $lightgray;
+        color: $almost_black;
+        text-align: center;
+        position: relative;
+        top: -5px;
+        padding-top: 5px;
+        border-radius: 0 0 1em 1em;
+        min-height: 20px; // Ensure it shows even if empty
+      }
+    }
+  }
+}
+
+.crew-upper-frame .crew-header-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-self: stretch;
+  justify-self: stretch;
+  width: 100%;
+}
+
+// .crew-top-right and .crew-bottom-right handled by grid-area definitions above
+
+.crew-header .crew-top-right {
+  grid-row: 1;
+}
+
+.crew-header .crew-bottom-right {
+  grid-row: 2;
+  grid-column: 1 / -1;
+}
+
+// Crew-specific toggle positioning inside identity block
+.crew-identity-block {
+  position: relative;
+}
+
+// Label tweaks
+:is(.black-label, .gray-label) {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: normal;
+}
+
+.crew-coins-container .stripe {
+  font-family: Kirsty, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sheet-wrapper {
+  border-radius: 12px;
+  padding: 8px;
+}
+
+// Tabs styling (rounded grey tabs to match alt vibe)
+nav.tabs {
+  display: flex;
+  gap: 0.5em;
+  padding: 0;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  align-self: flex-start;
+
+  .item {
+    background-color: rgba(187, 187, 187, 0.5); // light alt grey
+    border: 1px solid var(--alt-border);
+    border-bottom: none;
+    border-radius: var(--alt-radius) var(--alt-radius) 0 0;
+    font-family: var(--alt-accent-font);
+    text-transform: capitalize;
+    padding: 4px 8px;
+    font-size: 1.2em;
+    color: var(--alt-ink);
+    white-space: nowrap;
+    transition: filter 0.15s ease, transform 0.15s ease;
+
+    &.active {
+      background-color: var(--alt-light); // darker alt grey
+      color: var(--alt-ink);
+    }
+
+    &:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.tab-content {
+  background: var(--alt-light);
+  /* darker alt grey */
+  border: 1px solid var(--alt-border);
+  border-radius: 0 0 var(--alt-radius) var(--alt-radius);
+  padding: 0 0 8px 0; // remove side padding so lists align to tabs
+  margin-top: -1px;
+  margin-left: 0;
+  width: 100%;
+  max-width: var(--alt-max-tabs);
+  align-self: flex-start;
+}
+
+.tab-content .tab {
+  margin: 0;
+  padding: 0;
+}
+
+.crew-identity-block {
+  // background: var(--alt-tab-mid);
+  // border: 1px solid var(--alt-border);
+  // border-radius: var(--alt-radius);
+  padding: 10px 12px;
+  // box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: none;
+  align-self: flex-start;
+  flex: 0 0 auto;
+
+  .name-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin-bottom: 0;
+
+    .name {
+      font-family: var(--alt-accent-font);
+      font-size: 3em; // match character sheet name size
+      line-height: 0.4em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      align-items: baseline;
+    }
+  }
+
+  .crew-type-pill {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-tight);
+    align-items: baseline;
+
+    .crew-type {
+      background: none;
+      color: var(--alt-ink);
+      padding: 0;
+      border-radius: 0;
+      font-family: var(--alt-accent-font);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: var(--font-display);
+      line-height: var(--line-tight);
+    }
+  }
+}
+
+.crew-stats-grid {
+  display: grid;
+  grid-template-columns: max-content max-content; // Shrink-wrap content per user request
+  grid-auto-rows: auto;
+  column-gap: 14px;
+  row-gap: 12px;
+  // border: 1px solid var(--alt-border);
+  // border-radius: 14px;
+  padding: 0; // Removed 10px 12px
+  // box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: none;
+  align-self: stretch;
+  zoom: 0.85; // Adjusted to 0.9 per user request
+  flex: 1 1 auto;
+  height: auto;
+
+  >.rep-turf-row {
+    grid-column: 1;
+    align-self: start;
+    padding: 0;
+  }
+
+  >.hold-tier-row {
+    grid-column: 2;
+    align-self: start;
+    padding: 0;
+  }
+
+  >.heat-wanted-row {
+    grid-column: 1;
+    align-self: flex-start;
+    padding: 0; // Removed 4px 0
+  }
+
+  >.coins-row {
+    grid-column: 2;
+    align-self: flex-start;
+    padding: 0; // Removed 4px 0
+  }
+
+  .rep-turf-row {
+    display: flex;
+    margin-bottom: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .rep-hold-row .teeth-row {
+    width: 100%;
+    min-width: 0;
+    gap: 10px;
+    align-items: flex-end;
+
+    &.hold-tier-row {
+      gap: 0;
+    }
+  }
+
+  .heat-wanted-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0;
+    align-items: flex-start;
+
+    >* {
+      flex: 1 1 clamp(200px, 32vw, 360px);
+    }
+
+    .crew-wanted-container {
+      flex: 0 0 auto;
+    }
+
+    >.big-teeth {
+      flex: 0 0 auto;
+    }
+  }
+
+  .coins-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: var(--space-1);
+  }
+
+  .teeth-row {
+    border-top: 0;
+    padding-top: 0;
+    margin: 0;
+    flex: 1 1 auto;
+  }
+
+  .big-teeth {
+    align-items: flex-start;
+  }
+
+  @media (width <=960px) {
+    grid-template-columns: 1fr;
+
+    >.rep-hold-row,
+    >.heat-wanted-row,
+    >.coins-row {
+      grid-column: 1;
+    }
+
+    .heat-wanted-row {
+      flex-wrap: wrap;
+
+      >* {
+        flex: 1 1 clamp(220px, 48vw, 400px);
+      }
+    }
+  }
+}
+
+/* Crew-specific tweaks to shared ability styling */
+.ability-list {
+  .ability-block {
+    padding: 5px 5px 5px 10px;
+  }
+}
+
+/* Crew XP notes section */
+.crew-xp-notes {
+  background: $lightgray;
+  font-size: 1.2em;
+  margin-top: 12px;
+
+  p {
+    line-height: 1em;
+    margin-bottom: 0;
+  }
+
+  ul {
+    list-style-type: square;
+    padding-right: 5px;
+    margin-top: 0;
+
+    li {
+      font-style: italic;
+    }
+  }
+
+  header.full-bar {
+    @include full-bar-header($darkgray, $almost_white); // match character XP header font/spacing
+  }
 }

@@ -1,9 +1,54 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { enrichHTML as compatEnrichHTML } from "./compat.js";
 
 export const MODULE_ID = "bitd-alternate-sheets";
 
+import { openCardSelectionDialog } from "./lib/dialog-compat.js";
+import { Profiler } from "./profiler.js";
+
 export class Utils {
+  // ... (previous static methods)
+
+
+  static async getFilteredActors(type, filterPath, filterValue) {
+    // 1. Fetch Candidates (World + Compendium based on settings)
+    const rawList = await Utils.getSourcedItemsByType(type);
+
+    // 2. Filter Candidates
+    const filtered = rawList.filter((a) => {
+      const val = foundry.utils.getProperty(a, filterPath ?? "");
+      // Loose equality to handle potential string/number mismatches, though unlikely for class strings
+      return val === filterValue;
+    });
+
+    // 3. Map to Card Format
+    return filtered.map((actor) => ({
+      _id: actor._id || actor.id,
+      name: actor.name,
+      img: actor.img || actor.prototypeToken?.texture?.src || "icons/svg/mystery-man.svg",
+      type: actor.type,
+      system: {
+        description: Utils.resolveDescription(actor),
+        // Expose potential filtering fields
+        associated_crew_type: actor.system.associated_crew_type || actor.system.recruit_type || "",
+      },
+    }));
+  }
+
+  static resolveDescription(entity) {
+    if (!entity) return "";
+    const system = entity.system || {};
+    // Fallback chain: description_short -> description -> notes -> biography
+    return (
+      system.description_short ||
+      system.description ||
+      system.notes ||
+      system.biography ||
+      ""
+    );
+  }
+
   /**
    * Identifies duplicate items by type and returns a array of item ids to remove
    *
@@ -56,14 +101,21 @@ export class Utils {
     if (!actor || !key) return;
     const normalized = Math.max(0, Number(value) || 0);
 
-    if (normalized <= 1) {
-      await actor.update({
+    const existingProgress = actor.getFlag(MODULE_ID, "multiAbilityProgress") || {};
+    const currentValue = existingProgress?.[key];
+    const isRemoval = normalized <= 1;
+    if ((isRemoval && currentValue === undefined) || (!isRemoval && currentValue === normalized)) {
+      return;
+    }
+
+    if (isRemoval) {
+      await queueUpdate(() => actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null,
-      });
+      }, { render: false }));
     } else {
-      await actor.update({
+      await queueUpdate(() => actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.${key}`]: normalized,
-      });
+      }, { render: false }));
     }
   }
 
@@ -238,7 +290,14 @@ export class Utils {
         });
     }
 
-    let pack = game.packs.find((e) => e.metadata.name === item_type);
+    // Handle pluralization for pack lookup
+    const packName = item_type === "npc" ? "npcs" : item_type;
+    // Try explicit ID first, then generic name search
+    let pack = game.packs.get("blades-in-the-dark." + packName) ||
+      game.packs.get("blades-in-the-dark." + item_type) ||
+      game.packs.find((e) => e.metadata.name === packName) ||
+      game.packs.find((e) => e.metadata.name === item_type);
+
     if (pack && typeof pack.getDocuments === "function") {
       let compendium_content = await pack.getDocuments();
       compendium_items = compendium_content.map((e) => {
@@ -264,23 +323,52 @@ export class Utils {
       "bitd-alternate-sheets",
       "populateFromWorld"
     );
-    let limited_items;
+    const searchAllPacks = game.settings.get("bitd-alternate-sheets", "searchAllPacks");
+    let limited_items = [];
 
-    if (populateFromCompendia && populateFromWorld) {
-      limited_items = await this.getAllItemsByType(item_type);
-    } else if (populateFromCompendia && !populateFromWorld) {
-      const pack = game.packs.get("blades-in-the-dark." + item_type);
-      limited_items =
-        pack && typeof pack.getDocuments === "function"
-          ? await pack.getDocuments()
-          : [];
-    } else if (!populateFromCompendia && populateFromWorld) {
+    // 1. World Items (if enabled)
+    if (populateFromWorld) {
       if (item_type === "npc") {
-        limited_items = game.actors.filter((actor) => actor.type === item_type);
+        limited_items = limited_items.concat(game.actors.filter((actor) => actor.type === item_type));
       } else {
-        limited_items = game.items.filter((item) => item.type === item_type);
+        limited_items = limited_items.concat(game.items.filter((item) => item.type === item_type));
       }
-    } else {
+    }
+
+    // 2. Compendium Items (if enabled)
+    if (populateFromCompendia) {
+      if (searchAllPacks) {
+        // Universal Scan: Check ALL packs for matching content
+        const targetDocName = item_type === "npc" ? "Actor" : "Item";
+        for (const pack of game.packs) {
+          if (pack.documentName !== targetDocName) continue;
+
+          // Optimization: Check index if available? For now, fetch generic docs to be safe with filtering.
+          // Note: fetching all documents from all packs can be slow.
+          const docs = await pack.getDocuments();
+          const matches = docs.filter(d => d.type === item_type);
+          limited_items = limited_items.concat(matches);
+        }
+
+      } else {
+        // Default System-Only Scan
+        const packName = item_type === "npc" ? "npcs" : item_type;
+        const pack = game.packs.get("blades-in-the-dark." + packName) ||
+          game.packs.get("blades-in-the-dark." + item_type) ||
+          game.packs.find((e) => e.metadata.name === packName && e.metadata.packageName === "blades-in-the-dark") ||
+          game.packs.find((e) => e.metadata.name === item_type && e.metadata.packageName === "blades-in-the-dark");
+
+        if (pack) {
+          const docs = await pack.getDocuments();
+          limited_items = limited_items.concat(docs); // We assume the pack only contains the relevant type? No, compendiums can be mixed theoretically but usually typed.
+          // Filter just in case the pack is strict naming but loose content
+          // Actually system packs are usually strictly typed. But safer to filter if possible?
+          // Existing code didn't filter explicitly after getDocuments, it just mapped.
+        }
+      }
+    }
+
+    if (!populateFromCompendia && !populateFromWorld) {
       ui.notifications.error(
         `No playbook auto-population source has been selected in the system settings. Please choose at least one source.`,
         { permanent: true }
@@ -361,8 +449,19 @@ export class Utils {
           }
         }
       }
-    } catch (e) {
-      console.log("Error: ", e);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+      Hooks.onError("BitD-Alt.GetStartingAttributes", error, {
+        msg: "[BitD-Alt]",
+        log: "warn",
+        notify: null,
+        data: { playbookUuid: playbook_item?.uuid }
+      });
+
+      ui.notifications.warn("[BitD-Alt] Could not load playbook skills. Using defaults.", {
+        console: false
+      });
     }
     return attributes_to_return;
   }
@@ -376,22 +475,172 @@ export class Utils {
     }
   }
 
+  /**
+   * Enrich a stored notes string the same way the alt character sheet does.
+   * @param {Actor} actor
+   * @param {string} rawNotes
+   * @returns {Promise<string>}
+   */
+  static async enrichNotes(actor, rawNotes) {
+    const notes = rawNotes || "";
+    if (!notes) return "";
+    const intermediate = await compatEnrichHTML(notes, {
+      documents: false,
+      async: true,
+    });
+    return compatEnrichHTML(intermediate, {
+      relativeTo: actor,
+      secrets: actor.isOwner,
+      async: true,
+    });
+  }
+
+  // NOTE: bindClockControls removed - clock handling now done globally via setupGlobalClockHandlers() in hooks.js
+
+  /**
+   * Ensure a sheet has a local allow_edit flag initialized.
+   * Defaults to the sheet's editable option if unset.
+   * @param {DocumentSheet} sheet
+   */
+  static ensureAllowEdit(sheet) {
+    const canEdit = Boolean(
+      sheet.options?.editable ?? sheet.isEditable ?? false
+    );
+    const savedStates =
+      game?.user?.getFlag(MODULE_ID, "allowEditStates") || {};
+    const key = Utils._getAllowEditKey(sheet);
+    const saved = key ? savedStates[key] : undefined;
+
+    if (typeof sheet.allow_edit === "undefined") {
+      // Default to locked; allow unlock only when sheet is editable.
+      sheet.allow_edit = canEdit && Boolean(saved ?? false);
+    } else if (!canEdit && sheet.allow_edit) {
+      sheet.allow_edit = false;
+    }
+    return sheet.allow_edit;
+  }
+
+  /**
+   * Bind standing toggles for acquaintances (friend/rival/neutral) on a sheet.
+   * Applies changes locally and saves to the actor without triggering a render.
+   * @param {DocumentSheet} sheet
+   * @param {JQuery} html
+   */
+  static bindStandingToggles(sheet, html) {
+    const updateIcon = (icon, standing) => {
+      if (!icon) return;
+      icon.classList.remove("fa-caret-up", "fa-caret-down", "fa-minus", "green-icon", "red-icon");
+      switch (standing) {
+        case "friend":
+          icon.classList.add("fa-caret-up", "green-icon");
+          break;
+        case "rival":
+          icon.classList.add("fa-caret-down", "red-icon");
+          break;
+        default:
+          icon.classList.add("fa-minus");
+      }
+    };
+
+    html.find(".standing-toggle").off("click").on("click", async (ev) => {
+      ev.preventDefault();
+      const acqEl = ev.currentTarget.closest(".acquaintance");
+      const acqId = acqEl?.dataset?.acquaintance;
+      if (!acqId) return;
+
+      const acquaintances = foundry.utils.deepClone(sheet.actor.system?.acquaintances ?? []);
+      const idx = acquaintances.findIndex(
+        (item) => String(item?.id ?? item?._id ?? "") === String(acqId)
+      );
+      if (idx === -1) return;
+
+      const standing = (acquaintances[idx].standing ?? "neutral").toString().trim();
+      const nextStanding =
+        standing === "friend" ? "rival" : standing === "rival" ? "neutral" : "friend";
+      acquaintances[idx].standing = nextStanding;
+
+      updateIcon(ev.currentTarget, nextStanding);
+
+      await queueUpdate(() => sheet.actor.update({ system: { acquaintances } }, { render: false }));
+    });
+  }
+
+  /**
+   * Wire up the lock/unlock toggle to flip allow_edit and rerender.
+   * @param {DocumentSheet} sheet
+   * @param {JQuery} html
+   */
+  static bindAllowEditToggle(sheet, html) {
+    html.find(".toggle-allow-edit").off("click").on("click", async (event) => {
+      event.preventDefault();
+      if (!sheet.options?.editable) return;
+      // Trigger blur on any active inline-input fields to save their content before re-rendering
+      html.find(".inline-input:focus").blur();
+      sheet.allow_edit = !sheet.allow_edit;
+      await Utils._persistAllowEditState(sheet);
+      sheet.render(false);
+    });
+  }
+
+  static _getAllowEditKey(sheet) {
+    return sheet?.actor?.id ?? sheet?.document?.id ?? null;
+  }
+
+  static async _persistAllowEditState(sheet) {
+    const key = Utils._getAllowEditKey(sheet);
+    if (!key) return;
+    const user = game?.user;
+    if (!user?.setFlag) return;
+
+    const current = user.getFlag(MODULE_ID, "allowEditStates") || {};
+    await user.setFlag(MODULE_ID, "allowEditStates", {
+      ...current,
+      [key]: Boolean(sheet.allow_edit),
+    });
+  }
+
+  /**
+   * Per-actor, per-user persisted UI states (e.g., filters).
+   */
+  static _getUiStateKey(sheet) {
+    return sheet?.actor?.id ?? sheet?.document?.id ?? null;
+  }
+
+  static async loadUiState(sheet) {
+    const key = Utils._getUiStateKey(sheet);
+    if (!key) return {};
+    const user = game?.user;
+    if (!user?.getFlag) return {};
+    const current = user.getFlag(MODULE_ID, "uiStates") || {};
+    return current[key] || {};
+  }
+
+  static async saveUiState(sheet, state) {
+    const key = Utils._getUiStateKey(sheet);
+    if (!key) return;
+    const user = game?.user;
+    if (!user?.setFlag) return;
+    const current = user.getFlag(MODULE_ID, "uiStates") || {};
+    const next = { ...current, [key]: { ...(current[key] || {}), ...state } };
+    await user.setFlag(MODULE_ID, "uiStates", next);
+  }
+
   static async toggleOwnership(state, actor, type, id) {
     if (type == "ability") {
       if (state) {
         let all_of_type = await Utils.getSourcedItemsByType(type);
         let checked_item = all_of_type.find((item) => item.id == id);
-        let added_item = await actor.createEmbeddedDocuments("Item", [
+        let added_item = await queueUpdate(() => actor.createEmbeddedDocuments("Item", [
           {
             type: checked_item.type,
             name: checked_item.name,
             system: checked_item.system,
           },
-        ]);
+        ], { render: false, renderSheet: false }));
       } else {
         const ownedDoc = actor.getEmbeddedDocument("Item", id);
         if (ownedDoc) {
-          await actor.deleteEmbeddedDocuments("Item", [id]);
+          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", [id], { render: false, renderSheet: false }));
           return;
         }
 
@@ -402,9 +651,9 @@ export class Utils {
         const matching_owned_item = actor.items.find(
           (item) => item.name === item_source_name
         );
-        if (!matching_owned_item) return;
-
-        await actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id]);
+        if (matching_owned_item) {
+          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], { render: false, renderSheet: false }));
+        }
       }
     } else if (type == "item") {
       let equipped_items = await actor.getFlag(
@@ -430,15 +679,24 @@ export class Utils {
           load: item_blueprint.system.load,
           name: item_blueprint.name,
         };
-        await actor.update({
+        const existing = equipped_items[item_blueprint.id];
+        if (
+          existing &&
+          existing.load === newItem.load &&
+          existing.name === newItem.name
+        ) {
+          return;
+        }
+        await queueUpdate(() => actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
             newItem,
-        });
+        }, { render: false }));
       } else {
+        if (!equipped_items[item_blueprint.id]) return;
         // Atomic Remove
-        await actor.update({
+        await queueUpdate(() => actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
-        });
+        }, { render: false }));
       }
     }
   }
@@ -539,10 +797,9 @@ export class Utils {
       return oldAcq.id == acq.id;
     });
     if (unique_id) {
-      // queueUpdate(()=> {actor.update({system: {acquaintances : current_acquaintances.concat([acquaintance])}});});
-      await actor.update({
+      await queueUpdate(() => actor.update({
         system: { acquaintances: current_acquaintances.concat([acquaintance]) },
-      });
+      }));
     } else {
       ui.notifications.info(
         "The dropped NPC is already an acquaintance of this character."
@@ -563,9 +820,9 @@ export class Utils {
         standing: "neutral",
       };
     });
-    await actor.update({
+    await queueUpdate(() => actor.update({
       system: { acquaintances: current_acquaintances.concat(acqArr) },
-    });
+    }));
   }
 
   static async removeAcquaintance(actor, acqId) {
@@ -573,21 +830,26 @@ export class Utils {
     let updated_acquaintances = current_acquaintances.filter(
       (acq) => acq._id !== acqId && acq.id !== acqId
     );
-    await actor.update({ system: { acquaintances: updated_acquaintances } });
+    // No-op check: skip if no change
+    if (updated_acquaintances.length === current_acquaintances.length) return;
+    await queueUpdate(() => actor.update({ system: { acquaintances: updated_acquaintances } }));
   }
 
   static async removeAcquaintanceArray(actor, acqArr) {
+    if (!acqArr?.length) return;
 
     //see who the current acquaintances are
     let current_acquaintances = actor.system.acquaintances;
+    const originalLength = current_acquaintances.length;
 
     //for each of the passed acquaintances
     for (const currAcq of acqArr) {
       //remove the matching acquaintance from the current acquaintances
       current_acquaintances.findSplice((acq) => acq.id == currAcq.id);
     }
-    // let new_acquaintances = current_acquaintances.filter(acq => acq._id !== acqId && acq.id !== acqId);
-    await actor.update({ system: { acquaintances: current_acquaintances } });
+    // No-op check: skip if no change
+    if (current_acquaintances.length === originalLength) return;
+    await queueUpdate(() => actor.update({ system: { acquaintances: current_acquaintances } }));
   }
 
   static async getVirtualListOfItems(
@@ -718,8 +980,18 @@ export class Utils {
         startingAttributes[attribute].exp = 0;
         delete startingAttributes[attribute].exp_max;
       }
-      if (!isObjectEmpty(diffObject(currentAttributes, startingAttributes))) {
-        skillsChanged = true;
+      //check for changes
+      //check for exp changes
+      for (const attribute in currentAttributes) {
+        // console.log("Current attribute: ", currentAttributes[attribute]);
+        // console.log("Starting attribute: ", startingAttributes[attribute]);
+        // console.log("Current attribute exp: ", currentAttributes[attribute].exp);
+        // console.log("Starting attribute exp: ", startingAttributes[attribute].exp);
+        if (
+          currentAttributes[attribute].exp !== startingAttributes[attribute].exp
+        ) {
+          skillsChanged = true;
+        }
       }
 
       //check for added abilities
@@ -806,4 +1078,132 @@ export class Utils {
       return false;
     }
   }
+
+  /**
+   * Smart Item Selector Logic (Shared)
+   * Enforces singleton pattern for specific item types (Hunting Grounds, Reputation, etc.)
+   */
+  static async handleSmartItemSelector(event, actor) {
+    event.preventDefault();
+    const itemType = event.currentTarget.dataset.itemType;
+    const label = event.currentTarget.innerText;
+    const existingItems = actor.items.filter(i => i.type === itemType);
+    const existingItem = existingItems[0] ?? null;
+
+    // 1. Fetch options via Utils
+    const availableItems = await Utils.getSourcedItemsByType(itemType);
+
+    // 2. Prepare Choices for Card Dialog
+    const choices = availableItems.map(i => ({
+      value: i._id,
+      label: i.name,
+      img: i.img || "icons/svg/mystery-man.svg"
+    }));
+
+    // 3. Determine Current Value (if any)
+    const currentValue = existingItem ? existingItem.name : ""; // Use ID if possible? Source items have different IDs than owned. Match by Name usually safer for Compendium vs World? 
+    // Wait, the "Unique" rule means we likely want to match by Source ID if we tracked it, but we don't always. 
+    // And standard `availableItems` are the *Source* items. 
+    // If I select "Docks", I want "Docks" to be selected. The `value` is the Source ID.
+    // The owned item has a different ID. 
+    // BUT we can match by NAME? `dialog-compat` expects `value` match.
+    // Let's try to match by Name -> Find Source ID.
+    const currentName = existingItem?.name;
+    const currentSourceId = availableItems.find(i => i.name === currentName)?._id ?? "";
+
+
+    // 4. Open Chooser
+    const result = await openCardSelectionDialog({
+      title: `${game.i18n.localize("bitd-alt.Select")} ${label}`,
+      instructions: game.i18n.localize("bitd-alt.SelectToAddItem"),
+      okLabel: game.i18n.localize("bitd-alt.Ok"),
+      cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
+      clearLabel: game.i18n.localize("bitd-alt.Clear"),
+      choices: choices,
+      currentValue: currentSourceId
+    });
+
+    if (result === undefined) return; // Cancelled
+
+    if (result === null) {
+      // Clear: remove existing singleton entry (cannot represent "none" via update)
+      const existingIds = existingItems.map(i => i.id);
+      if (existingIds.length > 0) {
+        try {
+          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", existingIds));
+        } catch (err) {
+          ui.notifications.error(`Failed to remove ${label}: ${err.message}`);
+          console.error("Item deletion error:", err);
+        }
+      }
+    } else {
+      const selectedId = result;
+      const selectedItem = availableItems.find(i => i._id === selectedId);
+
+      if (selectedItem) {
+        // Prepare data from selected source item
+        const itemData = {
+          name: selectedItem.name,
+          type: selectedItem.type,
+          system: foundry.utils.deepClone(selectedItem.system ?? {}),
+          img: selectedItem.img
+        };
+
+        // Check for existing item to update-in-place
+        try {
+          if (existingItem) {
+            // UPDATE existing item (Atomic, no race condition, no empty gap)
+            await queueUpdate(() => actor.updateEmbeddedDocuments("Item", [{
+              _id: existingItem.id,
+              name: itemData.name,
+              system: itemData.system,
+              img: itemData.img
+            }]));
+          } else {
+            // CREATE if none exists
+            await queueUpdate(() => actor.createEmbeddedDocuments("Item", [itemData]));
+          }
+        } catch (err) {
+          ui.notifications.error(`Failed to set ${label}: ${err.message}`);
+          console.error("Item update/create error:", err);
+        }
+      }
+    }
+
+    // Force re-render to ensure UI reflects final state
+    if (actor.sheet && actor.sheet.rendered) {
+      actor.sheet.render(false);
+    }
+  }
+}
+
+/**
+ * Safely updates a document with ownership, no-op, and render-suppression guards.
+ * @param {Document} doc - The Foundry document to update
+ * @param {object} updateData - The update data object
+ * @param {object} options - Additional options passed to update (render: true overrides suppression)
+ * @returns {Promise<boolean>} - True if update was performed, false if skipped
+ */
+export async function safeUpdate(doc, updateData, options = {}) {
+  // 1. Ownership guard - only owner should update
+  if (!doc?.isOwner) return false;
+
+  // 2. Empty update guard
+  const entries = Object.entries(updateData || {});
+  if (entries.length === 0) return false;
+
+  // 3. No-op detection - skip if values unchanged
+  const hasChange = entries.some(([key, value]) => {
+    // Objects always treated as changes (too complex to deep-compare)
+    if (value !== null && typeof value === "object") return true;
+    const currentValue = foundry.utils.getProperty(doc, key);
+    return currentValue !== value;
+  });
+  if (!hasChange) return false;
+
+  // 4. Queued, render-suppressed update
+  await queueUpdate(async () => {
+    await doc.update(updateData, { render: false, ...options });
+  });
+  return true;
 }

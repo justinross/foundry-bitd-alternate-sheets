@@ -3,8 +3,10 @@
 const FORCE_DIALOG_V1 = false;
 
 /**
+/**
  * Open a compatibility dialog that supports both Application V1 and V2
  * frameworks depending on the Foundry version in use.
+ * Displays choices as selectable cards.
  *
  * @param {Object} options
  * @param {string} options.title
@@ -16,12 +18,15 @@ const FORCE_DIALOG_V1 = false;
  * @param {string} [options.currentValue]
  * @returns {Promise<string|null|undefined>}
  */
-export async function openCrewSelectionDialog(options) {
+export async function openCardSelectionDialog(options) {
   if (supportsDialogV2()) {
-    return openCrewSelectionDialogV2(options);
+    return openCardSelectionDialogV2(options);
   }
-  return openCrewSelectionDialogV1(options);
+  return openCardSelectionDialogV1(options);
 }
+
+// Alias for backward compatibility if needed, but we will update consumers.
+export const openCrewSelectionDialog = openCardSelectionDialog;
 
 function supportsDialogV2() {
   if (FORCE_DIALOG_V1) return false;
@@ -45,15 +50,16 @@ function getCardHtml(choices, currentValue) {
       const isSelected = choice.value === safeCurrentValue;
       const checked = isSelected ? "checked" : "";
 
-      // Inline styles for card content - changes based on selection
+      const description = choice.description ? escapeHTML(choice.description) : "";
+
       const cardContentStyle = isSelected
         ? "display: flex; flex-direction: column; align-items: center; padding: 0.5rem; border-radius: 5px; height: 100%; transition: all 0.2s; border: 2px solid #800000; background: rgba(128, 0, 0, 0.15); box-shadow: 0 0 8px #800000;"
         : "display: flex; flex-direction: column; align-items: center; padding: 0.5rem; border-radius: 5px; height: 100%; transition: all 0.2s; border: 2px solid transparent; background: rgba(0, 0, 0, 0.05);";
 
       return `
-        <label style="cursor: pointer; position: relative; display: block;">
-          <input type="radio" name="crewId" value="${value}" ${checked} style="position: absolute; opacity: 0; width: 0; height: 0;">
-          <div class="card-content" data-crew-value="${value}" style="${cardContentStyle}">
+        <label style="cursor: pointer; position: relative; display: block;" title="${description}">
+          <input type="radio" name="selectionId" value="${value}" ${checked} style="position: absolute; opacity: 0; width: 0; height: 0;">
+          <div class="card-content" data-selection-value="${value}" style="${cardContentStyle}">
             <img src="${img}" alt="${label}" style="width: 48px; height: 48px; border: none; margin-bottom: 0.25rem; object-fit: cover; border-radius: 4px;" />
             <div style="font-weight: bold; font-size: 0.9em; text-align: center; word-break: break-word; line-height: 1.2;">${label}</div>
           </div>
@@ -69,7 +75,7 @@ function getCardHtml(choices, currentValue) {
   `;
 }
 
-async function openCrewSelectionDialogV2({
+async function openCardSelectionDialogV2({
   title,
   instructions,
   okLabel,
@@ -81,7 +87,7 @@ async function openCrewSelectionDialogV2({
   const { DialogV2 } = foundry.applications.api;
 
   const content = `
-    <form class="bitd-alt crew-dialog">
+    <form class="bitd-alt selection-dialog">
       <p style="margin-bottom: 0.5rem; font-style: italic;">${escapeHTML(instructions)}</p>
       ${getCardHtml(choices, currentValue)}
     </form>
@@ -143,7 +149,7 @@ async function openCrewSelectionDialogV2({
           // v13: Use namespaced FormDataExtended, v12: Use global
           const FormData = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
           const formData = new FormData(formElement);
-          return formData.object.crewId || "";
+          return formData.object.selectionId || "";
         },
       },
       {
@@ -163,14 +169,15 @@ async function openCrewSelectionDialogV2({
 
   // DialogV2 sometimes returns the action name as a string instead of the callback result
   // Handle "cancel" and "clear" action names explicitly
-  if (result === undefined || result === "cancel") return undefined;
+  // Handle null (Close button 'X') as cancel (undefined)
+  if (result === undefined || result === "cancel" || result === null) return undefined;
   if (result === "clear") return null;
 
   const normalized = (result ?? "").trim();
   return normalized.length > 0 ? normalized : null;
 }
 
-async function openCrewSelectionDialogV1({
+async function openCardSelectionDialogV1({
   title,
   instructions,
   okLabel,
@@ -180,7 +187,7 @@ async function openCrewSelectionDialogV1({
   currentValue,
 }) {
   const content = `
-    <form class="bitd-alt crew-dialog">
+    <form class="bitd-alt selection-dialog">
       <p class="instructions">${escapeHTML(instructions)}</p>
       ${getCardHtml(choices, currentValue)}
     </form>
@@ -203,7 +210,7 @@ async function openCrewSelectionDialogV1({
             icon: '<i class="fas fa-check"></i>',
             label: okLabel,
             callback: (html) => {
-              const selected = html.find("input[name='crewId']:checked").val();
+              const selected = html.find("input[name='selectionId']:checked").val();
               finish(selected ? String(selected) : null);
             },
           },

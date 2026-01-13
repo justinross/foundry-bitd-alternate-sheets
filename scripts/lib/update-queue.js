@@ -16,12 +16,14 @@ class UpdateQueue {
   }
 
   queueUpdate(fn) {
-    this.queue.push(fn);
+    return new Promise((resolve, reject) => {
+      this.queue.push({ fn, resolve, reject });
 
-    /** only kick off a batch of updates if none are in flight */
-    if (!this.inFlight) {
-      this.runUpdate();
-    }
+      /** only kick off a batch of updates if none are in flight */
+      if (!this.inFlight) {
+        this.runUpdate();
+      }
+    });
   }
 
   async runUpdate(){
@@ -30,16 +32,36 @@ class UpdateQueue {
 
     while(this.queue.length > 0) {
 
-
       /** grab the last update in the list and hold onto its index
        *  in case another update pushes onto this array before we
        *  are finished.
        */
       const updateIndex = this.queue.length-1;
-      const updateFn = this.queue[updateIndex];
+      const { fn: updateFn, resolve, reject } = this.queue[updateIndex];
 
       /** wait for the update to complete */
-      await updateFn();
+      try {
+        const result = await updateFn();
+        resolve(result);
+      } catch (err) {
+        // Normalize to Error object, preserving original as cause
+        const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+
+        // Error funnel: stack traces + ecosystem hooks (no UI)
+        Hooks.onError("BitD-Alt.QueuedUpdate", error, {
+          msg: "[BitD-Alt]",
+          log: "error",
+          notify: null,
+          data: { entityType: this.entityType }
+        });
+
+        // User notification (sanitized, no console - already logged)
+        ui.notifications.error("[BitD-Alt] Failed to save change. Your data may not have been saved.", {
+          console: false
+        });
+
+        reject(error);
+      }
 
       /** remove this entry from the queue */
       this.queue.splice(updateIndex,1);
@@ -55,10 +77,11 @@ let updateQueue = new UpdateQueue("All");
 /**
  * Safely manages concurrent updates to the provided entity type
  * @param {Function} updateFn   the function that handles the actual update (can be async)
+ * @returns {Promise} resolves with the result of updateFn, or rejects on error
  */
 export function queueUpdate(updateFn) {
   /** queue the update for this entity */
-  updateQueue.queueUpdate(updateFn);
+  return updateQueue.queueUpdate(updateFn);
 }
 
 // used under MIT license from https://github.com/trioderegion/dnd5e-helpers/

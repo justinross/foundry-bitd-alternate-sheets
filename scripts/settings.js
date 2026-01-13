@@ -14,13 +14,19 @@ export const registerSystemSettings = function () {
   game.settings.register("bitd-alternate-sheets", "populateFromWorld", {
     name: "Load World Objects",
     hint: "Include World (Custom) Playbooks, NPCs, Items, and Abilities When Auto-Populating Playbooks",
-    scope: "world", // "world" = sync to db, "client" = local storage
-    config: true, // false if you dont want it to show in module config
-    type: Boolean, // Number, Boolean, String,
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register("bitd-alternate-sheets", "searchAllPacks", {
+    name: "Search All Compendiums",
+    hint: "When enabled, the sheet will scan ALL installed compendiums (not just system default) for matching items (Playbooks, NPCs, etc). This allows Custom Compendiums to work automatically but may affect performance.",
+    scope: "world",
+    config: true,
+    type: Boolean,
     default: false,
-    onChange: (value) => {
-      // value is the new value of the setting
-    },
   });
 
   game.settings.register(
@@ -39,4 +45,13 @@ export const registerSystemSettings = function () {
       },
     }
   );
+
+  game.settings.register("bitd-alternate-sheets", "enableProfilingLogs", {
+    name: "Enable performance profiling logs",
+    hint: "When enabled, logs structured timing data for key interactions to the browser console (client-side only).",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
 };

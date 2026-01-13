@@ -1,54 +1,127 @@
-// Colors
-$lightgray: #bbb;
-$darkgray: #666;
-$gray: #999;
-$red: red;
-$almost_black: #191813;
-$almost_white: #eeefff;
-$gold: #daa520;
-$green: #008000;
-$light_green: #12a012;
-$blue: #04578f;
-
-// Transition period for sheet parts that hint what they can do
-$transition-period: 0.2s;
-$hover-opacity: 0.9;
-$hover-brightness: 0.8;
-
 // Utility imports
-@import "mixin.scss";
-//@import 'fonts.scss';
+@use "./variables" as *;
+@use "sass:meta";
+@use "./mixin" as *;
+@use "./import/character-sheet" as char;
+@use "./import/item-sheet" as item;
+//@use "fonts" as *;
 
 //namespacing to avoid conflicts with other modules
 .blades-alt {
   font-family: "Crimson Text", serif;
 
+  // Shared CSS custom properties used by the alt sheets
+  --alt-dark: #191813;
+  --alt-mid: #999;
+  --alt-light: #bbb;
+  --alt-tab-mid: rgba(187, 187, 187, 0.5);
+  --alt-border: #888;
+  --alt-border-strong: #666;
+  --alt-paper: #e6e3da;
+  --alt-ink: #000;
+  --alt-ink-light: #eeefff;
+  --alt-accent-font: Kirsty, serif;
+  --alt-body-font: "Crimson Text", serif;
+  --alt-radius: 12px;
+  --alt-radius-sm: 6px;
+  --alt-label-height: 30px;
+  --alt-max-tabs: clamp(540px, 90vw, 850px);
+  --alt-max-row: var(--alt-max-tabs);
+  --alt-panel-bg: rgba(0, 0, 0, 0.03);
+  --alt-status-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.35));
+  --alt-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --alt-red: #cc0000;
+  --alt-red-dark: #800000;
+  --alt-deep-red: #660000;
+  --alt-green: #006600;
+  --alt-gold: #daa520;
+  --alt-amber: #e07f1a;
+  --alt-blue: #0058cc;
+  --alt-harm-light: #197e00;
+  --alt-harm-medium: #957c00;
+  --alt-harm-heavy: #a00000;
+  --alt-muted: #a2a2a2;
+  --font-display: 2em;
+  --line-tight: 1.1;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-tight: 5px;
+  --grid-gutter: 0px;
+  --col-1: 8.333333%;
+  --col-2: 16.666667%;
+  --col-3: 25%;
+  --col-4: 33.333333%;
+  --col-5: 41.666667%;
+  --col-6: 50%;
+  --col-7: 58.333333%;
+  --col-8: 66.666667%;
+  --col-9: 75%;
+  --col-10: 83.333333%;
+  --col-11: 91.666667%;
+  --col-12: 100%;
+
   $gutter: 0px;
-  @import "import/flexbox/main.scss";
+  @include meta.load-css("./import/flexbox/main");
 
-  @import "import/general-styles.scss";
+  @include meta.load-css("./import/general-styles");
 
-  //&.crew.sheet{
-  //  @import 'import/crew-sheet.scss';
-  //}
+  &.actor.sheet.crew {
+    min-width: 900px;
+    min-height: 275px;
+    @include meta.load-css("./import/crew-sheet");
+  }
 
   &.actor.sheet.pc {
-    @import "import/character-sheet.scss";
+    @include char.character-sheet();
   }
 
   &.item.sheet.class {
-    @import "import/class-sheet.scss";
+    @include meta.load-css("./import/class-sheet");
   }
   //&.actor.clock{
-  //  @import 'import/clock-sheet';
+  //  @use './import/clock-sheet' as *;
   //}
-  //
   &.item.sheet {
-    @import "import/item-sheet.scss";
+    @include item.item-sheet();
   }
 }
 
 //top-level styles
-//@import 'import/chat.scss';
-//@import 'import/dialogs.scss';
-@import "import/tooltip.scss";
+//@use './import/chat' as *;
+//@use './import/dialogs' as *;
+@include meta.load-css("./import/tooltip");
+
+// Global clock styles - MUST be outside .blades-alt namespace
+// to ensure clocks render correctly everywhere in Foundry
+@include meta.load-css("./import/clocks");
+
+// Target Foundry's scrolling container - .blades-alt is on the app element
+.app.blades-alt > .window-content {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+// Resize handle - position as overlay so it doesn't affect layout
+.app.blades-alt > div.window-resizable-handle {
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  // Don't let it push content around
+  pointer-events: auto;
+  z-index: 1000;
+
+  // Keep the icon centered
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  i {
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,19 @@
+<div class="identity-header">
+    <span class="identity-name">{{{inline-editable-text owner.allow_edit "name" (localize "BITD.Name") owner.actor.name
+        owner.actor._id owner}}}</span>
+
+    {{#if (eq subtitle_type "alias")}}
+    <span class="identity-subtitle">&bull; "{{{inline-editable-text owner.allow_edit "system.alias" (localize
+        "BITD.Alias") owner.system.alias owner.actor._id owner}}}"</span>
+    {{/if}}
+
+    {{#if (eq subtitle_type "crew_type")}}
+    <span class="identity-subtitle section-text">
+        {{#each owner.items as |item id|}}
+        {{#if (eq item.type "crew_type")}}
+        &bull; <span class="crew-type-text" data-tooltip="{{item.system.description}}">{{item.name}}</span>
+        {{/if}}
+        {{/each}}
+    </span>
+    {{/if}}
+</div>

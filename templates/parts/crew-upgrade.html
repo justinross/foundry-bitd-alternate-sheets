@@ -1,0 +1,19 @@
+<div
+  class="ability-block crew-choice{{#if owned}} owned{{/if}}"
+  data-item-id="{{_id}}"
+  data-owned-id="{{ownedId}}"
+  data-upgrade-name="{{name}}"
+  data-upgrade-max="{{boxes.max}}"
+  data-upgrade-progress="{{boxes.value}}"
+>
+  <div class="ability-checkboxes"><!--
+    -->{{#times boxes.max}}<!--
+      -->{{#if @index}}<span class="join-line"></span>{{/if}}<!--
+      --><input type="checkbox" class="crew-upgrade-checkbox" id="crew-upgrade-{{../_id}}-{{inc this}}" data-item-id="{{../_id}}" data-item-name="{{../name}}" data-upgrade-slot="{{inc this}}" {{#ifCond (inc this) "<=" ../boxes.value}}checked{{/ifCond}}><!--
+    -->{{/times}}<!--
+  --></div>
+  <label for="crew-upgrade-{{_id}}-1">
+    <span class="ability-name">{{clean-name name}}:</span>
+    <span class="ability-description">{{{md system.description}}}</span>
+  </label>
+</div>
