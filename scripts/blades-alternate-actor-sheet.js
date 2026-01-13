@@ -416,6 +416,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
   /** @override */
   async getData() {
+    const getDataStart = performance.now();
     let sheetData = await super.getData();
     Utils.ensureAllowEdit(this);
     const persistedUi = await Utils.loadUiState(this);
@@ -792,6 +793,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
       : acquaintanceList;
     sheetData.display_acquaintances = filteredAcqs;
 
+    Profiler.log("ActorSheet.getData", {
+      duration: performance.now() - getDataStart,
+      actor: this.actor?.name,
+    });
     return sheetData;
   }
 
@@ -1062,7 +1067,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       targetInput.prop("checked", true);
     }
 
-    // Direct Foundry update - let Foundry's hook handle the render
+    // Direct Foundry update - let Foundry handle the render for multi-client sync
     try {
       await queueUpdate(async () => {
         await this.actor.update({ [fieldName]: newValue });
@@ -1410,12 +1415,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
               name: itemName,
               progress: targetProgress
             }
-          }, { render: false }));
+          }));
           itemBlock.classList.add("owned");
         } else {
           await queueUpdate(() => this.actor.update({
             [`flags.bitd-alternate-sheets.equipped-items.-=${itemId}`]: null
-          }, { render: false }));
+          }));
           itemBlock.classList.remove("owned");
         }
 
