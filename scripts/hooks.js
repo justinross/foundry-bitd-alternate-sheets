@@ -1,4 +1,3 @@
-import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
 import { registerDiceSoNiceChanges } from "./dice-so-nice.js";
 import { Patch } from "./patches.js";
 import { Utils } from "./utils.js";
@@ -28,6 +27,68 @@ export async function registerHooks() {
     // Set up global event delegation for clock interactivity
     // This enables clocks to work in journals, chat, and other contexts
     setupGlobalClockHandlers();
+
+    // Pre-cache common item types for faster initial sheet renders
+    Utils._preCacheCommonTypes();
+  });
+
+  // ========================================
+  // Compendium Cache Invalidation Hooks
+  // ========================================
+
+  // Invalidate cache when compendiums are updated
+  Hooks.on("updateCompendium", (pack, documents, options, userId) => {
+    // Determine affected item type based on pack contents
+    const docName = pack.documentName;
+    if (docName === "Item") {
+      // Could be any item type - clear all item caches
+      Utils._invalidateCache(null);
+    } else if (docName === "Actor") {
+      // NPC actors are cached
+      Utils._invalidateCache("npc");
+    }
+  });
+
+  // Invalidate cache when world items change (if populateFromWorld is enabled)
+  Hooks.on("createItem", (item, options, userId) => {
+    if (!item.parent) {
+      // World-level item created
+      Utils._invalidateCache(item.type);
+    }
+  });
+
+  Hooks.on("updateItem", (item, updateData, options, userId) => {
+    if (!item.parent) {
+      // World-level item updated
+      Utils._invalidateCache(item.type);
+    }
+  });
+
+  // Note: deleteItem already exists but doesn't invalidate cache - we'll add another handler
+  Hooks.on("deleteItem", (item, options, userId) => {
+    if (!item.parent) {
+      // World-level item deleted
+      Utils._invalidateCache(item.type);
+    }
+  });
+
+  // Invalidate cache when world actors change (for NPC type)
+  Hooks.on("createActor", (actor, options, userId) => {
+    if (actor.type === "npc") {
+      Utils._invalidateCache("npc");
+    }
+  });
+
+  Hooks.on("updateActor", (actor, updateData, options, userId) => {
+    if (actor.type === "npc") {
+      Utils._invalidateCache("npc");
+    }
+  });
+
+  Hooks.on("deleteActor", (actor, options, userId) => {
+    if (actor.type === "npc") {
+      Utils._invalidateCache("npc");
+    }
   });
 
   // Bake clock state into chat messages at creation time to preserve historical values
@@ -149,21 +210,6 @@ export async function registerHooks() {
       }
     }
   });
-  // should we just display items and abilities some other way so switching back and forth between sheets is easy?
-  Hooks.on("updateActor", async (actor, updateData, options, actorId) => {
-    if (
-      options.diff &&
-      updateData?.flags?.core &&
-      "sheetClass" in updateData?.flags?.core
-    ) {
-    }
-    if (actor._sheet instanceof BladesAlternateActorSheet) {
-    }
-  });
 
-  Hooks.on("createActor", async (actor) => {
-    if (actor._sheet instanceof BladesAlternateActorSheet) {
-    }
-  });
   return true;
 }

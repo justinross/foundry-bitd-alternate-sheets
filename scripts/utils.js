@@ -7,7 +7,54 @@ export const MODULE_ID = "bitd-alternate-sheets";
 import { openCardSelectionDialog } from "./lib/dialog-compat.js";
 import { Profiler } from "./profiler.js";
 
+// Module-level cache for compendium items to avoid repeated pack.getDocuments() calls
+// Cache key format: "itemType|fromCompendia|fromWorld|allPacks"
+const _compendiumCache = new Map();
+
 export class Utils {
+  /**
+   * Generate a cache key that incorporates current settings
+   * @param {string} itemType - The item type being cached
+   * @returns {string} Cache key
+   */
+  static _getCacheKey(itemType) {
+    const fromCompendia = game.settings.get("bitd-alternate-sheets", "populateFromCompendia");
+    const fromWorld = game.settings.get("bitd-alternate-sheets", "populateFromWorld");
+    const allPacks = game.settings.get("bitd-alternate-sheets", "searchAllPacks");
+    return `${itemType}|${fromCompendia}|${fromWorld}|${allPacks}`;
+  }
+
+  /**
+   * Invalidate cache entries. If itemType is null, clears all cache.
+   * @param {string|null} itemType - Specific type to invalidate, or null for all
+   */
+  static _invalidateCache(itemType = null) {
+    if (itemType === null) {
+      _compendiumCache.clear();
+      console.log("[bitd-alt] Compendium cache cleared (all)");
+      return;
+    }
+    // Remove all entries for this item type (any settings combination)
+    for (const key of _compendiumCache.keys()) {
+      if (key.startsWith(`${itemType}|`)) {
+        _compendiumCache.delete(key);
+      }
+    }
+    console.log(`[bitd-alt] Compendium cache invalidated for type: ${itemType}`);
+  }
+
+  /**
+   * Optional: Pre-cache common item types for faster initial sheet renders
+   * Call this from a hook if desired (e.g., ready hook)
+   * @param {string[]} types - Array of item types to pre-cache
+   */
+  static async _preCacheCommonTypes(types = ["heritage", "background", "vice", "ability", "item", "npc", "crew_ability", "crew_upgrade", "class"]) {
+    console.log("[bitd-alt] Pre-caching common item types:", types);
+    for (const type of types) {
+      await Utils.getSourcedItemsByType(type);
+    }
+    console.log("[bitd-alt] Pre-cache complete");
+  }
   // ... (previous static methods)
 
 
@@ -271,124 +318,147 @@ export class Utils {
    * @param {string} item_type
    * @param {Object} game
    */
-  static async getAllItemsByType(item_type) {
-    let list_of_items = [];
-    let world_items = [];
-    let compendium_items = [];
-
-    if (item_type === "npc") {
-      world_items = game.actors
-        .filter((e) => e.type === item_type)
-        .map((e) => {
-          return e;
-        });
-    } else {
-      world_items = game.items
-        .filter((e) => e.type === item_type)
-        .map((e) => {
-          return e;
-        });
-    }
-
-    // Handle pluralization for pack lookup
-    const packName = item_type === "npc" ? "npcs" : item_type;
-    // Try explicit ID first, then generic name search
-    let pack = game.packs.get("blades-in-the-dark." + packName) ||
-      game.packs.get("blades-in-the-dark." + item_type) ||
-      game.packs.find((e) => e.metadata.name === packName) ||
-      game.packs.find((e) => e.metadata.name === item_type);
-
-    if (pack && typeof pack.getDocuments === "function") {
-      let compendium_content = await pack.getDocuments();
-      compendium_items = compendium_content.map((e) => {
-        return e;
-      });
-    }
-
-    list_of_items = world_items.concat(compendium_items);
-    list_of_items.sort(function (a, b) {
-      let nameA = a.name.toUpperCase();
-      let nameB = b.name.toUpperCase();
-      return nameA.localeCompare(nameB);
-    });
-    return list_of_items;
-  }
+  // DEPRECATED: This function bypasses the compendium cache and causes slow uncached
+  // pack.getDocuments() calls (~80-100ms each). Use getSourcedItemsByType() instead,
+  // which respects module settings and uses the compendium cache.
+  // Keeping commented for reference - remove in future version if no issues arise.
+  //
+  // static async getAllItemsByType(item_type) {
+  //   let list_of_items = [];
+  //   let world_items = [];
+  //   let compendium_items = [];
+  //
+  //   if (item_type === "npc") {
+  //     world_items = game.actors
+  //       .filter((e) => e.type === item_type)
+  //       .map((e) => {
+  //         return e;
+  //       });
+  //   } else {
+  //     world_items = game.items
+  //       .filter((e) => e.type === item_type)
+  //       .map((e) => {
+  //         return e;
+  //       });
+  //   }
+  //
+  //   // Handle pluralization for pack lookup
+  //   const packName = item_type === "npc" ? "npcs" : item_type;
+  //   // Try explicit ID first, then generic name search
+  //   let pack = game.packs.get("blades-in-the-dark." + packName) ||
+  //     game.packs.get("blades-in-the-dark." + item_type) ||
+  //     game.packs.find((e) => e.metadata.name === packName) ||
+  //     game.packs.find((e) => e.metadata.name === item_type);
+  //
+  //   if (pack && typeof pack.getDocuments === "function") {
+  //     let compendium_content = await pack.getDocuments();
+  //     compendium_items = compendium_content.map((e) => {
+  //       return e;
+  //     });
+  //   }
+  //
+  //   list_of_items = world_items.concat(compendium_items);
+  //   list_of_items.sort(function (a, b) {
+  //     let nameA = a.name.toUpperCase();
+  //     let nameB = b.name.toUpperCase();
+  //     return nameA.localeCompare(nameB);
+  //   });
+  //   return list_of_items;
+  // }
 
   static async getSourcedItemsByType(item_type) {
-    const populateFromCompendia = game.settings.get(
-      "bitd-alternate-sheets",
-      "populateFromCompendia"
-    );
-    const populateFromWorld = game.settings.get(
-      "bitd-alternate-sheets",
-      "populateFromWorld"
-    );
-    const searchAllPacks = game.settings.get("bitd-alternate-sheets", "searchAllPacks");
-    let limited_items = [];
-
-    // 1. World Items (if enabled)
-    if (populateFromWorld) {
-      if (item_type === "npc") {
-        limited_items = limited_items.concat(game.actors.filter((actor) => actor.type === item_type));
-      } else {
-        limited_items = limited_items.concat(game.items.filter((item) => item.type === item_type));
+    return Profiler.time(`getSourcedItemsByType`, async () => {
+      // Check cache first
+      const cacheKey = Utils._getCacheKey(item_type);
+      if (_compendiumCache.has(cacheKey)) {
+        console.log(`[bitd-alt] Cache hit for: ${cacheKey}`);
+        return _compendiumCache.get(cacheKey);
       }
-    }
 
-    // 2. Compendium Items (if enabled)
-    if (populateFromCompendia) {
-      if (searchAllPacks) {
-        // Universal Scan: Check ALL packs for matching content
-        const targetDocName = item_type === "npc" ? "Actor" : "Item";
-        for (const pack of game.packs) {
-          if (pack.documentName !== targetDocName) continue;
-
-          // Optimization: Check index if available? For now, fetch generic docs to be safe with filtering.
-          // Note: fetching all documents from all packs can be slow.
-          const docs = await pack.getDocuments();
-          const matches = docs.filter(d => d.type === item_type);
-          limited_items = limited_items.concat(matches);
-        }
-
-      } else {
-        // Default System-Only Scan
-        const packName = item_type === "npc" ? "npcs" : item_type;
-        const pack = game.packs.get("blades-in-the-dark." + packName) ||
-          game.packs.get("blades-in-the-dark." + item_type) ||
-          game.packs.find((e) => e.metadata.name === packName && e.metadata.packageName === "blades-in-the-dark") ||
-          game.packs.find((e) => e.metadata.name === item_type && e.metadata.packageName === "blades-in-the-dark");
-
-        if (pack) {
-          const docs = await pack.getDocuments();
-          limited_items = limited_items.concat(docs); // We assume the pack only contains the relevant type? No, compendiums can be mixed theoretically but usually typed.
-          // Filter just in case the pack is strict naming but loose content
-          // Actually system packs are usually strictly typed. But safer to filter if possible?
-          // Existing code didn't filter explicitly after getDocuments, it just mapped.
-        }
-      }
-    }
-
-    if (!populateFromCompendia && !populateFromWorld) {
-      ui.notifications.error(
-        `No playbook auto-population source has been selected in the system settings. Please choose at least one source.`,
-        { permanent: true }
+      const populateFromCompendia = game.settings.get(
+        "bitd-alternate-sheets",
+        "populateFromCompendia"
       );
-    }
-    if (limited_items) {
-      limited_items.sort(function (a, b) {
-        let nameA = a.name.toUpperCase();
-        let nameB = b.name.toUpperCase();
-        return nameA.localeCompare(nameB);
-      });
-    }
+      const populateFromWorld = game.settings.get(
+        "bitd-alternate-sheets",
+        "populateFromWorld"
+      );
+      const searchAllPacks = game.settings.get("bitd-alternate-sheets", "searchAllPacks");
+      let limited_items = [];
 
-    return limited_items;
+      // 1. World Items (if enabled)
+      if (populateFromWorld) {
+        if (item_type === "npc") {
+          limited_items = limited_items.concat(game.actors.filter((actor) => actor.type === item_type));
+        } else {
+          limited_items = limited_items.concat(game.items.filter((item) => item.type === item_type));
+        }
+      }
+
+      // 2. Compendium Items (if enabled)
+      if (populateFromCompendia) {
+        if (searchAllPacks) {
+          // Universal Scan: Check ALL packs for matching content
+          const targetDocName = item_type === "npc" ? "Actor" : "Item";
+          for (const pack of game.packs) {
+            if (pack.documentName !== targetDocName) continue;
+
+            // Optimization: Check index if available? For now, fetch generic docs to be safe with filtering.
+            // Note: fetching all documents from all packs can be slow.
+            const docs = await pack.getDocuments();
+            const matches = docs.filter(d => d.type === item_type);
+            limited_items = limited_items.concat(matches);
+          }
+
+        } else {
+          // Default System-Only Scan
+          const packName = item_type === "npc" ? "npcs" : item_type;
+          const pack = game.packs.get("blades-in-the-dark." + packName) ||
+            game.packs.get("blades-in-the-dark." + item_type) ||
+            game.packs.find((e) => e.metadata.name === packName && e.metadata.packageName === "blades-in-the-dark") ||
+            game.packs.find((e) => e.metadata.name === item_type && e.metadata.packageName === "blades-in-the-dark");
+
+          if (pack) {
+            const docs = await pack.getDocuments();
+            limited_items = limited_items.concat(docs);
+          }
+        }
+      }
+
+      if (!populateFromCompendia && !populateFromWorld) {
+        ui.notifications.error(
+          `No playbook auto-population source has been selected in the system settings. Please choose at least one source.`,
+          { permanent: true }
+        );
+      }
+      if (limited_items) {
+        limited_items.sort(function (a, b) {
+          let nameA = a.name.toUpperCase();
+          let nameB = b.name.toUpperCase();
+          return nameA.localeCompare(nameB);
+        });
+      }
+
+      // Store in cache before returning
+      _compendiumCache.set(cacheKey, limited_items);
+      console.log(`[bitd-alt] Cached: ${cacheKey} (${limited_items.length} items)`);
+
+      return limited_items;
+    }, { item_type });
   }
 
   static async getItemByType(item_type, item_id) {
-    let game_items = await this.getAllItemsByType(item_type);
-    let item = game_items.find((item) => item.id === item_id);
-    return item;
+    // First check world items directly (fast, no compendium fetch needed)
+    if (item_type === "npc") {
+      const worldItem = game.actors.find(a => a.type === item_type && a.id === item_id);
+      if (worldItem) return worldItem;
+    } else {
+      const worldItem = game.items.find(i => i.type === item_type && i.id === item_id);
+      if (worldItem) return worldItem;
+    }
+    // Fall back to cached sourced items (for compendium items)
+    const game_items = await this.getSourcedItemsByType(item_type);
+    return game_items.find((item) => item.id === item_id);
   }
 
   /* -------------------------------------------- */

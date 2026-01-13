@@ -1,3 +1,5 @@
+import { Utils } from "./utils.js";
+
 export const registerSystemSettings = function () {
   game.settings.register("bitd-alternate-sheets", "populateFromCompendia", {
     name: "Load Compendium Objects",
@@ -7,7 +9,8 @@ export const registerSystemSettings = function () {
     type: Boolean, // Number, Boolean, String,
     default: true,
     onChange: (value) => {
-      // value is the new value of the setting
+      // Clear cache when compendium source setting changes
+      Utils._invalidateCache(null);
     },
   });
 
@@ -18,6 +21,10 @@ export const registerSystemSettings = function () {
     config: true,
     type: Boolean,
     default: true,
+    onChange: (value) => {
+      // Clear cache when world source setting changes
+      Utils._invalidateCache(null);
+    },
   });
 
   game.settings.register("bitd-alternate-sheets", "searchAllPacks", {
@@ -27,6 +34,10 @@ export const registerSystemSettings = function () {
     config: true,
     type: Boolean,
     default: false,
+    onChange: (value) => {
+      // Clear cache when search scope setting changes
+      Utils._invalidateCache(null);
+    },
   });
 
   game.settings.register(

@@ -25,6 +25,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
   /** @override */
   async getData(options) {
+    const getDataStart = performance.now();
     const sheetData = await super.getData(options);
     Utils.ensureAllowEdit(this);
     const persistedUi = await Utils.loadUiState(this);
@@ -74,6 +75,10 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     sheetData.display_acquaintances = filteredAcqs;
     sheetData.showFilteredAcquaintances = this.showFilteredAcquaintances;
 
+    Profiler.log("CrewSheet.getData", {
+      duration: performance.now() - getDataStart,
+      actor: this.actor?.name,
+    });
     return sheetData;
   }
 
