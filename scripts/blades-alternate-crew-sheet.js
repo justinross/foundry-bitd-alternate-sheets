@@ -39,7 +39,6 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       {};
     // The system sheet returns a data object; mirror actor/system for template parity.
     sheetData.actor = sheetData.data ?? sheetData.actor ?? this.actor;
-    sheetData.actor.uuid = this.actor.uuid;  // Ensure uuid is available for templates
     sheetData.system = sheetData.system ?? this.actor.system;
     sheetData.editable = this.options.editable;
     sheetData.allow_edit = this.allow_edit;
