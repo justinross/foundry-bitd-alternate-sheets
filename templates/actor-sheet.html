@@ -140,7 +140,7 @@
       <section class="tab-content">
         <div class="tab" data-tab="playbook" data-group="primary-tabs">
           <div class="playbook">
-            <section class="abilities section-block {{#if (lookup collapsedSections 'abilities')}}collapsed{{/if}}" data-section-key="abilities">
+            <section class="abilities section-block" data-section-key="abilities">
               {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
                 label=(localize "BITD.SpecialAbilities")
                 flex=false
@@ -175,7 +175,7 @@
                 </section>
               </div>
             </section>
-            <section class="playbook-items item-list section-block {{#if (lookup collapsedSections 'items')}}collapsed{{/if}}" data-section-key="items">
+            <section class="playbook-items item-list section-block" data-section-key="items">
               {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
                 label=(localize "bitd-alt.items")
                 flex=true
@@ -196,7 +196,7 @@
               {{/each}}
               </div>
             </section>
-            <section class="friends-rivals section-block {{#if (lookup collapsedSections 'acquaintances')}}collapsed{{/if}}" data-section-key="acquaintances">
+            <section class="friends-rivals section-block" data-section-key="acquaintances">
               {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
                 label=(localize acquaintances_label)
                 flex=false
@@ -225,7 +225,7 @@
               {{/with}}
               {{/each}}
             </section>
-            <section class="xp-notes section-block {{#if (lookup collapsedSections 'xp')}}collapsed{{/if}}" data-section-key="xp">
+            <section class="xp-notes section-block" data-section-key="xp">
               {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
                 label="XP"
                 sectionKey="xp"
