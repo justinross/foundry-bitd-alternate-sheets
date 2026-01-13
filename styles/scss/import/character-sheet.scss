@@ -219,6 +219,12 @@
       @include full-bar-header();
     }
 
+    .attributes-actions {
+      header.full-bar {
+        margin-bottom: 5px;
+      }
+    }
+
     .stripe-tooth-body {
 
       &.right,
@@ -750,7 +756,7 @@
                   display: inline-block;
                   height: 0px;
                   margin: 0 -0.5em;
-                  top: calc(-0.5em + 5px);
+                  top: calc(-0.5em + 2px);
                   position: relative;
                   z-index: 0;
                 }
