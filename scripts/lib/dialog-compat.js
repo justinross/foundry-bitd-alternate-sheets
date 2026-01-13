@@ -95,6 +95,7 @@ async function openCardSelectionDialogV2({
 
   const result = await DialogV2.wait({
     window: { title, resizable: true },
+    position: { width: 550 },
     content,
     render: (event, dialog) => {
       // Attach event listeners programmatically since inline handlers are stripped by Foundry's sanitization
@@ -234,7 +235,7 @@ async function openCardSelectionDialogV1({
       },
       {
         resizable: true,
-        width: 500,
+        width: 550,
       }
     );
     dialog.render(true);

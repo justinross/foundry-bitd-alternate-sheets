@@ -225,15 +225,20 @@
               {{/with}}
               {{/each}}
             </section>
-            <section class="xp-notes">
-              <header class="full-bar">XP</header>
-              <ul>
-                <li>{{localize "BITD.ClassExpClue1"}}</li>
-                <p>{{localize "BITD.ClassExpClueDescription"}}</p>
-                <li>{{selected_playbook.system.experience_clues}}</li>
-                <li>{{localize "BITD.ClassExpClue2"}}</li>
-                <li>{{localize "BITD.ClassExpClue3"}}</li>
-              </ul>
+            <section class="xp-notes section-block {{#if (lookup collapsedSections 'xp')}}collapsed{{/if}}" data-section-key="xp">
+              {{> "modules/bitd-alternate-sheets/templates/parts/section-controls.html"
+                label="XP"
+                sectionKey="xp"
+              }}
+              <div class="section-body">
+                <ul>
+                  <li>{{localize "BITD.ClassExpClue1"}}</li>
+                  <p>{{localize "BITD.ClassExpClueDescription"}}</p>
+                  <li>{{selected_playbook.system.experience_clues}}</li>
+                  <li>{{localize "BITD.ClassExpClue2"}}</li>
+                  <li>{{localize "BITD.ClassExpClue3"}}</li>
+                </ul>
+              </div>
             </section>
           </div>
         </div>
