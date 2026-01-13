@@ -224,13 +224,13 @@
       &.right,
       &.stress {
         position: absolute;
-        top: 1px;
+        top: -1px;
         right: 1px;
-        @include teeth-track(25px,
+        @include teeth-track(28px,
           10px,
           "assets/teeth/xptooth-red.png",
           "assets/teeth/xptooth-white.png",
-          $gap: 3px);
+          $gap: -1px);
       }
     }
 
@@ -593,6 +593,7 @@
 
         .abilities-list {
           @include lined-section;
+          min-height: 1rem;
         }
 
         .attributes-actions {
