@@ -2619,7 +2619,6 @@
   font-family: Kirsty, serif;
   font-size: 1rem;
   position: relative;
-  margin-bottom: 5px;
   line-height: 1em;
   min-height: 1.6em;
 }
@@ -2926,7 +2925,6 @@
   font-family: Kirsty, serif;
   font-size: 1rem;
   position: relative;
-  margin-bottom: 5px;
   line-height: 1em;
   min-height: 1.6em;
 }
@@ -3110,9 +3108,11 @@
   font-family: Kirsty, serif;
   font-size: 1rem;
   position: relative;
-  margin-bottom: 5px;
   line-height: 1em;
   min-height: 1.6em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .attributes-actions header.full-bar {
+  margin-bottom: 5px;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress {
   position: absolute;
@@ -3683,7 +3683,6 @@
   font-family: Kirsty, serif;
   font-size: 1rem;
   position: relative;
-  margin-bottom: 5px;
   line-height: 1em;
   min-height: 1.6em;
 }
@@ -3921,7 +3920,7 @@
   display: inline-block;
   height: 0px;
   margin: 0 -0.5em;
-  top: calc(-0.5em + 5px);
+  top: calc(-0.5em + 2px);
   position: relative;
   z-index: 0;
 }
@@ -4067,7 +4066,6 @@
   font-family: Kirsty, serif;
   font-size: 1rem;
   position: relative;
-  margin-bottom: 5px;
   line-height: 1em;
   min-height: 1.6em;
 }
