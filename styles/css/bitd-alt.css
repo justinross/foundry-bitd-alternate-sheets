@@ -2630,12 +2630,12 @@
 .blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body label,
 .blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body label.radio-toggle {
   display: inline-block;
-  height: 25px;
+  height: 28px;
   width: 10px;
   background-image: url("assets/teeth/xptooth-red.png");
   background-repeat: no-repeat;
   background-size: contain;
-  margin-right: 3px;
+  margin-right: -1px;
   transition: filter 0.1s;
   cursor: pointer;
 }
@@ -3116,19 +3116,19 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress {
   position: absolute;
-  top: 1px;
+  top: -1px;
   right: 1px;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right label,
 .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right label.radio-toggle, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress label,
 .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress label.radio-toggle {
   display: inline-block;
-  height: 25px;
+  height: 28px;
   width: 10px;
   background-image: url("assets/teeth/xptooth-red.png");
   background-repeat: no-repeat;
   background-size: contain;
-  margin-right: 3px;
+  margin-right: -1px;
   transition: filter 0.1s;
   cursor: pointer;
 }
@@ -3670,6 +3670,7 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .abilities-list {
   border-bottom: 1px solid #191813;
+  min-height: 1rem;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions {
   background-color: rgba(0, 0, 0, 0.1);

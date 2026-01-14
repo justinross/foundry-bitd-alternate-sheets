@@ -860,11 +860,11 @@ header {
           right: 1px;
 
           // Using teeth-track mixin with crew XP assets if needed, or standard XP assets per character sheet
-          @include teeth-track(25px,
+          @include teeth-track(28px,
             10px,
             "assets/teeth/xptooth-red.png",
             "assets/teeth/xptooth-white.png",
-            $gap: 3px);
+            $gap: -1px);
         }
       }
     }
