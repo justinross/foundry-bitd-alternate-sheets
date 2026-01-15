@@ -39,6 +39,8 @@ To emulate the official character sheets, items and abilities are handled as vir
 * In edit mode, you can click the + next to "Items" or "Abilities" to add a new entry. Create one from scratch, or choose from a list of items that exist in the world/compendia.
 * Click the icon next to an acquaintance to specify a relationship, friend, rival, or neutral. Drag/drop NPCs onto the sheet to add them to your acquaintances.
 * A debug icon at the bottom left of the sheet will let you see any Foundry Items owned by the current character.
+* When enabled, the 'Search All Compendiums' configuration will include all Compendiums when searching for options to select in the chooser dialog for various fields and in filling out lists of abilities for scoundrels and crews.
+* NPCs in the configured search path with associated class 'Vice Purveyor' will populate the chooser dialog for the Vice Purveyor field.
 * The Notes tab has a rich text editor that lets you drag and drop actors and items into it in addition to fancy text formatting. Clocks dropped in here will be displayed and can be clicked/right-clicked to increment or decrement respectively:
 ![image](https://user-images.githubusercontent.com/1120106/216145578-e4cb992f-2721-40f2-b09f-8b6e5e337238.png)
 

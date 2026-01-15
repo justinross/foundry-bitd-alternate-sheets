@@ -8,7 +8,6 @@
 - Claims grid with corner checkboxes matching the paper sheet layout
 - Acquaintance rendering with friend/rival standing toggles and color indicators
 - Crew XP notes section
-- Minimize toggle for compact view during gameplay
 
 ### Performance Improvements
 - Compendium caching reduces sheet rendering times from ~600ms to ~2-3ms for character sheets and ~200ms to ~1-2ms for crew sheets
@@ -24,10 +23,10 @@
 ### UI Improvements
 - Binary item checkboxes for toggled item states
 - Load status pills with color indicators
-- Collapsible sections on character sheet
 - Added chooser dialog boxes for character/crew fields
 - Compendium-backed tooltips for identity/bio fields
-
+- 'Search All Compendiums' configuration will include all Compendiums when searching for options to select in the chooser dialog for various fields and in filling out lists of abilities for scoundrels and crews
+- NPCs in the configured search path with associated class 'Vice Purveyor' will populate the chooser dialog for the Vice Purveyor field.
 ### Bug Fixes
 - Fixed handler stacking that caused duplicate event processing
 - Fixed layout shift when toggling edit mode
