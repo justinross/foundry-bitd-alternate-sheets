@@ -1,38 +1,59 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-docker-compose
 {
-  "name": "BitD Alternate Sheets",
-  "image": "felddy/foundryvtt:release",
-  "overrideCommand": false,
-  "remoteUser": "foundry",
-  "workspaceFolder": "/workspaces/bitd-alternate-sheets",
-  "runArgs": [
-    "--init",
-    "--hostname",
-    "bitd-alt-dev"
-  ],
-  "forwardPorts": [30000],
-  "portsAttributes": {
-    "30000": {
-      "label": "Foundry VTT",
-      "onAutoForward": "openBrowser"
-    }
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    },
-    "ghcr.io/devcontainers-extra/features/jq:2": {}
-  },
-  "remoteEnv": {
-    "FOUNDRY_USERNAME": "${localEnv:FOUNDRY_USERNAME}",
-    "FOUNDRY_PASSWORD": "${localEnv:FOUNDRY_PASSWORD}",
-    "FOUNDRY_ADMIN_KEY": "${localEnv:FOUNDRY_ADMIN_KEY}",
-    "FOUNDRY_SYSTEM_MANIFEST_URL": "${localEnv:FOUNDRY_SYSTEM_MANIFEST_URL}"
-  },
-  "initializeCommand": "mkdir -p \"${localWorkspaceFolder}/../foundry-data\"",
-  "mounts": [
-    "type=bind,source=${localWorkspaceFolder}/../foundry-data,target=/data",
-    "type=bind,source=${localWorkspaceFolder},target=/data/Data/modules/bitd-alternate-sheets",
-    "type=volume,source=bitd-npm-cache,target=/home/foundry/.npm"
-  ],
-  "postCreateCommand": "bash .devcontainer/install-system.sh"
+	"name": "Existing Docker Compose (Extend)",
+
+	// The docker-compose.yml file contains the complete Foundry VTT development environment.
+	"dockerComposeFile": [
+		"docker-compose.yml"
+	],
+
+	// The 'service' property is the name of the service for the container that VS Code should
+	// use. Update this value and .devcontainer/docker-compose.yml to the real service name.
+	"service": "foundry",
+
+	// The optional 'workspaceFolder' property is the path VS Code should open by default when
+	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"features": {
+		"ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20"
+		}
+	},
+
+	// Forward Foundry VTT port
+	"forwardPorts": [30000],
+	"portsAttributes": {
+		"30000": {
+			"label": "Foundry VTT",
+			"onAutoForward": "openBrowser"
+		}
+	},
+
+	// Environment variables for Foundry authentication
+	"remoteEnv": {
+		"FOUNDRY_USERNAME": "${localEnv:FOUNDRY_USERNAME}",
+		"FOUNDRY_PASSWORD": "${localEnv:FOUNDRY_PASSWORD}",
+		"FOUNDRY_ADMIN_KEY": "${localEnv:FOUNDRY_ADMIN_KEY}",
+		"FOUNDRY_SYSTEM_MANIFEST_URL": "${localEnv:FOUNDRY_SYSTEM_MANIFEST_URL}"
+	},
+
+	// Create foundry-data folder before container starts
+	"initializeCommand": "mkdir -p \"${localWorkspaceFolder}/foundry-data\"",
+
+	// Uncomment the next line if you want start specific services in your Docker Compose config.
+	// "runServices": [],
+
+	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
+	// "shutdownAction": "none",
+
+	// Install the Blades in the Dark system after container is created
+	"postCreateCommand": "bash .devcontainer/install-system.sh"
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "devcontainer"
 }

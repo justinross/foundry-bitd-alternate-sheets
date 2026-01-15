@@ -48,19 +48,37 @@ To emulate the official character sheets, items and abilities are handled as vir
 If you come across any issues or suggestions, please don't hesitate to file an issue report on Github: https://github.com/justinross/foundry-bitd-alternate-sheets/issues. I'm also on Discord as ThsJstIn#5654, but Github Issues are preferred.
 
 ## Development Container
-The `.devcontainer/devcontainer.json` file lets you run Foundry directly inside VS Code:
+This repository uses a VS Code Dev Container to run Foundry VTT with this module loaded for development. The container uses the [felddy/foundryvtt](https://github.com/felddy/foundryvtt-docker) Docker image.
 
-1. Open the `bitd-alternate-sheets` folder in VS Code and choose **Dev Containers: Reopen in Container**.
-2. The container automatically creates `../foundry-data` on first run; Foundry assets persist there across sessions.
-3. Configure secrets via **Dev Containers: Manage Container Secrets** (or set local environment variables) for `FOUNDRY_USERNAME`, `FOUNDRY_PASSWORD`, and `FOUNDRY_ADMIN_KEY`. These flow into the container without touching source control.
-4. The workspace is also mounted at `/data/Data/modules/bitd-alternate-sheets`, so editing files instantly updates the running Foundry module.
+### Setup
 
-**Automatic system install:** On container creation, the Blades in the Dark system is installed automatically. To use a different system, set `FOUNDRY_SYSTEM_MANIFEST_URL` to another manifest URL before building.
+1. **Configure credentials**: Copy `.env.example` to `.env` in the `.devcontainer` directory and fill in your Foundry VTT credentials:
+   ```bash
+   FVTT_USER=your-foundry-username
+   FVTT_PW=your-foundry-password
+   FOUNDRY_ADMIN_KEY=your-admin-key
+   ```
+   The `.env` file is gitignored to keep your credentials secure.
 
-Optional tooling:
+2. **Open in container**: Open this folder in VS Code and choose **Dev Containers: Reopen in Container**.
 
-* Run `npm run build:css` manually whenever you need to regenerate `styles/css/bitd-alt.css`; there is no automatic post-create build step.
-* Foundry data and the npm cache persist between container rebuilds, keeping startup fast.
+3. **Access Foundry**: The container automatically forwards port 30000, so you can access Foundry at [http://localhost:30000](http://localhost:30000).
+
+### How it works
+
+- The container runs Foundry VTT from the `felddy/foundryvtt:release` image
+- Foundry data persists in `foundry-data/` (gitignored) across container rebuilds
+- The workspace is mounted at `/workspaces/foundry-bitd-alternate-sheets` for editing
+- **The module is also mounted at `/data/Data/modules/bitd-alternate-sheets`**, so changes to your code are immediately available in the running Foundry server
+- npm cache persists between rebuilds for faster startup
+
+**Automatic system install:** On container creation, the Blades in the Dark system is installed automatically via `.devcontainer/install-system.sh`. To use a different system, set `FOUNDRY_SYSTEM_MANIFEST_URL` before building.
+
+### Development workflow
+
+* Edit files in VS Code - changes are immediately reflected in Foundry
+* Run `npm run build:css` to regenerate `styles/css/bitd-alt.css` from SCSS sources
+* Foundry data and npm cache persist between container rebuilds
 
 ##TODO:
 * Redo the rest of the Blades sheets. Someday. 

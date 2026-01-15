@@ -4,11 +4,10 @@ version: "3.8"
 services:
   foundry:
     image: felddy/foundryvtt:release
-    hostname: my_foundry_host
-    init: true
+    hostname: bitd-alt-sheets-dev
     volumes:
       - type: bind
-        source: /workspace/data
+        source: ./foundry-data
         target: /data
     environment:
       - FOUNDRY_PASSWORD=${FVTT_PW}

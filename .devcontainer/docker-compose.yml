@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  foundry:
+    image: felddy/foundryvtt:release
+    hostname: bitd-alt-sheets-dev
+    env_file:
+      - .env
+
+    volumes:
+      # Mount workspace for VS Code
+      - ..:/workspaces/foundry-bitd-alternate-sheets:cached
+      # Foundry data persistence (inside workspace, gitignored)
+      - ../foundry-data:/data
+      # Mount module into Foundry's modules directory for testing
+      - ..:/data/Data/modules/bitd-alternate-sheets
+      # npm cache persistence
+      - bitd-npm-cache:/home/foundry/.npm
+
+    ports:
+      - target: 30000
+        published: 30000
+        protocol: tcp
+
+    # Let Foundry start normally - the image's default command handles everything
+    # command: /bin/sh -c "sleep infinity"
+
+volumes:
+  bitd-npm-cache:
