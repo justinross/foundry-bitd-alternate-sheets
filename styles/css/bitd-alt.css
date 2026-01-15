@@ -3840,6 +3840,9 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-item.notes {
   grid-area: tab2;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-item .playbook-name {
+  white-space: nowrap;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-item .playbook-description {
   font-family: "Crimson Text", serif;
   font-size: 0.4em;

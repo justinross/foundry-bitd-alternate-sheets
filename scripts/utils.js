@@ -1,4 +1,5 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
+import { BladesAlternateCrewSheet } from "./blades-alternate-crew-sheet.js";
 import { queueUpdate } from "./lib/update-queue.js";
 import { enrichHTML as compatEnrichHTML } from "./compat.js";
 
@@ -32,15 +33,32 @@ export class Utils {
     if (itemType === null) {
       _compendiumCache.clear();
       console.log("[bitd-alt] Compendium cache cleared (all)");
-      return;
+    } else {
+      // Remove all entries for this item type (any settings combination)
+      for (const key of _compendiumCache.keys()) {
+        if (key.startsWith(`${itemType}|`)) {
+          _compendiumCache.delete(key);
+        }
+      }
+      console.log(`[bitd-alt] Compendium cache invalidated for type: ${itemType}`);
     }
-    // Remove all entries for this item type (any settings combination)
-    for (const key of _compendiumCache.keys()) {
-      if (key.startsWith(`${itemType}|`)) {
-        _compendiumCache.delete(key);
+    // Re-render any open alternate sheets so they pick up the changes
+    Utils._refreshOpenSheets();
+  }
+
+  /**
+   * Re-render any open alternate sheets to reflect cache changes
+   */
+  static _refreshOpenSheets() {
+    const openSheets = Object.values(ui.windows).filter(
+      (w) => w instanceof BladesAlternateActorSheet || w instanceof BladesAlternateCrewSheet
+    );
+    if (openSheets.length > 0) {
+      console.log(`[bitd-alt] Refreshing ${openSheets.length} open sheet(s)`);
+      for (const sheet of openSheets) {
+        sheet.render(false);
       }
     }
-    console.log(`[bitd-alt] Compendium cache invalidated for type: ${itemType}`);
   }
 
   /**

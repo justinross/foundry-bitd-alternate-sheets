@@ -654,6 +654,10 @@
           grid-area: tab2;
         }
 
+        .playbook-name {
+          white-space: nowrap;
+        }
+
         .playbook-description {
           font-family: "Crimson Text", serif;
           font-size: 0.4em;

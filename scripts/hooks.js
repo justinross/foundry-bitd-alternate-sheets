@@ -54,6 +54,9 @@ export async function registerHooks() {
     if (!item.parent) {
       // World-level item created
       Utils._invalidateCache(item.type);
+    } else if (item.pack) {
+      // Compendium item created
+      Utils._invalidateCache(item.type);
     }
   });
 
@@ -61,13 +64,18 @@ export async function registerHooks() {
     if (!item.parent) {
       // World-level item updated
       Utils._invalidateCache(item.type);
+    } else if (item.pack) {
+      // Compendium item updated
+      Utils._invalidateCache(item.type);
     }
   });
 
-  // Note: deleteItem already exists but doesn't invalidate cache - we'll add another handler
   Hooks.on("deleteItem", (item, options, userId) => {
     if (!item.parent) {
       // World-level item deleted
+      Utils._invalidateCache(item.type);
+    } else if (item.pack) {
+      // Compendium item deleted
       Utils._invalidateCache(item.type);
     }
   });
