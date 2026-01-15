@@ -1675,13 +1675,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
         }
       }
 
-      // If source is actor, we ALWAYS show the dialog, even if empty, to show "No Results"
-      // instead of falling back to text input which is confusing.
-      // But openCardSelectionDialog anticipates items. If 0 items, it might just render an empty list.
-      // Let's ensure we return early here if source was actor, regardless of count.
-      if (availableItems) { // Check if defined (it is [] if empty)
-        // ...
-      }
     }
     // Mode B: Compendium Source (Default)
     else {
@@ -1699,8 +1692,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
 
     // 2. Check if we should open the card selector
-    // We open it if we found items OR if we are in Actor mode (to show "No Results" instead of fallback)
-    if ((availableItems && availableItems.length > 0) || source === "actor") {
+    // Only open if we found items; otherwise fall through to text input
+    if (availableItems && availableItems.length > 0) {
       // 2. Prepare Choices
       const choices = (availableItems || []).map((i) => ({
         value: i.name || i._id,
