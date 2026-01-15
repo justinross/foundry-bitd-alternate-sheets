@@ -47,5 +47,20 @@ To emulate the official character sheets, items and abilities are handled as vir
 ## Issues
 If you come across any issues or suggestions, please don't hesitate to file an issue report on Github: https://github.com/justinross/foundry-bitd-alternate-sheets/issues. I'm also on Discord as ThsJstIn#5654, but Github Issues are preferred.
 
+## Development Container
+The `.devcontainer/devcontainer.json` file lets you run Foundry directly inside VS Code:
+
+1. Open the `bitd-alternate-sheets` folder in VS Code and choose **Dev Containers: Reopen in Container**.
+2. The container automatically creates `../foundry-data` on first run; Foundry assets persist there across sessions.
+3. Configure secrets via **Dev Containers: Manage Container Secrets** (or set local environment variables) for `FOUNDRY_USERNAME`, `FOUNDRY_PASSWORD`, and `FOUNDRY_ADMIN_KEY`. These flow into the container without touching source control.
+4. The workspace is also mounted at `/data/Data/modules/bitd-alternate-sheets`, so editing files instantly updates the running Foundry module.
+
+**Automatic system install:** On container creation, the Blades in the Dark system is installed automatically. To use a different system, set `FOUNDRY_SYSTEM_MANIFEST_URL` to another manifest URL before building.
+
+Optional tooling:
+
+* Run `npm run build:css` manually whenever you need to regenerate `styles/css/bitd-alt.css`; there is no automatic post-create build step.
+* Foundry data and the npm cache persist between container rebuilds, keeping startup fast.
+
 ##TODO:
 * Redo the rest of the Blades sheets. Someday. 

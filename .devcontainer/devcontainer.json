@@ -1,0 +1,38 @@
+{
+  "name": "BitD Alternate Sheets",
+  "image": "felddy/foundryvtt:release",
+  "overrideCommand": false,
+  "remoteUser": "foundry",
+  "workspaceFolder": "/workspaces/bitd-alternate-sheets",
+  "runArgs": [
+    "--init",
+    "--hostname",
+    "bitd-alt-dev"
+  ],
+  "forwardPorts": [30000],
+  "portsAttributes": {
+    "30000": {
+      "label": "Foundry VTT",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers-extra/features/jq:2": {}
+  },
+  "remoteEnv": {
+    "FOUNDRY_USERNAME": "${localEnv:FOUNDRY_USERNAME}",
+    "FOUNDRY_PASSWORD": "${localEnv:FOUNDRY_PASSWORD}",
+    "FOUNDRY_ADMIN_KEY": "${localEnv:FOUNDRY_ADMIN_KEY}",
+    "FOUNDRY_SYSTEM_MANIFEST_URL": "${localEnv:FOUNDRY_SYSTEM_MANIFEST_URL}"
+  },
+  "initializeCommand": "mkdir -p \"${localWorkspaceFolder}/../foundry-data\"",
+  "mounts": [
+    "type=bind,source=${localWorkspaceFolder}/../foundry-data,target=/data",
+    "type=bind,source=${localWorkspaceFolder},target=/data/Data/modules/bitd-alternate-sheets",
+    "type=volume,source=bitd-npm-cache,target=/home/foundry/.npm"
+  ],
+  "postCreateCommand": "bash .devcontainer/install-system.sh"
+}
