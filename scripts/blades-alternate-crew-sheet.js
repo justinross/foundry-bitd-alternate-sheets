@@ -97,6 +97,10 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     if (type !== "crew_upgrade") {
       this._virtualUpgradeSources.clear();
     }
+    // Get progress flag for partial crew upgrade progress
+    const upgradeProgress = type === "crew_upgrade"
+      ? (this.actor.getFlag("bitd-alternate-sheets", "crewUpgradeProgress") || {})
+      : {};
     // Manual fixes for missing crew metadata in system packs (e.g., Ritual Sanctum lacks crew type).
     const resolveManualCrewType = (normalizedName) => {
       if (!normalizedName) return null;
@@ -116,11 +120,20 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       const maxFromSource = Number(sourceBoxes.max) || 0;
       const fallbackMax = abilityCostFor(sourceItem);
       const max = Math.max(maxFromOwned, maxFromSource, fallbackMax, 1);
-      const valueRaw =
-        ownedBoxes.value ?? sourceBoxes.value ?? (ownedItem ? 1 : 0);
+      // For crew upgrades: owned item means fully purchased (max), otherwise check progress flag
+      let valueRaw;
+      if (ownedItem) {
+        // Owned = fully purchased = max value
+        valueRaw = max;
+      } else if (type === "crew_upgrade" && upgradeProgress[sourceItem?.id]) {
+        // Partial progress from flag
+        valueRaw = upgradeProgress[sourceItem?.id];
+      } else {
+        valueRaw = 0;
+      }
       const value = Math.max(
         0,
-        Math.min(Number(valueRaw) || 0, Math.max(1, max))
+        Math.min(Number(valueRaw) || 0, max)
       );
       return { max, value };
     };
@@ -326,8 +339,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       if (!itemId || !turfId) return;
       await queueUpdate(() => this.actor.updateEmbeddedDocuments("Item", [
         { _id: itemId, [`system.turfs.${turfId}.value`]: newValue },
-      ], { render: false }));
-      this.render(false);
+      ]));
     });
 
     // NOTE: Clock controls are handled globally by setupGlobalClockHandlers() in hooks.js
@@ -472,25 +484,31 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   async _onUpgradeToggle(event) {
     event.preventDefault();
     const checkbox = event.currentTarget;
+    const container = checkbox.closest(".crew-choice");
     const sourceId = checkbox.dataset.itemId;
     const itemName = checkbox.dataset.itemName ?? "";
     const slotValue = Number(checkbox.dataset.upgradeSlot) || 1;
+    const ownedId = container?.dataset?.ownedId || "";
 
     const sourceItem =
       (await Utils.getItemByType("crew_upgrade", sourceId)) ??
       this._virtualUpgradeSources?.get(sourceId);
-    const ownedItem = this._findOwnedUpgrade(sourceId, itemName);
+    // First try direct lookup by ownedId (most reliable), then fall back to name matching
+    const ownedItem = ownedId
+      ? this.actor.items.get(ownedId) ?? this._findOwnedUpgrade(sourceId, itemName)
+      : this._findOwnedUpgrade(sourceId, itemName);
     const max = this._deriveUpgradeMax(sourceItem, ownedItem);
-    const previousValue = Math.max(
-      0,
-      Math.min(Number(ownedItem?.system?.boxes?.value) || 0, max)
-    );
+
+    // Get current progress: owned item means complete (max), otherwise check progress flag
+    const progressFlag = this.actor.getFlag("bitd-alternate-sheets", "crewUpgradeProgress") || {};
+    const previousValue = ownedItem
+      ? max  // Owned item means fully purchased
+      : Math.max(0, Math.min(Number(progressFlag[sourceId]) || 0, max - 1));
 
     let targetValue =
       slotValue <= previousValue ? slotValue - 1 : slotValue;
     targetValue = Math.max(0, Math.min(targetValue, max));
 
-    const container = checkbox.closest(".crew-choice");
     const checkboxList = container
       ? Array.from(container.querySelectorAll(".crew-upgrade-checkbox"))
       : [checkbox];
@@ -500,42 +518,29 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       await Profiler.time(
         "crewUpgradeToggle",
         async () => {
-          if (!ownedItem && targetValue > 0) {
-            const created = await this._createOwnedUpgrade(sourceItem, targetValue);
-            if (container && created) {
-              container.dataset.ownedId = created.id;
-              container.classList.add("owned");
-              container.dataset.upgradeProgress = String(targetValue);
+          // Upgrade becomes "active" (owned) only when ALL boxes are checked
+          if (targetValue === max && !ownedItem) {
+            // Fully purchased - create owned item and clear progress
+            await this._createOwnedUpgrade(sourceItem, max);
+            await Utils.updateCrewUpgradeProgressFlag(this.actor, sourceId, 0);
+          } else if (targetValue === 0) {
+            // Clearing all progress
+            if (ownedItem) {
+              await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id]));
             }
-          } else if (ownedItem && targetValue === 0) {
-            await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id], { render: false }));
-            if (container) {
-              container.dataset.ownedId = "";
-              container.classList.remove("owned");
-              container.dataset.upgradeProgress = "0";
+            await Utils.updateCrewUpgradeProgressFlag(this.actor, sourceId, 0);
+          } else if (targetValue < max) {
+            // Partial progress - store in flag, not as owned item
+            if (ownedItem) {
+              // Unchecking from complete - remove owned item
+              await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [ownedItem.id]));
             }
-          } else if (ownedItem) {
-            await queueUpdate(() => this.actor.updateEmbeddedDocuments("Item", [
-              {
-                _id: ownedItem.id,
-                "system.boxes.value": targetValue,
-              },
-            ], { render: false }));
-            if (container) {
-              container.dataset.upgradeProgress = String(targetValue);
-            }
+            await Utils.updateCrewUpgradeProgressFlag(this.actor, sourceId, targetValue);
           }
+          // targetValue === max && ownedItem already exists: no change needed
 
-          checkboxList.forEach((el) => {
-            const slot = Number(el.dataset.upgradeSlot) || 1;
-            const shouldCheck = slot <= targetValue;
-            el.checked = shouldCheck;
-            if (shouldCheck) {
-              el.setAttribute("checked", "checked");
-            } else {
-              el.removeAttribute("checked");
-            }
-          });
+          // Re-render open character sheets for crew members (upgrades may affect them)
+          this._rerenderCrewMemberSheets();
         },
         {
           actorId: this.actor.id,
@@ -550,8 +555,26 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   }
 
   /**
-   * Handle radio toggle clicks with optimistic UI updates.
-   * Updates the UI immediately, then persists to database.
+   * Re-render any open character sheets belonging to members of this crew.
+   * Called after crew upgrades change, since some upgrades affect crew members
+   * (e.g., Steady adds stress boxes to scoundrels).
+   */
+  _rerenderCrewMemberSheets() {
+    const crewId = this.actor.id;
+    for (const actor of game.actors) {
+      if (actor.type !== "character") continue;
+      const crewEntries = actor.system?.crew;
+      if (!Array.isArray(crewEntries)) continue;
+      const isMember = crewEntries.some((entry) => entry?.id === crewId);
+      if (isMember && actor.sheet?.rendered) {
+        actor.sheet.render(false);
+      }
+    }
+  }
+
+  /**
+   * Handle radio toggle clicks.
+   * Persists to database and lets Foundry handle re-render.
    * @param {Event} event - The mousedown event
    */
   async _onRadioToggle(event) {
@@ -589,13 +612,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       newValue = clickedValue;
     }
 
-    // Optimistic UI update: find and check the correct input
-    const targetInput = this.element.find(`input[name="${fieldName}"][value="${newValue}"]`);
-    if (targetInput.length) {
-      targetInput.prop("checked", true);
-    }
-
-    // Direct Foundry update - let Foundry's hook handle the render
+    // Foundry update - Foundry handles re-render automatically
     try {
       await queueUpdate(async () => {
         await this.actor.update({ [fieldName]: newValue });

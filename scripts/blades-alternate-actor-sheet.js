@@ -1022,8 +1022,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   /**
-   * Handle radio toggle clicks with optimistic UI updates.
-   * Updates the UI immediately, then persists to database.
+   * Handle radio toggle clicks.
+   * Persists to database and lets Foundry handle re-render.
    * @param {Event} event - The mousedown event
    */
   async _onRadioToggle(event) {
@@ -1061,13 +1061,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       newValue = clickedValue;
     }
 
-    // Optimistic UI update: find and check the correct input
-    const targetInput = this.element.find(`input[name="${fieldName}"][value="${newValue}"]`);
-    if (targetInput.length) {
-      targetInput.prop("checked", true);
-    }
-
-    // Direct Foundry update - let Foundry handle the render for multi-client sync
+    // Foundry update - Foundry handles re-render automatically
     try {
       await queueUpdate(async () => {
         await this.actor.update({ [fieldName]: newValue });
@@ -1243,14 +1237,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
           abilityName
         );
         if (!deletionId) return;
-        await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [deletionId], { render: false }));
-        if (abilityBlock) abilityBlock.dataset.abilityOwnedId = "";
+        await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [deletionId]));
       } else {
         if (!this.actor.items.get(targetId)) return;
-        await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [targetId], { render: false }));
+        await queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [targetId]));
       }
-
-      element.slideUp(200, () => this.render(false));
     });
 
     Utils.bindAllowEditToggle(this, html);
@@ -1335,7 +1326,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
               await Utils.toggleOwnership(false, this.actor, "ability", targetId);
             }
 
-            abilityBlock.dataset.abilityProgress = String(targetProgress);
             if (abilityKey) {
               await Utils.updateAbilityProgressFlag(
                 this.actor,
@@ -1343,20 +1333,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
                 targetProgress
               );
             }
-
-            checkboxList.forEach((el) => {
-              const slot = Number(el.dataset.abilitySlot) || 1;
-              const shouldCheck = slot <= targetProgress;
-              el.checked = shouldCheck;
-              if (shouldCheck) {
-                el.setAttribute("checked", "checked");
-              } else {
-                el.removeAttribute("checked");
-              }
-            });
-
-            const ownedIdAfterUpdate = this._findOwnedAbilityId(abilityName);
-            abilityBlock.dataset.abilityOwnedId = ownedIdAfterUpdate || "";
           },
           {
             actorId: this.actor.id,
@@ -1416,43 +1392,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
               progress: targetProgress
             }
           }));
-          itemBlock.classList.add("owned");
         } else {
           await queueUpdate(() => this.actor.update({
             [`flags.bitd-alternate-sheets.equipped-items.-=${itemId}`]: null
           }));
-          itemBlock.classList.remove("owned");
-        }
-
-        // Update data attribute and checkboxes
-        itemBlock.dataset.itemProgress = String(targetProgress);
-        checkboxList.forEach((el) => {
-          const slot = Number(el.dataset.itemSlot) || 1;
-          const shouldCheck = slot <= targetProgress;
-          el.checked = shouldCheck;
-          if (shouldCheck) {
-            el.setAttribute("checked", "checked");
-          } else {
-            el.removeAttribute("checked");
-          }
-        });
-
-        // Optimistically update loadout display (avoid full re-render)
-        const loadDelta = targetProgress - previousProgress;
-        const loadDisplay = this.element.find(".load-amounts");
-        if (loadDisplay.length && loadDelta !== 0) {
-          const [currentText, maxText] = loadDisplay.text().split("/");
-          const currentLoadout = Number(currentText) || 0;
-          const maxLoad = Number(maxText) || 0;
-          const newLoadout = Math.max(0, Math.min(currentLoadout + loadDelta, 10));
-
-          loadDisplay.text(`${newLoadout}/${maxLoad}`);
-          loadDisplay.removeClass("at-max over-max");
-          if (newLoadout === maxLoad) {
-            loadDisplay.addClass("at-max");
-          } else if (newLoadout > maxLoad) {
-            loadDisplay.addClass("over-max");
-          }
         }
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err), { cause: err });

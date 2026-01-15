@@ -46,37 +46,6 @@ export async function replaceClockLinks(container, messageContent = null) {
 export function setupGlobalClockHandlers() {
   const $body = $(document.body);
 
-  function optimisticUpdate(clockEl, newValue) {
-    const bg = clockEl.style.backgroundImage || "";
-    const urlMatch = bg.match(/url\(['"]?(.*?)['"]?\)/);
-    if (!urlMatch) return null;
-
-    const currentSrc = urlMatch[1];
-    const clockMatch = currentSrc.match(/(\d+)clock_(\d+)\./) || currentSrc.match(/(\d+)-(\d+)\./);
-    if (!clockMatch) return null;
-
-    const type = parseInt(clockMatch[1]);
-    const currentValue = parseInt(clockMatch[2]);
-    const themeMatch = currentSrc.match(/themes\/([^/]+)\//);
-    const color = themeMatch ? themeMatch[1] : "black";
-
-    const newSrc = currentSrc.replace(
-      new RegExp(`${type}clock_${currentValue}\\.`),
-      `${type}clock_${newValue}.`
-    ).replace(
-      new RegExp(`${type}-${currentValue}\\.`),
-      `${type}-${newValue}.`
-    );
-
-    clockEl.style.backgroundImage = `url('${newSrc}')`;
-    clockEl.className = clockEl.className.replace(/clock-\d+-\d+/, `clock-${type}-${newValue}`);
-
-    const inputs = clockEl.querySelectorAll('input[type="radio"]');
-    inputs.forEach(inp => inp.checked = parseInt(inp.value) === newValue);
-
-    return { type, currentValue, color };
-  }
-
   function getUpdatePath(input) {
     let name = input.name || "";
     name = name.replace(/-[a-zA-Z0-9]+-[a-zA-Z0-9]+$/, "");
@@ -127,11 +96,6 @@ export function setupGlobalClockHandlers() {
     const doc = await getUpdatableDoc(clockEl);
     if (!doc) return;
 
-    const targetInput = clockEl.querySelector(`input[type="radio"][value="${newValue}"]`);
-    if (targetInput) targetInput.checked = true;
-
-    optimisticUpdate(clockEl, newValue);
-
     const updateData = { [updatePath]: newValue };
     if (isClockActor(doc)) {
       const type = doc.system?.type ?? 4;
@@ -141,7 +105,7 @@ export function setupGlobalClockHandlers() {
       updateData["prototypeToken.texture.src"] = imgPath;
     }
 
-    await safeUpdate(doc, updateData, { render: false });
+    await safeUpdate(doc, updateData);
   });
 
   $body.on("contextmenu", ".blades-clock", async (e) => {
@@ -164,8 +128,6 @@ export function setupGlobalClockHandlers() {
     const anyInput = clockEl.querySelector('input[type="radio"]');
     const updatePath = anyInput ? getUpdatePath(anyInput) : "system.value";
 
-    optimisticUpdate(clockEl, newValue);
-
     const updateData = { [updatePath]: newValue };
     if (isClockActor(doc)) {
       const type = doc.system?.type ?? 4;
@@ -175,7 +137,7 @@ export function setupGlobalClockHandlers() {
       updateData["prototypeToken.texture.src"] = imgPath;
     }
 
-    await safeUpdate(doc, updateData, { render: false });
+    await safeUpdate(doc, updateData);
   });
 
   $body.on("change click", ".blades-clock input[type='radio']", (e) => {

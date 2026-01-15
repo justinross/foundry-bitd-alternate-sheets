@@ -32,7 +32,6 @@ export class Utils {
   static _invalidateCache(itemType = null) {
     if (itemType === null) {
       _compendiumCache.clear();
-      console.log("[bitd-alt] Compendium cache cleared (all)");
     } else {
       // Remove all entries for this item type (any settings combination)
       for (const key of _compendiumCache.keys()) {
@@ -40,7 +39,6 @@ export class Utils {
           _compendiumCache.delete(key);
         }
       }
-      console.log(`[bitd-alt] Compendium cache invalidated for type: ${itemType}`);
     }
     // Re-render any open alternate sheets so they pick up the changes
     Utils._refreshOpenSheets();
@@ -54,7 +52,6 @@ export class Utils {
       (w) => w instanceof BladesAlternateActorSheet || w instanceof BladesAlternateCrewSheet
     );
     if (openSheets.length > 0) {
-      console.log(`[bitd-alt] Refreshing ${openSheets.length} open sheet(s)`);
       for (const sheet of openSheets) {
         sheet.render(false);
       }
@@ -67,11 +64,9 @@ export class Utils {
    * @param {string[]} types - Array of item types to pre-cache
    */
   static async _preCacheCommonTypes(types = ["heritage", "background", "vice", "ability", "item", "npc", "crew_ability", "crew_upgrade", "class"]) {
-    console.log("[bitd-alt] Pre-caching common item types:", types);
     for (const type of types) {
       await Utils.getSourcedItemsByType(type);
     }
-    console.log("[bitd-alt] Pre-cache complete");
   }
   // ... (previous static methods)
 
@@ -176,11 +171,40 @@ export class Utils {
     if (isRemoval) {
       await queueUpdate(() => actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.-=${key}`]: null,
-      }, { render: false }));
+      }));
     } else {
       await queueUpdate(() => actor.update({
         [`flags.${MODULE_ID}.multiAbilityProgress.${key}`]: normalized,
-      }, { render: false }));
+      }));
+    }
+  }
+
+  /**
+   * Update crew upgrade progress flag for multi-cost upgrades.
+   * Progress is stored until all boxes are checked, at which point the upgrade becomes owned.
+   * @param {Actor} actor - The crew actor
+   * @param {string} key - Unique key for the upgrade (usually sourceId)
+   * @param {number} value - Current progress value (0 to max)
+   */
+  static async updateCrewUpgradeProgressFlag(actor, key, value) {
+    if (!actor || !key) return;
+    const normalized = Math.max(0, Number(value) || 0);
+
+    const existingProgress = actor.getFlag(MODULE_ID, "crewUpgradeProgress") || {};
+    const currentValue = existingProgress?.[key];
+    const isRemoval = normalized === 0;
+    if ((isRemoval && currentValue === undefined) || (!isRemoval && currentValue === normalized)) {
+      return;
+    }
+
+    if (isRemoval) {
+      await queueUpdate(() => actor.update({
+        [`flags.${MODULE_ID}.crewUpgradeProgress.-=${key}`]: null,
+      }));
+    } else {
+      await queueUpdate(() => actor.update({
+        [`flags.${MODULE_ID}.crewUpgradeProgress.${key}`]: normalized,
+      }));
     }
   }
 
@@ -389,7 +413,6 @@ export class Utils {
       // Check cache first
       const cacheKey = Utils._getCacheKey(item_type);
       if (_compendiumCache.has(cacheKey)) {
-        console.log(`[bitd-alt] Cache hit for: ${cacheKey}`);
         return _compendiumCache.get(cacheKey);
       }
 
@@ -459,7 +482,6 @@ export class Utils {
 
       // Store in cache before returning
       _compendiumCache.set(cacheKey, limited_items);
-      console.log(`[bitd-alt] Cached: ${cacheKey} (${limited_items.length} items)`);
 
       return limited_items;
     }, { item_type });
@@ -610,26 +632,11 @@ export class Utils {
 
   /**
    * Bind standing toggles for acquaintances (friend/rival/neutral) on a sheet.
-   * Applies changes locally and saves to the actor without triggering a render.
+   * Saves to the actor and lets Foundry handle re-render.
    * @param {DocumentSheet} sheet
    * @param {JQuery} html
    */
   static bindStandingToggles(sheet, html) {
-    const updateIcon = (icon, standing) => {
-      if (!icon) return;
-      icon.classList.remove("fa-caret-up", "fa-caret-down", "fa-minus", "green-icon", "red-icon");
-      switch (standing) {
-        case "friend":
-          icon.classList.add("fa-caret-up", "green-icon");
-          break;
-        case "rival":
-          icon.classList.add("fa-caret-down", "red-icon");
-          break;
-        default:
-          icon.classList.add("fa-minus");
-      }
-    };
-
     html.find(".standing-toggle").off("click").on("click", async (ev) => {
       ev.preventDefault();
       const acqEl = ev.currentTarget.closest(".acquaintance");
@@ -647,9 +654,7 @@ export class Utils {
         standing === "friend" ? "rival" : standing === "rival" ? "neutral" : "friend";
       acquaintances[idx].standing = nextStanding;
 
-      updateIcon(ev.currentTarget, nextStanding);
-
-      await queueUpdate(() => sheet.actor.update({ system: { acquaintances } }, { render: false }));
+      await queueUpdate(() => sheet.actor.update({ system: { acquaintances } }));
     });
   }
 
@@ -724,11 +729,11 @@ export class Utils {
             name: checked_item.name,
             system: checked_item.system,
           },
-        ], { render: false, renderSheet: false }));
+        ]));
       } else {
         const ownedDoc = actor.getEmbeddedDocument("Item", id);
         if (ownedDoc) {
-          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", [id], { render: false, renderSheet: false }));
+          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", [id]));
           return;
         }
 
@@ -740,7 +745,7 @@ export class Utils {
           (item) => item.name === item_source_name
         );
         if (matching_owned_item) {
-          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id], { render: false, renderSheet: false }));
+          await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", [matching_owned_item.id]));
         }
       }
     } else if (type == "item") {
@@ -778,13 +783,13 @@ export class Utils {
         await queueUpdate(() => actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.${item_blueprint.id}`]:
             newItem,
-        }, { render: false }));
+        }));
       } else {
         if (!equipped_items[item_blueprint.id]) return;
         // Atomic Remove
         await queueUpdate(() => actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
-        }, { render: false }));
+        }));
       }
     }
   }
@@ -1289,9 +1294,9 @@ export async function safeUpdate(doc, updateData, options = {}) {
   });
   if (!hasChange) return false;
 
-  // 4. Queued, render-suppressed update
+  // 4. Queued update (let Foundry handle re-render automatically)
   await queueUpdate(async () => {
-    await doc.update(updateData, { render: false, ...options });
+    await doc.update(updateData, options);
   });
   return true;
 }
