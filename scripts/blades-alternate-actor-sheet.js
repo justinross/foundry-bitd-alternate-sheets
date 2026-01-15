@@ -1726,6 +1726,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
       try {
         await safeUpdate(this.actor, { [field]: updateValue });
+        this.render(false);
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err), { cause: err });
 
@@ -1766,6 +1767,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
             try {
               await safeUpdate(this.actor, { [field]: newValue });
+              this.render(false);
             } catch (err) {
               const error = err instanceof Error ? err : new Error(String(err), { cause: err });
 
