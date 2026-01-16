@@ -94,3 +94,14 @@ export function generateRandomId() {
   }
   return randomIdFn();
 }
+
+/**
+ * Returns the appropriate chat message render hook name for the current Foundry version.
+ * V13+ uses "renderChatMessageHTML" (passes HTMLElement), V12 and earlier use "renderChatMessage" (passes jQuery).
+ * @returns {string}
+ */
+export function getChatMessageRenderHook() {
+  return foundry?.utils?.isNewerVersion?.(game.version, "13")
+    ? "renderChatMessageHTML"
+    : "renderChatMessage";
+}

@@ -1,7 +1,8 @@
 import { registerDiceSoNiceChanges } from "./dice-so-nice.js";
 import { Patch } from "./patches.js";
 import { Utils } from "./utils.js";
-import { replaceClockLinks, setupGlobalClockHandlers } from "./clocks.js";
+import { replaceClockLinks, setupGlobalClockHandlers, watchForClockLinks } from "./clocks.js";
+import { getChatMessageRenderHook } from "./compat.js";
 
 export async function registerHooks() {
   // Hooks.once('ready', () => {
@@ -134,8 +135,9 @@ export async function registerHooks() {
 
   // Post-process rendered content to replace clock actor links with clock visualizations
   // This runs AFTER Foundry's built-in @UUID enricher has created content-link elements
-  Hooks.on("renderChatMessage", async (message, html, data) => {
-    const container = html[0] || html;
+  // V13+ uses renderChatMessageHTML (HTMLElement), V12 and earlier used renderChatMessage (jQuery)
+  Hooks.on(getChatMessageRenderHook(), async (message, html, data) => {
+    const container = html instanceof HTMLElement ? html : (html[0] || html);
     // Pass the message content to extract snapshot values
     if (container) await replaceClockLinks(container, message.content);
   });
@@ -160,20 +162,22 @@ export async function registerHooks() {
 
   // V13+ uses ApplicationV2 - the hook name format is different
   // Generic hook for ALL ApplicationV2 renders
+  // Uses watchForClockLinks to handle async @UUID enrichment
   Hooks.on("renderApplicationV2", (app, html, data) => {
     // Check if this is a journal-related application
     const className = app.constructor.name;
     if (className.includes("Journal") || app.document?.documentName === "JournalEntry") {
       const container = html instanceof HTMLElement ? html : (html[0] || html);
-      if (container) replaceClockLinks(container); // Fire and forget
+      if (container) watchForClockLinks(container);
     }
   });
 
   // V13+ DocumentSheetV2 for journal entries
+  // Uses watchForClockLinks to handle async @UUID enrichment
   Hooks.on("renderDocumentSheetV2", (app, html, data) => {
     if (app.document?.documentName === "JournalEntry" || app.document?.documentName === "JournalEntryPage") {
       const container = html instanceof HTMLElement ? html : (html[0] || html);
-      if (container) replaceClockLinks(container); // Fire and forget
+      if (container) watchForClockLinks(container);
     }
   });
 

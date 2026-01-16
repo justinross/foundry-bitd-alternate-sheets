@@ -205,3 +205,58 @@ function createClockDiv(uuid, isSnapshot, html) {
   clockDiv.innerHTML = html;
   return clockDiv;
 }
+
+/**
+ * Watch a container for clock actor content-links being added (async enrichment).
+ * This handles V13+ where @UUID enrichment happens after render hooks fire.
+ * @param {HTMLElement} container - The container to watch
+ * @param {number} [timeoutMs=2000] - How long to watch before giving up
+ */
+export function watchForClockLinks(container, timeoutMs = 2000) {
+  if (!container) return;
+
+  // First, try immediate replacement (works if enrichment already happened)
+  replaceClockLinks(container);
+
+  // Set up observer to watch for dynamically added content-links
+  const observer = new MutationObserver(async (mutations) => {
+    let hasNewLinks = false;
+
+    for (const mutation of mutations) {
+      // Check added nodes for content-links
+      for (const node of mutation.addedNodes) {
+        if (node.nodeType !== Node.ELEMENT_NODE) continue;
+
+        // Check if the node itself is a content-link
+        if (node.matches?.('a.content-link[data-type="Actor"]')) {
+          hasNewLinks = true;
+          break;
+        }
+
+        // Check if the node contains content-links
+        if (node.querySelector?.('a.content-link[data-type="Actor"]')) {
+          hasNewLinks = true;
+          break;
+        }
+      }
+
+      if (hasNewLinks) break;
+    }
+
+    if (hasNewLinks) {
+      // Give a tiny delay for any batch of mutations to complete
+      await new Promise(resolve => setTimeout(resolve, 50));
+      await replaceClockLinks(container);
+    }
+  });
+
+  observer.observe(container, {
+    childList: true,
+    subtree: true
+  });
+
+  // Auto-disconnect after timeout to prevent memory leaks
+  setTimeout(() => {
+    observer.disconnect();
+  }, timeoutMs);
+}
