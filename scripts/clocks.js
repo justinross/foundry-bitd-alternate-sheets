@@ -12,19 +12,29 @@ export async function replaceClockLinks(container, messageContent = null) {
   const snapshotValues = parseClockSnapshotValues(messageContent);
   const links = container.querySelectorAll('a.content-link[data-type="Actor"]');
 
+  // Collect UUIDs first to avoid stale NodeList issues during async iteration
+  const uuids = new Set();
   for (const link of links) {
-    const uuid = link.dataset.uuid;
-    if (!uuid) continue;
+    if (link.dataset.uuid) uuids.add(link.dataset.uuid);
+  }
 
+  for (const uuid of uuids) {
     try {
       const doc = await fromUuid(uuid);
       if (!doc || !isClockActor(doc)) continue;
 
+      // Re-query for all matching links (originals may be stale after async operation)
+      const currentLinks = container.querySelectorAll(`a.content-link[data-type="Actor"][data-uuid="${uuid}"]`);
+      if (!currentLinks.length) continue;
+
       const model = getClockRenderModel(doc, uuid, snapshotValues);
       const clockHtml = buildClockHtml(model, doc.name);
-      const clockDiv = createClockDiv(uuid, model.isSnapshot, clockHtml);
 
-      link.replaceWith(clockDiv);
+      // Replace all matching links (same clock may be referenced multiple times)
+      for (const link of currentLinks) {
+        const clockDiv = createClockDiv(uuid, model.isSnapshot, clockHtml);
+        link.replaceWith(clockDiv);
+      }
     } catch (err) {
       // Preserve original error as cause when wrapping non-Errors
       const error = err instanceof Error ? err : new Error(String(err), { cause: err });
@@ -45,6 +55,20 @@ export async function replaceClockLinks(container, messageContent = null) {
 
 export function setupGlobalClockHandlers() {
   const $body = $(document.body);
+
+  /**
+   * Update the visual representation of a clock element.
+   * This is needed for clocks in journals/chat which don't auto-re-render.
+   */
+  function updateClockVisual(clockEl, newValue, type, color) {
+    const imgPath = `systems/blades-in-the-dark/themes/${color}/${type}clock_${newValue}.svg`;
+    clockEl.style.backgroundImage = `url('${imgPath}')`;
+    clockEl.className = clockEl.className.replace(/clock-\d+-\d+/, `clock-${type}-${newValue}`);
+
+    // Update radio button states
+    const inputs = clockEl.querySelectorAll('input[type="radio"]');
+    inputs.forEach(inp => inp.checked = parseInt(inp.value) === newValue);
+  }
 
   function getUpdatePath(input) {
     let name = input.name || "";
@@ -96,16 +120,20 @@ export function setupGlobalClockHandlers() {
     const doc = await getUpdatableDoc(clockEl);
     if (!doc) return;
 
+    const type = doc.system?.type ?? 4;
+    const color = doc.system?.color ?? "black";
+
     const updateData = { [updatePath]: newValue };
     if (isClockActor(doc)) {
-      const type = doc.system?.type ?? 4;
-      const color = doc.system?.color ?? "black";
       const imgPath = `systems/blades-in-the-dark/themes/${color}/${type}clock_${newValue}.svg`;
       updateData.img = imgPath;
       updateData["prototypeToken.texture.src"] = imgPath;
     }
 
     await safeUpdate(doc, updateData);
+
+    // Update visual for contexts that don't auto-re-render (journals, chat)
+    updateClockVisual(clockEl, newValue, type, color);
   });
 
   $body.on("contextmenu", ".blades-clock", async (e) => {
@@ -128,16 +156,20 @@ export function setupGlobalClockHandlers() {
     const anyInput = clockEl.querySelector('input[type="radio"]');
     const updatePath = anyInput ? getUpdatePath(anyInput) : "system.value";
 
+    const type = doc.system?.type ?? 4;
+    const color = doc.system?.color ?? "black";
+
     const updateData = { [updatePath]: newValue };
     if (isClockActor(doc)) {
-      const type = doc.system?.type ?? 4;
-      const color = doc.system?.color ?? "black";
       const imgPath = `systems/blades-in-the-dark/themes/${color}/${type}clock_${newValue}.svg`;
       updateData.img = imgPath;
       updateData["prototypeToken.texture.src"] = imgPath;
     }
 
     await safeUpdate(doc, updateData);
+
+    // Update visual for contexts that don't auto-re-render (journals, chat)
+    updateClockVisual(clockEl, newValue, type, color);
   });
 
   $body.on("change click", ".blades-clock input[type='radio']", (e) => {
@@ -206,57 +238,3 @@ function createClockDiv(uuid, isSnapshot, html) {
   return clockDiv;
 }
 
-/**
- * Watch a container for clock actor content-links being added (async enrichment).
- * This handles V13+ where @UUID enrichment happens after render hooks fire.
- * @param {HTMLElement} container - The container to watch
- * @param {number} [timeoutMs=2000] - How long to watch before giving up
- */
-export function watchForClockLinks(container, timeoutMs = 2000) {
-  if (!container) return;
-
-  // First, try immediate replacement (works if enrichment already happened)
-  replaceClockLinks(container);
-
-  // Set up observer to watch for dynamically added content-links
-  const observer = new MutationObserver(async (mutations) => {
-    let hasNewLinks = false;
-
-    for (const mutation of mutations) {
-      // Check added nodes for content-links
-      for (const node of mutation.addedNodes) {
-        if (node.nodeType !== Node.ELEMENT_NODE) continue;
-
-        // Check if the node itself is a content-link
-        if (node.matches?.('a.content-link[data-type="Actor"]')) {
-          hasNewLinks = true;
-          break;
-        }
-
-        // Check if the node contains content-links
-        if (node.querySelector?.('a.content-link[data-type="Actor"]')) {
-          hasNewLinks = true;
-          break;
-        }
-      }
-
-      if (hasNewLinks) break;
-    }
-
-    if (hasNewLinks) {
-      // Give a tiny delay for any batch of mutations to complete
-      await new Promise(resolve => setTimeout(resolve, 50));
-      await replaceClockLinks(container);
-    }
-  });
-
-  observer.observe(container, {
-    childList: true,
-    subtree: true
-  });
-
-  // Auto-disconnect after timeout to prevent memory leaks
-  setTimeout(() => {
-    observer.disconnect();
-  }, timeoutMs);
-}

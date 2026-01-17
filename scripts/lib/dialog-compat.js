@@ -241,3 +241,136 @@ async function openCardSelectionDialogV1({
     dialog.render(true);
   });
 }
+
+// ============================================================================
+// Text Input Dialog
+// ============================================================================
+
+/**
+ * Open a text input dialog with V1/V2 compatibility.
+ * Used as fallback when no chooser items are available.
+ *
+ * @param {Object} options
+ * @param {string} options.title - Dialog title
+ * @param {string} options.label - Label for the input field
+ * @param {string} options.currentValue - Current value to pre-fill
+ * @param {string} options.okLabel - OK button label
+ * @param {string} options.cancelLabel - Cancel button label
+ * @returns {Promise<string|undefined>} The entered value, or undefined if cancelled
+ */
+export async function openTextInputDialog(options) {
+  if (supportsDialogV2()) {
+    return openTextInputDialogV2(options);
+  }
+  return openTextInputDialogV1(options);
+}
+
+async function openTextInputDialogV2({
+  title,
+  label,
+  currentValue,
+  okLabel,
+  cancelLabel,
+}) {
+  const { DialogV2 } = foundry.applications.api;
+
+  const content = `
+    <form class="bitd-alt text-input-dialog">
+      <div class="form-group">
+        <label>${escapeHTML(label)}</label>
+        <input type="text" name="value" value="${escapeHTML(currentValue ?? "")}" autofocus />
+      </div>
+    </form>
+  `;
+
+  const result = await DialogV2.wait({
+    window: { title },
+    position: { width: 400 },
+    content,
+    buttons: [
+      {
+        action: "ok",
+        label: okLabel,
+        icon: "fas fa-check",
+        default: true,
+        callback: (event, button, dialog) => {
+          const formElement =
+            dialog.element?.querySelector("form") ||
+            event.target?.closest("dialog")?.querySelector("form") ||
+            document.querySelector("dialog[open] form");
+          if (!formElement) return "";
+          const FormData = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
+          const formData = new FormData(formElement);
+          return formData.object.value ?? "";
+        },
+      },
+      {
+        action: "cancel",
+        label: cancelLabel,
+        icon: "fas fa-times",
+        callback: () => undefined,
+      },
+    ],
+  });
+
+  // Handle cancel action or close button
+  if (result === undefined || result === "cancel" || result === null) return undefined;
+
+  return String(result);
+}
+
+async function openTextInputDialogV1({
+  title,
+  label,
+  currentValue,
+  okLabel,
+  cancelLabel,
+}) {
+  const content = `
+    <form class="bitd-alt text-input-dialog">
+      <div class="form-group">
+        <label>${escapeHTML(label)}</label>
+        <input type="text" name="value" value="${escapeHTML(currentValue ?? "")}" autofocus />
+      </div>
+    </form>
+  `;
+
+  return await new Promise((resolve) => {
+    let resolved = false;
+    const finish = (value) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(value);
+    };
+
+    const dialog = new Dialog(
+      {
+        title,
+        content,
+        buttons: {
+          ok: {
+            icon: '<i class="fas fa-check"></i>',
+            label: okLabel,
+            callback: (html) => {
+              const value = html.find('input[name="value"]').val();
+              finish(value ?? "");
+            },
+          },
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: cancelLabel,
+            callback: () => {
+              finish(undefined);
+            },
+          },
+        },
+        default: "ok",
+        close: () => finish(undefined),
+      },
+      {
+        width: 400,
+      }
+    );
+    dialog.render(true);
+  });
+}

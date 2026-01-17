@@ -3,7 +3,7 @@ import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/b
 import { Utils, MODULE_ID, safeUpdate } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
-import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
+import { openCrewSelectionDialog, openCardSelectionDialog, openTextInputDialog } from "./lib/dialog-compat.js";
 import { enrichHTML } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
@@ -1681,52 +1681,34 @@ export class BladesAlternateActorSheet extends BladesSheet {
     }
 
 
-    // Default: Text Input Mode
-    const content = `
-      <form>
-        <div class="form-group">
-          <label>${header}</label>
-          <input type="text" name="value" value="${initialValue}" autofocus/>
-        </div>
-      </form>
-      `;
-
-    new Dialog({
+    // Default: Text Input Mode (V1/V2 compat)
+    const result = await openTextInputDialog({
       title: `${game.i18n.localize("bitd-alt.Edit")} ${header}`,
-      content: content,
-      buttons: {
-        save: {
-          label: game.i18n.localize("bitd-alt.Ok") || "Ok",
-          icon: '<i class="fas fa-check"></i>',
-          callback: async (html) => {
-            const newValue = html.find('[name="value"]').val();
+      label: header,
+      currentValue: initialValue,
+      okLabel: game.i18n.localize("bitd-alt.Ok") || "Ok",
+      cancelLabel: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
+    });
 
-            try {
-              await safeUpdate(this.actor, { [field]: newValue });
-              this.render(false);
-            } catch (err) {
-              const error = err instanceof Error ? err : new Error(String(err), { cause: err });
+    if (result === undefined) return; // Cancelled
 
-              Hooks.onError("BitD-Alt.SmartEdit", error, {
-                msg: "[BitD-Alt]",
-                log: "error",
-                notify: null,
-                data: { field, header, actorId: this.actor.id }
-              });
+    try {
+      await safeUpdate(this.actor, { [field]: result });
+      this.render(false);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err), { cause: err });
 
-              ui.notifications.error(`[BitD-Alt] Failed to update ${header}.`, {
-                console: false
-              });
-            }
-          }
-        },
-        cancel: {
-          label: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
-          icon: '<i class="fas fa-times"></i>'
-        }
-      },
-      default: "save"
-    }).render(true);
+      Hooks.onError("BitD-Alt.SmartEdit", error, {
+        msg: "[BitD-Alt]",
+        log: "error",
+        notify: null,
+        data: { field, header, actorId: this.actor.id }
+      });
+
+      ui.notifications.error(`[BitD-Alt] Failed to update ${header}.`, {
+        console: false
+      });
+    }
   }
 
   async _handleCrewFieldClick() {
