@@ -38,6 +38,10 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       this.collapsedSections ||
       persistedUi.collapsedSections ||
       {};
+    // Restore minimized state from persisted UI (matches character sheet behavior)
+    if (typeof this.sheetMinimized === "undefined") {
+      this.sheetMinimized = Boolean(persistedUi.sheetMinimized);
+    }
     // The system sheet returns a data object; mirror actor/system for template parity.
     sheetData.actor = sheetData.data ?? sheetData.actor ?? this.actor;
     sheetData.system = sheetData.system ?? this.actor.system;
@@ -246,11 +250,27 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
         const targetHeight = coinsRect.bottom - appRect.top;
         this.setPosition({ height: targetHeight });
         this._element.addClass("can-expand");
+        this.sheetMinimized = true;
+        Utils.saveUiState(this, { sheetMinimized: true });
       } else {
         this.setPosition({ height: "auto" });
         this._element.removeClass("can-expand");
+        this.sheetMinimized = false;
+        Utils.saveUiState(this, { sheetMinimized: false });
       }
     });
+
+    // Restore minimized state on render
+    if (this.sheetMinimized) {
+      const coinsRow = html.find('.coins-row')[0];
+      if (coinsRow) {
+        const appRect = this._element[0].getBoundingClientRect();
+        const coinsRect = coinsRow.getBoundingClientRect();
+        const targetHeight = coinsRect.bottom - appRect.top;
+        this.setPosition({ height: targetHeight });
+        this._element.addClass("can-expand");
+      }
+    }
 
     html.find('[data-action="toggle-filter"]').off("click").on("click", (ev) => {
       ev.preventDefault();
