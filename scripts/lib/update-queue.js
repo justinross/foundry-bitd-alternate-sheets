@@ -32,12 +32,8 @@ class UpdateQueue {
 
     while(this.queue.length > 0) {
 
-      /** grab the last update in the list and hold onto its index
-       *  in case another update pushes onto this array before we
-       *  are finished.
-       */
-      const updateIndex = this.queue.length-1;
-      const { fn: updateFn, resolve, reject } = this.queue[updateIndex];
+      /** Process from front of queue (FIFO) to maintain submission order */
+      const { fn: updateFn, resolve, reject } = this.queue.shift();
 
       /** wait for the update to complete */
       try {
@@ -62,9 +58,6 @@ class UpdateQueue {
 
         reject(error);
       }
-
-      /** remove this entry from the queue */
-      this.queue.splice(updateIndex,1);
     }
 
     this.inFlight = false;
