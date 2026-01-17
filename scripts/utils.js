@@ -468,8 +468,7 @@ export class Utils {
 
       if (!populateFromCompendia && !populateFromWorld) {
         ui.notifications.error(
-          `No playbook auto-population source has been selected in the system settings. Please choose at least one source.`,
-          { permanent: true }
+          `No playbook auto-population source has been selected in the system settings. Please choose at least one source.`
         );
       }
       if (limited_items) {
