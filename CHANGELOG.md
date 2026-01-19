@@ -4,7 +4,7 @@
 
 ### New Alternate Crew Sheet
 - Added alternate crew sheet
-- Collapsible sections for abilities, upgrades, and contacts with per-user persistence
+- Chooser dialogs based on compendium contents for crew sheet fields
 - Claims grid with corner checkboxes matching the paper sheet layout
 - Acquaintance rendering with friend/rival standing toggles and color indicators
 - Crew XP notes section
@@ -12,21 +12,21 @@
 ### Performance Improvements
 - Compendium caching reduces sheet rendering times from ~600ms to ~2-3ms for character sheets and ~200ms to ~1-2ms for crew sheets
 - Pre-caches common item types on startup for faster initial sheet opens
-- Smart cache invalidation when compendiums or world items change
+- Smart cache invalidation when compendiums, world items change, or compendium search path settings change
 - Added opt-in performance profiling logs (enable in module settings)
 
 ### Clock System Enhancements
-- Clocks work in journals, chat messages, and popup dialogs (harm, coin, load)
-- Global event handling ensures consistent clock behavior across all contexts
-- User notification when a clock entity is missing
+- Clocks work in journals, chat messages, notes tabs, and harm popup
 
 ### UI Improvements
-- Binary item checkboxes for toggled item states
 - Load status pills with color indicators
 - Added chooser dialog boxes for character/crew fields
 - Compendium-backed tooltips for identity/bio fields
-- 'Search All Compendiums' configuration will include all Compendiums when searching for options to select in the chooser dialog for various fields and in filling out lists of abilities for scoundrels and crews
+- 'Search All Compendiums' configuration will include all Compendiums when searching for chooser options
+- Searching user compendiums allows customization of the available playbooks through local or module extension
 - NPCs in the configured search path with associated class 'Vice Purveyor' will populate the chooser dialog for the Vice Purveyor field.
+- Chooser fields that selecting string types allow custom strings to be added to fields
+  
 ### Bug Fixes
 - Fixed handler stacking that caused duplicate event processing
 - Fixed layout shift when toggling edit mode
