@@ -784,7 +784,10 @@ export class Utils {
             newItem,
         }));
       } else {
-        if (!equipped_items[item_blueprint.id]) return;
+        // For removal, we can use the id directly even if item_blueprint wasn't found
+        // (e.g., when the item was already deleted from the actor)
+        const itemKey = item_blueprint?.id ?? id;
+        if (!equipped_items[itemKey]) return;
         // Atomic Remove
         await queueUpdate(() => actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
@@ -1174,6 +1177,7 @@ export class Utils {
   /**
    * Smart Item Selector Logic (Shared)
    * Enforces singleton pattern for specific item types (Hunting Grounds, Reputation, etc.)
+   * Supports custom text values stored in flags when result doesn't match compendium items.
    */
   static async handleSmartItemSelector(event, actor) {
     event.preventDefault();
@@ -1181,6 +1185,14 @@ export class Utils {
     const label = event.currentTarget.innerText;
     const existingItems = actor.items.filter(i => i.type === itemType);
     const existingItem = existingItems[0] ?? null;
+
+    // Flag keys for custom text storage
+    const flagKeyMap = {
+      "crew_reputation": "customReputationType",
+      "hunting_grounds": "customHuntingGrounds"
+    };
+    const flagKey = flagKeyMap[itemType];
+    const customFlagValue = flagKey ? actor.getFlag(MODULE_ID, flagKey) : null;
 
     // 1. Fetch options via Utils
     const availableItems = await Utils.getSourcedItemsByType(itemType);
@@ -1192,19 +1204,12 @@ export class Utils {
       img: i.img || "icons/svg/mystery-man.svg"
     }));
 
-    // 3. Determine Current Value (if any)
-    const currentValue = existingItem ? existingItem.name : ""; // Use ID if possible? Source items have different IDs than owned. Match by Name usually safer for Compendium vs World? 
-    // Wait, the "Unique" rule means we likely want to match by Source ID if we tracked it, but we don't always. 
-    // And standard `availableItems` are the *Source* items. 
-    // If I select "Docks", I want "Docks" to be selected. The `value` is the Source ID.
-    // The owned item has a different ID. 
-    // BUT we can match by NAME? `dialog-compat` expects `value` match.
-    // Let's try to match by Name -> Find Source ID.
-    const currentName = existingItem?.name;
-    const currentSourceId = availableItems.find(i => i.name === currentName)?._id ?? "";
+    // 3. Determine Current Value
+    // Priority: existing Item name > custom flag value > empty
+    const currentName = existingItem?.name ?? customFlagValue ?? "";
 
 
-    // 4. Open Chooser
+    // 4. Open Chooser with custom text support
     const result = await openCardSelectionDialog({
       title: `${game.i18n.localize("bitd-alt.Select")} ${label}`,
       instructions: game.i18n.localize("bitd-alt.SelectToAddItem"),
@@ -1212,39 +1217,49 @@ export class Utils {
       cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
       clearLabel: game.i18n.localize("bitd-alt.Clear"),
       choices: choices,
-      currentValue: currentSourceId
+      currentValue: currentName,
+      allowCustomText: true,
+      textInputLabel: game.i18n.localize("bitd-alt.CustomValue") || "Custom:",
+      textInputPlaceholder: label,
     });
 
     if (result === undefined) return; // Cancelled
 
-    if (result === null) {
-      // Clear: remove existing singleton entry (cannot represent "none" via update)
+    if (result === null || result === "") {
+      // Clear: remove existing Item AND clear custom flag
       const existingIds = existingItems.map(i => i.id);
-      if (existingIds.length > 0) {
-        try {
+      try {
+        if (existingIds.length > 0) {
           await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", existingIds));
-        } catch (err) {
-          ui.notifications.error(`Failed to remove ${label}: ${err.message}`);
-          console.error("Item deletion error:", err);
         }
+        if (flagKey && customFlagValue) {
+          await actor.unsetFlag(MODULE_ID, flagKey);
+        }
+      } catch (err) {
+        ui.notifications.error(`Failed to clear ${label}: ${err.message}`);
+        console.error("Clear error:", err);
       }
     } else {
-      const selectedId = result;
-      const selectedItem = availableItems.find(i => i._id === selectedId);
+      // Check if result matches a compendium item name
+      const matchedItem = availableItems.find(i => i.name === result);
 
-      if (selectedItem) {
-        // Prepare data from selected source item
+      if (matchedItem) {
+        // Result matches compendium item - create/update Item, clear custom flag
         const itemData = {
-          name: selectedItem.name,
-          type: selectedItem.type,
-          system: foundry.utils.deepClone(selectedItem.system ?? {}),
-          img: selectedItem.img
+          name: matchedItem.name,
+          type: matchedItem.type,
+          system: foundry.utils.deepClone(matchedItem.system ?? {}),
+          img: matchedItem.img
         };
 
-        // Check for existing item to update-in-place
         try {
+          // Clear custom flag if it exists
+          if (flagKey && customFlagValue) {
+            await actor.unsetFlag(MODULE_ID, flagKey);
+          }
+
           if (existingItem) {
-            // UPDATE existing item (Atomic, no race condition, no empty gap)
+            // UPDATE existing item
             await queueUpdate(() => actor.updateEmbeddedDocuments("Item", [{
               _id: existingItem.id,
               name: itemData.name,
@@ -1258,6 +1273,21 @@ export class Utils {
         } catch (err) {
           ui.notifications.error(`Failed to set ${label}: ${err.message}`);
           console.error("Item update/create error:", err);
+        }
+      } else {
+        // Custom text - delete Item if exists, store in flag
+        try {
+          const existingIds = existingItems.map(i => i.id);
+          if (existingIds.length > 0) {
+            await queueUpdate(() => actor.deleteEmbeddedDocuments("Item", existingIds));
+          }
+
+          if (flagKey) {
+            await actor.setFlag(MODULE_ID, flagKey, result);
+          }
+        } catch (err) {
+          ui.notifications.error(`Failed to set custom ${label}: ${err.message}`);
+          console.error("Custom text save error:", err);
         }
       }
     }
