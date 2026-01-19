@@ -67,6 +67,10 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     const rawNotes = (await this.actor.getFlag(MODULE_ID, "notes")) || "";
     sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
 
+    // Custom text values for smart fields (used when no compendium item is selected)
+    sheetData.customReputationType = this.actor.getFlag(MODULE_ID, "customReputationType") || "";
+    sheetData.customHuntingGrounds = this.actor.getFlag(MODULE_ID, "customHuntingGrounds") || "";
+
     const acquaintanceList = Array.isArray(sheetData.system?.acquaintances)
       ? sheetData.system.acquaintances
       : [];

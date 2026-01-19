@@ -3,7 +3,7 @@ import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/b
 import { Utils, MODULE_ID, safeUpdate } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
-import { openCrewSelectionDialog, openCardSelectionDialog, openTextInputDialog } from "./lib/dialog-compat.js";
+import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
 import { enrichHTML } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
@@ -1635,66 +1635,35 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     }
 
-    // 2. Check if we should open the card selector
-    // Only open if we found items; otherwise fall through to text input
-    if (availableItems && availableItems.length > 0) {
-      // 2. Prepare Choices
-      const choices = (availableItems || []).map((i) => ({
-        value: i.name || i._id,
-        label: i.name,
-        img: i.img || "icons/svg/mystery-man.svg",
-        description: i.system?.description ?? "",
-      }));
+    // 2. Prepare Choices (may be empty if no compendium items found)
+    const choices = (availableItems || []).map((i) => ({
+      value: i.name || i._id,
+      label: i.name,
+      img: i.img || "icons/svg/mystery-man.svg",
+      description: i.system?.description ?? "",
+    }));
 
-      // 3. Open Chooser
-      const result = await openCardSelectionDialog({
-        title: `${game.i18n.localize("bitd-alt.Select")} ${header}`,
-        instructions: `Choose a ${header} from the list below.`,
-        okLabel: game.i18n.localize("bitd-alt.Select") || "Select",
-        cancelLabel: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
-        clearLabel: game.i18n.localize("bitd-alt.Clear") || "Clear",
-        choices: choices,
-        currentValue: initialValue,
-      });
-
-      if (result === undefined) return; // Cancelled
-
-      const updateValue = result === null ? "" : result;
-
-      try {
-        await safeUpdate(this.actor, { [field]: updateValue });
-        this.render(false);
-      } catch (err) {
-        const error = err instanceof Error ? err : new Error(String(err), { cause: err });
-
-        Hooks.onError("BitD-Alt.SmartEdit", error, {
-          msg: "[BitD-Alt]",
-          log: "error",
-          notify: null,
-          data: { field, header, actorId: this.actor.id }
-        });
-
-        ui.notifications.error(`[BitD-Alt] Failed to update ${header}.`, {
-          console: false
-        });
-      }
-      return; // Stop here, do not fall through to text input
-    }
-
-
-    // Default: Text Input Mode (V1/V2 compat)
-    const result = await openTextInputDialog({
-      title: `${game.i18n.localize("bitd-alt.Edit")} ${header}`,
-      label: header,
-      currentValue: initialValue,
-      okLabel: game.i18n.localize("bitd-alt.Ok") || "Ok",
+    // 3. Open Chooser with custom text support
+    // Always show the dialog with text input enabled - cards are optional
+    const result = await openCardSelectionDialog({
+      title: `${game.i18n.localize("bitd-alt.Select")} ${header}`,
+      instructions: `Choose a ${header} from the list below, or enter a custom value.`,
+      okLabel: game.i18n.localize("bitd-alt.Select") || "Select",
       cancelLabel: game.i18n.localize("bitd-alt.Cancel") || "Cancel",
+      clearLabel: game.i18n.localize("bitd-alt.Clear") || "Clear",
+      choices: choices,
+      currentValue: initialValue,
+      allowCustomText: true,
+      textInputLabel: game.i18n.localize("bitd-alt.CustomValue") || "Custom:",
+      textInputPlaceholder: header,
     });
 
     if (result === undefined) return; // Cancelled
 
+    const updateValue = result === null ? "" : result;
+
     try {
-      await safeUpdate(this.actor, { [field]: result });
+      await safeUpdate(this.actor, { [field]: updateValue });
       this.render(false);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err), { cause: err });
