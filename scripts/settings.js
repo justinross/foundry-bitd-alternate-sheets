@@ -65,4 +65,13 @@ export const registerSystemSettings = function () {
     type: Boolean,
     default: false,
   });
+
+  game.settings.register("bitd-alternate-sheets", "showClearLoadButton", {
+    name: "Show Clear Load Button to Players",
+    hint: "Show the Clear Load button to players in the load popout. GMs always see it.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
 };

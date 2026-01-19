@@ -450,6 +450,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.load_open = this.load_open;
     sheetData.allow_edit = this.allow_edit;
     sheetData.show_debug = this.show_debug;
+    sheetData.showClearLoadButton = game.user.isGM || game.settings.get("bitd-alternate-sheets", "showClearLoadButton");
 
     const systemCrewEntries = this._getSystemCrewEntries();
     const primaryCrew = this._getPrimaryCrewEntry(systemCrewEntries);
