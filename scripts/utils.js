@@ -784,7 +784,10 @@ export class Utils {
             newItem,
         }));
       } else {
-        if (!equipped_items[item_blueprint.id]) return;
+        // For removal, we can use the id directly even if item_blueprint wasn't found
+        // (e.g., when the item was already deleted from the actor)
+        const itemKey = item_blueprint?.id ?? id;
+        if (!equipped_items[itemKey]) return;
         // Atomic Remove
         await queueUpdate(() => actor.update({
           [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
