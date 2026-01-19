@@ -142,22 +142,53 @@ export async function registerHooks() {
     if (container) await replaceClockLinks(container, message.content);
   });
 
+  // Helper: wait for @UUID enrichment to complete (content-links to appear)
+  // V12's enrichment is async and completes after render hooks fire
+  async function waitForEnrichmentThenReplace(container, timeoutMs = 2000) {
+    if (!container) return;
+
+    // If content-links already exist, process immediately
+    if (container.querySelector('a.content-link[data-type="Actor"]')) {
+      await replaceClockLinks(container);
+      return;
+    }
+
+    // Poll for content-links to appear (V12 async enrichment)
+    const start = Date.now();
+    return new Promise((resolve) => {
+      const check = async () => {
+        if (container.querySelector('a.content-link[data-type="Actor"]')) {
+          await replaceClockLinks(container);
+          resolve();
+          return;
+        }
+        if (Date.now() - start >= timeoutMs) {
+          // Timeout - try anyway in case there are no clock links
+          await replaceClockLinks(container);
+          resolve();
+          return;
+        }
+        setTimeout(check, 50);
+      };
+      check();
+    });
+  }
+
   // Also process journals and other sheets that might contain clock links
-  // V12 and earlier
   Hooks.on("renderJournalSheet", async (app, html, data) => {
     const container = html[0] || html;
-    if (container) await replaceClockLinks(container);
+    await waitForEnrichmentThenReplace(container);
   });
 
   Hooks.on("renderJournalPageSheet", async (app, html, data) => {
     const container = html[0] || html;
-    if (container) await replaceClockLinks(container);
+    await waitForEnrichmentThenReplace(container);
   });
 
   // V11+ uses JournalTextPageSheet for text pages
   Hooks.on("renderJournalTextPageSheet", async (app, html, data) => {
     const container = html[0] || html;
-    if (container) await replaceClockLinks(container);
+    await waitForEnrichmentThenReplace(container);
   });
 
   // V13+ uses ApplicationV2 - the hook name format is different
