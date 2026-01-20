@@ -59,6 +59,84 @@ export class Utils {
   }
 
   /**
+   * Applies fixes for known upstream system module data issues.
+   * Called during cache population for Document objects.
+   * Note: Only simple property modifications work here - effects are EmbeddedCollections
+   * and need to be fixed after toObject() serialization (see _fixSteadyUpgradeEffects).
+   * @param {Document[]} items - Array of items loaded from compendium
+   * @returns {Document[]} Items with fixes applied
+   */
+  static _applySystemDataFixes(items) {
+    // Check if patching is enabled
+    if (!game.settings.get("bitd-alternate-sheets", "patchSystemData")) {
+      return items;
+    }
+
+    for (const item of items) {
+      if (item.type !== "crew_upgrade") continue;
+
+      // Fix: Ordained missing class field (should be "Cult")
+      if (item.name === "(C) Ordained" && item.system?.class === "") {
+        item.system.class = "Cult";
+      }
+    }
+    return items;
+  }
+
+  /**
+   * Fixes Steady upgrade effects that are missing their changes data.
+   * Must be called on serialized data (after toObject()), not on Document objects,
+   * because effects are EmbeddedCollections that can't be modified directly.
+   * @param {Object} itemData - Plain object from toObject() or similar
+   * @returns {Object} The modified itemData
+   */
+  static _fixSteadyUpgradeEffects(itemData) {
+    // Check if patching is enabled
+    if (!game.settings.get("bitd-alternate-sheets", "patchSystemData")) {
+      return itemData;
+    }
+
+    if (itemData.type !== "crew_upgrade") return itemData;
+    if (!itemData.name?.endsWith("Steady")) return itemData;
+
+    const stressEffectData = {
+      name: "+1 Stress Box",
+      icon: "icons/svg/aura.svg",
+      changes: [
+        {
+          key: "system.scoundrel.add_stress",
+          value: "1",
+          mode: 2, // CONST.ACTIVE_EFFECT_MODES.ADD
+        },
+      ],
+      transfer: true,
+      disabled: false,
+    };
+
+    // Ensure effects array exists
+    if (!itemData.effects) {
+      itemData.effects = [stressEffectData];
+      return itemData;
+    }
+
+    // Find existing stress effect
+    const stressEffect = itemData.effects.find(
+      (e) => e.name?.includes("Stress") || e.name?.includes("stress")
+    );
+
+    if (stressEffect) {
+      // Effect exists but may have empty changes - only fix if empty
+      if (!stressEffect.changes || stressEffect.changes.length === 0) {
+        stressEffect.changes = stressEffectData.changes;
+      }
+      // If changes exist, leave them alone (system provided data)
+    }
+    // If no stress effect found, don't add one - only fix existing empty data
+
+    return itemData;
+  }
+
+  /**
    * Optional: Pre-cache common item types for faster initial sheet renders
    * Call this from a hook if desired (e.g., ready hook)
    * @param {string[]} types - Array of item types to pre-cache
@@ -478,6 +556,9 @@ export class Utils {
           return nameA.localeCompare(nameB);
         });
       }
+
+      // Apply fixes for known upstream system module data issues
+      Utils._applySystemDataFixes(limited_items);
 
       // Store in cache before returning
       _compendiumCache.set(cacheKey, limited_items);
