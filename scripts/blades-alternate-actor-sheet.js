@@ -4,7 +4,7 @@ import { Utils, MODULE_ID, safeUpdate } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
 import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
-import { enrichHTML } from "./compat.js";
+import { enrichHTML, deletionUpdate } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
 
@@ -864,9 +864,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     if (!currentFlag) return;
 
     await queueUpdate(async () => {
-      await this.actor.update({
-        "flags.bitd-alternate-sheets.-=equipped-items": null,
-      });
+      await this.actor.update(
+        deletionUpdate("flags.bitd-alternate-sheets.equipped-items")
+      );
     });
   }
 
@@ -1395,9 +1395,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
             }
           }));
         } else {
-          await queueUpdate(() => this.actor.update({
-            [`flags.bitd-alternate-sheets.equipped-items.-=${itemId}`]: null
-          }));
+          await queueUpdate(() => this.actor.update(
+            deletionUpdate(`flags.bitd-alternate-sheets.equipped-items.${itemId}`)
+          ));
         }
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err), { cause: err });

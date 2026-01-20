@@ -106,3 +106,23 @@ export function getChatMessageRenderHook() {
     ? "renderChatMessageHTML"
     : "renderChatMessage";
 }
+
+/**
+ * Creates an update object for forced deletion that works across V12-V14.
+ * V14+ uses { key: ForcedDeletion.create() } or the global _del shorthand
+ * V12/V13 use { "-=key": null }
+ * @param {string} key - The full dot-notation key to delete (without -=)
+ * @returns {object} Update object with proper key/value for current version
+ */
+export function deletionUpdate(key) {
+  // V14+ provides a global _del shorthand for ForcedDeletion
+  if (globalThis._del !== undefined) {
+    return { [key]: globalThis._del };
+  }
+  // Legacy syntax for V12/V13 - insert -= before the last key segment
+  const lastDot = key.lastIndexOf(".");
+  const deletionKey = lastDot >= 0
+    ? `${key.slice(0, lastDot + 1)}-=${key.slice(lastDot + 1)}`
+    : `-=${key}`;
+  return { [deletionKey]: null };
+}

@@ -1,7 +1,7 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
 import { BladesAlternateCrewSheet } from "./blades-alternate-crew-sheet.js";
 import { queueUpdate } from "./lib/update-queue.js";
-import { enrichHTML as compatEnrichHTML } from "./compat.js";
+import { enrichHTML as compatEnrichHTML, deletionUpdate } from "./compat.js";
 
 export const MODULE_ID = "bitd-alternate-sheets";
 
@@ -870,9 +870,9 @@ export class Utils {
         const itemKey = item_blueprint?.id ?? id;
         if (!equipped_items[itemKey]) return;
         // Atomic Remove
-        await queueUpdate(() => actor.update({
-          [`flags.bitd-alternate-sheets.equipped-items.-=${id}`]: null,
-        }));
+        await queueUpdate(() => actor.update(
+          deletionUpdate(`flags.bitd-alternate-sheets.equipped-items.${id}`)
+        ));
       }
     }
   }
