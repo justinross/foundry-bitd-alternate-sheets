@@ -42,7 +42,7 @@ export const registerSystemSettings = function () {
 
   game.settings.register("bitd-alternate-sheets", "patchSystemData", {
     name: "Patch System Module Data Issues",
-    hint: "Automatically fix known issues in the official system module's compendium data (e.g., Steady upgrade missing effect data, Ordained missing crew type).",
+    hint: "Automatically fix known issues in the official system module's compendium data (e.g., Ordained missing crew type).",
     scope: "world",
     config: true,
     type: Boolean,

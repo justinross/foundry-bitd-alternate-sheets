@@ -480,7 +480,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
   async _createOwnedUpgrade(sourceItem, targetValue) {
     if (!sourceItem) return null;
-    let data =
+    const data =
       typeof sourceItem.toObject === "function"
         ? sourceItem.toObject()
         : {
@@ -489,9 +489,6 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
           system: foundry.utils.deepClone(sourceItem.system ?? {}),
           img: sourceItem.img,
         };
-
-    // Fix upstream system module data issues (e.g., Steady missing effect changes)
-    data = Utils._fixSteadyUpgradeEffects(data);
 
     const max = this._deriveUpgradeMax(sourceItem);
     if (!data.system) data.system = {};
