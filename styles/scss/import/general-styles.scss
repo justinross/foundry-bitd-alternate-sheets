@@ -1,3 +1,6 @@
+@use "../variables" as *;
+@use "../mixin" as *;
+
 textarea {
   margin-top: 10px;
   margin-bottom: 20px;
@@ -119,6 +122,156 @@ section.flex {
   font-style: italic;
 }
 
+/* Shared ability list styling */
+.ability-list {
+  .ability-block {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    padding: 5px 5px 5px 10px;
+    width: 100%;
+    box-sizing: border-box;
+
+    &:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    // IMPORTANT: Firefox has a known bug with flex containers + checkbox inputs where
+    // it miscalculates width: max-content, causing overflow. Using inline-block here
+    // instead of flex/inline-flex sidesteps this issue entirely and works correctly
+    // in all browsers. DO NOT change to display: flex without extensive testing.
+    // See CONTRIBUTING.md "Firefox flexbox + checkbox width calculation bug" for details.
+    .ability-checkboxes {
+      display: inline-block;
+      white-space: nowrap;
+      margin-right: 0.5em;
+      vertical-align: top;
+
+      .join-line {
+        border-bottom: 2px solid var(--alt-border-strong);
+        width: 0.5em;
+        height: 1px;
+        display: inline-block;
+        vertical-align: top;
+        margin-top: 0.5em;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        line-height: 0;
+      }
+
+      :is(.ability-checkbox, .crew-upgrade-checkbox, .crew-ability-checkbox) {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        width: 1em;
+        min-width: 1em;
+        height: 1em;
+        display: inline-block;
+        vertical-align: top;
+      }
+    }
+  }
+
+  label {
+    margin: 0;
+    line-height: 0.8em;
+    font-size: 1.2em;
+    margin-bottom: 6px;
+    padding-right: 1em;
+
+    .ability-name {
+      font-weight: bold;
+      font-variant: small-caps;
+    }
+
+    .ability-description p {
+      display: inline;
+    }
+  }
+}
+
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Sheet toggle buttons (shared across sheets)
+.sheet-wrapper .sheet-toggles {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+
+  > span {
+    display: inline-block;
+    padding: 4px 6px;
+    margin: 0 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: #fff;
+    }
+
+    i {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .toggle-expand {
+    background: #0058cc;
+
+    .fa-expand {
+      display: none;
+    }
+    .fa-compress {
+      display: initial;
+    }
+  }
+
+  .toggle-allow-edit,
+  .toggle-alias-display {
+    background: $green;
+
+    .fa-lock-open {
+      display: none;
+    }
+  }
+}
+
+// Expand toggle state when sheet can expand
+.sheet-wrapper.can-expand .sheet-toggles .toggle-expand {
+  .fa-expand {
+    display: initial;
+  }
+  .fa-compress {
+    display: none;
+  }
+}
+
+// Edit toggle state when editing is enabled
+.sheet-wrapper.allow-edit .sheet-toggles .toggle-allow-edit {
+  background-color: $red;
+
+  .fa-lock-open {
+    display: inline-block;
+  }
+  .fa-lock {
+    display: none;
+  }
+}
+
 i {
   &.nullifier {
     @include changeable(
@@ -177,4 +330,14 @@ i {
 
 td {
   padding: 5px;
+}
+
+// Shared italic note/caption style (used by character XP notes and crew coins caption)
+.xp-notes,
+.coins-caption {
+  margin: 0;
+  padding: 0;
+  font-style: italic;
+  font-size: 0.85em;
+  line-height: 1.2em;
 }

@@ -1,0 +1,151 @@
+@use "../variables" as *;
+@use "../mixin" as *; // For lined-section, editable-style
+
+.identity-header {
+    font-family: Kirsty, serif;
+    font-weight: bold;
+    font-size: 3em;
+    color: $almost_black;
+    line-height: 0.4em;
+    padding-bottom: 0.2em;
+    padding-top: 0.5em;
+    @include lined-section;
+
+    // Prevent underline from affecting layout when edit mode is toggled
+    .inline-input {
+        text-underline-offset: -0.1em; // Keep underline closer to text
+    }
+
+    .identity-name {
+        // Inherits font properties from parent
+        min-width: 50px; // Ensure it has some width even if empty?
+    }
+
+    .identity-subtitle {
+        font-size: 0.6em; // Matches Character Sheet Alias sizing
+        font-weight: normal;
+        display: inline-block;
+        vertical-align: middle;
+
+        .crew-type-text {
+            text-transform: uppercase; // Keeping a bit of flavor for Crew, or remove? User said "regular text".
+            // Let's remove uppercase to be purely "regular text" if that's the goal, or keep it if it looks better.
+            // Character aliases are normal case. Let's stick to normal case for consistency unless it looks bad.
+            // Actually, let's keep it Uppercase for Crew Type as it's a "Type", unlike an "Alias".
+            text-transform: uppercase;
+        }
+
+        // Ensure inputs inside subtitle (Alias) look right
+        .inline-input {
+            font-family: inherit;
+            font-size: inherit;
+
+            @at-root .sheet-wrapper.allow-edit & {
+                @include editable-style;
+            }
+        }
+    }
+
+    // Ensure the inline-editable-text span inside .identity-name gets the styling
+    .identity-name .inline-input {
+        @at-root .sheet-wrapper.allow-edit & {
+            @include editable-style;
+        }
+    }
+
+    // Apply to all inline inputs in the header (bio, look, etc.)
+    .inline-input {
+        @at-root .sheet-wrapper.allow-edit & {
+            @include editable-style;
+        }
+    }
+}
+
+// Smart Field (Edit Dashboard) Styling
+.smart-field-value {
+    // Inherit standard text styles
+    cursor: help; // Indicate tooltip availability
+    line-height: 1.5; // Match .smart-field-label to prevent layout shift on toggle
+    font-weight: normal; // Explicit normal weight
+    padding: 0;
+    margin: 0;
+}
+
+// Increased specificity to override generic role/button styles
+.sheet-wrapper .smart-field-label {
+    font-family: inherit;
+    font-weight: normal;
+    // Reset box model
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-bottom: none;
+    padding: 0; // No padding to prevent layout shift
+    border-radius: 6px;
+    background-color: transparent;
+    box-shadow: 0 0 0 2px $darkgray; // "Outline" style without layout shift
+    background: transparent;
+    appearance: none; // Reset native OS button styling
+    -webkit-appearance: none;
+
+    // Explicit line-height to match parent container (.bio) and locked state
+    font-size: inherit;
+    line-height: 1.5;
+
+    cursor: pointer;
+    color: $almost_black;
+    transition: text-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+    &:hover,
+    &:focus {
+        color: var(--alt-red);
+        text-shadow: 0 0 8px rgba(204, 0, 0, 0.8); // Stronger glow
+    }
+}
+
+.identity-meta-row {
+    @include lined-section;
+    font-family: "Crimson Text", serif;
+    font-size: 1em;
+    line-height: 1.5; // Good default for text lines
+    margin-top: 0.25em; // Explicit spacing from previous line/header
+    padding-bottom: 0px; // Lined section border sits here
+    margin-bottom: 0; // Ensure no extra margin below
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center; // Changed from baseline to prevent shifts from bold text
+    gap: 0.3em; // Horizontal gap between items
+
+    // Ensure inputs inside match standard styling
+    input,
+    .inline-input {
+        font-family: inherit;
+        font-size: inherit;
+        border: none;
+        background: transparent;
+        padding: 0;
+        min-width: 1em; // reduced from 50px to avoid huge gaps on short fields
+
+        @at-root .sheet-wrapper.allow-edit & {
+            @include editable-style;
+        }
+    }
+
+    .meta-label {
+        font-weight: bold;
+        color: $almost_black;
+        white-space: nowrap;
+    }
+
+    .meta-value {
+        font-style: italic;
+        flex-grow: 1;
+
+        // Ensure input fills the growing container
+        input,
+        .inline-input {
+            width: 100%;
+        }
+    }
+}

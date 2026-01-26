@@ -4,6 +4,9 @@
     {{selectOptions load_levels selected=system.selected_load_level
     localize=true}}
   </select>
+  {{#if showClearLoadButton}}
+  <button type="button" class="clearLoad">{{localize "bitd-alt.ClearLoad"}}</button>
+  {{/if}}
 </div>
 <!--<div class="load-description">-->
 <!--STUFF-->

@@ -1,7 +1,11 @@
 # How to build CSS
-# this isn't true anymore
 
-Install nodeJS: https://nodejs.org/en/
-Install sass (https://www.npmjs.com/package/sass): npm install -g sass
-Open a shell in this folder and run: sass style.scss ../styles/blades.css
+CSS must be regenerated manually after SCSS changes.
 
+## Build Command
+
+```bash
+npm run build:css
+```
+
+Last generated with sass 1.97.2 (dart2js 3.10.7).

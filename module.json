@@ -3,10 +3,11 @@
   "title": "Blades in the Dark Alternate Sheets",
   "description": "",
   "version": "0.0.1",
-  "library": "false",
+  "library": false,
   "compatibility": {
-    "minimum": 12,
-    "verified": 13
+    "minimum": "12",
+    "verified": "13",
+    "maximum": "14"
   },
   "authors": [
     {
@@ -19,7 +20,11 @@
     "systems": [
       {
         "id": "blades-in-the-dark",
-        "manifest": "https://raw.githubusercontent.com/Dez384/foundryvtt-blades-in-the-dark/master/system.json"
+        "type": "system",
+        "manifest": "https://raw.githubusercontent.com/Dez384/foundryvtt-blades-in-the-dark/master/system.json",
+        "compatibility": {
+          "minimum": "6.0.0"
+        }
       }
     ],
     "requires": [],
@@ -51,9 +56,6 @@
       "path": "languages/it.json"
     }
   ],
-  "url": "This is auto replaced",
-  "manifest": "This is auto replaced",
-  "download": "This is auto replaced",
   "media": [
     {
       "type": "icon",

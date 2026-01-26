@@ -1,5 +1,46 @@
 # Changelog
 
+## 1.0.18
+
+### Actor Sheet Enhancement
+- Added alternate crew sheet in alt-sheet style
+- Character and Crew sheet fields in the bio section have chooser dialogs allowing selection based on a search path
+  * The dialogs are only available when the sheet is unlocked
+  * The search path for options can be controlled from the module's settings. Options include the system module's compendiums, items available in the side bar, and non-system compendiums.
+  * NPCs whose 'associated class' field is set to 'Vice Purveyor' will be available as choices for the vice purveyor field
+  * All the fields with chooser dialog boxes will accept arbitrary text in the Custom field of the dialog box
+  * Notes tabs support clock enrichers
+
+### Performance Improvements
+- Compendium caching reduces sheet rendering times from ~600ms to ~2-3ms for character sheets and ~200ms to ~1-2ms for crew sheets
+- Pre-caches common item types on startup for faster initial sheet opens
+- Cache invalidation when compendiums, world items change, or compendium search path settings change
+- Added opt-in performance profiling logs (enable in module settings)
+
+### Misc
+- Load status pills with color indicators
+- Compendium-backed tooltips for identity/bio fields
+- User compendiums allow customization of the available playbooks through local or module extension
+- Fixed some formatting/styling issues with multiple checkboxes
+  
+### Bug Fixes
+- Fixed handler stacking that caused duplicate event processing
+- Fixed layout shift when toggling edit mode
+- Fixed Firefox flexbox width calculation bug with checkbox inputs
+- Improved error handling throughout (radio toggles, smart edit, inline inputs, migrations)
+
+### Healing Clock Fix
+- The healing clock on the character sheet was not syncing with the system's default sheet due to a field name change in system version 6.0.0
+- A migration automatically copies any existing healing clock progress from the old field to the new field
+- If alt-sheets is set as the default character sheet, the migration treats the legacy field as authoritative and overwrites the current field
+- Module now requires Blades in the Dark system version 6.0.0 or higher
+
+### Developer stuff
+- Added some scripting to compile SCSS
+- Consolidated some SCSS to facillitate reuse between sheets
+- Wrapped document operations in queueUpdate for multi-client safety
+- Optimized PNG images with Zopfli compression
+
 ## 1.0.17
 ### Crew Linking
 - Character sheets have a crew field in the header

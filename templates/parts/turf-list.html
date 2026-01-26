@@ -1,7 +1,8 @@
-<div id="turf-list" class="{{#if can_edit}}section-editable{{else}}section-non-editable{{/if}}">
+<div id="crew-{{_id}}-turf-list" class="turf-list {{#if can_edit}}section-editable{{else}}section-non-editable{{/if}}">
 
   <div class="turf-row">
-    {{#each turfs_data as |turf id|}}
+   {{#each turfs_data as |turf id|}}
+
     <div class="turf-block {{#if turf.value}}turf-selected{{/if}}">
 
         {{#each turf.connects as |connect key|}}
@@ -17,24 +18,29 @@
         {{/each}}
 
         {{#if ../can_edit}}
-
+		  {{#if ../not_prison}}
           {{#noteq id "8"}}
-          <input class="name-box" type="checkbox" name="system.turfs.{{id}}.value" {{checked turf.value}}>
+          <input class="name-box" type="checkbox" data-dType="Boolean" name="system.turfs.{{id}}.value" {{checked turf.value}}>
           {{/noteq}}
+		  {{else}}
+          {{#noteq id "6"}}
+          <input class="name-box" type="checkbox" data-dType="Boolean" name="system.turfs.{{id}}.value" {{checked turf.value}}>
+          {{/noteq}}		  
+		  {{/if}}
 
           <div>
             {{#multiboxes turf.connects}}
-            <input type="checkbox" name="system.turfs.{{id}}.connects.left" {{checked turf.connects.left}}>
-            <input type="checkbox" name="system.turfs.{{id}}.connects.top" {{checked turf.connects.top}}>
-            <input type="checkbox" name="system.turfs.{{id}}.connects.right" {{checked turf.connects.right}}>
-            <input type="checkbox" name="system.turfs.{{id}}.connects.bottom" {{checked turf.connects.bottom}}>
+            <input type="checkbox" data-dType="Boolean" name="system.turfs.{{id}}.connects.left" class="fa-solid fa-arrow-left" {{checked turf.connects.left}}>
+			<input type="checkbox" data-dType="Boolean" name="system.turfs.{{id}}.connects.top" class="fa-solid fa-arrow-up" {{checked turf.connects.top }}>
+            <input type="checkbox" data-dType="Boolean" name="system.turfs.{{id}}.connects.right" class="fa-solid fa-arrow-right" {{checked turf.connects.right}}>
+            <input type="checkbox" data-dType="Boolean" name="system.turfs.{{id}}.connects.bottom" class="fa-solid fa-arrow-down" {{checked turf.connects.bottom}}>
             {{/multiboxes}}
           </div>
 
-          <input class="turf-name" type="text" name="system.turfs.{{id}}.name" value="{{#if ../editable}}{{turf.name}}{{else}}{{localize turf.name}}{{/if}}">
+		  <input class="turf-name" type="text" name="system.turfs.{{id}}.name" value="{{#if ../editable}}{{turf.name}}{{else}}{{localize turf.name}}{{/if}}">
           {{#noteq turf.name "BITD.Turf"}}
           {{#noteq turf.name "BITD.Lair"}}
-          <textarea class="turf-description" name="system.turfs.{{id}}.description">{{localize turf.description}}</textarea>
+		  <textarea class="turf-description" name="system.turfs.{{id}}.description">{{localize turf.description}}</textarea>
           {{/noteq}}
           {{/noteq}}
         {{else}}
@@ -42,17 +48,55 @@
           {{#if turf.description}}
           <p class="turf-description">{{{localize turf.description}}}</p>
           {{/if}}
+		  {{#if ../not_prison}}
           {{#noteq id "8"}}
-          <a class="turf-control turf-select" title="Select" data-turf-id="{{id}}" data-turf-status="{{turf.value}}"><i class="fas fa-circle"></i></a>
+          <label class="turf-control">
+            <input
+              type="checkbox"
+              class="turf-select"
+              data-tooltip="Select"
+              data-turf-id="{{id}}"
+              data-turf-status="{{turf.value}}"
+              {{#if turf.value}}checked{{/if}}
+            >
+            <span class="visually-hidden">{{localize "BITD.Claims"}}</span>
+          </label>
           {{/noteq}}
+		  {{else}}
+          {{#noteq id "6"}}
+          <label class="turf-control">
+            <input
+              type="checkbox"
+              class="turf-select"
+              data-tooltip="Select"
+              data-turf-id="{{id}}"
+              data-turf-status="{{turf.value}}"
+              {{#if turf.value}}checked{{/if}}
+            >
+            <span class="visually-hidden">{{localize "BITD.Claims"}}</span>
+          </label>
+          {{/noteq}}
+		  {{/if}}
         {{/if}}
     </div>
+	{{#if ../not_prison}}
     {{#if (eq id "5")}}
     </div><div class="turf-row">
     {{/if}}
+	{{else}}
+    {{#if (eq id "4")}}
+    </div><div class="turf-row">
+    {{/if}}
+	{{/if}}
+	{{#if ../not_prison}}
     {{#if (eq id "10")}}
     </div><div class="turf-row">
     {{/if}}
+	{{else}}
+    {{#if (eq id "8")}}
+    </div><div class="turf-row">
+    {{/if}}
+	{{/if}}
     {{/each}}
   </div>
 </div>

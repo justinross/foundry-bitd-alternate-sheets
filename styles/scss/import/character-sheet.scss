@@ -1,403 +1,341 @@
-/*
- * General Styles - Redesign
- */
+@use "../variables" as *;
+@use "sass:color";
+@use "sass:math";
+// Duplicate imports removed
+// @use "sass:color"; // Duplicated from line 2
+@use "attributes" as attrs;
+@use "../mixin" as *;
+@use "_identity"; // Import shared identity styling
+@use "./coins" as coins;
+@use "./acquaintances";
 
-& {
-  min-width: 800px;
-  min-height: 275px;
-}
+@mixin character-sheet {
+  /*
+   * General Styles - Redesign
+   */
 
-.sheet-wrapper {
-  position: relative;
-  margin: 5px;
-  font-family: "Crimson Text", serif;
-
-  input[type="checkbox"] {
-    width: 1em;
-    height: 1em;
+  & {
+    min-width: 800px;
+    min-height: 275px;
   }
 
-  .rollable-text {
-    transition: color $transition-period;
-  }
-  .rollable-text:hover {
-    cursor: pointer;
-    color: $red;
-  }
 
-  a.add-button {
-    margin-left: 5px;
-    font-size: 0.9rem;
-  }
+  .sheet-wrapper {
+    position: relative;
+    margin: 5px;
+    font-family: "Crimson Text", serif;
 
-  a.delete-button {
-    position: absolute;
-    right: 5px;
-    top: 2px;
-    font-size: 0.6rem;
-  }
-
-  [contenteditable]:not(.ProseMirror) {
-    user-select: auto !important;
-    text-decoration: underline;
-
-    &:active,
-    &:focus {
-      background-color: rgba(255, 255, 255, 0.5);
-      border: none;
-      border-radius: 3px;
+    input[type="checkbox"] {
+      width: 1em;
+      height: 1em;
     }
-  }
 
-  .linkedClock {
-    display: inline-block;
-    text-align: center;
-    margin: 1em;
-  }
+    .rollable-text {
+      transition: color $transition-period;
+    }
 
-  .clockImage {
-    width: 100px;
-    border: none;
-  }
+    .rollable-text:hover {
+      cursor: pointer;
+      color: $red;
+    }
 
-  .editor {
-    background-color: rgba(255, 255, 255, 0.2);
-    padding: 0.5em;
-    height: auto;
-    flex-grow: 1;
-  }
+    a.add-button {
+      margin-left: 5px;
+      font-size: 0.9rem;
+    }
 
-  .editor.prosemirror {
-    height: 100%;
-    padding: auto;
-  }
+    a.filter-toggle {
+      margin-left: 5px;
+      font-size: 0.9rem;
 
-  .hover-details,
-  .hover-term,
-  .v10-tooltip {
-    cursor: help;
-    color: darken($red, 30%);
-    font-weight: bold;
-    text-decoration: underline;
-  }
+      &.active i {
+        color: $red;
+      }
+    }
 
-  ul.diamond {
-    list-style: none;
-    li {
+    .section-block {
       position: relative;
-      &:after {
-        content: "";
-        height: 0.4em;
-        width: 0.4em;
-        background: $almost_black;
-        display: block;
-        position: absolute;
-        transform: rotate(45deg);
-        top: 0.45em;
-        left: -1em;
-      }
-    }
-  }
 
-  @at-root {
-    .add-existing-dialog {
-      .items-list {
-        display: flex;
-        flex-wrap: wrap;
-        align-content: space-between;
+      .collapse-toggle {
+        color: white;
+        cursor: pointer;
+        margin-right: 6px;
       }
-      .item-group {
-        background-color: rgba(255, 255, 255, 0.4);
-        vertical-align: top;
-        flex-grow: 1;
-        margin: 0.5px;
-        padding: 0.5em;
 
-        header {
-          background-color: $almost-black;
-          padding: 0.1em 0.25em;
-          width: 100%;
-          font-size: 2em;
-          font-family: Kirsty, serif;
-          color: $almost_white;
+      &.collapsed {
+        .section-body {
+          display: none;
         }
       }
     }
-  }
 
-  #context-menu ol li * {
-    vertical-align: initial;
-  }
-
-  .clickable-edit {
-    text-decoration: underline;
-  }
-
-  .rollable-text {
-    cursor: pointer;
-  }
-
-  .crew-affiliation {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5em;
-
-    .crew-label {
-      font-family: Kirsty, serif;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-size: 0.85em;
+    a.delete-button {
+      position: absolute;
+      right: 5px;
+      top: 2px;
+      font-size: 0.6rem;
     }
-  }
 
-  input[type="text"] {
-    width: auto;
-    border: 0;
-  }
-  .edit-only {
-    display: none;
-  }
-  .non-edit {
-    display: initial;
-  }
-  .crew-affiliation .crew-linked {
-    cursor: pointer;
-    text-decoration: underline;
-  }
+    [contenteditable]:not(.ProseMirror) {
+      user-select: auto !important;
+      @include editable-style;
 
-  &.allow-edit {
-    .crew-affiliation .crew-editable {
-      cursor: pointer;
+      &:active,
+      &:focus {
+        background-color: rgba(255, 255, 255, 0.5);
+        border: none;
+        border-radius: 3px;
+      }
+    }
+
+    // Clock styles moved to global _clocks.scss
+
+    .editor {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.5em;
+      height: auto;
+      flex-grow: 1;
+    }
+
+    .editor.prosemirror {
+      height: 100%;
+      padding: auto;
+    }
+
+    .hover-details,
+    .hover-term,
+    .v10-tooltip {
+      cursor: help;
+      color: color.adjust($red, $lightness: -30%);
+      font-weight: bold;
       text-decoration: underline;
     }
-  }
 
-  header.full-bar {
-    background-color: $almost_black;
-    color: $almost_white;
-    padding: 3px;
-    width: 100%;
-    font-family: Kirsty, serif;
-    font-size: 1rem;
-    position: relative;
-    margin-bottom: 5px;
-    line-height: 1em;
+    ul.diamond {
+      list-style: none;
 
-    .stripe-tooth-body {
-      &.right {
-        position: absolute;
-        top: 1px;
-        right: 1px;
-        @include toothradio(
-          10px,
-          25px,
-          "assets/teeth/xptooth-white.png",
-          "assets/teeth/xptooth-red.png"
-        );
-      }
-      &.stress {
-        position: absolute;
-        top: 1px;
-        right: 1px;
-        @include toothradio(
-          10px,
-          25px,
-          "assets/teeth/xptooth-white.png",
-          "assets/teeth/xptooth-red.png"
-        );
+      li {
+        position: relative;
+
+        &:after {
+          content: "";
+          height: 0.4em;
+          width: 0.4em;
+          background: $almost_black;
+          display: block;
+          position: absolute;
+          transform: rotate(45deg);
+          top: 0.45em;
+          left: -1em;
+        }
       }
     }
-  }
 
-  .sheet-toggles {
-    position: absolute;
-    top: -10px;
-    right: -10px;
+    @at-root {
+      .add-existing-dialog {
+        .items-list {
+          display: flex;
+          flex-wrap: wrap;
+          align-content: space-between;
+        }
 
-    > span {
-      display: inline-block;
-      padding: 4px;
-      margin: 0 5px;
+        .item-group {
+          background-color: rgba(255, 255, 255, 0.4);
+          vertical-align: top;
+          flex-grow: 1;
+          margin: 0.5px;
+          padding: 0.5em;
+
+          header {
+            background-color: $almost-black;
+            padding: 0.1em 0.25em;
+            width: 100%;
+            font-size: 2em;
+            font-family: Kirsty, serif;
+            color: $almost_white;
+          }
+        }
+      }
     }
 
-    span.toggle-expand {
-      background: #0058cc;
-      color: rgba(255, 255, 255, 0.6);
+    #context-menu ol li * {
+      vertical-align: initial;
+    }
+
+    .clickable-edit {
+      text-decoration: underline;
+    }
+
+    .rollable-text {
       cursor: pointer;
-      border-radius: 3px;
-      .fa-expand {
-        display: none;
-      }
-      .fa-compress {
-        display: initial;
+    }
+
+    .crew-look-line {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+
+      .crew-label {
+        font-family: Kirsty, serif;
+        // text-transform: uppercase; // Removed per user request
+        letter-spacing: 0.05em;
+        font-size: 0.85em;
       }
     }
 
-    @at-root .can-expand {
-      span.toggle-expand {
-        .fa-expand {
-          display: initial !important;
-        }
-        .fa-compress {
-          display: none !important;
-        }
-      }
+    // Force block layout for bio fields to prevent Flexbox baseline shifts when toggling bold text
+    .heritage-background.bio,
+    .crew-look-line.bio {
+      display: block;
+      line-height: 1.5;
     }
 
-    span.toggle-allow-edit {
-      cursor: pointer;
-      background: #008000;
-      color: rgba(255, 255, 255, 0.6);
-      border-radius: 3px;
-
-      &:hover {
-        color: #fff;
-      }
-
-      i {
-        width: 100%;
-        text-align: center;
-        padding: 4px 6px;
-      }
-      .fa-lock-open {
-        display: none;
-      }
-    }
-  }
-
-  &.allow-edit {
-    //.edit-only{
-    //  display: initial;
-    //}
-    //.non-edit{
-    //  display: none;
-    //}
-    .sheet-toggles {
-      .toggle-allow-edit {
-        background-color: #800000;
-        .fa-lock-open {
-          display: inline-block;
-        }
-        .fa-lock {
-          display: none;
-        }
-      }
-    }
-  }
-  span.toggle-alias-display {
-    display: inline-block;
-    cursor: pointer;
-    background: #008000;
-    color: rgba(255, 255, 255, 0.6);
-    border-radius: 3px;
-
-    &:hover {
-      color: #fff;
+    input[type="text"] {
+      width: auto;
+      border: 0;
     }
 
-    i {
-      width: 100%;
-      text-align: center;
-      padding: 4px 6px;
-    }
-    .fa-face-disguise {
+    .edit-only {
       display: none;
     }
-  }
-  &.showing-alias {
-    .sheet-toggles {
-      .toggle-alias-display {
-        background-color: #800000;
-        .fa-face-disguise {
-          display: inline-block;
-        }
-        .fa-face-smile {
-          display: none;
-        }
+
+    .non-edit {
+      display: initial;
+    }
+
+    .crew-look-line .crew-linked {
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    &.allow-edit {
+      .crew-look-line .crew-editable {
+        cursor: pointer;
+        text-decoration: underline;
       }
     }
-  }
 
-  &.allow-edit {
-  }
+    header.full-bar {
+      @include full-bar-header();
+    }
 
-  .minimized-view {
-    align-items: center;
-    margin-bottom: 0.5rem;
-    .character-portrait {
-      margin-bottom: -35px;
-      $portrait-size: 200px;
-      position: relative;
-
-      &.row {
-        align-items: center;
+    .attributes-actions {
+      header.full-bar {
+        margin-bottom: 5px;
       }
+    }
 
-      .portrait {
-        border-radius: 100px;
-        overflow: hidden;
-        border: 6px solid $gray;
-        width: $portrait-size;
-        height: $portrait-size;
-        position: relative;
-        top: -10px;
+    .stripe-tooth-body {
 
-        > img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          overflow: hidden;
-          border: 0;
-          border-radius: 50%;
-          box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
-        }
-      }
-
-      .status-buttons {
+      &.right,
+      &.stress {
         position: absolute;
-        top: 15px;
-        left: -15px;
-        background-color: rgba(224, 222, 210, 0.8);
-        border-radius: 50px;
-        box-sizing: border-box;
-        padding: 5px 5px;
-        z-index: 500;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
+        top: -1px;
+        right: 1px;
+        @include teeth-track(28px,
+          10px,
+          "assets/teeth/xptooth-red.png",
+          "assets/teeth/xptooth-white.png",
+          $gap: -1px);
+      }
+    }
 
-        > div {
-          overflow: visible;
+    // Toggle base styles in general-styles.scss
+
+    // Alias toggle: hide disguise icon by default
+    .sheet-toggles .toggle-alias-display .fa-face-disguise {
+      display: none;
+    }
+
+    // Alias toggle state when showing alias
+    &.showing-alias .sheet-toggles .toggle-alias-display {
+      background-color: $red;
+
+      .fa-face-disguise {
+        display: inline-block;
+      }
+      .fa-face-smile {
+        display: none;
+      }
+    }
+
+    .minimized-view {
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      .character-portrait {
+        margin-bottom: -35px;
+        $portrait-size: 200px;
+
+        position: relative;
+
+        &.row {
+          align-items: center;
+        }
+
+        .portrait {
+          border-radius: 100px;
+          overflow: hidden;
+          border: 6px solid $gray;
+          width: $portrait-size;
+          height: $portrait-size;
           position: relative;
-        }
-        > div:not(:last-of-type) {
-          margin-bottom: 20px;
-        }
+          top: -10px;
 
-        .coins-box {
-          @include css_popup(30px, 30px, 250px, 50px);
-
-          > div {
-            display: inline-block;
+          >img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            overflow: hidden;
+            border: 0;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
           }
-          .mini-view {
-            background-repeat: no-repeat;
-            background-image: url(assets/icons/coins.png);
-            background-size: contain;
+        }
 
-            .coin-values {
+        .status-buttons {
+          position: absolute;
+          top: 15px;
+          left: -15px;
+          background-color: rgba(224, 222, 210, 0.8);
+          border-radius: 50px;
+          box-sizing: border-box;
+          padding: 5px 5px;
+          z-index: 500;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+
+          >div {
+            overflow: visible;
+            position: relative;
+          }
+
+          >div:not(:last-of-type) {
+            margin-bottom: 20px;
+          }
+
+          .coins-box {
+            @include css_popup(30px, 30px, 250px, 50px);
+
+            >div {
+              display: inline-block;
             }
-          }
 
-          .full-view {
-            @import "coins.scss";
-          }
+            .mini-view {
+              background-repeat: no-repeat;
+              background-image: url(assets/icons/coins.png);
+              background-size: contain;
+            }
 
-          &.open {
             .full-view {
+              // Use shared coins mixin for popup layout
+              @include coins.coins($size: 15px, $margin: 3px);
+
               .coins {
                 display: flex;
                 justify-content: space-between;
+
                 .hand,
                 .stash {
                   display: inline-block;
@@ -406,574 +344,568 @@
               }
             }
           }
-        }
 
-        .harm-box {
-          @include css_popup(30px, 30px, 550px, 350px);
-          .mini-view {
-            background-repeat: no-repeat;
-            background-image: url(assets/icons/harm.png);
-            background-size: contain;
-            &.harm-1 {
-              background-image: url(assets/icons/harm-1.png);
-            }
-            &.harm-1-2 {
-              background-image: url(assets/icons/harm-1-2.png);
-            }
-            &.harm-1-3 {
-              background-image: url(assets/icons/harm-1-3.png);
-            }
-            &.harm-1-2-3 {
-              background-image: url(assets/icons/harm-1-2-3.png);
-            }
-            &.harm-2 {
-              background-image: url(assets/icons/harm-2.png);
-            }
-            &.harm-2-3 {
-              background-image: url(assets/icons/harm-2-3.png);
-            }
-            &.harm-3 {
-              background-image: url(assets/icons/harm-3.png);
+          .harm-box {
+            @include css_popup(30px, 30px, 550px, 350px);
+
+            .mini-view {
+              background-repeat: no-repeat;
+              background-image: url(assets/icons/harm.png);
+              background-size: contain;
+
+              &.harm-1 {
+                background-image: url(assets/icons/harm-1.png);
+              }
+
+              &.harm-1-2 {
+                background-image: url(assets/icons/harm-1-2.png);
+              }
+
+              &.harm-1-3 {
+                background-image: url(assets/icons/harm-1-3.png);
+              }
+
+              &.harm-1-2-3 {
+                background-image: url(assets/icons/harm-1-2-3.png);
+              }
+
+              &.harm-2 {
+                background-image: url(assets/icons/harm-2.png);
+              }
+
+              &.harm-2-3 {
+                background-image: url(assets/icons/harm-2-3.png);
+              }
+
+              &.harm-3 {
+                background-image: url(assets/icons/harm-3.png);
+              }
+
+              .harm-effects {
+                position: absolute;
+                bottom: 4px;
+                font-weight: bold;
+                font-size: 0.9rem;
+                font-family: "Crimson Text", serif;
+                left: 0px;
+                width: 100%;
+                color: $almost-white;
+              }
             }
 
-            .harm-effects {
-              position: absolute;
-              bottom: 4px;
-              font-weight: bold;
-              font-size: 0.9rem;
-              font-family: "Crimson Text", serif;
-              left: 0px;
-              width: 100%;
-              color: $almost-white;
-            }
-          }
+            &.open {
+              .full-view {
+                .character-harm {
+                  display: grid;
+                  grid-template-columns: 1em repeat(6, 1fr);
+                  grid-template-rows: repeat(5, 1.6em);
+                  grid-column-gap: 1px;
+                  grid-row-gap: 1px;
+                  place-items: center;
+                  grid-template-areas:
+                    "empty header-harm header-harm header-harm header-harm header-effect header-healing"
+                    "rownum3 heavy heavy heavy heavy heavy-effect healing"
+                    "rownum2 medium1 medium1 medium2 medium2 medium-effect healing"
+                    "rownum1 light1 light1 light2 light2 light-effect healing"
+                    "armor armor armor armor armor armor armor";
 
-          &.open {
-            .full-view {
-              .character-harm {
-                display: grid;
-                grid-template-columns: 1em repeat(6, 1fr);
-                grid-template-rows: repeat(5, 1.6em);
-                grid-column-gap: 1px;
-                grid-row-gap: 1px;
-                place-items: center;
-                grid-template-areas:
-                  "empty header-harm header-harm header-harm header-harm header-effect header-healing"
-                  "rownum3 heavy heavy heavy heavy heavy-effect healing"
-                  "rownum2 medium1 medium1 medium2 medium2 medium-effect healing"
-                  "rownum1 light1 light1 light2 light2 light-effect healing"
-                  "armor armor armor armor armor armor armor";
-                input[type="text"] {
-                  height: 100%;
-                  width: 100%;
-                  border-radius: 0;
-                  background-color: darken($lightgray, 10%);
-                  z-index: 10;
-                }
-                header {
-                  width: calc(100% + 5px);
-                  background-color: $almost_black;
-                  color: $almost_white;
-                }
-                header.harm {
-                  grid-area: header-harm;
-                }
-                header.effect {
-                  grid-area: header-effect;
-                }
-                header.healing {
-                  grid-area: header-healing;
-                }
-                .rownum3 {
-                  grid-area: rownum3;
-                }
-                .heavy {
-                  grid-area: heavy;
-                }
-                .effect-text.heavy {
-                  grid-area: heavy-effect;
-                }
-                .rownum2 {
-                  grid-area: rownum2;
-                }
-                .medium1 {
-                  grid-area: medium1;
-                }
-                .medium2 {
-                  grid-area: medium2;
-                }
-                .effect-text.medium {
-                  grid-area: medium-effect;
-                }
-                .light1 {
-                  grid-area: light1;
-                }
-                .light2 {
-                  grid-area: light2;
-                }
-                .effect-text.light {
-                  grid-area: light-effect;
-                }
-                .healing-clock {
-                  grid-area: healing;
-                  padding-top: 25px;
-                  @include clock(4, 100);
-                  label i.nullifier {
-                    position: absolute;
-                    top: 15px;
-                    right: 0px;
+                  input[type="text"] {
+                    height: 100%;
+                    width: 100%;
+                    border-radius: 0;
+                    background-color: color.adjust($lightgray, $lightness: -10%);
+                    z-index: 10;
                   }
-                }
-                .rownum1 {
-                  grid-area: rownum1;
-                }
-                .armor-use {
-                  grid-area: armor;
-                  text-align: right;
-                }
-                .effect-text {
-                  font-family: "Crimson Text", serif;
-                  font-size: 0.9rem;
-                }
-                .grid-lines {
-                  background-color: $almost_black;
-                  grid-area: 2 / 2 / 5 / 6;
-                  width: 100%;
-                  height: calc(100% - 1px);
-                  z-index: 1;
+
+                  header {
+                    width: calc(100% + 5px);
+                    background-color: $almost_black;
+                    color: $almost_white;
+                  }
+
+                  header.harm {
+                    grid-area: header-harm;
+                  }
+
+                  header.effect {
+                    grid-area: header-effect;
+                  }
+
+                  header.healing {
+                    grid-area: header-healing;
+                  }
+
+                  .rownum3 {
+                    grid-area: rownum3;
+                  }
+
+                  .heavy {
+                    grid-area: heavy;
+                  }
+
+                  .effect-text.heavy {
+                    grid-area: heavy-effect;
+                  }
+
+                  .rownum2 {
+                    grid-area: rownum2;
+                  }
+
+                  .medium1 {
+                    grid-area: medium1;
+                  }
+
+                  .medium2 {
+                    grid-area: medium2;
+                  }
+
+                  .effect-text.medium {
+                    grid-area: medium-effect;
+                  }
+
+                  .light1 {
+                    grid-area: light1;
+                  }
+
+                  .light2 {
+                    grid-area: light2;
+                  }
+
+                  .effect-text.light {
+                    grid-area: light-effect;
+                  }
+
+                  .healing-clock {
+                    grid-area: healing;
+                    padding-top: 25px;
+                    @include clock(4, 100);
+
+                    label i.nullifier {
+                      position: absolute;
+                      top: 15px;
+                      right: 0px;
+                    }
+                  }
+
+                  .rownum1 {
+                    grid-area: rownum1;
+                  }
+
+                  .armor-use {
+                    grid-area: armor;
+                    text-align: right;
+                  }
+
+                  .effect-text {
+                    font-family: "Crimson Text", serif;
+                    font-size: 0.9rem;
+                  }
+
+                  .grid-lines {
+                    background-color: $almost_black;
+                    grid-area: 2 / 2 / 5 / 6;
+                    width: 100%;
+                    height: calc(100% - 1px);
+                    z-index: 1;
+                  }
                 }
               }
             }
           }
-        }
 
-        .load-box {
-          @include css_popup(30px, 30px, null, 50px);
-          > div {
-            display: inline-block;
-          }
+          .load-box {
+            @include css_popup(30px, 30px, null, 50px);
 
-          .mini-view {
-            background-repeat: no-repeat;
-            background-image: url(assets/icons/backpack.png);
-            background-size: contain;
-          }
-
-          .below-max {
-            color: #006600;
-          }
-          .at-max {
-            color: #e07f1a;
-          }
-          .over-max {
-            color: #660000;
-          }
-        }
-      }
-
-      .stress-trauma-box {
-        width: 100%;
-        position: relative;
-        margin-bottom: 10px;
-        bottom: 30px;
-
-        .stress-bar {
-          position: relative;
-          z-index: 100;
-        }
-
-        .trauma-box {
-          padding: 0 0 2px;
-          position: relative;
-          z-index: 1;
-          .trauma-list {
-            width: 100%;
-            height: 100%;
-            background-color: $lightgray;
-            color: $almost_black;
-            text-align: center;
-            position: relative;
-            top: -5px;
-            padding-top: 5px;
-            border-radius: 0 0 1em 1em;
-            .trauma-item {
-              pointer-events: all;
+            >div {
               display: inline-block;
-              font-weight: bold;
-              color: #660000;
-              &:not(:last-of-type)::after {
-                content: " \2022";
-              }
             }
-            .add_trauma {
-              font-size: 1em;
+
+            .mini-view {
+              background-repeat: no-repeat;
+              background-image: url(assets/icons/backpack.png);
+              background-size: contain;
+            }
+
+            .label-text {
+              color: $almost_black;
+              padding: 1px 4px;
+              border-radius: 3px;
+            }
+
+            .at-max {
+              background-color: #ccaa00;
+            }
+
+            .over-max {
+              background-color: #cc3333;
+            }
+
+            button.clearLoad {
+              font-family: Kirsty, serif;
+              font-size: 0.8em;
+              margin-top: 5px;
             }
           }
         }
-      }
-    }
 
-    .character-info {
-      padding-left: 1em;
-      .name-alias {
-        font-family: Kirsty, serif;
-        font-weight: bold;
-        font-size: 3em;
-        color: $almost_black;
-        line-height: 0.4em;
-        padding-bottom: 0.2em;
-        padding-top: 0.5em;
+        .stress-trauma-box {
+          width: 100%;
+          position: relative;
+          margin-bottom: 10px;
+          bottom: 30px;
 
-        .name {
-        }
-
-        .alias {
-          font-size: 0.6em;
-          font-weight: normal;
-        }
-      }
-
-      .heritage-background {
-      }
-
-      .look {
-      }
-
-      .bio {
-        border-bottom: 1px solid $almost_black;
-      }
-
-      .abilities-list {
-        border-bottom: 1px solid $almost_black;
-      }
-
-      .attributes-actions {
-        @import "attributes.scss";
-      }
-    }
-  }
-
-  .tab-space {
-    nav.tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-column-gap: 1em;
-      grid-template-rows: auto;
-      grid-template-areas: "tab1 tab2 ";
-    }
-
-    .tab-item {
-      flex-grow: 0;
-      display: inline-flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      background-color: $lightgray;
-      border-radius: 20px 20px 0 0;
-      font-family: Kirsty, serif;
-      text-transform: capitalize;
-      padding: 5px 15px;
-      font-size: 2.6em;
-
-      select {
-        font-family: Kirsty;
-        font-size: 1em;
-        height: 80%;
-        position: relative;
-        top: -6px;
-        left: 2px;
-      }
-
-      > div {
-        margin: 5px 10px;
-      }
-
-      &.playbook {
-        grid-area: tab1;
-      }
-
-      //&.downtime{
-      //  grid-area: tab2;
-      //}
-
-      &.notes {
-        grid-area: tab2;
-      }
-
-      .playbook-description {
-        font-family: "Crimson Text", serif;
-        font-size: 0.4em;
-        font-variant: small-caps;
-        font-weight: bold;
-        color: $darkgray;
-        text-align: center;
-      }
-
-      &.active {
-        margin-bottom: 0;
-      }
-
-      &:not(.active) {
-        background-color: rgba($lightgray, 0.5);
-      }
-    }
-    .tab-content {
-      flex-basis: 100%;
-
-      .tab {
-        .playbook {
-          display: grid;
-          align-items: stretch;
-          justify-items: stretch;
-          grid-template-columns: 2fr 1em 1fr 1fr;
-          grid-template-rows: repeat(3, min-content);
-          grid-template-areas:
-            "abilities gutter pb-items all-items"
-            "abilities gutter friends all-items"
-            "abilities gutter xp-notes xp-notes";
-
-          select {
-            font-family: Kirsty, serif;
-            text-transform: capitalize;
-            font-size: 2.6em;
-            border: none;
-            background-color: #f00;
+          .stress-bar {
+            position: relative;
+            z-index: 100;
           }
 
-          &::after {
-            content: "";
-            background: $lightgray;
-            grid-area: gutter;
-            height: 100%;
-            width: 100%;
-          }
+          .trauma-box {
+            padding: 0 0 2px;
+            position: relative;
+            z-index: 1;
 
-          section {
-            padding-bottom: 0.75em;
-          }
-
-          .abilities {
-            grid-area: abilities;
-            background: $lightgray;
-            padding-bottom: 1em;
-            .ability-list {
-              .ability-block {
-                display: flex;
-                align-items: flex-start;
-                position: relative;
-                padding: 5px;
-                &:nth-child(even) {
-                  background-color: rgba(255, 255, 255, 0.3);
-                }
-
-                .ability-checkboxes {
-                  display: flex;
-                  gap: 0.35em;
-                  margin-right: 0.5em;
-                  padding-top: 0.2em;
-
-                  .ability-checkbox {
-                    margin: 0;
-                    position: relative;
-                  }
-                }
-              }
-              label {
-                margin: 0;
-                line-height: 0.8em;
-                font-size: 1.2em;
-                margin-bottom: 6px;
-                padding-right: 1em;
-
-                .ability-name {
-                  font-weight: bold;
-                  font-variant: small-caps;
-                }
-
-                .ability-description p {
-                  display: inline;
-                }
-              }
-            }
-          }
-
-          .playbook-items {
-            grid-area: pb-items;
-            background: $lightgray;
-          }
-
-          .item-list {
-            font-size: 1.2em;
-            .free-item {
-              font-style: italic;
-            }
-            .item-block {
-              padding: 2px 5px;
-              //padding-left: 5px;
-              //padding-right: 1em;
-              //padding-bottom: .15em;
+            .trauma-list {
+              width: 100%;
+              height: 100%;
+              background-color: $lightgray;
+              color: $almost_black;
+              text-align: center;
               position: relative;
-              line-height: 0;
-              @at-root .allow-edit .item-block:nth-child(even) {
-                background-color: rgba(0, 0, 0, 0.1);
-              }
-              .checkbox {
-                position: relative;
+              top: -5px;
+              padding-top: 5px;
+              border-radius: 0 0 1em 1em;
+
+              .trauma-item {
+                pointer-events: all;
                 display: inline-block;
-                width: 100%;
+                font-weight: bold;
+                color: #660000;
+
+                &:not(:last-of-type)::after {
+                  content: " \2022";
+                }
               }
-              .item-name {
-                width: 100%;
+
+              .add_trauma {
+                font-size: 1em;
+              }
+            }
+          }
+        }
+      }
+
+      .character-info {
+        padding-left: 1em;
+
+        // .name-alias removed; replaced by .identity-header from _identity.scss
+
+        .bio {
+          @extend .identity-meta-row;
+        }
+
+        .abilities-list {
+          @include lined-section;
+          min-height: 1rem;
+        }
+
+        .attributes-actions {
+          @include attrs.attributes-sheet();
+        }
+      }
+    }
+
+    .tab-space {
+      nav.tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-column-gap: 1em;
+        grid-template-rows: auto;
+        grid-template-areas: "tab1 tab2 ";
+      }
+
+      .tab-item {
+        flex-grow: 0;
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        background-color: $lightgray;
+        border-radius: 20px 20px 0 0;
+        font-family: Kirsty, serif;
+        text-transform: capitalize;
+        padding: 5px 15px;
+        font-size: 2.6em;
+
+        select {
+          font-family: Kirsty;
+          font-size: 1em;
+          height: 80%;
+          position: relative;
+          top: -6px;
+          left: 2px;
+        }
+
+        >div {
+          margin: 5px 10px;
+        }
+
+        &.playbook {
+          grid-area: tab1;
+        }
+
+        //&.downtime{
+        //  grid-area: tab2;
+        //}
+
+        &.notes {
+          grid-area: tab2;
+        }
+
+        .playbook-name {
+          white-space: nowrap;
+        }
+
+        .playbook-description {
+          font-family: "Crimson Text", serif;
+          font-size: 0.4em;
+          font-variant: small-caps;
+          font-weight: bold;
+          color: $darkgray;
+          text-align: center;
+        }
+
+        &.active {
+          margin-bottom: 0;
+        }
+
+        &:not(.active) {
+          background-color: rgba($lightgray, 0.5);
+        }
+      }
+
+      .tab-content {
+        flex-basis: 100%;
+
+        .tab {
+          .playbook {
+            display: grid;
+            align-items: stretch;
+            justify-items: stretch;
+            grid-template-columns: 2fr 1em 1fr 1fr;
+            grid-template-rows: repeat(3, min-content);
+            grid-template-areas:
+              "abilities gutter pb-items all-items"
+              "abilities gutter friends all-items"
+              "abilities gutter xp-notes xp-notes";
+
+            select {
+              font-family: Kirsty, serif;
+              text-transform: capitalize;
+              font-size: 2.6em;
+              border: none;
+              background-color: #f00;
+            }
+
+            &::after {
+              content: "";
+              background: $lightgray;
+              grid-area: gutter;
+              height: 100%;
+              width: 100%;
+            }
+
+            section {
+              padding-bottom: 0.75em;
+            }
+
+            .abilities {
+              grid-area: abilities;
+              background: $lightgray;
+              padding-bottom: 1em;
+              // Ability list styling inherited from general-styles.scss
+            }
+
+            .playbook-items {
+              grid-area: pb-items;
+              background: $lightgray;
+            }
+
+            .item-list {
+              font-size: 1.2em;
+
+              .free-item {
+                font-style: italic;
+              }
+
+              .item-block {
+                padding: 2px 5px;
+                //padding-left: 5px;
+                //padding-right: 1em;
+                //padding-bottom: .15em;
                 position: relative;
+                line-height: 0;
+
+                &:nth-child(even) {
+                  background-color: rgba(0, 0, 0, 0.1);
+                }
+
+                .checkbox {
+                  position: relative;
+                  display: inline-block;
+                  width: 100%;
+                }
+
+                .item-name {
+                  width: 100%;
+                  position: relative;
+                  line-height: 1em;
+                }
+
+                //this is probably not very robust. Figure something else out.
+                .join-line {
+                  border: 1px solid $darkgray;
+                  width: 1em;
+                  display: inline-block;
+                  height: 0px;
+                  margin: 0 -0.5em;
+                  top: calc(-0.5em + 2px);
+                  position: relative;
+                  z-index: 0;
+                }
+
+                * {
+                  //vertical-align: bottom;
+                }
+
+                input {
+                  margin-left: 0;
+                  position: relative;
+                  z-index: 10;
+                  bottom: 0px;
+                }
+              }
+            }
+
+            .friends-rivals {
+              grid-area: friends;
+              background: $lightgray;
+              line-height: 0;
+              font-size: 1.2em;
+            }
+
+            .all-items {
+              grid-area: all-items;
+            }
+
+            .xp-notes {
+              grid-area: xp-notes;
+              background: $lightgray;
+              font-size: 1.2em;
+
+              p {
                 line-height: 1em;
               }
 
-              //this is probably not very robust. Figure something else out.
-              .join-line {
-                border: 1px solid $darkgray;
-                width: 1em;
-                display: inline-block;
-                height: 0px;
-                margin: 0 -0.5em;
-                top: calc(-0.5em + 5px);
-                position: relative;
-                z-index: 0;
-              }
+              ul {
+                list-style-type: square;
+                padding-right: 5px;
 
-              * {
-                //vertical-align: bottom;
-              }
-
-              input {
-                margin-left: 0;
-                position: relative;
-                z-index: 10;
-                bottom: 0px;
-              }
-            }
-          }
-
-          .friends-rivals {
-            grid-area: friends;
-            background: $lightgray;
-            line-height: 0;
-
-            font-size: 1.2em;
-            .acquaintance {
-              line-height: 1em;
-              padding: 2px 5px;
-              i {
-                padding: 1px;
-                margin-right: 3px;
-                width: 1.2em;
-                text-align: center;
-                &.red-icon {
-                  color: #880000;
-                }
-
-                &.green-icon {
-                  color: #006600;
+                li {
+                  font-style: italic;
                 }
               }
             }
-          }
 
-          .all-items {
-            grid-area: all-items;
-          }
-
-          .xp-notes {
-            grid-area: xp-notes;
-            background: $lightgray;
-            font-size: 1.2em;
-            p {
-              line-height: 1em;
+            header.full-bar {
+              background-color: $darkgray;
+              color: $almost_white;
             }
-            ul {
-              list-style-type: square;
-              padding-right: 5px;
-              li {
-                font-style: italic;
+          }
+
+          &.downtime {
+            line-height: 1em;
+
+            h3 {
+              text-align: center;
+              font-family: Kirsty, serif;
+              font-size: 2em;
+              margin: 0.5em;
+            }
+
+            header {
+              width: 100%;
+              font-family: Kirsty, serif;
+              background-color: $almost_black;
+              color: $almost_white;
+              padding: 3px;
+              text-align: center;
+
+              .header-row {
+                display: flex;
+                justify-content: space-evenly;
+                margin: 2px 0;
               }
             }
-          }
 
-          header.full-bar {
-            background-color: $darkgray;
-            color: $almost_white;
-          }
-        }
-
-        &.downtime {
-          line-height: 1em;
-          h3 {
-            text-align: center;
-            font-family: Kirsty, serif;
-            font-size: 2em;
-            margin: 0.5em;
-          }
-          header {
-            width: 100%;
-            font-family: Kirsty, serif;
-            background-color: $almost_black;
-            color: $almost_white;
-            padding: 3px;
-            text-align: center;
-            .header-row {
+            .downtimeWrapper {
               display: flex;
-              justify-content: space-evenly;
-              margin: 2px 0;
-            }
-          }
-          .downtimeWrapper {
-            display: flex;
-            table {
-              tr {
-                text-align: center;
-                td,
-                th {
-                  padding: 3px;
-                }
-                th {
-                  background-color: $almost-black;
-                  color: $almost-white;
-                }
-              }
-            }
-            .column {
-              display: flex;
-              flex-direction: column;
-              width: 50%;
-              section {
-                background-color: $lightgray;
-                p {
+
+              table {
+                tr {
                   text-align: center;
+
+                  td,
+                  th {
+                    padding: 3px;
+                  }
+
+                  th {
+                    background-color: $almost-black;
+                    color: $almost-white;
+                  }
                 }
-                ul {
-                  padding-right: 1em;
-                  li {
-                    margin-bottom: 3px;
+              }
+
+              .column {
+                display: flex;
+                flex-direction: column;
+                width: 50%;
+
+                section {
+                  background-color: $lightgray;
+
+                  p {
+                    text-align: center;
+                  }
+
+                  ul {
+                    padding-right: 1em;
+
+                    li {
+                      margin-bottom: 3px;
+                    }
                   }
                 }
               }
             }
           }
-        }
 
-        .character-notes-area {
-          background-color: $lightgray;
-          box-sizing: border-box;
-          padding: 10px;
-          font-size: 1.2em;
-          min-height: 650px;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          // textarea{
-          //   height: 600px;
-          // }
-          header {
-            font-size: 0.9em;
-            flex-grow: 0;
+          .character-notes-area {
+            background-color: $lightgray;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 1.2em;
+            min-height: 650px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+
+            // textarea{
+            //   height: 600px;
+            // }
+            header {
+              font-size: 0.9em;
+              flex-grow: 0;
+            }
           }
         }
       }

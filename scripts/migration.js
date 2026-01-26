@@ -1,29 +1,72 @@
 import { Utils } from "./utils.js";
+import { queueUpdate } from "./lib/update-queue.js";
 
 export const MODULE_ID = "bitd-alternate-sheets";
 
 export class Migration {
     static async migrate() {
         const currentVersion = game.settings.get(MODULE_ID, "schemaVersion") || 0;
-        const targetVersion = 1;
+        const targetVersion = 2;
 
         if (currentVersion < targetVersion) {
+            console.log(`[BitD Alternate Sheets] Starting migration from schema v${currentVersion} to v${targetVersion}`);
             ui.notifications.info(
                 "BitD Alternate Sheets: Migrating data, please wait..."
             );
 
-            for (const actor of game.actors) {
-                if (actor.type !== "character") continue;
+            try {
+                // Migrate world actors
+                for (const actor of game.actors) {
+                    await this.migrateActor(actor, currentVersion);
+                }
 
+                // Migrate unlinked token actors in scenes
+                for (const scene of game.scenes) {
+                    for (const token of scene.tokens) {
+                        // Only migrate unlinked tokens (linked tokens use the world actor)
+                        if (token.actorLink) continue;
+                        if (!token.actor) continue;
+
+                        await this.migrateActor(token.actor, currentVersion);
+                    }
+                }
+
+                await game.settings.set(MODULE_ID, "schemaVersion", targetVersion);
+                ui.notifications.info("BitD Alternate Sheets: Migration complete.");
+
+            } catch (err) {
+                console.error("[BitD Alternate Sheets] Critical migration error:", err);
+                ui.notifications.error("BitD Alternate Sheets: Migration failed. See console for details.");
+            }
+        }
+    }
+
+    /**
+     * Run all applicable migrations for a single actor.
+     * Wrapped in try-catch to prevent one actor's failure from blocking others.
+     */
+    static async migrateActor(actor, currentVersion) {
+        if (actor.type !== "character") return;
+
+        try {
+            if (currentVersion < 1) {
                 // Step 1: Fix Multi-Ability Progress (Orphaned Flags)
                 await this.migrateAbilityProgress(actor);
 
                 // Step 2: Fix Equipped Items (Array -> Object)
                 await this.migrateEquippedItems(actor);
+
+                // Step 3: Migrate Legacy Fields (System -> Flags)
+                await this.migrateLegacyFields(actor);
             }
 
-            await game.settings.set(MODULE_ID, "schemaVersion", targetVersion);
-            ui.notifications.info("BitD Alternate Sheets: Migration complete.");
+            if (currentVersion < 2) {
+                // Step 3: Migrate healing clock from legacy field
+                await this.migrateHealingClock(actor);
+            }
+        } catch (err) {
+            console.error(`[BitD Alternate Sheets] Migration failed for ${actor.name}:`, err);
+            ui.notifications.warn(`Migration failed for ${actor.name} - see console`);
         }
     }
 
@@ -34,9 +77,9 @@ export class Migration {
             for (const i of equipped) {
                 if (i && i.id) newMap[i.id] = i;
             }
-            await actor.setFlag(MODULE_ID, "equipped-items", newMap);
+            await queueUpdate(() => actor.setFlag(MODULE_ID, "equipped-items", newMap));
             console.log(
-                `BitD Alternate Sheets | Migrated equipped items for ${actor.name}`
+                `[BitD Alternate Sheets] Migrated equipped items for ${actor.name}`
             );
         }
     }
@@ -78,9 +121,87 @@ export class Migration {
         }
 
         if (changed) {
-            await actor.update(updates);
+            await queueUpdate(() => actor.update(updates));
             console.log(
-                `BitD Alternate Sheets | Cleaned up orphaned progress flags for ${actor.name}`
+                `[BitD Alternate Sheets] Cleaned up orphaned progress flags for ${actor.name}`
+            );
+        }
+    }
+
+    /**
+     * Migrate healing clock data from the legacy field to the current system field.
+     *
+     * Alt-sheets was incorrectly using `system.healing-clock` while the system
+     * changed to `system.healing_clock.value` in v6.0.0. If alt-sheets is the
+     * default character sheet, the legacy field is authoritative and should
+     * overwrite the current field when they differ.
+     */
+    static async migrateHealingClock(actor) {
+        const legacyValue = actor.system["healing-clock"];
+        const currentValue = actor.system.healing_clock?.value;
+
+        // Normalize values for comparison (handle arrays like [2] vs numbers like 2)
+        const legacyNum = Array.isArray(legacyValue) ? legacyValue[0] : legacyValue;
+        const currentNum = Array.isArray(currentValue) ? currentValue[0] : currentValue;
+
+        // No legacy data to migrate
+        if (!legacyNum || legacyNum === 0) return;
+
+        // Values already match, no migration needed
+        if (legacyNum === currentNum) return;
+
+        // Check if alt-sheets is the default character sheet
+        const altSheet = CONFIG.Actor.sheetClasses?.character?.["bitd-alt.BladesAlternateActorSheet"];
+        const isAltSheetsDefault = altSheet?.default === true;
+
+        // If current is empty/zero, always migrate (legacy is the only data)
+        // If current has data but alt-sheets is default, migrate (legacy is authoritative)
+        if ((!currentNum || currentNum === 0) || isAltSheetsDefault) {
+            await actor.update({
+                "system.healing_clock.value": legacyValue
+            });
+            console.log(
+                `[BitD Alternate Sheets] Migrated healing clock for ${actor.name}: ${legacyNum} -> system.healing_clock.value`
+            );
+        }
+    }
+
+    static async migrateLegacyFields(actor) {
+        const updates = {};
+        let changed = false;
+
+        // Migrate system.background-details -> flags.bitd-alternate-sheets.background_details
+        const oldDetails = foundry.utils.getProperty(actor, "system.background-details");
+        const newDetails = actor.getFlag(MODULE_ID, "background_details");
+
+        if (oldDetails && !newDetails) {
+            updates[`flags.${MODULE_ID}.background_details`] = oldDetails;
+            updates["system.-=background-details"] = null;
+            changed = true;
+        } else if (oldDetails && newDetails) {
+            // Just clean up the old data if both exist (favoring the flag)
+            updates["system.-=background-details"] = null;
+            changed = true;
+        }
+
+        // Migrate system.vice-purveyor -> flags.bitd-alternate-sheets.vice_purveyor
+        const oldPurveyor = foundry.utils.getProperty(actor, "system.vice-purveyor");
+        const newPurveyor = actor.getFlag(MODULE_ID, "vice_purveyor");
+
+        if (oldPurveyor && !newPurveyor) {
+            updates[`flags.${MODULE_ID}.vice_purveyor`] = oldPurveyor;
+            updates["system.-=vice-purveyor"] = null;
+            changed = true;
+        } else if (oldPurveyor && newPurveyor) {
+            // Just clean up
+            updates["system.-=vice-purveyor"] = null;
+            changed = true;
+        }
+
+        if (changed) {
+            await queueUpdate(() => actor.update(updates));
+            console.log(
+                `BitD Alternate Sheets | Migrated legacy system fields for ${actor.name}`
             );
         }
     }

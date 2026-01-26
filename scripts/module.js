@@ -1,4 +1,5 @@
 import { BladesAlternateActorSheet } from "./blades-alternate-actor-sheet.js";
+import { BladesAlternateCrewSheet } from "./blades-alternate-crew-sheet.js";
 import { BladesAlternateItemSheet } from "./blades-alternate-item-sheet.js";
 import { BladesAlternateClassSheet } from "./blades-alternate-class-sheet.js";
 import { registerSystemSettings } from "./settings.js";
@@ -23,6 +24,10 @@ Hooks.once("ready", async function () {
   // legacy globals that will vanish in V15.
   registerDocumentSheet(CONFIG.Actor.documentClass, "bitd-alt", BladesAlternateActorSheet, {
     types: ["character"],
+    makeDefault: true,
+  });
+  registerDocumentSheet(CONFIG.Actor.documentClass, "bitd-alt", BladesAlternateCrewSheet, {
+    types: ["crew"],
     makeDefault: true,
   });
   // registerDocumentSheet(CONFIG.Item.documentClass, "bitd-alt", BladesAlternateItemSheet, { types: ["item"], makeDefault: true });
