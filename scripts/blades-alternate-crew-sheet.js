@@ -164,7 +164,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       const normalizedItemKey = manualKey || normalizeKey(keyRaw);
       const normalizedCrewKey = normalizeKey(selectedCrewKey);
       if (!normalizedCrewKey) return false;
-      if (!normalizedItemKey) return true;
+      if (!normalizedItemKey || normalizedItemKey === "generic") return true;
       return normalizedItemKey === normalizedCrewKey;
     };
 
