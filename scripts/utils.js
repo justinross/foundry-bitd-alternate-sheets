@@ -1016,14 +1016,23 @@ export class Utils {
     let sheet_items;
 
     sheet_items = all_game_items.filter((item) => {
+      const itemClass = (item.system.class ?? "").toLowerCase().trim();
+      const associatedClass = (item.system.associated_class ?? "").toLowerCase().trim();
+      const filterClass = filter_playbook.toLowerCase().trim();
+
+      // "Generic" items appear for all playbooks
+      if (itemClass === "generic" || associatedClass === "generic") {
+        return true;
+      }
+
       if (item.system.class !== undefined) {
         if (item.system.class === "" && type === "ability") {
           return false;
         } else {
-          return item.system.class === filter_playbook;
+          return itemClass === filterClass;
         }
       } else if (item.system.associated_class) {
-        return item.system.associated_class === filter_playbook;
+        return associatedClass === filterClass;
       } else {
         return false;
       }
