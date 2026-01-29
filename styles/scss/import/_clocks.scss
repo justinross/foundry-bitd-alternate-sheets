@@ -117,34 +117,12 @@ i.nullifier {
   }
 }
 
-// 4-segment clock (default for healing, common)
-.blades-clock.clock-4 {
-  @include clock-segments(4, 50);
-}
-
-// 6-segment clock
-.blades-clock.clock-6 {
-  @include clock-segments(6, 50);
-}
-
-// 8-segment clock
-.blades-clock.clock-8 {
-  @include clock-segments(8, 50);
-}
-
-// 10-segment clock
-.blades-clock.clock-10 {
-  @include clock-segments(10, 50);
-}
-
-// 12-segment clock
-.blades-clock.clock-12 {
-  @include clock-segments(12, 50);
-}
-
 // ================================================================
 // SIZE OVERRIDES FOR SPECIFIC CONTEXTS
 // ================================================================
+// Note: We do NOT define global 50px clock sizes here.
+// The base system handles clock sizing for item sheets.
+// We only override for specific module contexts below.
 
 // Larger clocks for embedded/enriched content (100px)
 .linkedClock .blades-clock,
