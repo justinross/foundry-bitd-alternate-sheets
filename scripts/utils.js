@@ -822,7 +822,7 @@ export class Utils {
     }
   }
 
-  static replaceCharacterNamesInDirectory(app, html) {
+  static replaceCharacterNamesInDirectoryV12(app, html) {
     const listOfAllCharacterIds = app.documents
       .filter((item) => item.type === "character")
       .map((item) => item._id);
@@ -847,6 +847,35 @@ export class Utils {
         .find(`[data-document-id="${character}"]`)
         .find(".document-name.entry-name");
       elements.each((index, el) => {
+        el.innerHTML = `<a>${computedName}</a>`;
+      });
+    }
+  }
+
+  static replaceCharacterNamesInDirectoryV13(app, html) {
+    const documents = app.options.collection;
+    const listOfAllCharacterIds = documents
+      .filter((item) => item.type === "character")
+      .map((item) => item._id);
+    for (const character of listOfAllCharacterIds) {
+      const showPronouns = game.settings.get(
+        "bitd-alternate-sheets",
+        "showPronounsInCharacterDirectory"
+      );
+      const showAliasInDirectory = game.actors
+        .get(character)
+        .getFlag("bitd-alternate-sheets", "showAliasInDirectory");
+      let computedName = showAliasInDirectory
+        ? game.actors.get(character).system.alias
+        : game.actors.get(character).name;
+      const pronouns = game.actors
+        .get(character)
+        .getFlag("bitd-alternate-sheets", "pronouns");
+      if (showPronouns && pronouns && pronouns !== "Pronouns") {
+        computedName = `${computedName} (${pronouns})`;
+      }
+      const elements = html.querySelectorAll(`[data-entry-id="${character}"] .entry-name`);
+      elements.forEach((el) => {
         el.innerHTML = `<a>${computedName}</a>`;
       });
     }
