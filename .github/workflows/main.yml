@@ -27,6 +27,33 @@ jobs:
           manifest: https://github.com/${{github.repository}}/releases/latest/download/module.json
           download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
 
+      # Validate that substitutions were applied
+      - name: Validate manifest substitutions
+        run: |
+          echo "Validating module.json substitutions..."
+
+          # Check for leftover placeholder text
+          if grep -q "This is auto replaced" module.json; then
+            echo "::error::Variable substitution failed - placeholder text still present in module.json"
+            echo "Ensure url, manifest, and download fields exist in module.json"
+            exit 1
+          fi
+
+          # Check version is not the placeholder
+          VERSION=$(jq -r '.version' module.json)
+          if [ "$VERSION" = "0.0.1" ]; then
+            echo "::error::Version was not substituted - still shows 0.0.1"
+            exit 1
+          fi
+
+          # Check download URL is valid
+          if ! jq -e '.download | startswith("https://")' module.json > /dev/null; then
+            echo "::error::Download URL is missing or invalid"
+            exit 1
+          fi
+
+          echo "Manifest validation passed - version: $VERSION"
+
       # Create a zip file with all files required by the module to add to the release
       - run: zip -r ./module.zip module.json LICENSE styles/ scripts/ templates/ languages/ images/
 
