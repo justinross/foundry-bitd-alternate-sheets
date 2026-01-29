@@ -4,3 +4,5 @@ foundry-data/
 # Environment files with secrets
 .env
 .devcontainer/.env
+
+.DS_Store
