@@ -555,7 +555,7 @@ header {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-black.png");
 }
 
-.small-teeth-wrap {
+.small-teeth {
   @include teeth-track(35px,
     12px,
     "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png",
@@ -865,6 +865,65 @@ header {
             "assets/teeth/xptooth-red.png",
             "assets/teeth/xptooth-white.png",
             $gap: -1px);
+
+          // Crew XP clock positioning - floats above without affecting layout
+          .crew-xp-clock {
+            position: absolute;
+            top: -0.75em; // Relative to font size for better scaling
+            right: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+
+            .crew-xp-clock-controls,
+            .crew-xp-completed-controls {
+              font-size: 16px;
+              display: flex;
+              flex-direction: column;
+              padding: 0 2px;
+
+              a {
+                cursor: pointer;
+                color: white;
+                &:hover {
+                  color: $red;
+                }
+              }
+            }
+
+            .crew-xp-completed-controls {
+              font-size: 14px;
+            }
+
+            .crew-xp-completed-clocks {
+              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-shrink: 0;
+
+              .completed-clock-img {
+                height: 40px;
+                width: 40px;
+                min-width: 40px;
+                min-height: 40px;
+                flex-shrink: 0;
+                border: none;
+                background-color: #888;
+                border-radius: 50%;
+                padding: 5px; // Match wrapper's padding
+                box-sizing: content-box;
+              }
+
+              .completed-clock-count {
+                position: absolute;
+                font-family: Kirsty, serif;
+                font-size: 18px;
+                color: white;
+                text-shadow: 1px 1px 2px black, -1px -1px 2px black; // Ensure readability
+              }
+            }
+          }
         }
       }
     }
@@ -873,6 +932,7 @@ header {
       padding: 0 0 2px;
       position: relative;
       z-index: 1;
+      margin-top: -5px; // Close gap with header above (accounts for teeth overflow)
 
       .trauma-list {
         width: 100%;

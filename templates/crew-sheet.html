@@ -12,16 +12,24 @@
               {{localize "BITD.CrewXP"}}
               <div class="stripe-tooth-body stress">
                 {{#if (getSetting 'ClockXP')}}
-                <div class="crew-xp-clock" style="display: inline-flex; position: relative; top: -8px;">
-                  <div class="flex-vertical" style="font-size: 16px; padding-left: 6px; padding-right: 2px">
+                <div class="crew-xp-clock">
+                  <div class="crew-xp-clock-controls flex-vertical">
                     <a class="up-exp-clock" data-tooltip="{{localize 'BITD.AddXP'}}"><i class="fas fa-caret-up"></i></a>
-                    <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i
-                        class="fas fa-caret-down"></i></a>
+                    <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i class="fas fa-caret-down"></i></a>
                   </div>
-                  <div style="width: 40px; height: 40px; position: relative;">
-                    {{{blades-clock "system.exp_clock.value" system.exp_clock.size system.exp_clock.value (concat _id
-                    "-exp") }}}
+                  <div class="crew-xp-clock-wrapper" data-click-disabled="true">
+                    {{{blades-clock-color "system.exp_clock.value" system.exp_clock.size "red" system.exp_clock.value (concat _id "-exp")}}}
                   </div>
+                  {{#if (gteq system.exp_clock.number 1)}}
+                  <div class="crew-xp-completed-controls flex-vertical">
+                    <a class="add-exp-clock" data-tooltip="{{localize 'BITD.AddXPClock'}}" style="visibility:hidden"><i class="fas fa-angles-up"></i></a>
+                    <a class="minus-exp-clock" data-tooltip="{{localize 'BITD.MinusXPClock'}}"><i class="fas fa-angles-down"></i></a>
+                  </div>
+                  <div class="crew-xp-completed-clocks">
+                    <img src="systems/blades-in-the-dark/themes/red/{{system.exp_clock.size}}clock_{{system.exp_clock.size}}.svg" class="completed-clock-img"/>
+                    <span class="completed-clock-count">x{{system.exp_clock.number}}</span>
+                  </div>
+                  {{/if}}
                 </div>
                 {{else}}
                 {{#multiboxes system.experience}}
