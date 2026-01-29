@@ -156,3 +156,37 @@ i.nullifier {
 .blades-clock-container .blades-clock.clock-12 {
   @include clock-segments(12, 100);
 }
+
+// Crew XP clock - gray circular background
+.crew-xp-clock-wrapper {
+  flex-shrink: 0;
+  position: relative;
+  background-color: #888;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px; // Consistent padding around 40px clock
+}
+
+.crew-xp-clock .blades-clock {
+  &.clock-4 {
+    @include clock-segments(4, 40);
+  }
+
+  &.clock-6 {
+    @include clock-segments(6, 40);
+  }
+
+  &.clock-8 {
+    @include clock-segments(8, 40);
+  }
+
+  &.clock-10 {
+    @include clock-segments(10, 40);
+  }
+
+  &.clock-12 {
+    @include clock-segments(12, 40);
+  }
+}
