@@ -371,7 +371,7 @@
 
       <div id="crew-{{_id}}-notes" class="notes tab grow-two flex-vertical character-notes-area" data-tab="notes">
         <header>{{localize "bitd-alt.NotesInstructions"}}</header>
-        {{editor notes target=(concat "flags." "bitd-alternate-sheets" ".notes") button=true editable=editable
+        {{editor notes target="system.description" button=true editable=editable
         documents=true engine="prosemirror" collaborate=true}}
       </div>
 

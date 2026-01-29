@@ -479,10 +479,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       sheetData.system.acquaintances_label == "BITD.Acquaintances"
         ? "bitd-alt.Acquaintances"
         : sheetData.system.acquaintances_label;
-    let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
-    if (rawNotes) {
-      sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
-    }
+    // Notes content - use system.description for compatibility with base system sheets
+    const rawNotes = this.actor.system.description || "";
+    sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
 
     // Prepare active effects
     sheetData.effects = BladesActiveEffect.prepareActiveEffectCategories(

@@ -63,8 +63,8 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     );
     sheetData.collapsedSections = this.collapsedSections;
 
-    // Notes content (parity with alternate character sheet)
-    const rawNotes = (await this.actor.getFlag(MODULE_ID, "notes")) || "";
+    // Notes content - use system.description for compatibility with base system sheets
+    const rawNotes = this.actor.system.description || "";
     sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
 
     // Custom text values for smart fields (used when no compendium item is selected)
