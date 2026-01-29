@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.20
+- Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
+- Partially fixed Issue #144 by fixing the Deep Cuts crew sheet XP display. Fixed by PR #150.
+- Fixed Issue #146 control of Name/Alias display in sidebar/ Fixed by PR #148.
+
+## 1.0.19
+- Quick release to address manifest version issue
+
 ## 1.0.18
 
 ### Actor Sheet Enhancement
