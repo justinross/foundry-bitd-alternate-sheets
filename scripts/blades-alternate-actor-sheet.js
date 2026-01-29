@@ -479,10 +479,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
       sheetData.system.acquaintances_label == "BITD.Acquaintances"
         ? "bitd-alt.Acquaintances"
         : sheetData.system.acquaintances_label;
-    let rawNotes = this.actor.getFlag("bitd-alternate-sheets", "notes");
-    if (rawNotes) {
-      sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
+    // Notes content - use system.description for compatibility with base system sheets
+    // Migrate from old flag storage if needed (append to preserve both)
+    const flagNotes = this.actor.getFlag(MODULE_ID, "notes");
+    if (flagNotes) {
+      const existingNotes = this.actor.system.description || "";
+      const mergedNotes = existingNotes ? `${existingNotes}\n\n${flagNotes}` : flagNotes;
+      console.log(`${MODULE_ID} | Migrating notes from flag to system.description for ${this.actor.name}`);
+      await this.actor.update({ "system.description": mergedNotes });
+      await this.actor.unsetFlag(MODULE_ID, "notes");
     }
+    const rawNotes = this.actor.system.description || "";
+    sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
 
     // Prepare active effects
     sheetData.effects = BladesActiveEffect.prepareActiveEffectCategories(

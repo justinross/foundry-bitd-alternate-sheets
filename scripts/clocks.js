@@ -93,6 +93,7 @@ export function setupGlobalClockHandlers() {
 
   $body.on("click", ".blades-clock label.radio-toggle", async (e) => {
     if ($(e.currentTarget).closest('[data-snapshot="true"]').length) return;
+    if ($(e.currentTarget).closest('[data-click-disabled="true"]').length) return;
 
     e.preventDefault();
     e.stopPropagation();
@@ -138,6 +139,7 @@ export function setupGlobalClockHandlers() {
 
   $body.on("contextmenu", ".blades-clock", async (e) => {
     if ($(e.currentTarget).closest('[data-snapshot="true"]').length) return;
+    if ($(e.currentTarget).closest('[data-click-disabled="true"]').length) return;
 
     e.preventDefault();
     e.stopPropagation();

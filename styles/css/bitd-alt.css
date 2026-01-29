@@ -1272,8 +1272,7 @@
 .blades-alt td {
   padding: 5px;
 }
-.blades-alt .xp-notes,
-.blades-alt .coins-caption {
+.blades-alt .xp-notes {
   margin: 0;
   padding: 0;
   font-style: italic;
@@ -2310,10 +2309,10 @@
   width: fit-content;
   flex: 0 0 auto;
 }
-.blades-alt.actor.sheet.crew .big-teeth label,
-.blades-alt.actor.sheet.crew .big-teeth label.radio-toggle,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label.radio-toggle {
+.blades-alt.actor.sheet.crew .big-teeth > label,
+.blades-alt.actor.sheet.crew .big-teeth > label.radio-toggle,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > label,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > label.radio-toggle {
   display: inline-block;
   height: 35px;
   width: 12px;
@@ -2324,40 +2323,40 @@
   transition: filter 0.1s;
   cursor: pointer;
 }
-.blades-alt.actor.sheet.crew .big-teeth label:last-of-type,
-.blades-alt.actor.sheet.crew .big-teeth label.radio-toggle:last-of-type,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label:last-of-type,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label.radio-toggle:last-of-type {
+.blades-alt.actor.sheet.crew .big-teeth > label:last-of-type,
+.blades-alt.actor.sheet.crew .big-teeth > label.radio-toggle:last-of-type,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > label:last-of-type,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > label.radio-toggle:last-of-type {
   margin-right: 0;
 }
-.blades-alt.actor.sheet.crew .big-teeth label:hover,
-.blades-alt.actor.sheet.crew .big-teeth label.radio-toggle:hover,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label:hover,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation label.radio-toggle:hover {
+.blades-alt.actor.sheet.crew .big-teeth > label:hover,
+.blades-alt.actor.sheet.crew .big-teeth > label.radio-toggle:hover,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > label:hover,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > label.radio-toggle:hover {
   filter: brightness(0.8);
   opacity: 0.9;
 }
-.blades-alt.actor.sheet.crew .big-teeth input,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input {
+.blades-alt.actor.sheet.crew .big-teeth > input,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > input {
   display: none;
 }
-.blades-alt.actor.sheet.crew .big-teeth input:checked ~ label,
-.blades-alt.actor.sheet.crew .big-teeth input:checked ~ label.radio-toggle,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input:checked ~ label,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input:checked ~ label.radio-toggle {
+.blades-alt.actor.sheet.crew .big-teeth > input:checked ~ label,
+.blades-alt.actor.sheet.crew .big-teeth > input:checked ~ label.radio-toggle,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > input:checked ~ label,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > input:checked ~ label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png");
 }
-.blades-alt.actor.sheet.crew .big-teeth input:checked + label,
-.blades-alt.actor.sheet.crew .big-teeth input:checked + label.radio-toggle,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input:checked + label,
-.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation input:checked + label.radio-toggle {
+.blades-alt.actor.sheet.crew .big-teeth > input:checked + label,
+.blades-alt.actor.sheet.crew .big-teeth > input:checked + label.radio-toggle,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > input:checked + label,
+.blades-alt.actor.sheet.crew .rep-turf-row .crew-reputation > input:checked + label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png");
 }
 .blades-alt.actor.sheet.crew .crew-reputation input[disabled] + label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-black.png");
 }
-.blades-alt.actor.sheet.crew .small-teeth-wrap label,
-.blades-alt.actor.sheet.crew .small-teeth-wrap label.radio-toggle {
+.blades-alt.actor.sheet.crew .small-teeth > label,
+.blades-alt.actor.sheet.crew .small-teeth > label.radio-toggle {
   display: inline-block;
   height: 35px;
   width: 12px;
@@ -2368,24 +2367,24 @@
   transition: filter 0.1s;
   cursor: pointer;
 }
-.blades-alt.actor.sheet.crew .small-teeth-wrap label:last-of-type,
-.blades-alt.actor.sheet.crew .small-teeth-wrap label.radio-toggle:last-of-type {
+.blades-alt.actor.sheet.crew .small-teeth > label:last-of-type,
+.blades-alt.actor.sheet.crew .small-teeth > label.radio-toggle:last-of-type {
   margin-right: 0;
 }
-.blades-alt.actor.sheet.crew .small-teeth-wrap label:hover,
-.blades-alt.actor.sheet.crew .small-teeth-wrap label.radio-toggle:hover {
+.blades-alt.actor.sheet.crew .small-teeth > label:hover,
+.blades-alt.actor.sheet.crew .small-teeth > label.radio-toggle:hover {
   filter: brightness(0.8);
   opacity: 0.9;
 }
-.blades-alt.actor.sheet.crew .small-teeth-wrap input {
+.blades-alt.actor.sheet.crew .small-teeth > input {
   display: none;
 }
-.blades-alt.actor.sheet.crew .small-teeth-wrap input:checked ~ label,
-.blades-alt.actor.sheet.crew .small-teeth-wrap input:checked ~ label.radio-toggle {
+.blades-alt.actor.sheet.crew .small-teeth > input:checked ~ label,
+.blades-alt.actor.sheet.crew .small-teeth > input:checked ~ label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png");
 }
-.blades-alt.actor.sheet.crew .small-teeth-wrap input:checked + label,
-.blades-alt.actor.sheet.crew .small-teeth-wrap input:checked + label.radio-toggle {
+.blades-alt.actor.sheet.crew .small-teeth > input:checked + label,
+.blades-alt.actor.sheet.crew .small-teeth > input:checked + label.radio-toggle {
   background-image: url("/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png");
 }
 .blades-alt.actor.sheet.crew .teeth-row {
@@ -2627,8 +2626,8 @@
   top: 1px;
   right: 1px;
 }
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body label,
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body label.radio-toggle {
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > label,
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > label.radio-toggle {
   display: inline-block;
   height: 28px;
   width: 10px;
@@ -2639,30 +2638,84 @@
   transition: filter 0.1s;
   cursor: pointer;
 }
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body label:last-of-type,
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body label.radio-toggle:last-of-type {
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > label:last-of-type,
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > label.radio-toggle:last-of-type {
   margin-right: 0;
 }
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body label:hover,
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body label.radio-toggle:hover {
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > label:hover,
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > label.radio-toggle:hover {
   filter: brightness(0.8);
   opacity: 0.9;
 }
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body input {
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > input {
   display: none;
 }
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body input:checked ~ label,
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body input:checked ~ label.radio-toggle {
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > input:checked ~ label,
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > input:checked ~ label.radio-toggle {
   background-image: url("assets/teeth/xptooth-white.png");
 }
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body input:checked + label,
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body input:checked + label.radio-toggle {
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > input:checked + label,
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > input:checked + label.radio-toggle {
   background-image: url("assets/teeth/xptooth-red.png");
+}
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock {
+  position: absolute;
+  top: -0.75em;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-clock-controls,
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls {
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  padding: 0 2px;
+}
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-clock-controls a,
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls a {
+  cursor: pointer;
+  color: white;
+}
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-clock-controls a:hover,
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls a:hover {
+  color: #cc0000;
+}
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls {
+  font-size: 14px;
+}
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-clocks {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-clocks .completed-clock-img {
+  height: 40px;
+  width: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  flex-shrink: 0;
+  border: none;
+  background-color: #888;
+  border-radius: 50%;
+  padding: 5px;
+  box-sizing: content-box;
+}
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-clocks .completed-clock-count {
+  position: absolute;
+  font-family: Kirsty, serif;
+  font-size: 18px;
+  color: white;
+  text-shadow: 1px 1px 2px black, -1px -1px 2px black;
 }
 .blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .trauma-box {
   padding: 0 0 2px;
   position: relative;
   z-index: 1;
+  margin-top: -5px;
 }
 .blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .trauma-box .trauma-list {
   width: 100%;
@@ -3119,9 +3172,9 @@
   top: -1px;
   right: 1px;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right label,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right label.radio-toggle, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress label,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress label.radio-toggle {
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > label,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > label.radio-toggle, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > label,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > label.radio-toggle {
   display: inline-block;
   height: 28px;
   width: 10px;
@@ -3132,28 +3185,28 @@
   transition: filter 0.1s;
   cursor: pointer;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right label:last-of-type,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right label.radio-toggle:last-of-type, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress label:last-of-type,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress label.radio-toggle:last-of-type {
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > label:last-of-type,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > label.radio-toggle:last-of-type, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > label:last-of-type,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > label.radio-toggle:last-of-type {
   margin-right: 0;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right label:hover,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right label.radio-toggle:hover, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress label:hover,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress label.radio-toggle:hover {
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > label:hover,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > label.radio-toggle:hover, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > label:hover,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > label.radio-toggle:hover {
   filter: brightness(0.8);
   opacity: 0.9;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right input, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress input {
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > input, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > input {
   display: none;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right input:checked ~ label,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right input:checked ~ label.radio-toggle, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress input:checked ~ label,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress input:checked ~ label.radio-toggle {
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > input:checked ~ label,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > input:checked ~ label.radio-toggle, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > input:checked ~ label,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > input:checked ~ label.radio-toggle {
   background-image: url("assets/teeth/xptooth-white.png");
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right input:checked + label,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right input:checked + label.radio-toggle, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress input:checked + label,
-.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress input:checked + label.radio-toggle {
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > input:checked + label,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.right > input:checked + label.radio-toggle, .blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > input:checked + label,
+.blades-alt.actor.sheet.pc .sheet-wrapper .stripe-tooth-body.stress > input:checked + label.radio-toggle {
   background-image: url("assets/teeth/xptooth-red.png");
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .sheet-toggles .toggle-alias-display .fa-face-disguise {
@@ -4300,191 +4353,6 @@ i.nullifier:hover {
   color: #cc0000;
 }
 
-.blades-clock.clock-4 {
-  width: 50px;
-  height: 50px;
-}
-
-.blades-clock.clock-4 *:nth-child(3) {
-  transform: rotate(0deg) skewY(180deg);
-}
-
-.blades-clock.clock-4 *:nth-child(5) {
-  transform: rotate(90deg) skewY(180deg);
-}
-
-.blades-clock.clock-4 *:nth-child(7) {
-  transform: rotate(180deg) skewY(180deg);
-}
-
-.blades-clock.clock-4 *:nth-child(9) {
-  transform: rotate(270deg) skewY(180deg);
-}
-
-.blades-clock.clock-6 {
-  width: 50px;
-  height: 50px;
-}
-
-.blades-clock.clock-6 *:nth-child(3) {
-  transform: rotate(0deg) skewY(150deg);
-}
-
-.blades-clock.clock-6 *:nth-child(5) {
-  transform: rotate(60deg) skewY(150deg);
-}
-
-.blades-clock.clock-6 *:nth-child(7) {
-  transform: rotate(120deg) skewY(150deg);
-}
-
-.blades-clock.clock-6 *:nth-child(9) {
-  transform: rotate(180deg) skewY(150deg);
-}
-
-.blades-clock.clock-6 *:nth-child(11) {
-  transform: rotate(240deg) skewY(150deg);
-}
-
-.blades-clock.clock-6 *:nth-child(13) {
-  transform: rotate(300deg) skewY(150deg);
-}
-
-.blades-clock.clock-8 {
-  width: 50px;
-  height: 50px;
-}
-
-.blades-clock.clock-8 *:nth-child(3) {
-  transform: rotate(0deg) skewY(135deg);
-}
-
-.blades-clock.clock-8 *:nth-child(5) {
-  transform: rotate(45deg) skewY(135deg);
-}
-
-.blades-clock.clock-8 *:nth-child(7) {
-  transform: rotate(90deg) skewY(135deg);
-}
-
-.blades-clock.clock-8 *:nth-child(9) {
-  transform: rotate(135deg) skewY(135deg);
-}
-
-.blades-clock.clock-8 *:nth-child(11) {
-  transform: rotate(180deg) skewY(135deg);
-}
-
-.blades-clock.clock-8 *:nth-child(13) {
-  transform: rotate(225deg) skewY(135deg);
-}
-
-.blades-clock.clock-8 *:nth-child(15) {
-  transform: rotate(270deg) skewY(135deg);
-}
-
-.blades-clock.clock-8 *:nth-child(17) {
-  transform: rotate(315deg) skewY(135deg);
-}
-
-.blades-clock.clock-10 {
-  width: 50px;
-  height: 50px;
-}
-
-.blades-clock.clock-10 *:nth-child(3) {
-  transform: rotate(0deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(5) {
-  transform: rotate(36deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(7) {
-  transform: rotate(72deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(9) {
-  transform: rotate(108deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(11) {
-  transform: rotate(144deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(13) {
-  transform: rotate(180deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(15) {
-  transform: rotate(216deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(17) {
-  transform: rotate(252deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(19) {
-  transform: rotate(288deg) skewY(126deg);
-}
-
-.blades-clock.clock-10 *:nth-child(21) {
-  transform: rotate(324deg) skewY(126deg);
-}
-
-.blades-clock.clock-12 {
-  width: 50px;
-  height: 50px;
-}
-
-.blades-clock.clock-12 *:nth-child(3) {
-  transform: rotate(0deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(5) {
-  transform: rotate(30deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(7) {
-  transform: rotate(60deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(9) {
-  transform: rotate(90deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(11) {
-  transform: rotate(120deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(13) {
-  transform: rotate(150deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(15) {
-  transform: rotate(180deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(17) {
-  transform: rotate(210deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(19) {
-  transform: rotate(240deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(21) {
-  transform: rotate(270deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(23) {
-  transform: rotate(300deg) skewY(120deg);
-}
-
-.blades-clock.clock-12 *:nth-child(25) {
-  transform: rotate(330deg) skewY(120deg);
-}
-
 .linkedClock .blades-clock,
 .blades-clock-container .blades-clock {
   width: 100px;
@@ -4718,6 +4586,202 @@ i.nullifier:hover {
 
 .linkedClock .blades-clock.clock-12 *:nth-child(25),
 .blades-clock-container .blades-clock.clock-12 *:nth-child(25) {
+  transform: rotate(330deg) skewY(120deg);
+}
+
+.crew-xp-clock-wrapper {
+  flex-shrink: 0;
+  position: relative;
+  background-color: #888;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.crew-xp-clock .blades-clock.clock-4 {
+  width: 40px;
+  height: 40px;
+}
+
+.crew-xp-clock .blades-clock.clock-4 *:nth-child(3) {
+  transform: rotate(0deg) skewY(180deg);
+}
+
+.crew-xp-clock .blades-clock.clock-4 *:nth-child(5) {
+  transform: rotate(90deg) skewY(180deg);
+}
+
+.crew-xp-clock .blades-clock.clock-4 *:nth-child(7) {
+  transform: rotate(180deg) skewY(180deg);
+}
+
+.crew-xp-clock .blades-clock.clock-4 *:nth-child(9) {
+  transform: rotate(270deg) skewY(180deg);
+}
+
+.crew-xp-clock .blades-clock.clock-6 {
+  width: 40px;
+  height: 40px;
+}
+
+.crew-xp-clock .blades-clock.clock-6 *:nth-child(3) {
+  transform: rotate(0deg) skewY(150deg);
+}
+
+.crew-xp-clock .blades-clock.clock-6 *:nth-child(5) {
+  transform: rotate(60deg) skewY(150deg);
+}
+
+.crew-xp-clock .blades-clock.clock-6 *:nth-child(7) {
+  transform: rotate(120deg) skewY(150deg);
+}
+
+.crew-xp-clock .blades-clock.clock-6 *:nth-child(9) {
+  transform: rotate(180deg) skewY(150deg);
+}
+
+.crew-xp-clock .blades-clock.clock-6 *:nth-child(11) {
+  transform: rotate(240deg) skewY(150deg);
+}
+
+.crew-xp-clock .blades-clock.clock-6 *:nth-child(13) {
+  transform: rotate(300deg) skewY(150deg);
+}
+
+.crew-xp-clock .blades-clock.clock-8 {
+  width: 40px;
+  height: 40px;
+}
+
+.crew-xp-clock .blades-clock.clock-8 *:nth-child(3) {
+  transform: rotate(0deg) skewY(135deg);
+}
+
+.crew-xp-clock .blades-clock.clock-8 *:nth-child(5) {
+  transform: rotate(45deg) skewY(135deg);
+}
+
+.crew-xp-clock .blades-clock.clock-8 *:nth-child(7) {
+  transform: rotate(90deg) skewY(135deg);
+}
+
+.crew-xp-clock .blades-clock.clock-8 *:nth-child(9) {
+  transform: rotate(135deg) skewY(135deg);
+}
+
+.crew-xp-clock .blades-clock.clock-8 *:nth-child(11) {
+  transform: rotate(180deg) skewY(135deg);
+}
+
+.crew-xp-clock .blades-clock.clock-8 *:nth-child(13) {
+  transform: rotate(225deg) skewY(135deg);
+}
+
+.crew-xp-clock .blades-clock.clock-8 *:nth-child(15) {
+  transform: rotate(270deg) skewY(135deg);
+}
+
+.crew-xp-clock .blades-clock.clock-8 *:nth-child(17) {
+  transform: rotate(315deg) skewY(135deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 {
+  width: 40px;
+  height: 40px;
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(3) {
+  transform: rotate(0deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(5) {
+  transform: rotate(36deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(7) {
+  transform: rotate(72deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(9) {
+  transform: rotate(108deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(11) {
+  transform: rotate(144deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(13) {
+  transform: rotate(180deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(15) {
+  transform: rotate(216deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(17) {
+  transform: rotate(252deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(19) {
+  transform: rotate(288deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-10 *:nth-child(21) {
+  transform: rotate(324deg) skewY(126deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 {
+  width: 40px;
+  height: 40px;
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(3) {
+  transform: rotate(0deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(5) {
+  transform: rotate(30deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(7) {
+  transform: rotate(60deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(9) {
+  transform: rotate(90deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(11) {
+  transform: rotate(120deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(13) {
+  transform: rotate(150deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(15) {
+  transform: rotate(180deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(17) {
+  transform: rotate(210deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(19) {
+  transform: rotate(240deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(21) {
+  transform: rotate(270deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(23) {
+  transform: rotate(300deg) skewY(120deg);
+}
+
+.crew-xp-clock .blades-clock.clock-12 *:nth-child(25) {
   transform: rotate(330deg) skewY(120deg);
 }
 

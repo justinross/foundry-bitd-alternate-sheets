@@ -37,6 +37,7 @@
     "bitd-alt.NotesInstructions": "Add notes here. Drag and drop clocks, actors, or items in to link to them. Click clocks to increment, right-click to decrement.",
     "bitd-alt.OnHand": "On Hand",
     "bitd-alt.CrewCoinsCaption": "Upon crew advance, each PC gets stash = Tier+2.",
+    "bitd-alt.CrewAdvancement": "Crew Advancement",
     "bitd-alt.CrewExpClue1": "At the end of each session, for each item below, mark 1 xp (or instead mark 2xp if that item occurred multiple times).",
     "bitd-alt.CrewExpClue2": "Contend with challenges above your current station.",
     "bitd-alt.CrewExpClue3": "Bolster your crew's reputation or develop a new one.",

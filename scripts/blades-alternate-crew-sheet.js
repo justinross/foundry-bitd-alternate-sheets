@@ -63,8 +63,17 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     );
     sheetData.collapsedSections = this.collapsedSections;
 
-    // Notes content (parity with alternate character sheet)
-    const rawNotes = (await this.actor.getFlag(MODULE_ID, "notes")) || "";
+    // Notes content - use system.description for compatibility with base system sheets
+    // Migrate from old flag storage if needed (append to preserve both)
+    const flagNotes = this.actor.getFlag(MODULE_ID, "notes");
+    if (flagNotes) {
+      const existingNotes = this.actor.system.description || "";
+      const mergedNotes = existingNotes ? `${existingNotes}\n\n${flagNotes}` : flagNotes;
+      console.log(`${MODULE_ID} | Migrating notes from flag to system.description for ${this.actor.name}`);
+      await this.actor.update({ "system.description": mergedNotes });
+      await this.actor.unsetFlag(MODULE_ID, "notes");
+    }
+    const rawNotes = this.actor.system.description || "";
     sheetData.notes = await Utils.enrichNotes(this.actor, rawNotes);
 
     // Custom text values for smart fields (used when no compendium item is selected)
@@ -154,8 +163,8 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       const manualKey = resolveManualCrewType(normalizedItemName);
       const normalizedItemKey = manualKey || normalizeKey(keyRaw);
       const normalizedCrewKey = normalizeKey(selectedCrewKey);
-      if (!normalizedItemKey) return true;
-      if (!normalizedCrewKey) return true;
+      if (!normalizedCrewKey) return false;
+      if (!normalizedItemKey || normalizedItemKey === "generic") return true;
       return normalizedItemKey === normalizedCrewKey;
     };
 

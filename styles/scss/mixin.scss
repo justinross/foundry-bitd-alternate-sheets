@@ -80,8 +80,9 @@
 @mixin teeth-track($height, $width, $filled-img, $empty-img, $gap: 4px) {
 
   // Style both plain labels and radio-toggle class, since markup varies
-  label,
-  label.radio-toggle {
+  // Use direct child selector to avoid affecting nested clock labels
+  > label,
+  > label.radio-toggle {
     display: inline-block;
     height: $height;
     width: $width;
@@ -102,18 +103,18 @@
     }
   }
 
-  input {
+  > input {
     display: none;
   }
 
   // When an input is checked, labels after it become empty, the current stays filled.
-  input:checked~label,
-  input:checked~label.radio-toggle {
+  > input:checked ~ label,
+  > input:checked ~ label.radio-toggle {
     background-image: url($empty-img);
   }
 
-  input:checked+label,
-  input:checked+label.radio-toggle {
+  > input:checked + label,
+  > input:checked + label.radio-toggle {
     background-image: url($filled-img);
   }
 }
