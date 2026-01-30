@@ -26,6 +26,15 @@ export async function registerHooks() {
     }
   });
 
+  Hooks.on("renderActorDirectory", (app, html) => {
+    if (game.version.split(".")[0] < 13) {
+      Utils.replaceCharacterNamesInDirectoryV12(app, html);
+    }
+    else {
+      Utils.replaceCharacterNamesInDirectoryV13(app, html);
+    }
+  });
+
   Hooks.once("ready", () => {
     Hooks.once("diceSoNiceReady", (dice3d) => {
       registerDiceSoNiceChanges(dice3d);
