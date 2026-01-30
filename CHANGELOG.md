@@ -4,6 +4,9 @@
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
 - Partially fixed Issue #144 by fixing the Deep Cuts crew sheet XP display. Fixed by PR #150.
 - Fixed Issue #146 control of Name/Alias display in sidebar/ Fixed by PR #148.
+- Partially fixed Issue #144 by moving notes data back into the system module's notes field. If notes were added during the interval when the notes were being stored in a flag, the notes in the flag should be appended to the end of the notes from the system module's storage.
+- Prior to this, when a newly created crew had no crew type, all abilities and upgrades were listed on their respective tabs. Changed filtering so that nothing shows up on the tabs until a crew type is selected.
+- Added a "Generic" type keyword. When put in the classing field of a playbook ability, crew ability, or crew update, this will cause the tagged item to show up in the list regardless of playbook or crew type. Leaving the classing field of items blank currently causes them to be added to lists for crew abilities, crew upgrades, and loadout items. I don't expect any change in behavior for those item types. For them, the Generic type currently just allows the author to indicate intent.
 
 ## 1.0.19
 - Quick release to address manifest version issue
