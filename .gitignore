@@ -1,2 +1,8 @@
 Foundry
-node_modules
+foundry-data/
+
+# Environment files with secrets
+.env
+.devcontainer/.env
+
+.DS_Store

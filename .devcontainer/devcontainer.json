@@ -1,0 +1,62 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-docker-compose
+{
+	"name": "Existing Docker Compose (Extend)",
+	// The docker-compose.yml file contains the complete Foundry VTT development environment.
+	"dockerComposeFile": [
+		"../docker-compose.yml"
+	],
+	// The 'service' property is the name of the service for the container that VS Code should
+	// use. Update this value and .devcontainer/docker-compose.yml to the real service name.
+	"service": "foundry",
+	// The optional 'workspaceFolder' property is the path VS Code should open by default when
+	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"features": {
+		"ghcr.io/eitsupi/devcontainer-features/jq-likes:2": {},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20"
+		}
+	},
+	// Forward Foundry VTT port
+	// Common ports for different Foundry versions: 30000 (release), 30012 (v12), 30013 (v13)
+	// Update this array if you change FOUNDRY_EXTERNAL_PORT in .devcontainer/.env
+	"forwardPorts": [
+		30000,
+		30012,
+		30013
+	],
+	"portsAttributes": {
+		"30000": {
+			"label": "Foundry VTT (release)",
+			"onAutoForward": "openBrowser"
+		},
+		"30012": {
+			"label": "Foundry VTT (v12)",
+			"onAutoForward": "openBrowser"
+		},
+		"30013": {
+			"label": "Foundry VTT (v13)",
+			"onAutoForward": "openBrowser"
+		}
+	},
+	// Environment variables for Foundry authentication
+	"remoteEnv": {
+		"FOUNDRY_USERNAME": "${localEnv:FOUNDRY_USERNAME}",
+		"FOUNDRY_PASSWORD": "${localEnv:FOUNDRY_PASSWORD}",
+		"FOUNDRY_ADMIN_KEY": "${localEnv:FOUNDRY_ADMIN_KEY}",
+		"FOUNDRY_SYSTEM_MANIFEST_URL": "${localEnv:FOUNDRY_SYSTEM_MANIFEST_URL}"
+	},
+	// Create foundry-data folder before container starts
+	"initializeCommand": "mkdir -p \"${localWorkspaceFolder}/foundry-data\"",
+	// Uncomment the next line if you want start specific services in your Docker Compose config.
+	// "runServices": [],
+	// Uncomment the next line if you want to keep your containers running after VS Code shuts down.
+	// "shutdownAction": "none",
+	// Install the Blades in the Dark system after container is created
+	"postCreateCommand": "bash .devcontainer/install-system.sh || echo 'System installation failed - check ${localWorkspaceFolder}/install-system.log' >&2"
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "devcontainer"
+}
