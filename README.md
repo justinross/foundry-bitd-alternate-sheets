@@ -47,5 +47,38 @@ To emulate the official character sheets, items and abilities are handled as vir
 ## Issues
 If you come across any issues or suggestions, please don't hesitate to file an issue report on Github: https://github.com/justinross/foundry-bitd-alternate-sheets/issues. I'm also on Discord as ThsJstIn#5654, but Github Issues are preferred.
 
+## Development Container
+This repository uses a VS Code Dev Container to run Foundry VTT with this module loaded for development. The container uses the [felddy/foundryvtt](https://github.com/felddy/foundryvtt-docker) Docker image.
+
+### Setup
+
+1. **Configure credentials**: Copy `.env.example` to `.env` in the `.devcontainer` directory and fill in your Foundry VTT credentials:
+   ```bash
+   FVTT_USER=your-foundry-username
+   FVTT_PW=your-foundry-password
+   FOUNDRY_ADMIN_KEY=your-admin-key
+   ```
+   The `.env` file is gitignored to keep your credentials secure.
+
+2. **Open in container**: Open this folder in VS Code and choose **Dev Containers: Reopen in Container**.
+
+3. **Access Foundry**: The container automatically forwards port 30000, so you can access Foundry at [http://localhost:30000](http://localhost:30000).
+
+### How it works
+
+- The container runs Foundry VTT from the `felddy/foundryvtt:release` image
+- Foundry data persists in `foundry-data/` (gitignored) across container rebuilds
+- The workspace is mounted at `/workspaces/foundry-bitd-alternate-sheets` for editing
+- **The module is also mounted at `/data/Data/modules/bitd-alternate-sheets`**, so changes to your code are immediately available in the running Foundry server
+- npm cache persists between rebuilds for faster startup
+
+**Automatic system install:** On container creation, the Blades in the Dark system is installed automatically via `.devcontainer/install-system.sh`. To use a different system, set `FOUNDRY_SYSTEM_MANIFEST_URL` before building.
+
+### Development workflow
+
+* Edit files in VS Code - changes are immediately reflected in Foundry
+* Run `npm run build:css` to regenerate `styles/css/bitd-alt.css` from SCSS sources
+* Foundry data and npm cache persist between container rebuilds
+
 ##TODO:
 * Redo the rest of the Blades sheets. Someday. 

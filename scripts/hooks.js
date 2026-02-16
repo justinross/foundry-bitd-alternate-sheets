@@ -13,11 +13,26 @@ export async function registerHooks() {
   // Hooks.once("setup", () => {
   // });
 
-  Hooks.on("renderSidebarTab", (app, html, options) => {
-    if (options.tabName !== "actors") return;
-    if (!game.user.isGM) return;
+  Hooks.on("changeSidebarTab", (app) => {
+    if (app?.options?.tabName !== "actors" && app?.options?.id !== "actors") return;
+    // if (!game.user.isGM) return;
 
-    Utils.replaceCharacterNamesInDirectory(app, html);
+
+    if (game.version.split(".")[0] < 13) {
+      Utils.replaceCharacterNamesInDirectoryV12(app, app._element);
+    }
+    else {
+      Utils.replaceCharacterNamesInDirectoryV13(app, app.element);
+    }
+  });
+
+  Hooks.on("renderActorDirectory", (app, html) => {
+    if (game.version.split(".")[0] < 13) {
+      Utils.replaceCharacterNamesInDirectoryV12(app, html);
+    }
+    else {
+      Utils.replaceCharacterNamesInDirectoryV13(app, html);
+    }
   });
 
   Hooks.once("ready", () => {

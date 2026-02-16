@@ -1263,6 +1263,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
         "showAliasInDirectory",
         !this.actor.getFlag("bitd-alternate-sheets", "showAliasInDirectory")
       ));
+      game.actors.directory.render(false);
     });
 
     const crewSelector = html.find('[data-action="select-crew"]');
