@@ -1109,7 +1109,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       const attributeName = event.currentTarget?.dataset?.rollAttribute;
       if (!attributeName) return;
 
-      const attributeLabel = game.i18n.localize(`BITD.${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)}`);
+      const attributeLabel = game.i18n.localize(this.actor.system.attributes[attributeName]?.label ?? attributeName);
       const result = await openAttributeRollDialog({
         title: `${game.i18n.localize("BITD.Roll")} ${attributeLabel}`,
         resistLabel: game.i18n.localize("bitd-alt.ResistRoll"),
