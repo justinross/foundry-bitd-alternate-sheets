@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.21
+- Added an attribute roll dialog that prompts the player to choose between a Resist Roll and an Indulge Vice roll when clicking an attribute label. The dialog is enabled by a new "Prompt for Resist or Indulge" module setting (off by default). When disabled, the system module's default attribute roll popup is used.
+
+
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
 - Partially fixed Issue #144 by fixing the Deep Cuts crew sheet XP display. Fixed by PR #150.
