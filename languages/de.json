@@ -22,6 +22,8 @@
     "bitd-alt.IndulgeVice": "Laster frönen",
     "bitd-alt.Modifier": "Modifikator:",
     "bitd-alt.MinusOneDie": "-1W",
+    "bitd-alt.PromptAttributeRoll": "Widerstand oder Laster auswählen",
+    "bitd-alt.PromptAttributeRollHint": "Wenn ein Spieler auf ein Attribut klickt, wird eine Auswahl zwischen Widerstandswurf und Laster frönen angezeigt.",
     "bitd-alt.StartingSkills": "Aktionen zu Beginn",
     "bitd-alt.BackgroundDetails": "Hintergrund-Details",
     "bitd-alt.VicePurveyor": "Laster-Versorger",

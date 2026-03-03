@@ -1104,32 +1104,34 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     // Override attribute label clicks (not action/skill clicks) to show
     // our dialog with Resist Roll and Indulge Vice options.
-    html.find(".attribute-label.roll-die-attribute").off("click").on("click", async (event) => {
-      event.preventDefault();
-      const attributeName = event.currentTarget?.dataset?.rollAttribute;
-      if (!attributeName) return;
+    if (game.settings.get("bitd-alternate-sheets", "promptAttributeRoll")) {
+      html.find(".attribute-label.roll-die-attribute").off("click").on("click", async (event) => {
+        event.preventDefault();
+        const attributeName = event.currentTarget?.dataset?.rollAttribute;
+        if (!attributeName) return;
 
-      const attributeLabel = game.i18n.localize(this.actor.system.attributes[attributeName]?.label ?? attributeName);
-      const result = await openAttributeRollDialog({
-        title: `${game.i18n.localize("BITD.Roll")} ${attributeLabel}`,
-        resistLabel: game.i18n.localize("bitd-alt.ResistRoll"),
-        indulgeLabel: game.i18n.localize("bitd-alt.IndulgeVice"),
-        modifierLabel: game.i18n.localize("bitd-alt.Modifier"),
-        rollLabel: game.i18n.localize("BITD.Roll"),
-        cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
-        notesLabel: game.i18n.localize("BITD.Notes") + ":",
+        const attributeLabel = game.i18n.localize(this.actor.system.attributes[attributeName]?.label ?? attributeName);
+        const result = await openAttributeRollDialog({
+          title: `${game.i18n.localize("BITD.Roll")} ${attributeLabel}`,
+          resistLabel: game.i18n.localize("bitd-alt.ResistRoll"),
+          indulgeLabel: game.i18n.localize("bitd-alt.IndulgeVice"),
+          modifierLabel: game.i18n.localize("bitd-alt.Modifier"),
+          rollLabel: game.i18n.localize("BITD.Roll"),
+          cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
+          notesLabel: game.i18n.localize("BITD.Notes") + ":",
+        });
+        if (!result) return;
+
+        if (result.rollType === "indulgeVice") {
+          const rollData = this.actor.getRollData();
+          const viceDice = Math.max(0, (rollData?.dice_amount?.["BITD.Vice"] ?? 0) + result.modifier);
+          const stress = this.actor.system.stress.value;
+          await bladesRoll(viceDice, "BITD.Vice", "", "", result.note, stress);
+        } else {
+          await this.actor.rollAttribute(attributeName, result.modifier, "", "", result.note);
+        }
       });
-      if (!result) return;
-
-      if (result.rollType === "indulgeVice") {
-        const rollData = this.actor.getRollData();
-        const viceDice = Math.max(0, (rollData?.dice_amount?.["BITD.Vice"] ?? 0) + result.modifier);
-        const stress = this.actor.system.stress.value;
-        await bladesRoll(viceDice, "BITD.Vice", "", "", result.note, stress);
-      } else {
-        await this.actor.rollAttribute(attributeName, result.modifier, "", "", result.note);
-      }
-    });
+    }
 
     this.addTermTooltips(html);
 
