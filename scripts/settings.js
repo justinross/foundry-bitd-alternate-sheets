@@ -87,4 +87,13 @@ export const registerSystemSettings = function () {
     type: Boolean,
     default: false,
   });
+
+  game.settings.register("bitd-alternate-sheets", "promptAttributeRoll", {
+    name: "bitd-alt.PromptAttributeRoll",
+    hint: "bitd-alt.PromptAttributeRollHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
 };

@@ -126,14 +126,17 @@ async function openCardSelectionDialogV2({
     content,
     render: (event, dialog) => {
       // Attach event listeners programmatically since inline handlers are stripped by Foundry's sanitization
-      // v12: dialog.element may be undefined, fallback to event.currentTarget or document query
+      // v12: dialog.element may be undefined, fallback to event.currentTarget
       // v13: dialog.element is available
       const form =
         dialog.element?.querySelector("form") ||
-        event.currentTarget?.querySelector("form") ||
-        document.querySelector("dialog[open] form");
+        event.currentTarget?.querySelector("form");
+      if (!form) {
+        console.warn("bitd-alt | Could not locate dialog form element");
+        return;
+      }
 
-      if (form) {
+      {
         const radios = form.querySelectorAll('input[type="radio"]');
         const textInput = form.querySelector('input[name="customTextValue"]');
         const clearBtn = form.querySelector('.clear-text-btn');
@@ -212,9 +215,11 @@ async function openCardSelectionDialogV2({
           // v13: dialog.element is available
           const formElement =
             dialog.element?.querySelector("form") ||
-            event.target?.closest("dialog")?.querySelector("form") ||
-            document.querySelector("dialog[open] form");
-          if (!formElement) return "";
+            event.target?.closest("dialog")?.querySelector("form");
+          if (!formElement) {
+            console.warn("bitd-alt | Could not locate dialog form element");
+            return undefined;
+          }
           // v13: Use namespaced FormDataExtended, v12: Use global
           const FormData = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
           const formData = new FormData(formElement);
@@ -454,9 +459,11 @@ async function openTextInputDialogV2({
         callback: (event, button, dialog) => {
           const formElement =
             dialog.element?.querySelector("form") ||
-            event.target?.closest("dialog")?.querySelector("form") ||
-            document.querySelector("dialog[open] form");
-          if (!formElement) return "";
+            event.target?.closest("dialog")?.querySelector("form");
+          if (!formElement) {
+            console.warn("bitd-alt | Could not locate dialog form element");
+            return undefined;
+          }
           const FormData = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
           const formData = new FormData(formElement);
           return formData.object.value ?? "";
@@ -523,6 +530,177 @@ async function openTextInputDialogV1({
           },
         },
         default: "ok",
+        close: () => finish(undefined),
+      },
+      {
+        width: 400,
+      }
+    );
+    dialog.render(true);
+  });
+}
+
+// ============================================================================
+// Attribute Roll Dialog (Resist / Indulge Vice)
+// ============================================================================
+
+/**
+ * Open a dialog for attribute rolls, offering Resist Roll or Indulge Vice.
+ *
+ * @param {Object} options
+ * @param {string} options.title - Dialog title (e.g., "Roll Insight")
+ * @param {string} options.resistLabel - Label for Resist Roll option
+ * @param {string} options.indulgeLabel - Label for Indulge Vice option
+ * @param {string} options.modifierLabel - Label for the modifier dropdown
+ * @param {string} options.rollLabel - Roll button label
+ * @param {string} options.cancelLabel - Cancel button label
+ * @param {string} options.notesLabel - Label for notes input
+ * @returns {Promise<{ rollType: "resist" | "indulgeVice", modifier: number, note: string } | undefined>}
+ */
+export async function openAttributeRollDialog(options) {
+  if (supportsDialogV2()) {
+    return openAttributeRollDialogV2(options);
+  }
+  return openAttributeRollDialogV1(options);
+}
+
+function getAttributeRollFormHtml({ resistLabel, indulgeLabel, modifierLabel, notesLabel }) {
+  const safeResistLabel = escapeHTML(resistLabel);
+  const safeIndulgeLabel = escapeHTML(indulgeLabel);
+  const safeModifierLabel = escapeHTML(modifierLabel);
+  const safeNotesLabel = escapeHTML(notesLabel);
+
+  const modifierOptions = [-3, -2, -1, 0, 1, 2, 3]
+    .map((v) => `<option value="${v}"${v === 0 ? " selected" : ""}>${v >= 0 ? "+" + v : v}</option>`)
+    .join("");
+
+  return `
+    <form class="bitd-alt attribute-roll-dialog">
+      <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem;">
+        <label style="cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
+          <input type="radio" name="rollType" value="resist" checked />
+          <span style="font-weight: bold;">${safeResistLabel}</span>
+        </label>
+        <label style="cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
+          <input type="radio" name="rollType" value="indulgeVice" />
+          <span style="font-weight: bold;">${safeIndulgeLabel}</span>
+        </label>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+        <label style="font-weight: bold;">${safeModifierLabel}</label>
+        <select name="modifier" style="padding: 0.25rem; border: 1px solid #999; border-radius: 3px;">${modifierOptions}</select>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+        <label style="font-weight: bold; white-space: nowrap;">${safeNotesLabel}</label>
+        <input type="text" name="note" value="" style="flex: 1; padding: 0.3rem 0.5rem; border: 1px solid #999; border-radius: 3px;" />
+      </div>
+    </form>
+  `;
+}
+
+function extractAttributeRollResult(formElement) {
+  const FormData = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
+  const formData = new FormData(formElement);
+  const obj = formData.object;
+  return {
+    rollType: obj.rollType === "indulgeVice" ? "indulgeVice" : "resist",
+    modifier: Number(obj.modifier) || 0,
+    note: String(obj.note ?? ""),
+  };
+}
+
+async function openAttributeRollDialogV2({
+  title,
+  resistLabel,
+  indulgeLabel,
+  modifierLabel,
+  rollLabel,
+  cancelLabel,
+  notesLabel,
+}) {
+  const { DialogV2 } = foundry.applications.api;
+
+  const content = getAttributeRollFormHtml({ resistLabel, indulgeLabel, modifierLabel, notesLabel });
+
+  const result = await DialogV2.wait({
+    window: { title },
+    position: { width: 400 },
+    content,
+    buttons: [
+      {
+        action: "roll",
+        label: rollLabel,
+        icon: "fas fa-dice",
+        default: true,
+        callback: (event, button, dialog) => {
+          const formElement =
+            dialog.element?.querySelector("form") ||
+            event.target?.closest("dialog")?.querySelector("form");
+          if (!formElement) {
+            console.warn("bitd-alt | Could not locate dialog form element");
+            return undefined;
+          }
+          return extractAttributeRollResult(formElement);
+        },
+      },
+      {
+        action: "cancel",
+        label: cancelLabel,
+        icon: "fas fa-times",
+        callback: () => undefined,
+      },
+    ],
+  });
+
+  if (result === undefined || result === "cancel" || result === null) return undefined;
+  return result;
+}
+
+async function openAttributeRollDialogV1({
+  title,
+  resistLabel,
+  indulgeLabel,
+  modifierLabel,
+  rollLabel,
+  cancelLabel,
+  notesLabel,
+}) {
+  const content = getAttributeRollFormHtml({ resistLabel, indulgeLabel, modifierLabel, notesLabel });
+
+  return await new Promise((resolve) => {
+    let resolved = false;
+    const finish = (value) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(value);
+    };
+
+    const dialog = new Dialog(
+      {
+        title,
+        content,
+        buttons: {
+          roll: {
+            icon: '<i class="fas fa-dice"></i>',
+            label: rollLabel,
+            callback: (html) => {
+              const formElement = html.find("form")[0];
+              if (!formElement) {
+                finish(undefined);
+                return;
+              }
+              finish(extractAttributeRollResult(formElement));
+            },
+          },
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: cancelLabel,
+            callback: () => {
+              finish(undefined);
+            },
+          },
+        },
+        default: "roll",
         close: () => finish(undefined),
       },
       {

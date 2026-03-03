@@ -3,7 +3,8 @@ import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/b
 import { Utils, MODULE_ID, safeUpdate } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
-import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
+import { openCrewSelectionDialog, openCardSelectionDialog, openAttributeRollDialog } from "./lib/dialog-compat.js";
+import { bladesRoll } from "../../../systems/blades-in-the-dark/module/blades-roll.js";
 import { enrichHTML, deletionUpdate } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
@@ -1100,6 +1101,37 @@ export class BladesAlternateActorSheet extends BladesSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+
+    // Override attribute label clicks (not action/skill clicks) to show
+    // our dialog with Resist Roll and Indulge Vice options.
+    if (game.settings.get("bitd-alternate-sheets", "promptAttributeRoll")) {
+      html.find(".attribute-label.roll-die-attribute").off("click").on("click", async (event) => {
+        event.preventDefault();
+        const attributeName = event.currentTarget?.dataset?.rollAttribute;
+        if (!attributeName) return;
+
+        const attributeLabel = game.i18n.localize(this.actor.system.attributes[attributeName]?.label ?? attributeName);
+        const result = await openAttributeRollDialog({
+          title: `${game.i18n.localize("BITD.Roll")} ${attributeLabel}`,
+          resistLabel: game.i18n.localize("bitd-alt.ResistRoll"),
+          indulgeLabel: game.i18n.localize("bitd-alt.IndulgeVice"),
+          modifierLabel: game.i18n.localize("bitd-alt.Modifier"),
+          rollLabel: game.i18n.localize("BITD.Roll"),
+          cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
+          notesLabel: game.i18n.localize("BITD.Notes") + ":",
+        });
+        if (!result) return;
+
+        if (result.rollType === "indulgeVice") {
+          const rollData = this.actor.getRollData();
+          const viceDice = Math.max(0, (rollData?.dice_amount?.["BITD.Vice"] ?? 0) + result.modifier);
+          const stress = this.actor.system.stress.value;
+          await bladesRoll(viceDice, "BITD.Vice", "", "", result.note, stress);
+        } else {
+          await this.actor.rollAttribute(attributeName, result.modifier, "", "", result.note);
+        }
+      });
+    }
 
     this.addTermTooltips(html);
 
