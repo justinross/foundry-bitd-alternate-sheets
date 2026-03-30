@@ -1,4 +1,4 @@
-<div class="item-block {{#if item.owned}}owned{{/if}}" data-item-id="{{item._id}}" data-item-name="{{item.name}}" data-item-load="{{default item.system.load 1}}" data-item-progress="{{item._progress}}">
+<div class="item-block {{#if item.owned}}owned{{/if}}" data-item-id="{{item._id}}" data-item-name="{{item.name}}" data-item-load="{{item.system.load}}" data-item-progress="{{item._progress}}">
   <div class="checkbox"><!--
   -->{{#times (max item.system.load 1)}}<!--
     -->{{#if @index}}<span class="join-line"></span>{{/if}}<!--

@@ -730,12 +730,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
     if (equipped) {
       for (const i of Object.values(equipped)) {
         if (!i) continue; // Skip null/undefined entries
-        // Use progress if defined, otherwise fall back to load (backwards compat)
-        if (i.progress !== undefined) {
-          loadout += parseInt(i.progress) || 0;
-        } else {
-          loadout += parseInt(i.load) || 0;
-        }
+        // Use load field (actual item load) for the sum.
+        // The progress field tracks visual checkbox state and may be
+        // clamped to 1 for zero-load items.
+        loadout += parseInt(i.load) || 0;
       }
     }
 
