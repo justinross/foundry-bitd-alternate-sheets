@@ -11,6 +11,7 @@
         >{{localize (concat attribute.label '')}}</a
       >
       <!-- attribute xp -->
+      {{#unless (getSetting 'ClockXP')}}
       <div class="stripe-tooth-body right">
         {{#multiboxes attribute.exp}}
         <input
@@ -36,7 +37,7 @@
         ></label>
         {{/times_from_1}} {{/multiboxes}}
       </div>
-      {{/if}}
+      {{/unless}} {{/if}}
     </header>
     <!-- actions -->
     {{#each attribute.skills as |skill skill_name|}}

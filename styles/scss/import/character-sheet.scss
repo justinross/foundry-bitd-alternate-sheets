@@ -19,7 +19,6 @@
     min-height: 275px;
   }
 
-
   .sheet-wrapper {
     position: relative;
     margin: 5px;
@@ -226,17 +225,18 @@
     }
 
     .stripe-tooth-body {
-
       &.right,
       &.stress {
         position: absolute;
         top: -1px;
         right: 1px;
-        @include teeth-track(28px,
+        @include teeth-track(
+          28px,
           10px,
           "assets/teeth/xptooth-red.png",
           "assets/teeth/xptooth-white.png",
-          $gap: -1px);
+          $gap: -1px
+        );
       }
     }
 
@@ -282,7 +282,7 @@
           position: relative;
           top: -10px;
 
-          >img {
+          > img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -306,19 +306,19 @@
           flex-direction: column;
           justify-content: space-around;
 
-          >div {
+          > div {
             overflow: visible;
             position: relative;
           }
 
-          >div:not(:last-of-type) {
+          > div:not(:last-of-type) {
             margin-bottom: 20px;
           }
 
           .coins-box {
             @include css_popup(30px, 30px, 250px, 50px);
 
-            >div {
+            > div {
               display: inline-block;
             }
 
@@ -413,7 +413,10 @@
                     height: 100%;
                     width: 100%;
                     border-radius: 0;
-                    background-color: color.adjust($lightgray, $lightness: -10%);
+                    background-color: color.adjust(
+                      $lightgray,
+                      $lightness: -10%
+                    );
                     z-index: 10;
                   }
 
@@ -516,7 +519,7 @@
           .load-box {
             @include css_popup(30px, 30px, null, 50px);
 
-            >div {
+            > div {
               display: inline-block;
             }
 
@@ -592,6 +595,28 @@
             }
           }
         }
+
+        /* Mostly the same as attributes.scss here */
+        .edge-action {
+          @include custom_radio(1em, 1em);
+          position: relative;
+          bottom: 44px;
+          padding: 0 5px;
+          justify-content: center;
+          align-items: center;
+
+          .attribute-skill-label {
+            font-weight: bold;
+            font-variant: small-caps;
+            padding: 3px 0;
+            margin-left: 0.4em;
+            line-height: 0.8em;
+          }
+
+          label {
+            border: 1px solid #666666;
+          }
+        }
       }
 
       .character-info {
@@ -644,7 +669,7 @@
           left: 2px;
         }
 
-        >div {
+        > div {
           margin: 5px 10px;
         }
 
@@ -800,6 +825,16 @@
               grid-area: xp-notes;
               background: $lightgray;
               font-size: 1.2em;
+
+              .experience {
+                justify-content: flex-start;
+                align-items: center;
+                margin-top: 0.5rem;
+
+                .flex-vertical:first-child {
+                  margin-right: 6px;
+                }
+              }
 
               p {
                 line-height: 1em;

@@ -3723,6 +3723,76 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list .add_trauma {
   font-size: 1em;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait {
+  /* Mostly the same as attributes.scss here */
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action {
+  display: flex;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action label {
+  height: 1em;
+  width: 1em;
+  background-color: #cc0000;
+  vertical-align: middle;
+  border: 2px solid #191813;
+  border-radius: 24px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action label[for$="-0"] {
+  height: 5px;
+  width: 5px;
+  border-radius: 24px;
+  background-image: none !important;
+  background-color: #cc0000 !important;
+  margin-right: 0px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action label {
+  transition: filter 0.1s;
+  cursor: pointer;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action label:hover {
+  filter: brightness(0.7);
+  opacity: 0.7;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action {
+  /* Hide the browser's default checkbox */
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action input {
+  display: none;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action input:not(:checked) ~ label:hover {
+  background-color: rgba(204, 0, 0, 0.5);
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action input:checked ~ label {
+  background-color: transparent;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action input:checked + label {
+  transition: filter 0.1s;
+  cursor: pointer;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action input:checked + label:hover {
+  filter: brightness(0.7);
+  opacity: 0.7;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action input:checked + label {
+  background-color: #cc0000;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action {
+  position: relative;
+  bottom: 44px;
+  padding: 0 5px;
+  justify-content: center;
+  align-items: center;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action .attribute-skill-label {
+  font-weight: bold;
+  font-variant: small-caps;
+  padding: 3px 0;
+  margin-left: 0.4em;
+  line-height: 0.8em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .edge-action label {
+  border: 1px solid #666666;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info {
   padding-left: 1em;
 }
@@ -4005,6 +4075,14 @@
   grid-area: xp-notes;
   background: #bbb;
   font-size: 1.2em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .xp-notes .experience {
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .xp-notes .experience .flex-vertical:first-child {
+  margin-right: 6px;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .xp-notes p {
   line-height: 1em;
