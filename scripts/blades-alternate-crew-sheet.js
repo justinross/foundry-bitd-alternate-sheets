@@ -171,12 +171,9 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     let filteredSources = sources;
     if (type === "crew_upgrade") {
       const isCohortUpgrade = (name) => name.includes("cohort");
-      const isPersonalTraining = (name) =>
-        name === "training: personal exp";
       filteredSources = sources.filter((item) => {
         const normName = normalizeKey(item?.name ?? "");
         if (isCohortUpgrade(normName)) return false;
-        if (isPersonalTraining(normName)) return false;
         return true;
       });
 
