@@ -227,6 +227,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
         return {
           id: item.id,
           _id: item.id,
+          type: item.type,
           name: item.name,
           img: item.img,
           system: {
@@ -238,6 +239,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
           boxes,
         };
       })
+      .map((choice) => Utils.applyDeepCutsChanges(choice))
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -498,6 +500,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
           system: foundry.utils.deepClone(sourceItem.system ?? {}),
           img: sourceItem.img,
         };
+    Utils.applyDeepCutsChanges(data);
 
     const max = this._deriveUpgradeMax(sourceItem);
     if (!data.system) data.system = {};

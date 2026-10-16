@@ -688,7 +688,6 @@ header {
 }
 
 .coins-grid .vault-group {
-  // 12 boxes + 11 gaps + two grouping offsets (5th and 9th)
   width: calc(12 * var(--coin-size) + 11 * var(--coin-gap) + 20px + 12px);
 }
 
@@ -710,9 +709,62 @@ header {
   margin-left: 12px;
 }
 
-.coins-grid .vault-group .crew-coins label:nth-of-type(5),
-.coins-grid .vault-group .crew-coins label:nth-of-type(9) {
+// Visually group vault boxes in fours by default
+.coins-grid .vault-group .crew-coins label:nth-of-type(4n + 1):not(:first-of-type) {
   margin-left: 10px;
+}
+
+// Deep Cuts has larger vaults, so now group by vault and use multiple lines
+// to prevent overflowing off the end of the sheet. One group per Vault upgrade
+// The base 4 coins is only a single row and needs no override.
+.coins-grid .vault-group .crew-coins {
+  &:has(> label:nth-of-type(8):last-of-type),
+  &:has(> label:nth-of-type(12):last-of-type),
+  &:has(> label:nth-of-type(20):last-of-type) {
+    display: grid;
+    justify-content: start;
+
+    // Replaces the default groups-of-4 spacing; each layout sets its own block gap
+    > label {
+      margin-left: 0;
+    }
+  }
+
+  &:has(> label:nth-of-type(8):last-of-type) {
+    grid-template-columns: repeat(4, auto);
+  }
+
+  &:has(> label:nth-of-type(12):last-of-type) {
+    grid-template-columns: repeat(8, auto);
+
+    > label:nth-of-type(5) {
+      margin-left: 10px;
+    }
+
+    // make it wrap to row 2 under Vault 2
+    > label:nth-of-type(9) {
+      grid-column-start: 5;
+      margin-left: 10px;
+    }
+  }
+
+  // adjut ordering so Vault 2 lands right of Vault 1
+  &:has(> label:nth-of-type(20):last-of-type) {
+    > label:nth-of-type(-n + 4),
+    > label:nth-of-type(n + 9):nth-of-type(-n + 14) {
+      grid-row: 1;
+    }
+
+    > label:nth-of-type(n + 5):nth-of-type(-n + 8),
+    > label:nth-of-type(n + 15) {
+      grid-row: 2;
+    }
+
+    > label:nth-of-type(9),
+    > label:nth-of-type(15) {
+      margin-left: 10px;
+    }
+  }
 }
 
 .hold-tier-row {
