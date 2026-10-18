@@ -117,19 +117,24 @@ export class Utils {
   }
 
   /**
-   * Brings every crew's owned Vault upgrades in line with the deepCutsVault setting.
-   * Runs on the active GM only, since the setting is world-scoped.
+   * Brings one crew's owned Vault upgrades in line with the deepCutsVault setting,
+   * then caps the vault coins at the (possibly lower) vault max. Writes only what differs.
+   * @param {Actor} actor - A crew actor the current user may update
    */
-  static async syncDeepCutsVaults() {
-    if (!game.user.isActiveGM) return;
-    for (const actor of game.actors.filter((a) => a.type === "crew")) {
-      for (const item of actor.items.filter((i) => i.type === "crew_upgrade" && DEEP_CUTS_VAULTS[i.name])) {
-        const data = Utils.applyDeepCutsChanges(item.toObject());
+  static async syncDeepCutsVaults(actor) {
+    for (const item of actor.items.filter((i) => i.type === "crew_upgrade" && DEEP_CUTS_VAULTS[i.name])) {
+      const data = Utils.applyDeepCutsChanges(item.toObject());
+      if (data.system.description !== item.system.description) {
         await item.update({ "system.description": data.system.description });
-        const effect = data.effects?.[0];
-        if (effect) await item.effects.get(effect._id)?.update({ changes: effect.changes });
+      }
+      const effect = data.effects?.[0];
+      const current = effect && item.effects.get(effect._id);
+      if (current && JSON.stringify(current.changes) !== JSON.stringify(effect.changes)) {
+        await current.update({ changes: effect.changes });
       }
     }
+    const { value, max } = actor.system.vault ?? {};
+    if (Number(value) > Number(max)) await actor.update({ "system.vault.value": Number(max) });
   }
 
   /**

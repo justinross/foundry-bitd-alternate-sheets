@@ -61,7 +61,12 @@ export const registerSystemSettings = function () {
     type: Boolean,
     default: false,
     onChange: async () => {
-      await Utils.syncDeepCutsVaults();
+      if (game.user.isActiveGM) {
+        const tokenActors = game.scenes.contents.flatMap((s) => s.tokens.filter((t) => !t.actorLink).map((t) => t.actor));
+        for (const actor of [...game.actors, ...tokenActors]) {
+          if (actor?.type === "crew") await Utils.syncDeepCutsVaults(actor);
+        }
+      }
       Utils._refreshOpenSheets();
     },
   });
