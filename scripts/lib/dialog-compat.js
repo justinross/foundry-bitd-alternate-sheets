@@ -126,10 +126,10 @@ async function openCardSelectionDialogV2({
     content,
     render: (event, dialog) => {
       // Attach event listeners programmatically since inline handlers are stripped by Foundry's sanitization
-      // v12: dialog.element may be undefined, fallback to event.currentTarget
+      // v12: the second argument may be the element itself, not the app
       // v13: dialog.element is available
       const form =
-        dialog.element?.querySelector("form") ||
+        (dialog.element ?? dialog)?.querySelector?.("form") ||
         event.currentTarget?.querySelector("form");
       if (!form) {
         console.warn("bitd-alt | Could not locate dialog form element");
