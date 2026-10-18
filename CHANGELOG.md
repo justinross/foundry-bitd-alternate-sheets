@@ -19,6 +19,7 @@
 - Fixed Issue #146: an empty alias no longer shows a blank name in the sidebar, and names are shown as text, not HTML. Fixed by PR #162.
 - Fixed the card chooser dialog not filling the custom text box on Foundry v12.
 - Fixed Issue #71 (part): the character sheet no longer adds another document click handler every time it re-renders, and removes its handler when closed. The handler is bound to the document the sheet is in instead of always the main window's (groundwork for PopOut! support). Coin, harm and load popups still close on an outside click.
+- Fixed Issue #72: the playbook and crew type XP clues no longer show HTML tags (such as `<p>`) as text, and the crew type tooltip shows plain text. Stripped text is now escaped, so quotes or escaped tags in a description can no longer break the sheet.
 
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
