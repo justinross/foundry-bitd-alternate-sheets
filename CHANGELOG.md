@@ -2,7 +2,13 @@
 
 ## 1.0.21
 - Added an attribute roll dialog that prompts the player to choose between a Resist Roll and an Indulge Vice roll when clicking an attribute label. The dialog is enabled by a new "Prompt for Resist or Indulge" module setting (off by default). When disabled, the system module's default attribute roll popup is used.
-
+- Added Deep Cuts experience clocks and Edge to the character sheet, following the system module's Deep Cuts settings. Added by PR #159.
+- Added a "Deep Cuts vault sizes" module setting (off by default). When on, Vault 1 holds 8 Coin and Vault 2 holds 12 more (20 total), and the crew sheet lays the vault out to match. Crews' owned vault upgrades update to match the setting when it changes, or when an owner opens the crew sheet. A crew that isn't on any scene, or that loses a vault while its sheet is closed, updates the next time an owner opens its sheet. Crews inside compendiums are never changed. Added by PR #161.
+- Vault Coin above the vault's size is now removed when the vault gets smaller (unticking a vault, or changing the Deep Cuts vault setting). Previously the extra Coin stayed stored but hidden.
+- Restored the "Training: Personal Exp" crew upgrade, which was hidden from the crew sheet. Fixed by PR #160.
+- Fixed Issue #157: items with zero load no longer add to the load count. Fixed by PR #158.
+- Fixed Issue #146: an empty alias no longer shows a blank name in the sidebar, and names are shown as text, not HTML. Fixed by PR #162.
+- Fixed the card chooser dialog not filling the custom text box on Foundry v12.
 
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
