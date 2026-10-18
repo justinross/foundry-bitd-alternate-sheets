@@ -82,6 +82,38 @@ export class Utils {
   }
 
   /**
+   * Applies any Deep Cuts rule changes to items before being embedded
+   * @param {object} itemData - Plain item data (e.g. from toObject())
+   * @returns {object} The modified itemData
+   */
+  static applyDeepCutsChanges(itemData) {
+    // Vault Sizes
+    if (
+      game.settings.get("bitd-alternate-sheets", "deepCutsVault") &&
+      itemData?.type === "crew_upgrade" &&
+      itemData.name.startsWith("Vault")
+    ) {
+      const vaults = {
+        "Vault 1": {
+          "system.description": "Adds the Vault providing additional 8 Coin space",
+          "effects.0.changes.0.value": "8",
+        },
+        "Vault 2": {
+          "system.description": "Extend the Vault to additional +12 coins",
+          "effects.0.changes.0.value": "12",
+        },
+      };
+      for (const [path, value] of Object.entries(vaults[itemData.name] ?? {})) {
+        if (foundry.utils.hasProperty(itemData, path)) {
+          foundry.utils.setProperty(itemData, path, value);
+        }
+      }
+    }
+
+    return itemData;
+  }
+
+  /**
    * Optional: Pre-cache common item types for faster initial sheet renders
    * Call this from a hook if desired (e.g., ready hook)
    * @param {string[]} types - Array of item types to pre-cache
