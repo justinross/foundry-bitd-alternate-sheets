@@ -24,6 +24,12 @@ const DEEP_CUTS_VAULTS = {
   },
 };
 
+// Deep Cuts text (p77, p113) for abilities whose load numbers Deep Cuts changes
+const DEEP_CUTS_LOAD_TEXT = {
+  "(C) Mule": "Your load limits are higher. Discreet: 6. Conspicuous: 8. Encumbered at 9. Max: 10.",
+  "(Hu) Compartments": "Your items are built-in to your frame and may recess beneath panels out of sight. Your load limits are +3, and you can carry heavy items while discreet.",
+};
+
 export class Utils {
   /**
    * Generate a cache key that incorporates current settings
@@ -114,6 +120,16 @@ export class Utils {
       else if (target[key] === deepCuts) target[key] = core;
     }
     return itemData;
+  }
+
+  /**
+   * An ability's description, with the Deep Cuts text when the system's Deep Cuts load setting is on.
+   * @param {object} item - Item or item data with name and system.description
+   * @returns {string}
+   */
+  static deepCutsDescription(item) {
+    const text = game.settings.get("blades-in-the-dark", "DeepCutLoad") && DEEP_CUTS_LOAD_TEXT[item.name];
+    return text || item.system.description;
   }
 
   /**
