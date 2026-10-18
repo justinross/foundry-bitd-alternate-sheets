@@ -117,6 +117,18 @@ export class Utils {
   }
 
   /**
+   * The Deep Cuts load level (p77) reached by the load marked.
+   * @param {number} loadout - Load marked
+   * @param {boolean} mule - Whether the character has Mule
+   * @returns {string} A BITD.* lang key
+   */
+  static deepCutsLoadLevel(loadout, mule) {
+    const limits = mule ? [6, 8, 10] : [4, 6, 9];
+    const i = limits.findIndex((limit) => loadout <= limit);
+    return ["BITD.Discreet", "BITD.Conspicuous", "BITD.Encumbered"][i] ?? "BITD.OverMax";
+  }
+
+  /**
    * Brings one crew's owned Vault upgrades in line with the deepCutsVault setting,
    * then caps the vault coins at the (possibly lower) vault max. Writes only what differs.
    * @param {Actor} actor - A crew actor the current user may update
@@ -804,13 +816,10 @@ export class Utils {
       if (state) {
         let all_of_type = await Utils.getSourcedItemsByType(type);
         let checked_item = all_of_type.find((item) => item.id == id);
-        let added_item = await queueUpdate(() => actor.createEmbeddedDocuments("Item", [
-          {
-            type: checked_item.type,
-            name: checked_item.name,
-            system: checked_item.system,
-          },
-        ]));
+        // toObject keeps the ability's effects (e.g. Mule's load bonus).
+        const data = checked_item.toObject();
+        delete data._id;
+        await queueUpdate(() => actor.createEmbeddedDocuments("Item", [data]));
       } else {
         const ownedDoc = actor.getEmbeddedDocument("Item", id);
         if (ownedDoc) {
