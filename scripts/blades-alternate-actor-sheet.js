@@ -650,6 +650,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
 
       ability._progress = progress;
+      ability._description = Utils.deepCutsDescription(ability);
       ability._progressKey = abilityKey;
       ability._ownedId = ownedAbilityId || "";
     }
@@ -711,6 +712,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let my_abilities = sheetData.items.filter(
       (ability) => ability.type == "ability"
     );
+    for (const ability of my_abilities) ability.system.description = Utils.deepCutsDescription(ability);
     sheetData.my_abilities = my_abilities;
 
     // Calculate Load

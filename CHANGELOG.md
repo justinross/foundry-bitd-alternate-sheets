@@ -7,6 +7,7 @@
 - Vault Coin above the vault's size is now removed when the vault gets smaller (unticking a vault, or changing the Deep Cuts vault setting). Previously the extra Coin stayed stored but hidden.
 - With the system's Deep Cuts load setting on, the character sheet's load picker offers only Discreet and Conspicuous, and the load popup (and the load count's tooltip) shows the level the marked load reaches: Conspicuous from the 5th box, encumbered from the 7th, over max past 9. With Mule: Discreet 6, Conspicuous 8, encumbered at 9, max 10. Abilities ticked on the sheet now keep their effects, so Mule raises the load limits.
 - With the system's Deep Cuts experience clocks on, the character and crew sheets have a size picker next to the XP clock to make it 4, 6 or 8 segments (default 6). Making the clock smaller turns ticks that no longer fit into full clocks, so no xp is lost. The character sheet's full clocks now match the chosen size.
+- With the system's Deep Cuts load setting on, the character sheet shows the Deep Cuts text for Mule (Discreet 6, Conspicuous 8, encumbered at 9, max 10) and the Hull's Compartments (load limits +3, heavy items while discreet).
 - Restored the "Training: Personal Exp" crew upgrade, which was hidden from the crew sheet. Fixed by PR #160.
 - Fixed Issue #157: items with zero load no longer add to the load count. Fixed by PR #158.
 - Fixed Issue #146: an empty alias no longer shows a blank name in the sidebar, and names are shown as text, not HTML. Fixed by PR #162.
