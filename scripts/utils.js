@@ -820,7 +820,7 @@ export class Utils {
     });
   }
 
-  // NOTE: bindClockControls removed - clock handling now done globally via setupGlobalClockHandlers() in hooks.js
+  // NOTE: bindClockControls removed - clock handling now done globally via bindClockHandlers() in hooks.js
 
   /**
    * Ensure a sheet has a local allow_edit flag initialized.

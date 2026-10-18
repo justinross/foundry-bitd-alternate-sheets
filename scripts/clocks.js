@@ -53,8 +53,13 @@ export async function replaceClockLinks(container, messageContent = null) {
   }
 }
 
-export function setupGlobalClockHandlers() {
-  const $body = $(document.body);
+/**
+ * Bind clock clicks under root. The handlers stop propagation, so the closest root wins.
+ * The body binding serves journals and chat; sheets and linked clocks bind on their own elements so the handlers move with them to another window (PopOut!).
+ * @param {HTMLElement} [root]
+ */
+export function bindClockHandlers(root = document.body) {
+  const $body = $(root);
 
   /**
    * Update the visual representation of a clock element.
@@ -99,10 +104,7 @@ export function setupGlobalClockHandlers() {
     e.stopPropagation();
 
     const label = e.currentTarget;
-    const forId = label.getAttribute("for");
-    if (!forId) return;
-
-    const input = document.getElementById(forId);
+    const input = label.control;
     if (!input || input.type !== "radio") return;
 
     const clockEl = label.closest('.blades-clock');
@@ -237,6 +239,7 @@ function createClockDiv(uuid, isSnapshot, html) {
     clockDiv.dataset.snapshot = "true";
   }
   clockDiv.innerHTML = html;
+  bindClockHandlers(clockDiv);
   return clockDiv;
 }
 

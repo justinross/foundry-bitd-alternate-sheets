@@ -329,7 +329,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     html.find('*[contenteditable="true"]').on("paste", (e) => {
       e.preventDefault();
       let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-      document.execCommand("insertText", false, text);
+      e.currentTarget.ownerDocument.execCommand("insertText", false, text);
     });
 
     // Prevent multi-line edits in inline fields (Name, Lair, etc.)
@@ -384,7 +384,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       ]));
     });
 
-    // NOTE: Clock controls are handled globally by setupGlobalClockHandlers() in hooks.js
+    // NOTE: Clock controls are handled globally by bindClockHandlers() in hooks.js; linked clocks bind on themselves
     Utils.bindStandingToggles(this, html);
     Utils.bindExpClockSize(this, html);
     Utils.bindAllowEditToggle(this, html);
@@ -651,8 +651,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
     if (type === "label") {
-      const labelID = $(target).attr("for");
-      target = document.getElementById(labelID);
+      target = target.control;
     }
 
     if (!target) return;
