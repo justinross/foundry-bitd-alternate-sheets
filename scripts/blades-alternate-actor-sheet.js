@@ -744,9 +744,6 @@ export class BladesAlternateActorSheet extends BladesSheet {
     if (loadout < 0) {
       loadout = 0;
     }
-    if (loadout > 10) {
-      loadout = 10;
-    }
 
     sheetData.loadout = loadout;
 
