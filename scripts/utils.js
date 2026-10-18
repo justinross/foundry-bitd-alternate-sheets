@@ -44,6 +44,9 @@ const DEEP_CUTS_LOAD_TEXT = {
   "(Hu) Compartments": "Your items are built-in to your frame and may recess beneath panels out of sight. Your load limits are +3, and you can carry heavy items while discreet.",
 };
 
+// Deep Cuts text for every crew's Rigging upgrade
+const DEEP_CUTS_RIGGING_TEXT = "Carry 2 free load of a particular class of item, including a **heavy** item while your load is discreet, if you wish.";
+
 export class Utils {
   /**
    * Generate a cache key that incorporates current settings
@@ -143,8 +146,28 @@ export class Utils {
    * @returns {string}
    */
   static deepCutsDescription(item) {
-    const text = game.settings.get("blades-in-the-dark", "DeepCutLoad") && DEEP_CUTS_LOAD_TEXT[item.name];
+    const text = game.settings.get("blades-in-the-dark", "DeepCutLoad") && (DEEP_CUTS_LOAD_TEXT[item.name] ?? (Utils.isRigging(item) && DEEP_CUTS_RIGGING_TEXT));
     return text || item.system.description;
+  }
+
+  /**
+   * Whether an item is a crew's Rigging upgrade (Assassin, Bravos, Cult, Hawker, Thief, Smuggler Rigging).
+   * @param {object} item - Item or item data with name and type
+   * @returns {boolean}
+   */
+  static isRigging(item) {
+    return item?.type === "crew_upgrade" && / Rigging$/.test(item.name);
+  }
+
+  /**
+   * The load Deep Cuts Rigging frees: the carried rigged items' load, up to 2.
+   * @param {object} equipped - The equipped-items flag
+   * @param {object} rigged - The rigged-items flag (item id: true)
+   * @returns {number}
+   */
+  static riggingFreeLoad(equipped, rigged) {
+    const load = Object.keys(rigged).reduce((sum, id) => sum + (parseInt(equipped?.[id]?.load) || 0), 0);
+    return Math.min(load, 2);
   }
 
   /**

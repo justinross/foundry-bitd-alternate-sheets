@@ -5,6 +5,10 @@
     localize=true}}
   </select>
   {{#if load_level}}<p class="load-level">{{loadout}}/{{localize load_level}}</p>{{/if}}
+  {{#if rigging}}
+  <p class="load-rigging" data-tooltip="{{localize 'bitd-alt.RiggingTooltip'}}"><i class="fas fa-toolbox"></i> {{localize "bitd-alt.RiggingFree" used=rigging.used}}</p>
+  {{#if editable}}<p class="load-rigging-hint">{{localize "bitd-alt.RiggingHint"}}</p>{{/if}}
+  {{/if}}
   {{#if showClearLoadButton}}
   <button type="button" class="clearLoad">{{localize "bitd-alt.ClearLoad"}}</button>
   {{/if}}
