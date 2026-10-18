@@ -18,6 +18,7 @@
 - Fixed Issue #157: items with zero load no longer add to the load count. Fixed by PR #158.
 - Fixed Issue #146: an empty alias no longer shows a blank name in the sidebar, and names are shown as text, not HTML. Fixed by PR #162.
 - Fixed the card chooser dialog not filling the custom text box on Foundry v12.
+- Fixed Issue #72: the playbook and crew type XP clues no longer show HTML tags (such as `<p>`) as text, and the crew type tooltip shows plain text. Stripped text is now escaped, so quotes or escaped tags in a description can no longer break the sheet.
 
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.

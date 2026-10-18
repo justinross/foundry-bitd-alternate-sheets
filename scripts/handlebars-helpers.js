@@ -198,8 +198,8 @@ export const registerHandlebarsHelpers = function () {
   });
 
   Handlebars.registerHelper("clean-html", function (html) {
-    html = Utils.strip(html);
-    return html ? new Handlebars.SafeString(html) : "";
+    // Plain text, escaped by Handlebars, so quotes and decoded entities can't break the markup
+    return html ? Utils.strip(html) : "";
   });
 
   Handlebars.registerHelper("times", function (n, block) {
@@ -281,7 +281,8 @@ export const registerHandlebarsHelpers = function () {
 
   Handlebars.registerHelper("firstLine", function (text) {
     if (!text) return "";
-    const lines = text.split("\n");
+    // The system's editor saves the list as HTML, e.g. "<p>- a - b</p>" or one paragraph per clue
+    const lines = Utils.strip(text.replace(/<\/p>|<br\s*\/?>/gi, "\n")).split(/\n|\s-\s/);
     // Return first non-empty line, removing any leading "- " prefix
     for (const line of lines) {
       const trimmed = line.trim();
