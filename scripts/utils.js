@@ -12,6 +12,18 @@ import { Profiler } from "./profiler.js";
 // Cache key format: "itemType|fromCompendia|fromWorld|allPacks"
 const _compendiumCache = new Map();
 
+// [core, Deep Cuts] values for the Vault crew upgrades
+const DEEP_CUTS_VAULTS = {
+  "Vault 1": {
+    description: ["Adds the Vault providing additional 4 Coin space", "Adds the Vault providing additional 8 Coin space"],
+    value: ["4", "8"],
+  },
+  "Vault 2": {
+    description: ["Extend the Vault to additional +8 coins", "Extend the Vault to additional +12 coins"],
+    value: ["8", "12"],
+  },
+};
+
 export class Utils {
   /**
    * Generate a cache key that incorporates current settings
@@ -82,35 +94,42 @@ export class Utils {
   }
 
   /**
-   * Applies any Deep Cuts rule changes to items before being embedded
+   * Sets Vault 1 / Vault 2 crew upgrade data to the Deep Cuts sizes when the setting is on,
+   * or back to the core sizes when it is off (only where the Deep Cuts values are present).
    * @param {object} itemData - Plain item data (e.g. from toObject())
    * @returns {object} The modified itemData
    */
   static applyDeepCutsChanges(itemData) {
-    // Vault Sizes
-    if (
-      game.settings.get("bitd-alternate-sheets", "deepCutsVault") &&
-      itemData?.type === "crew_upgrade" &&
-      itemData.name.startsWith("Vault")
-    ) {
-      const vaults = {
-        "Vault 1": {
-          "system.description": "Adds the Vault providing additional 8 Coin space",
-          "effects.0.changes.0.value": "8",
-        },
-        "Vault 2": {
-          "system.description": "Extend the Vault to additional +12 coins",
-          "effects.0.changes.0.value": "12",
-        },
-      };
-      for (const [path, value] of Object.entries(vaults[itemData.name] ?? {})) {
-        if (foundry.utils.hasProperty(itemData, path)) {
-          foundry.utils.setProperty(itemData, path, value);
-        }
+    const vault = itemData?.type === "crew_upgrade" && DEEP_CUTS_VAULTS[itemData.name];
+    if (!vault) return itemData;
+    const on = game.settings.get(MODULE_ID, "deepCutsVault");
+    const change = itemData.effects?.[0]?.changes?.[0];
+    const fields = [
+      [itemData.system, "description", vault.description],
+      [change?.key?.endsWith("vault.max") && change, "value", vault.value],
+    ];
+    for (const [target, key, [core, deepCuts]] of fields) {
+      if (target?.[key] === undefined) continue;
+      if (on) target[key] = deepCuts;
+      else if (target[key] === deepCuts) target[key] = core;
+    }
+    return itemData;
+  }
+
+  /**
+   * Brings every crew's owned Vault upgrades in line with the deepCutsVault setting.
+   * Runs on the active GM only, since the setting is world-scoped.
+   */
+  static async syncDeepCutsVaults() {
+    if (!game.user.isActiveGM) return;
+    for (const actor of game.actors.filter((a) => a.type === "crew")) {
+      for (const item of actor.items.filter((i) => i.type === "crew_upgrade" && DEEP_CUTS_VAULTS[i.name])) {
+        const data = Utils.applyDeepCutsChanges(item.toObject());
+        await item.update({ "system.description": data.system.description });
+        const effect = data.effects?.[0];
+        if (effect) await item.effects.get(effect._id)?.update({ changes: effect.changes });
       }
     }
-
-    return itemData;
   }
 
   /**

@@ -717,7 +717,7 @@ header {
 // Deep Cuts has larger vaults, so now group by vault and use multiple lines
 // to prevent overflowing off the end of the sheet. One group per Vault upgrade
 // The base 4 coins is only a single row and needs no override.
-.coins-grid .vault-group .crew-coins {
+.coins-grid .vault-group .crew-coins.deep-cuts {
   &:has(> label:nth-of-type(8):last-of-type),
   &:has(> label:nth-of-type(12):last-of-type),
   &:has(> label:nth-of-type(20):last-of-type) {

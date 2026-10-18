@@ -222,7 +222,7 @@
                 <div class="coin-group vault-group">
                   <div class="gray-label coins-label vault-label">{{localize "BITD.Vault"}}</div>
                   <div id="crew-{{_id}}-coins-vault" class="crew-coins-vault">
-                    <div class="crew-coins coins coins-vault">
+                    <div class="crew-coins coins coins-vault{{#if deepCutsVault}} deep-cuts{{/if}}">
                       {{#multiboxes system.vault.value}}
                       <input type="radio" id="crew-{{_id}}-coins-vault-0" name="system.vault.value" value="0"
                         checked="checked">

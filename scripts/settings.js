@@ -55,11 +55,15 @@ export const registerSystemSettings = function () {
 
   game.settings.register("bitd-alternate-sheets", "deepCutsVault", {
     name: "Use Deep Cuts Vault Capacity",
-    hint: "Deep Cuts uses higher sizes for the Vault X crew upgrades. You may need to uncheck and re-check to see the new behaviour.",
+    hint: "Deep Cuts uses higher sizes for the Vault X crew upgrades. Crews that already own them are updated when this changes.",
     scope: "world",
     config: true,
     type: Boolean,
     default: false,
+    onChange: async () => {
+      await Utils.syncDeepCutsVaults();
+      Utils._refreshOpenSheets();
+    },
   });
 
   game.settings.register(

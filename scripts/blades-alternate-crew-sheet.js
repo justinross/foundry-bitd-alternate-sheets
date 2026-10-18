@@ -62,6 +62,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       crewTypeName
     );
     sheetData.collapsedSections = this.collapsedSections;
+    sheetData.deepCutsVault = game.settings.get(MODULE_ID, "deepCutsVault");
 
     // Notes content - use system.description for compatibility with base system sheets
     // Migrate from old flag storage if needed (append to preserve both)

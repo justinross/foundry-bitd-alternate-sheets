@@ -2513,36 +2513,36 @@
 .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins label:nth-of-type(4n + 1):not(:first-of-type) {
   margin-left: 10px;
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(8):last-of-type), .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(12):last-of-type), .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(20):last-of-type) {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(8):last-of-type), .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(12):last-of-type), .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(20):last-of-type) {
   display: grid;
   justify-content: start;
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(8):last-of-type) > label, .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(12):last-of-type) > label, .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(20):last-of-type) > label {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(8):last-of-type) > label, .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(12):last-of-type) > label, .blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(20):last-of-type) > label {
   margin-left: 0;
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(8):last-of-type) {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(8):last-of-type) {
   grid-template-columns: repeat(4, auto);
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(12):last-of-type) {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(12):last-of-type) {
   grid-template-columns: repeat(8, auto);
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(12):last-of-type) > label:nth-of-type(5) {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(12):last-of-type) > label:nth-of-type(5) {
   margin-left: 10px;
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(12):last-of-type) > label:nth-of-type(9) {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(12):last-of-type) > label:nth-of-type(9) {
   grid-column-start: 5;
   margin-left: 10px;
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(-n + 4),
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(n + 9):nth-of-type(-n + 14) {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(-n + 4),
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(n + 9):nth-of-type(-n + 14) {
   grid-row: 1;
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(n + 5):nth-of-type(-n + 8),
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(n + 15) {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(n + 5):nth-of-type(-n + 8),
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(n + 15) {
   grid-row: 2;
 }
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(9),
-.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(15) {
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(9),
+.blades-alt.actor.sheet.crew .coins-grid .vault-group .crew-coins.deep-cuts:has(> label:nth-of-type(20):last-of-type) > label:nth-of-type(15) {
   margin-left: 10px;
 }
 .blades-alt.actor.sheet.crew .hold-tier-row {
