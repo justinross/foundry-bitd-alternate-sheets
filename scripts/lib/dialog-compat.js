@@ -406,6 +406,75 @@ async function openCardSelectionDialogV1({
 }
 
 // ============================================================================
+// Form Dialog
+// ============================================================================
+
+/**
+ * Open a dialog around caller-built form fields (V1/V2 compatible).
+ *
+ * @param {Object} options
+ * @param {string} options.title
+ * @param {string} options.content - HTML of the fields
+ * @param {string} options.okLabel
+ * @param {string} options.cancelLabel
+ * @param {number} [options.width=400]
+ * @param {(root: HTMLElement) => void} [options.render] - Called with the element holding the fields
+ * @returns {Promise<Object|undefined>} The form's values, or undefined if cancelled
+ */
+export async function openFormDialog({ title, content, okLabel, cancelLabel, width = 400, render }) {
+  const FormData = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
+  if (supportsDialogV2()) {
+    const result = await foundry.applications.api.DialogV2.wait({
+      window: { title },
+      position: { width },
+      content,
+      render: (event, dialog) => {
+        const root = dialog?.element ?? dialog;
+        render?.(root.querySelector?.("form") ?? root);
+      },
+      buttons: [
+        {
+          action: "ok",
+          label: okLabel,
+          icon: "fas fa-check",
+          default: true,
+          callback: (event, button) => new FormData(button.form).object,
+        },
+        { action: "cancel", label: cancelLabel, icon: "fas fa-times", callback: () => undefined },
+      ],
+    });
+    return result && typeof result === "object" ? result : undefined;
+  }
+
+  return await new Promise((resolve) => {
+    let resolved = false;
+    const finish = (value) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(value);
+    };
+    new Dialog(
+      {
+        title,
+        content: `<form>${content}</form>`,
+        buttons: {
+          ok: {
+            icon: '<i class="fas fa-check"></i>',
+            label: okLabel,
+            callback: (html) => finish(new FormData(html.find("form")[0]).object),
+          },
+          cancel: { icon: '<i class="fas fa-times"></i>', label: cancelLabel, callback: () => finish(undefined) },
+        },
+        default: "ok",
+        render: (html) => render?.(html.find("form")[0]),
+        close: () => finish(undefined),
+      },
+      { width }
+    ).render(true);
+  });
+}
+
+// ============================================================================
 // Text Input Dialog
 // ============================================================================
 

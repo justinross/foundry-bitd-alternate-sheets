@@ -266,6 +266,19 @@ nav {
   }
 }
 
+// Purchase counter under the Cohort: New / Add Type rows
+.crew-choice .cohort-upgrade-count {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 0 6px;
+  border-radius: var(--alt-radius-sm);
+  background: var(--alt-panel-bg);
+  border: 1px solid var(--alt-border);
+  font-family: var(--alt-body-font);
+  font-size: 0.85em;
+  color: var(--alt-red-dark);
+}
+
 // Cohorts tab: a "Cohorts" title bar with the + at its right
 .crew-cohorts header.full-bar.cohorts-header {
   @include full-bar-header(var(--alt-dark), var(--alt-ink-light));
