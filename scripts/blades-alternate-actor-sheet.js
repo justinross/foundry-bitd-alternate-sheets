@@ -740,6 +740,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     }
 
+    // Deep Cuts: each Coin carried counts as 1 load
+    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
+      loadout += parseInt(sheetData.system.coins) || 0;
+    }
+
     //Sanity Check
     if (loadout < 0) {
       loadout = 0;
