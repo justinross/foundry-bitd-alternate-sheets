@@ -9,6 +9,7 @@
 - With the system's Deep Cuts experience clocks on, the character and crew sheets have a size picker next to the XP clock to make it 4, 6 or 8 segments (default 6). Making the clock smaller turns ticks that no longer fit into full clocks, so no xp is lost. The character sheet's full clocks now match the chosen size.
 - With the system's Deep Cuts load setting on, the character sheet shows the Deep Cuts text for Mule (Discreet 6, Conspicuous 8, encumbered at 9, max 10) and the Hull's Compartments (load limits +3, heavy items while discreet). Compartments' load bonus also follows the setting: +3 with it on, +2 with it off. Owned Compartments update when the setting changes, or when an owner opens the character sheet.
 - The character sheet's load count now shows the real marked load. It used to stop at 10, so more load showed as 10 and, with Deep Cuts load and Compartments, over max (13 or more) never showed.
+- Clicking a tooth (stress, heat, action dots and the like) on the character, crew and class sheets now changes it once instead of running the change twice, and a right-click on a tooth no longer changes it. Right-clicking a clock still ticks it down.
 - Restored the "Training: Personal Exp" crew upgrade, which was hidden from the crew sheet. Fixed by PR #160.
 - Fixed Issue #157: items with zero load no longer add to the load count. Fixed by PR #158.
 - Fixed Issue #146: an empty alias no longer shows a blank name in the sidebar, and names are shown as text, not HTML. Fixed by PR #162.

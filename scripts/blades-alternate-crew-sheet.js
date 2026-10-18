@@ -249,10 +249,10 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
     // Use namespaced events with .off() to prevent handler stacking on re-render
     html.find("input.radio-toggle, label.radio-toggle")
-      .off("click.radioToggle mousedown.radioToggle")
-      .on("click.radioToggle", (e) => e.preventDefault())
+      .off("click mousedown contextmenu")
+      .on("click.radioToggle contextmenu.radioToggle", (e) => e.preventDefault())
       .on("mousedown.radioToggle", (e) => {
-        this._onRadioToggle(e);
+        if (e.button === 0) this._onRadioToggle(e);
       });
 
     // Minimize/expand toggle
