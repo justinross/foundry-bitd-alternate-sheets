@@ -28,7 +28,7 @@
           </div>
           <div class="harm-box {{#if harm_open}}open{{/if}} pointer">
             <div class="mini-view harm{{#if (or system.harm.light.one system.harm.light.two)}}-1{{/if}}{{#if
-              (or system.harm.medium.one system.harm.medium.two)}}-2{{/if}}{{#if system.harm.heavy.one}}-3{{/if}}">
+              (or system.harm.medium.one system.harm.medium.two)}}-2{{/if}}{{#if (or system.harm.heavy.one dcHarm.heavy.[1].value)}}-3{{/if}}">
               <div class="placeholder"></div>
             </div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}</div>
@@ -52,11 +52,15 @@
             </div>
           </header>
           <div class="trauma-box">
-            <div class="trauma-list count-{{ownedTraumas.length}}">
+            <div class="trauma-list count-{{ownedTraumas.length}}{{#if dcTrauma}} deep-cuts{{/if}}">
               {{#if (gt trauma_count 0)}}
               {{#each trauma_array as |trauma index|}}
+              {{#if ../dcTrauma}}
+              <div class="trauma-item{{#if (lookup ../dcTrauma.invoked trauma)}} invoked{{/if}}" data-trauma="{{trauma}}"><a class="trauma-invoke" data-tooltip="{{#if (lookup ../dcTrauma.invoked trauma)}}{{localize 'bitd-alt.TraumaInvoked'}}{{else}}{{localize 'bitd-alt.TraumaInvoke'}}{{/if}}"><i class="fa-solid fa-bolt"></i></a>{{localize (concat 'BITD.Trauma' (upper-first trauma))}}<a class="trauma-clear" data-tooltip="{{localize 'bitd-alt.TraumaClear' trauma=(localize (concat 'BITD.Trauma' (upper-first trauma)))}}"><i class="fa-solid fa-xmark"></i></a></div>
+              {{else}}
               <div class="trauma-item" data-trauma="{{trauma}}">{{localize (concat 'BITD.Trauma' (upper-first trauma))}}
               </div>
+              {{/if}}
               {{/each}}
               {{else}}
               <em>{{localize system.trauma.name}}</em>

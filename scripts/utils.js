@@ -171,6 +171,62 @@ export class Utils {
   }
 
   /**
+   * The Deep Cuts level-1 harm size step, by count: up to 5 full size, 6-7 at 85%, 8 or more at 72%.
+   * @param {number} count - Level-1 harms
+   * @returns {string} A class for the level-1 list
+   */
+  static harmShrink(count) {
+    return count >= 8 ? "shrink-2" : count >= 6 ? "shrink-1" : "";
+  }
+
+  /**
+   * Deep Cuts harm (p73) for the sheet. Core harm fields hold the slots core has; the deepCuts flag
+   * holds level 1 past two (light), the Tough as Nails level 3 (heavy2), the scar, and the
+   * toughed-out marks ("level:name").
+   * @param {object} harm - system.harm
+   * @param {object} flag - The deepCuts flag
+   * @param {boolean} toughAsNails - Whether the character has Tough as Nails
+   * @returns {{light: object[], medium: object[], heavy: object[], scar: string, shrink: string}}
+   */
+  static deepCutsHarm(harm, flag, toughAsNails) {
+    const tough = flag?.tough ?? [];
+    const slot = (level) => (value) => ({ value: value ?? "", tough: Boolean(value) && tough.includes(`${level}:${value}`) });
+    const light = [harm.light.one, harm.light.two, ...(flag?.light ?? [])].filter(Boolean).map(slot(1));
+    const heavy = toughAsNails ? [harm.heavy.one, flag?.heavy2] : [harm.heavy.one];
+    return {
+      light,
+      medium: [harm.medium.one, harm.medium.two].map(slot(2)),
+      heavy: heavy.map(slot(3)),
+      scar: flag?.scar ?? "",
+      shrink: Utils.harmShrink(light.length),
+    };
+  }
+
+  /**
+   * The actor update for Deep Cuts harm typed on the sheet: level 1 fills the core slots first, the
+   * rest goes to the flag; toughed-out marks whose harm is gone are dropped.
+   * @param {{light: string[], medium: string[], heavy: string[]}} values - Inputs per level; heavy[1] only with Tough as Nails
+   * @param {string[]} tough - Current toughed-out marks
+   * @returns {object}
+   */
+  static deepCutsHarmUpdate({ light, medium, heavy }, tough = []) {
+    const flag = `flags.${MODULE_ID}.deepCuts`;
+    const l = light.map((v) => v.trim()).filter(Boolean);
+    const present = [...l.map((v) => `1:${v}`), ...medium.map((v) => `2:${v}`), ...heavy.map((v) => `3:${v}`)];
+    const update = {
+      "system.harm.light.one": l[0] ?? "",
+      "system.harm.light.two": l[1] ?? "",
+      "system.harm.medium.one": medium[0],
+      "system.harm.medium.two": medium[1],
+      "system.harm.heavy.one": heavy[0],
+      [`${flag}.light`]: l.slice(2),
+      [`${flag}.tough`]: tough.filter((t) => present.includes(t)),
+    };
+    if (heavy.length > 1) update[`${flag}.heavy2`] = heavy[1];
+    return update;
+  }
+
+  /**
    * The Deep Cuts load level (p77) reached by the load marked.
    * @param {number} loadout - Load marked
    * @param {boolean} mule - Whether the character has Mule

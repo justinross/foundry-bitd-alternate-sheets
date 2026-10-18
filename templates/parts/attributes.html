@@ -105,6 +105,27 @@
     {{/each}}
   </section>
   {{/if}} {{/each}}
+  {{#if dcHarm}}
+  {{#*inline "dcHarmBlock"}}{{#if (or list.[0].value list.[1].value)}}
+  <div class="col row harm-block {{cls}} natural-height">
+    <i class="fa-solid fa-{{level}} col"></i>
+    <div class="col">
+      {{#each list as |h|}}{{#if h.value}}<span class="harm col{{#if h.tough}} toughed-out{{/if}}">{{h.value}}</span><span class="dash">,&#8203;</span>{{/if}}{{/each}}
+    </div>
+  </div>
+  {{/if}}{{/inline}}
+  <div class="harm-list row">
+    {{> dcHarmBlock list=dcHarm.light cls="light" level=1}}
+    {{> dcHarmBlock list=dcHarm.medium cls="medium" level=2}}
+    {{> dcHarmBlock list=dcHarm.heavy cls="heavy" level=3}}
+    {{#if dcHarm.scar}}
+    <div class="col row harm-block scar natural-height">
+      <i class="fa-solid fa-bandage col"></i>
+      <div class="col"><span class="harm col">{{dcHarm.scar}}</span></div>
+    </div>
+    {{/if}}
+  </div>
+  {{else}}
   <div class="harm-list row">
     {{#ifCond system.harm.light.one '||' system.harm.light.two}}
     <div
@@ -150,4 +171,5 @@
     </div>
     {{/if}}
   </div>
+  {{/if}}
 </section>
