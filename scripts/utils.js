@@ -835,7 +835,7 @@ export class Utils {
         .get(character)
         .getFlag("bitd-alternate-sheets", "showAliasInDirectory");
       let computedName = showAliasInDirectory
-        ? game.actors.get(character).system.alias
+        ? game.actors.get(character).system.alias || game.actors.get(character).name
         : game.actors.get(character).name;
       const pronouns = game.actors
         .get(character)
@@ -847,7 +847,7 @@ export class Utils {
         .find(`[data-document-id="${character}"]`)
         .find(".document-name.entry-name");
       elements.each((index, el) => {
-        el.innerHTML = `<a>${computedName}</a>`;
+        el.innerHTML = `<a>${Handlebars.escapeExpression(computedName)}</a>`;
       });
     }
   }
@@ -866,7 +866,7 @@ export class Utils {
         .get(character)
         .getFlag("bitd-alternate-sheets", "showAliasInDirectory");
       let computedName = showAliasInDirectory
-        ? game.actors.get(character).system.alias
+        ? game.actors.get(character).system.alias || game.actors.get(character).name
         : game.actors.get(character).name;
       const pronouns = game.actors
         .get(character)
@@ -876,7 +876,7 @@ export class Utils {
       }
       const elements = html.querySelectorAll(`[data-entry-id="${character}"] .entry-name`);
       elements.forEach((el) => {
-        el.innerHTML = `<a>${computedName}</a>`;
+        el.innerHTML = `<a>${Handlebars.escapeExpression(computedName)}</a>`;
       });
     }
   }
