@@ -21,6 +21,7 @@
 - Fixed Issue #71 (part): the character sheet no longer adds another document click handler every time it re-renders, and removes its handler when closed. The handler is bound to the document the sheet is in instead of always the main window's (groundwork for PopOut! support). Coin, harm and load popups still close on an outside click.
 - Fixed Issue #72: the playbook and crew type XP clues no longer show HTML tags (such as `<p>`) as text, and the crew type tooltip shows plain text. Stripped text is now escaped, so quotes or escaped tags in a description can no longer break the sheet.
 - Partially fixed Issue #144: the crew sheet's Rep, Heat and Wanted teeth are now the system crew sheet's size (17 by 50, 5 apart), and there is a gap between the last Heat tooth and Wanted. To fit the larger teeth, the crew sheet now opens 940 wide (the system crew sheet's width) and can't be made narrower than that.
+- Partially fixed Issue #144: the crew sheet's Cohorts tab has a "Cohorts" title bar with the + at its right instead of an empty black bar. Each cohort's harm row is one aligned row: the image box is as tall as the harm cells, the cells share one border grid, and the row lines up with the cohort's header stripe. Quality and scale are spelled out and stacked ("Quality 2" over "Scale 2"), and gang types are comma-separated ("Gang of Rovers, Skulks"). The crew sheet now uses its own copy of the system's cohort block.
 
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.

@@ -355,14 +355,12 @@
       </div>
 
       <div id="crew-{{_id}}-cohorts" class="crew-cohorts tab grow-two flex-vertical" data-tab="cohorts">
-        <div class="label-stripe flex-horizontal add-item-row">
-          <p><a class="add-item" data-item-type="cohort"><i class="fas fa-plus-square"></i></a></p>
-        </div>
+        <header class="full-bar cohorts-header"><span>{{localize "BITD.Cohorts"}}</span><a class="add-item" data-item-type="cohort" data-tooltip="{{localize 'bitd-alt.AddCohort'}}"><i class="fas fa-plus-square"></i></a></header>
         <div class="cohorts flex-horizontal">
           {{#each items as |item id|}}
           {{#if (eq item.type "cohort")}}
 
-          {{> "systems/blades-in-the-dark/templates/parts/cohort-block.html" item=item}}
+          {{> "modules/bitd-alternate-sheets/templates/parts/cohort-block.html"}}
 
           {{/if}}
           {{/each}}

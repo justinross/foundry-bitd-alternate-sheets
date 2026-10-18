@@ -24,6 +24,7 @@
     "bitd-alt.RiggingFree": "Rigging: {used} of 2 free",
     "bitd-alt.RiggingTooltip": "Rigged items count 0 load, up to 2 load. A rigged heavy item keeps you discreet.",
     "bitd-alt.RiggingHint": "Right-click an item to rig it.",
+    "bitd-alt.AddCohort": "Add Cohort",
     "bitd-alt.DeepCutsHarm": "Use Deep Cuts Harm",
     "bitd-alt.DeepCutsHarmHint": "Character sheets use the Deep Cuts harm rules: any number of level 1 harms, no fixed penalties, toughing out harm, a scar, and a second level 3 slot with Tough as Nails.",
     "bitd-alt.DeepCutsTrauma": "Use Deep Cuts Trauma",

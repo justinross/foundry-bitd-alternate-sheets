@@ -1933,11 +1933,50 @@
 .blades-alt.actor.sheet.crew .cohorts .label-stripe {
   margin-bottom: 0px;
 }
+.blades-alt.actor.sheet.crew .cohorts .label-stripe .item-sheet-open {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.9em;
+}
+.blades-alt.actor.sheet.crew .cohorts .label-stripe .item-control {
+  margin-left: 6px;
+}
+.blades-alt.actor.sheet.crew .cohorts .cohort-qs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.7em;
+  line-height: 1.05;
+  flex: 0 0 auto;
+  margin-right: 6px;
+}
 .blades-alt.actor.sheet.crew .cohorts .cohort-body > div {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  padding: 0 8px;
+}
+.blades-alt.actor.sheet.crew .cohorts .cohort-body > .flex-horizontal:first-child {
+  align-items: stretch;
+  border: 2px solid var(--alt-dark);
+  border-top: none;
+  margin-bottom: 6px;
+  padding: 0;
+}
+.blades-alt.actor.sheet.crew .cohorts .cohort-body > .flex-horizontal:first-child > img {
+  flex: 0 0 2.25rem;
+  width: 2.25rem;
+  height: auto;
+  padding: 4px;
+  box-sizing: border-box;
+  object-fit: contain;
+  border: none;
+  border-right: 2px solid var(--alt-dark);
+  background: var(--alt-mid);
 }
 .blades-alt.actor.sheet.crew .cohorts .cohort-block-harm {
   justify-content: space-around;
+  flex: 1;
+  align-items: stretch;
+  margin: 0;
 }
 .blades-alt.actor.sheet.crew .cohorts .cohort-block-harm input[type=radio] {
   display: none;
@@ -1948,9 +1987,33 @@
   background-color: #191813;
 }
 .blades-alt.actor.sheet.crew .cohorts .cohort-block-harm label {
-  border: 2px solid #191813;
-  border-top: none;
-  padding: 5px;
+  flex: 1 0 0;
+  min-height: 2rem;
+  padding: 2px 4px;
+  border: none;
+  border-left: 2px solid var(--alt-dark);
+}
+.blades-alt.actor.sheet.crew .cohorts .cohort-block-harm label:first-of-type {
+  border-left: none;
+}
+.blades-alt.actor.sheet.crew .crew-cohorts header.full-bar.cohorts-header {
+  background-color: var(--alt-dark);
+  color: var(--alt-ink-light);
+  padding: 3px;
+  width: 100%;
+  font-family: Kirsty, serif;
+  font-size: 1rem;
+  position: relative;
+  line-height: 1em;
+  min-height: 1.6em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 6px;
+  margin-bottom: 0.5em;
+}
+.blades-alt.actor.sheet.crew .crew-cohorts header.full-bar.cohorts-header .add-item {
+  color: inherit;
 }
 .blades-alt.actor.sheet.crew .class-name {
   width: 512px;

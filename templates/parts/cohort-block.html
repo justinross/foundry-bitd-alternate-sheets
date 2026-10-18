@@ -1,46 +1,58 @@
-<div class="item cohort-block-wrapper" data-item-id="{{item._id}}">
+<div class="item cohort-block-wrapper" data-item-id="{{_id}}">
 
   <div class="cohort-block">
     <div class="label-stripe">
-      <div class="item-sheet-open">{{#if (eq item.system.cohort "Gang")}}Gang of {{#each item.system.gang_type as |gang_type key|}}{{gang_type}} {{/each}}{{/if}}{{#if (eq item.system.cohort "Expert")}}{{item.system.cohort}} {{item.system.expert_type}}{{/if}} (click to edit)</div>
-      <div>Q:{{item.system.quality}} S:{{item.system.scale}}</div>
-      <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
+      <div class="item-sheet-open">
+        {{name}},
+        {{#if (eq system.cohort "Gang")}}
+          Gang of {{#each system.gang_type as |gang_type|}}{{#unless @first}}, {{/unless}}{{gang_type}}{{/each}}
+        {{else if (eq system.cohort "Expert")}}
+          {{system.cohort}} {{system.expert_type}}
+        {{/if}}
+        <i class="fas fa-fw fa-edit"></i>
+      </div>
+      <div class="cohort-qs"><span>{{localize "BITD.Quality"}} {{system.quality}}</span><span>{{localize "BITD.Scale"}} {{system.scale}}</span></div>
+      <a class="item-control item-delete" title="{{localize 'BITD.TitleDeleteItem'}}"><i class="fas fa-trash"></i></a>
+      <a class="item-control item-post" title="{{localize 'BITD.TitlePostItem'}}"><i class="fas fa-comment"></i></a>
     </div>
     <div class="cohort-body">
 
-      <div class="cohort-block-harm flex-horizontal">
-        {{#each item.system.harm_list as |harm harm_key|}}
-          {{#multiboxes ../item.system.harm}}
-          <input id="harm-{{harm_key}}-{{../item._id}}" type="radio" name="harm.{{../item._id}}" data-item="{{../item._id}}" value="{{harm_key}}">
-          <label for="harm-{{harm_key}}-{{../item._id}}">{{localize harm.label}}</label>
-          {{/multiboxes}}
-        {{/each}}
+      <div class="flex-horizontal">
+        <img src="{{img}}"/>
+        <div class="cohort-block-harm flex-horizontal">
+          {{#each system.harm_list as |harm harm_key|}}
+            {{#multiboxes ../system.harm}}
+            <input id="harm-{{harm_key}}-{{../_id}}" type="radio" name="harm.{{../_id}}" data-item="{{../_id}}" value="{{harm_key}}">
+            <label for="harm-{{harm_key}}-{{../_id}}">{{localize harm.label}}</label>
+            {{/multiboxes}}
+          {{/each}}
+        </div>
       </div>
 
-      {{#if (eq item.system.cohort "Gang")}}
-        {{#each item.system.gang_type as |gang_type key|}}
+      {{#if (eq system.cohort "Gang")}}
+        {{#each system.gang_type as |gang_type key|}}
         <div>
-            {{#with (lookup ../item.system.gang_type_list gang_type)}}{{localize description}} {{/with}}
+            {{#with (lookup ../system.gang_type_list gang_type)}}{{localize description}} {{/with}}
         </div>
         {{/each}}
       {{/if}}
-      
+
       <div class="flex-vertical">
         <div class="flex-vertical">
-          {{#each item.system.edges_list as |edge key|}}
+          {{#each system.edges_list as |edge key|}}
             {{#if edge.selected }}
-              <div class="description">{{localize edge.description}} <b>({{localize edge.label}})</b></div>
+              <div class="cohort-description">{{localize edge.description}} <b>({{localize edge.label}})</b></div>
             {{/if}}
           {{/each}}
-          {{#each item.system.flaws_list as |flaw key|}}
+          {{#each system.flaws_list as |flaw key|}}
             {{#if flaw.selected }}
-              <div class="description">{{localize flaw.description}} <b>({{localize flaw.label}})</b></div>
+              <div class="cohort-description">{{localize flaw.description}} <b>({{localize flaw.label}})</b></div>
             {{/if}}
           {{/each}}
         </div>
       </div>
-      
-      <div class="description">{{localize item.system.description}}</div>
+
+      <div class="description">{{localize system.description}}</div>
     </div>
 
   </div>

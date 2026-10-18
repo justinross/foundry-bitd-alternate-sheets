@@ -24,6 +24,7 @@
     "bitd-alt.RiggingFree": "Rigging: {used} von 2 frei",
     "bitd-alt.RiggingTooltip": "Verstaute Gegenstände zählen 0 Last, bis zu 2 Last. Ein verstauter schwerer Gegenstand hält dich unauffällig.",
     "bitd-alt.RiggingHint": "Rechtsklick auf einen Gegenstand, um ihn zu verstauen.",
+    "bitd-alt.AddCohort": "Kohorte hinzufügen",
     "bitd-alt.DeepCutsHarm": "Deep-Cuts-Schaden verwenden",
     "bitd-alt.DeepCutsHarmHint": "Charakterbögen nutzen die Deep-Cuts-Schadensregeln: beliebig viele Schäden der Stufe 1, keine festen Abzüge, Schaden wegstecken, eine Narbe und mit Tough as Nails ein zweites Feld der Stufe 3.",
     "bitd-alt.DeepCutsTrauma": "Deep-Cuts-Trauma verwenden",
