@@ -3,6 +3,7 @@ import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/b
 import { Utils, MODULE_ID, safeUpdate } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { bindClockHandlers } from "./clocks.js";
 import { openCrewSelectionDialog, openCardSelectionDialog, openAttributeRollDialog } from "./lib/dialog-compat.js";
 import { bladesRoll } from "../../../systems/blades-in-the-dark/module/blades-roll.js";
 import { enrichHTML, deletionUpdate } from "./compat.js";
@@ -1097,8 +1098,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
     if (type === "label") {
-      const labelID = $(target).attr("for");
-      target = document.getElementById(labelID);
+      target = target.control;
     }
 
     if (!target) return;
@@ -1251,7 +1251,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     html.find('*[contenteditable="true"]').on("paste", (e) => {
       e.preventDefault();
       let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-      document.execCommand("insertText", false, text);
+      e.currentTarget.ownerDocument.execCommand("insertText", false, text);
     });
 
     // Prevent multi-line edits in inline fields (Bio, Name, etc.)
@@ -1268,7 +1268,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
       await this.clearLoad();
     });
 
-    // NOTE: Clock controls are handled globally by setupGlobalClockHandlers() in hooks.js
+    // Clocks bind on the sheet too, so they still work when PopOut! moves it to another window
+    bindClockHandlers(html[0]);
 
     // Use namespaced events with .off() to prevent handler stacking on re-render
     html.find("input.radio-toggle, label.radio-toggle")
@@ -1524,23 +1525,28 @@ export class BladesAlternateActorSheet extends BladesSheet {
     Utils.bindStandingToggles(this, html);
     Utils.bindExpClockSize(this, html);
 
-    // One outside-click handler per sheet, on the sheet's own document (PopOut! moves it to another window)
-    $(this._outsideClickDoc).off(`click.${this.appId}`);
-    this._outsideClickDoc = html[0].ownerDocument;
-    $(this._outsideClickDoc).on(`click.${this.appId}`, (ev) => {
-      let render = false;
-      if (!$(ev.target).closest(".coins-box").length) {
-        html.find(".coins-box").removeClass("open");
-        this.coins_open = false;
-      }
-      if (!$(ev.target).closest(".harm-box").length) {
-        html.find(".harm-box").removeClass("open");
-        this.harm_open = false;
-      }
-      if (!$(ev.target).closest(".load-box").length) {
-        html.find(".load-box").removeClass("open");
-        this.load_open = false;
-      }
+    // One outside-click handler per sheet, on the sheet's own document. PopOut! moves the sheet to another window without re-rendering, so a click on a popup box rebinds it there.
+    const bindOutsideClick = (doc) => {
+      $(this._outsideClickDoc).off(`click.${this.appId}`);
+      this._outsideClickDoc = doc;
+      $(doc).on(`click.${this.appId}`, (ev) => {
+        if (!$(ev.target).closest(".coins-box").length) {
+          html.find(".coins-box").removeClass("open");
+          this.coins_open = false;
+        }
+        if (!$(ev.target).closest(".harm-box").length) {
+          html.find(".harm-box").removeClass("open");
+          this.harm_open = false;
+        }
+        if (!$(ev.target).closest(".load-box").length) {
+          html.find(".load-box").removeClass("open");
+          this.load_open = false;
+        }
+      });
+    };
+    bindOutsideClick(html[0].ownerDocument);
+    html.on("click", ".coins-box, .harm-box, .load-box", (ev) => {
+      if (ev.currentTarget.ownerDocument !== this._outsideClickDoc) bindOutsideClick(ev.currentTarget.ownerDocument);
     });
 
     html.find(".coins-box").click(async (ev) => {

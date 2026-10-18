@@ -95,8 +95,7 @@ export class BladesAlternateClassSheet extends BaseItemSheet {
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
     if (type == "label") {
-      let labelID = $(target).attr("for");
-      target = $(`#${labelID}`).get(0);
+      target = target.control;
     }
     if (target.checked) {
       //find the next lowest-value input with the same name and click that one instead
