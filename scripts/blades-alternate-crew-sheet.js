@@ -15,7 +15,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: [...new Set([...baseClasses, "blades-alt"])],
       template: "modules/bitd-alternate-sheets/templates/crew-sheet.html",
-      width: 900,
+      width: 940,
       height: 940,
       tabs: [
         { navSelector: ".tabs", contentSelector: ".tab-content", initial: "turfs" },

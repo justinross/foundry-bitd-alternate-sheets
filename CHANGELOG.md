@@ -18,6 +18,7 @@
 - Fixed Issue #157: items with zero load no longer add to the load count. Fixed by PR #158.
 - Fixed Issue #146: an empty alias no longer shows a blank name in the sidebar, and names are shown as text, not HTML. Fixed by PR #162.
 - Fixed the card chooser dialog not filling the custom text box on Foundry v12.
+- Partially fixed Issue #144: the crew sheet's Rep, Heat and Wanted teeth are now the system crew sheet's size (17 by 50, 5 apart), and there is a gap between the last Heat tooth and Wanted. To fit the larger teeth, the crew sheet now opens 940 wide (the system crew sheet's width) and can't be made narrower than that.
 
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
