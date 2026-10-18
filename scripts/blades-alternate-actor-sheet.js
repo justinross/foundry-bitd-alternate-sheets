@@ -1153,6 +1153,12 @@ export class BladesAlternateActorSheet extends BladesSheet {
   /* -------------------------------------------- */
 
   /** @override */
+  async close(options) {
+    $(this._outsideClickDoc).off(`click.${this.appId}`);
+    return super.close(options);
+  }
+
+  /** @override */
   activateListeners(html) {
     super.activateListeners(html);
 
@@ -1518,7 +1524,10 @@ export class BladesAlternateActorSheet extends BladesSheet {
     Utils.bindStandingToggles(this, html);
     Utils.bindExpClockSize(this, html);
 
-    $(document).click((ev) => {
+    // One outside-click handler per sheet, on the sheet's own document (PopOut! moves it to another window)
+    $(this._outsideClickDoc).off(`click.${this.appId}`);
+    this._outsideClickDoc = html[0].ownerDocument;
+    $(this._outsideClickDoc).on(`click.${this.appId}`, (ev) => {
       let render = false;
       if (!$(ev.target).closest(".coins-box").length) {
         html.find(".coins-box").removeClass("open");
