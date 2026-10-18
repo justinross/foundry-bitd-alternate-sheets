@@ -549,11 +549,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.trauma_array = trauma_array;
     sheetData.trauma_count = trauma_array.length;
 
-    // Deep Cuts harm (module setting); extras live in the deepCuts flag
+    // Deep Cuts harm and trauma (module settings); extras live in the deepCuts flag
     const deepCuts = this.actor.getFlag(MODULE_ID, "deepCuts") ?? {};
     if (game.settings.get(MODULE_ID, "deepCutsHarm")) {
       const toughAsNails = this.actor.items.some((i) => i.type === "ability" && /Tough as Nails/i.test(i.name));
       sheetData.dcHarm = Utils.deepCutsHarm(sheetData.system.harm, deepCuts, toughAsNails);
+    }
+    if (game.settings.get(MODULE_ID, "deepCutsTrauma")) {
+      sheetData.dcTrauma = { invoked: deepCuts.invoked ?? {} };
     }
     // system.acquaintances_array = this.getAcquaintances();
 
@@ -1559,6 +1562,20 @@ export class BladesAlternateActorSheet extends BladesSheet {
       const key = ev.currentTarget.dataset.tough;
       const next = tough().includes(key) ? tough().filter((k) => k !== key) : [...tough(), key];
       queueUpdate(() => this.actor.update({ [`flags.${MODULE_ID}.deepCuts.tough`]: next }));
+    });
+
+    // Deep Cuts trauma: the bolt marks a condition invoked this session; the x removes it (and its box)
+    const traumaKey = (ev) => {
+      game.tooltip.deactivate();
+      return ev.currentTarget.closest(".trauma-item").dataset.trauma;
+    };
+    html.find(".trauma-invoke").click((ev) => {
+      const key = `flags.${MODULE_ID}.deepCuts.invoked.${traumaKey(ev)}`;
+      queueUpdate(() => this.actor.update({ [key]: !foundry.utils.getProperty(this.actor, key) }));
+    });
+    html.find(".trauma-clear").click((ev) => {
+      const t = traumaKey(ev);
+      queueUpdate(() => this.actor.update({ [`system.trauma.list.${t}`]: false, [`flags.${MODULE_ID}.deepCuts.invoked.${t}`]: false }));
     });
 
     html.find(".load-box").click((ev) => {

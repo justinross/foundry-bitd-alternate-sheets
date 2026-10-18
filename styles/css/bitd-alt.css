@@ -3884,6 +3884,26 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list .add_trauma {
   font-size: 1em;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list.deep-cuts .trauma-item .trauma-invoke,
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list.deep-cuts .trauma-item .trauma-clear {
+  font-size: 0.75em;
+  margin: 0 0.25em;
+  color: var(--alt-border-strong);
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list.deep-cuts .trauma-item .trauma-invoke:hover,
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list.deep-cuts .trauma-item .trauma-clear:hover {
+  color: var(--alt-red);
+  opacity: 1;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list.deep-cuts .trauma-item .trauma-clear {
+  opacity: 0.6;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list.deep-cuts .trauma-item.invoked {
+  color: var(--alt-red-dark);
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .stress-trauma-box .trauma-box .trauma-list.deep-cuts .trauma-item.invoked .trauma-invoke {
+  color: var(--alt-red);
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait {
   /* Mostly the same as attributes.scss here */
 }

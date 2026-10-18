@@ -740,6 +740,32 @@
                 font-size: 1em;
               }
 
+              // Deep Cuts trauma: bolt for invoked this session, x to recover
+              &.deep-cuts .trauma-item {
+                .trauma-invoke,
+                .trauma-clear {
+                  font-size: 0.75em;
+                  margin: 0 0.25em;
+                  color: var(--alt-border-strong);
+
+                  &:hover {
+                    color: var(--alt-red);
+                    opacity: 1;
+                  }
+                }
+
+                .trauma-clear {
+                  opacity: 0.6;
+                }
+
+                &.invoked {
+                  color: var(--alt-red-dark);
+
+                  .trauma-invoke {
+                    color: var(--alt-red);
+                  }
+                }
+              }
             }
           }
         }
