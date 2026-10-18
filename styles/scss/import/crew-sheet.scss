@@ -925,7 +925,7 @@ header {
             right: 0;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 1px; // tight so the size picker fits beside the Crew XP label
 
             .crew-xp-clock-controls,
             .crew-xp-completed-controls {

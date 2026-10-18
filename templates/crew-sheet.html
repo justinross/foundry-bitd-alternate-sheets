@@ -30,6 +30,11 @@
                     <span class="completed-clock-count">x{{system.exp_clock.number}}</span>
                   </div>
                   {{/if}}
+                  <select class="exp-clock-size" data-tooltip="{{localize 'bitd-alt.XPClockSize'}}">
+                    <option value="4" {{#if (eq system.exp_clock.size 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq system.exp_clock.size 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq system.exp_clock.size 8)}}selected{{/if}}>8</option>
+                  </select>
                 </div>
                 {{else}}
                 {{#multiboxes system.experience}}

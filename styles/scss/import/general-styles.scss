@@ -340,3 +340,23 @@ td {
   font-size: 0.85em;
   line-height: 1.2em;
 }
+
+select.exp-clock-size {
+  appearance: none;
+  width: auto;
+  height: auto;
+  padding: 0 4px;
+  font-family: "Crimson Text", serif;
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  background-color: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  cursor: pointer;
+
+  option {
+    color: $almost_black;
+  }
+}
