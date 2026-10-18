@@ -259,13 +259,18 @@
                   </div>
                   {{#if (lteq system.exp_clock.number 10)}}
                   {{#times_from 1 system.exp_clock.number}}
-                  <img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock 6-6.svg" height="45" width="45" style="border-style: none"/>
+                  <img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock {{@root.system.exp_clock.size}}-{{@root.system.exp_clock.size}}.svg" height="45" width="45" style="border-style: none"/>
                   {{/times_from}}
                   {{else}}
-                  <img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock 6-6.svg" height="45" width="45" style="border-style: none"/>
+                  <img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock {{@root.system.exp_clock.size}}-{{@root.system.exp_clock.size}}.svg" height="45" width="45" style="border-style: none"/>
                   <p style="font-family: Kirsty, serif; font-size: 24px">x {{system.exp_clock.number}}</p>
                   {{/if}}
                   {{/if}}
+                  <select class="exp-clock-size" data-tooltip="{{localize 'bitd-alt.XPClockSize'}}">
+                    <option value="4" {{#if (eq system.exp_clock.size 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq system.exp_clock.size 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq system.exp_clock.size 8)}}selected{{/if}}>8</option>
+                  </select>
                 </div>
                 {{/if}}
                 <ul>

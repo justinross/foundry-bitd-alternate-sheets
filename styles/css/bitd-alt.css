@@ -1279,6 +1279,24 @@
   font-size: 0.85em;
   line-height: 1.2em;
 }
+.blades-alt select.exp-clock-size {
+  appearance: none;
+  width: auto;
+  height: auto;
+  padding: 0 4px;
+  font-family: "Crimson Text", serif;
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  background-color: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.blades-alt select.exp-clock-size option {
+  color: #191813;
+}
 .blades-alt.actor.sheet.crew {
   min-width: 900px;
   min-height: 275px;
@@ -2695,7 +2713,7 @@
   right: 0;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 1px;
 }
 .blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-clock-controls,
 .blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls {
@@ -4033,6 +4051,14 @@
   font-size: 2.6em;
   border: none;
   background-color: #f00;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook select.exp-clock-size {
+  margin-left: 4px;
+  font-family: "Crimson Text", serif;
+  font-size: 13px;
+  text-transform: none;
+  border: 1px solid currentColor;
+  background-color: transparent;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook::after {
   content: "";

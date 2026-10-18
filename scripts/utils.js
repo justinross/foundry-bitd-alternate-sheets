@@ -752,6 +752,30 @@ export class Utils {
   }
 
   /**
+   * Resizes the XP clock, turning ticks that no longer fit into full clocks so no xp is lost.
+   * @param {{value: number, number: number}} expClock - Current system.exp_clock
+   * @param {number} size - New segment count
+   * @returns {{size: number, value: number, number: number}}
+   */
+  static resizeExpClock({ value, number }, size) {
+    const xp = Number(value) || 0;
+    return { size, value: xp % size, number: (Number(number) || 0) + Math.floor(xp / size) };
+  }
+
+  /**
+   * Bind the Deep Cuts XP clock size picker (4/6/8 segments).
+   * @param {DocumentSheet} sheet
+   * @param {JQuery} html
+   */
+  static bindExpClockSize(sheet, html) {
+    html.find("select.exp-clock-size").off("change").on("change", async (ev) => {
+      ev.stopPropagation();
+      const clock = Utils.resizeExpClock(sheet.actor.system.exp_clock, Number(ev.currentTarget.value));
+      await queueUpdate(() => sheet.actor.update({ "system.exp_clock": clock }));
+    });
+  }
+
+  /**
    * Wire up the lock/unlock toggle to flip allow_edit and rerender.
    * @param {DocumentSheet} sheet
    * @param {JQuery} html
