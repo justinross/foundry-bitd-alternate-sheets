@@ -3661,6 +3661,105 @@
   height: calc(100% - 1px);
   z-index: 1;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts {
+  grid-template-columns: 1em repeat(5, 1fr) 1fr;
+  grid-template-rows: 1.6em 1.6em 1.6em auto auto auto;
+  grid-template-areas: "empty header-harm header-harm header-harm header-harm header-harm header-healing" "rownum3 heavy heavy heavy heavy heavy healing" "rownum2 medium1 medium1 medium1 medium2 medium2 healing" "rownum1 light light light light light healing" "scar scar scar scar scar scar scar" "armor armor armor armor armor armor armor";
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts.nails {
+  grid-template-areas: "empty header-harm header-harm header-harm header-harm header-harm header-healing" "rownum3 heavy1 heavy1 heavy1 heavy2 heavy2 healing" "rownum2 medium1 medium1 medium1 medium2 medium2 healing" "rownum1 light light light light light healing" "scar scar scar scar scar scar scar" "armor armor armor armor armor armor armor";
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts.nails .heavy1 {
+  grid-area: heavy1;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts.nails .heavy2 {
+  grid-area: heavy2;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .grid-lines {
+  grid-area: 2/2/4/7;
+  height: calc(100% + 1px);
+  align-self: start;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-slot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-slot input[type=text] {
+  padding-right: 1.6em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-slot .tough-it-out {
+  position: absolute;
+  right: 0.3em;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 11;
+  font-size: 0.7em;
+  color: var(--alt-border-strong);
+  opacity: 0.5;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-slot .tough-it-out:hover {
+  opacity: 1;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-slot .tough-it-out.active {
+  color: var(--alt-red);
+  opacity: 1;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-slot.toughed-out input[type=text] {
+  text-decoration: line-through;
+  text-decoration-color: var(--alt-red-dark);
+  text-decoration-thickness: 2px;
+  color: var(--alt-border-strong);
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-light-list {
+  grid-area: light;
+  align-self: start;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background-color: #191813;
+  z-index: 10;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-light-list .harm-slot {
+  flex: 1 1 30%;
+  height: 1.6em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-light-list .harm-slot.add input[type=text] {
+  background-color: var(--alt-light);
+  font-style: italic;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-light-list.shrink-1 {
+  font-size: 0.85em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-light-list.shrink-1 .harm-slot {
+  flex-basis: 22%;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-light-list.shrink-2 {
+  font-size: 0.72em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .harm-light-list.shrink-2 .harm-slot {
+  flex-basis: 18%;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .scar {
+  grid-area: scar;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 4px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .scar label {
+  background-color: var(--alt-dark);
+  color: var(--alt-ink-light);
+  padding: 0 0.6em;
+  line-height: 1.6em;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .harm-box.open .full-view .character-harm.deep-cuts .scar input[type=text] {
+  flex: 1;
+  height: 1.6em;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-portrait .status-buttons .load-box {
   max-width: 30px;
   max-height: 30px;
@@ -3993,6 +4092,13 @@
   white-space: nowrap;
   text-decoration: underline;
   font-family: Kirsty, serif;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .harm-list .harm-block .harm.toughed-out {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .minimized-view .character-info .attributes-actions .harm-list .harm-block.scar {
+  background-color: var(--alt-dark);
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space nav.tabs {
   display: grid;
@@ -4415,6 +4521,13 @@
   white-space: nowrap;
   text-decoration: underline;
   font-family: Kirsty, serif;
+}
+.blades-alt.item.sheet.class .attributes-actions .harm-list .harm-block .harm.toughed-out {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+.blades-alt.item.sheet.class .attributes-actions .harm-list .harm-block.scar {
+  background-color: var(--alt-dark);
 }
 .blades-alt.item.sheet {
   justify-content: space-between;

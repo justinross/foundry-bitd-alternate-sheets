@@ -512,6 +512,138 @@
                     z-index: 1;
                   }
                 }
+
+                // Deep Cuts harm: no Effect column, level 1 grows, scar under the grid
+                .character-harm.deep-cuts {
+                  grid-template-columns: 1em repeat(5, 1fr) 1fr;
+                  grid-template-rows: 1.6em 1.6em 1.6em auto auto auto;
+                  grid-template-areas:
+                    "empty header-harm header-harm header-harm header-harm header-harm header-healing"
+                    "rownum3 heavy heavy heavy heavy heavy healing"
+                    "rownum2 medium1 medium1 medium1 medium2 medium2 healing"
+                    "rownum1 light light light light light healing"
+                    "scar scar scar scar scar scar scar"
+                    "armor armor armor armor armor armor armor";
+
+                  // Tough as Nails: level 3 splits like level 2
+                  &.nails {
+                    grid-template-areas:
+                      "empty header-harm header-harm header-harm header-harm header-harm header-healing"
+                      "rownum3 heavy1 heavy1 heavy1 heavy2 heavy2 healing"
+                      "rownum2 medium1 medium1 medium1 medium2 medium2 healing"
+                      "rownum1 light light light light light healing"
+                      "scar scar scar scar scar scar scar"
+                      "armor armor armor armor armor armor armor";
+
+                    .heavy1 { grid-area: heavy1; }
+                    .heavy2 { grid-area: heavy2; }
+                  }
+
+                  // Dark lines between levels 3 and 2 (and the gap above level 1); the level-1 list draws its own,
+                  // so the row's extra height (the healing clock is taller than a shrunk list) shows no dark band
+                  .grid-lines {
+                    grid-area: 2 / 2 / 4 / 7;
+                    height: calc(100% + 1px);
+                    align-self: start;
+                  }
+
+                  .harm-slot {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 10;
+
+                    input[type="text"] {
+                      padding-right: 1.6em;
+                    }
+
+                    .tough-it-out {
+                      position: absolute;
+                      right: 0.3em;
+                      top: 50%;
+                      transform: translateY(-50%);
+                      z-index: 11;
+                      font-size: 0.7em;
+                      color: var(--alt-border-strong);
+                      opacity: 0.5;
+
+                      &:hover {
+                        opacity: 1;
+                      }
+
+                      &.active {
+                        color: var(--alt-red);
+                        opacity: 1;
+                      }
+                    }
+
+                    &.toughed-out input[type="text"] {
+                      text-decoration: line-through;
+                      text-decoration-color: var(--alt-red-dark);
+                      text-decoration-thickness: 2px;
+                      color: var(--alt-border-strong);
+                    }
+                  }
+
+                  .harm-light-list {
+                    grid-area: light;
+                    align-self: start;
+                    width: 100%;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 1px;
+                    background-color: $almost_black;
+                    z-index: 10;
+
+                    .harm-slot {
+                      flex: 1 1 30%; // 3 per line
+                      height: 1.6em; // em: shrinks with the text
+
+                      &.add input[type="text"] {
+                        background-color: var(--alt-light);
+                        font-style: italic;
+                      }
+                    }
+
+                    // Keep level 1 within two lines: more cells per line, smaller text; past the last step it grows
+                    &.shrink-1 {
+                      font-size: 0.85em;
+
+                      .harm-slot {
+                        flex-basis: 22%; // 4 per line
+                      }
+                    }
+
+                    &.shrink-2 {
+                      font-size: 0.72em;
+
+                      .harm-slot {
+                        flex-basis: 18%; // 5 per line
+                      }
+                    }
+                  }
+
+                  .scar {
+                    grid-area: scar;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4em;
+                    margin-top: 4px;
+
+                    label {
+                      background-color: var(--alt-dark);
+                      color: var(--alt-ink-light);
+                      padding: 0 0.6em;
+                      line-height: 1.6em;
+                    }
+
+                    input[type="text"] {
+                      flex: 1;
+                      height: 1.6em;
+                    }
+                  }
+                }
               }
             }
           }
@@ -607,6 +739,7 @@
               .add_trauma {
                 font-size: 1em;
               }
+
             }
           }
         }

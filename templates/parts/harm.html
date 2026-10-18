@@ -1,3 +1,22 @@
+{{#*inline "harmSlot"}}<div class="harm-slot {{cls}}{{#if tough}} toughed-out{{/if}}"><input type="text" value="{{value}}">{{#if value}}<a class="tough-it-out{{#if tough}} active{{/if}}" data-tough="{{level}}:{{value}}" data-tooltip="{{#if tough}}{{localize 'bitd-alt.ToughedOut'}}{{else}}{{localize 'bitd-alt.ToughItOut' level=level}}{{/if}}"><i class="fa-solid fa-hand-fist"></i></a>{{/if}}</div>{{/inline}}
+{{#if dcHarm}}
+<div class="character-harm harm deep-cuts{{#if dcHarm.heavy.[1]}} nails{{/if}}" data-uuid="{{actor.uuid}}">
+  <div class="grid-lines"></div>
+  <header class="harm">{{localize "BITD.Harm"}}</header>
+  <header class="healing">{{localize "BITD.Healing"}}</header>
+  <span class="rownum3">3</span>
+  {{#each dcHarm.heavy as |h|}}{{> harmSlot h level=3 cls=(concat "heavy heavy" (inc @index))}}{{/each}}
+  <span class="rownum2">2</span>
+  {{#each dcHarm.medium as |h|}}{{> harmSlot h level=2 cls=(concat "medium medium" (inc @index))}}{{/each}}
+  <span class="rownum1">1</span>
+  <div class="harm-light-list {{dcHarm.shrink}}">
+    {{#each dcHarm.light as |h|}}{{> harmSlot h level=1}}{{/each}}<span class="harm-slot add"><input type="text" id="character-{{actor._id}}-harm-1-new" value="" placeholder="{{localize 'bitd-alt.AddHarm'}}"></span>
+  </div>
+  <div class="scar">
+    <label for="character-{{actor._id}}-scar">{{localize "bitd-alt.Scar"}}</label>
+    <input type="text" id="character-{{actor._id}}-scar" name="flags.bitd-alternate-sheets.deepCuts.scar" value="{{dcHarm.scar}}">
+  </div>
+{{else}}
 <div class="character-harm harm" data-uuid="{{actor.uuid}}">
   <div class="grid-lines"></div>
   <header class="harm">{{localize "BITD.Harm"}}</header>
@@ -39,6 +58,7 @@
     name="system.harm.light.two"
     value="{{system.harm.light.two}}"
   /><span class="effect-text light">{{localize "BITD.LessEffect"}}</span>
+{{/if}}
   <div class="clocks clocks-4 healing-clock">
     {{{blades-clock "system.healing_clock.value" 4 system.healing_clock.value (concat
     "healing-" actor._id)}}}

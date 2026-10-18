@@ -28,7 +28,7 @@
           </div>
           <div class="harm-box {{#if harm_open}}open{{/if}} pointer">
             <div class="mini-view harm{{#if (or system.harm.light.one system.harm.light.two)}}-1{{/if}}{{#if
-              (or system.harm.medium.one system.harm.medium.two)}}-2{{/if}}{{#if system.harm.heavy.one}}-3{{/if}}">
+              (or system.harm.medium.one system.harm.medium.two)}}-2{{/if}}{{#if (or system.harm.heavy.one dcHarm.heavy.[1].value)}}-3{{/if}}">
               <div class="placeholder"></div>
             </div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}</div>

@@ -548,6 +548,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     sheetData.trauma_array = trauma_array;
     sheetData.trauma_count = trauma_array.length;
+
+    // Deep Cuts harm (module setting); extras live in the deepCuts flag
+    const deepCuts = this.actor.getFlag(MODULE_ID, "deepCuts") ?? {};
+    if (game.settings.get(MODULE_ID, "deepCutsHarm")) {
+      const toughAsNails = this.actor.items.some((i) => i.type === "ability" && /Tough as Nails/i.test(i.name));
+      sheetData.dcHarm = Utils.deepCutsHarm(sheetData.system.harm, deepCuts, toughAsNails);
+    }
     // system.acquaintances_array = this.getAcquaintances();
 
     // @todo - fix this. display heritage, background, and vice based on owned objects (original sheet style) or stored string, with priority given to string if not empty and not default value
@@ -1536,6 +1543,22 @@ export class BladesAlternateActorSheet extends BladesSheet {
         html.find(".harm-box").toggleClass("open");
         this.harm_open = !this.harm_open;
       }
+    });
+
+    // Deep Cuts harm: any harm input writes the whole grid (level 1 closes gaps); the fist toggles toughed out
+    const dcHarm = html.find(".character-harm.deep-cuts");
+    const tough = () => this.actor.getFlag(MODULE_ID, "deepCuts")?.tough ?? [];
+    dcHarm.find(".harm-slot input").on("change", (ev) => {
+      ev.stopPropagation();
+      const values = (sel) => dcHarm.find(sel).map((_, i) => i.value).get();
+      const update = Utils.deepCutsHarmUpdate({ light: values(".harm-light-list input"), medium: values(".harm-slot.medium input"), heavy: values(".harm-slot.heavy input") }, tough());
+      queueUpdate(() => this.actor.update(update));
+    });
+    dcHarm.find(".tough-it-out").click((ev) => {
+      game.tooltip.deactivate(); // the re-render removes the icon, which would leave its tooltip up
+      const key = ev.currentTarget.dataset.tough;
+      const next = tough().includes(key) ? tough().filter((k) => k !== key) : [...tough(), key];
+      queueUpdate(() => this.actor.update({ [`flags.${MODULE_ID}.deepCuts.tough`]: next }));
     });
 
     html.find(".load-box").click((ev) => {
