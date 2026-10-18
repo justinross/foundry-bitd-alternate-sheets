@@ -139,19 +139,6 @@ nav {
   margin-right: 0;
 }
 
-#heat-wanted {
-
-  .small-teeth {
-    height: 20px;
-
-    label {
-      height: 100%;
-      width: 100%;
-      cursor: default;
-    }
-  }
-}
-
 .experience-clues-container {
   width: 340px;
   font-size: 12px;
@@ -542,12 +529,19 @@ header {
   flex: 0 0 auto;
 }
 
+// Space between the last heat tooth and Wanted, as on the system sheet
+.heat-wanted-row .big-teeth {
+  padding-right: 10px;
+}
+
+// Teeth sizes match the system crew sheet
 .big-teeth,
 .rep-turf-row .crew-reputation {
-  @include teeth-track(35px,
-    12px,
+  @include teeth-track(50px,
+    17px,
     "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png",
-    "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png"
+    "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png",
+    5px
   );
 }
 
@@ -556,10 +550,11 @@ header {
 }
 
 .small-teeth {
-  @include teeth-track(35px,
-    12px,
+  @include teeth-track(50px,
+    17px,
     "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png",
-    "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png"
+    "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png",
+    5px
   );
 }
 

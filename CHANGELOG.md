@@ -20,6 +20,7 @@
 - Fixed the card chooser dialog not filling the custom text box on Foundry v12.
 - Fixed Issue #71 (part): the character sheet no longer adds another document click handler every time it re-renders, and removes its handler when closed. The handler is bound to the document the sheet is in instead of always the main window's (groundwork for PopOut! support). Coin, harm and load popups still close on an outside click.
 - Fixed Issue #72: the playbook and crew type XP clues no longer show HTML tags (such as `<p>`) as text, and the crew type tooltip shows plain text. Stripped text is now escaped, so quotes or escaped tags in a description can no longer break the sheet.
+- Partially fixed Issue #144: the crew sheet's Rep, Heat and Wanted teeth are now the system crew sheet's size (17 by 50, 5 apart), and there is a gap between the last Heat tooth and Wanted. To fit the larger teeth, the crew sheet now opens 940 wide (the system crew sheet's width) and can't be made narrower than that.
 
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
