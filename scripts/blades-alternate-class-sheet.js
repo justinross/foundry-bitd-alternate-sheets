@@ -46,7 +46,7 @@ export class BladesAlternateClassSheet extends BaseItemSheet {
       .find("input.radio-toggle, label.radio-toggle")
       .click((e) => e.preventDefault());
     html.find("input.radio-toggle, label.radio-toggle").mousedown((e) => {
-      this._onRadioToggle(e);
+      if (e.button === 0) this._onRadioToggle(e);
     });
     html.find(".debug-toggle").click(async (ev) => {
 
