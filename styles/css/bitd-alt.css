@@ -1933,11 +1933,50 @@
 .blades-alt.actor.sheet.crew .cohorts .label-stripe {
   margin-bottom: 0px;
 }
+.blades-alt.actor.sheet.crew .cohorts .label-stripe .item-sheet-open {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.9em;
+}
+.blades-alt.actor.sheet.crew .cohorts .label-stripe .item-control {
+  margin-left: 6px;
+}
+.blades-alt.actor.sheet.crew .cohorts .cohort-qs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.7em;
+  line-height: 1.05;
+  flex: 0 0 auto;
+  margin-right: 6px;
+}
 .blades-alt.actor.sheet.crew .cohorts .cohort-body > div {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  padding: 0 8px;
+}
+.blades-alt.actor.sheet.crew .cohorts .cohort-body > .flex-horizontal:first-child {
+  align-items: stretch;
+  border: 2px solid var(--alt-dark);
+  border-top: none;
+  margin-bottom: 6px;
+  padding: 0;
+}
+.blades-alt.actor.sheet.crew .cohorts .cohort-body > .flex-horizontal:first-child > img {
+  flex: 0 0 2.25rem;
+  width: 2.25rem;
+  height: auto;
+  padding: 4px;
+  box-sizing: border-box;
+  object-fit: contain;
+  border: none;
+  border-right: 2px solid var(--alt-dark);
+  background: var(--alt-mid);
 }
 .blades-alt.actor.sheet.crew .cohorts .cohort-block-harm {
   justify-content: space-around;
+  flex: 1;
+  align-items: stretch;
+  margin: 0;
 }
 .blades-alt.actor.sheet.crew .cohorts .cohort-block-harm input[type=radio] {
   display: none;
@@ -1948,9 +1987,44 @@
   background-color: #191813;
 }
 .blades-alt.actor.sheet.crew .cohorts .cohort-block-harm label {
-  border: 2px solid #191813;
-  border-top: none;
-  padding: 5px;
+  flex: 1 0 0;
+  min-height: 2rem;
+  padding: 2px 4px;
+  border: none;
+  border-left: 2px solid var(--alt-dark);
+}
+.blades-alt.actor.sheet.crew .cohorts .cohort-block-harm label:first-of-type {
+  border-left: none;
+}
+.blades-alt.actor.sheet.crew .crew-choice .cohort-upgrade-count {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 0 6px;
+  border-radius: var(--alt-radius-sm);
+  background: var(--alt-panel-bg);
+  border: 1px solid var(--alt-border);
+  font-family: var(--alt-body-font);
+  font-size: 0.85em;
+  color: var(--alt-red-dark);
+}
+.blades-alt.actor.sheet.crew .crew-cohorts header.full-bar.cohorts-header {
+  background-color: var(--alt-dark);
+  color: var(--alt-ink-light);
+  padding: 3px;
+  width: 100%;
+  font-family: Kirsty, serif;
+  font-size: 1rem;
+  position: relative;
+  line-height: 1em;
+  min-height: 1.6em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 6px;
+  margin-bottom: 0.5em;
+}
+.blades-alt.actor.sheet.crew .crew-cohorts header.full-bar.cohorts-header .add-item {
+  color: inherit;
 }
 .blades-alt.actor.sheet.crew .class-name {
   width: 512px;
@@ -5101,6 +5175,116 @@ i.nullifier:hover {
 }
 .app.blades-alt > div.window-resizable-handle i {
   font-size: 10px;
+}
+
+.bitd-alt.cohort-dialog .dialog-instructions {
+  margin: 0 0 0.5rem;
+  font-style: italic;
+}
+.bitd-alt.cohort-dialog .dialog-step {
+  margin: 0.35rem 0 0.15rem;
+  font-size: 1em;
+  font-family: var(--alt-accent-font, Kirsty, serif);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+}
+.bitd-alt.cohort-dialog .cohort-cards {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+  padding: 4px;
+}
+.bitd-alt.cohort-dialog .cohort-card {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+.bitd-alt.cohort-dialog .cohort-card > input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.bitd-alt.cohort-dialog .cohort-card .card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding: 0.3rem;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background: rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+.bitd-alt.cohort-dialog .cohort-card .card-content img {
+  width: 32px;
+  height: 32px;
+  border: none;
+  margin-bottom: 0.15rem;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.bitd-alt.cohort-dialog .cohort-card > input:checked + .card-content {
+  border-color: #800000;
+  background: rgba(128, 0, 0, 0.15);
+  box-shadow: 0 0 8px #800000;
+}
+.bitd-alt.cohort-dialog .cohort-card > input:focus-visible + .card-content {
+  outline: 2px solid #800000;
+}
+.bitd-alt.cohort-dialog .card-label {
+  font-weight: bold;
+  font-size: 0.85em;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.2;
+}
+.bitd-alt.cohort-dialog .card-sub {
+  font-size: 0.72em;
+  line-height: 1.15;
+  opacity: 0.8;
+  text-align: center;
+}
+.bitd-alt.cohort-dialog .card-reason {
+  font-size: 0.7em;
+  line-height: 1.15;
+  font-style: italic;
+  color: var(--alt-amber, #e07f1a);
+  text-align: center;
+}
+.bitd-alt.cohort-dialog .card-reason:empty {
+  display: none;
+}
+.bitd-alt.cohort-dialog .choice-disabled {
+  cursor: not-allowed;
+}
+.bitd-alt.cohort-dialog .choice-disabled .card-content > :not(.card-reason) {
+  opacity: 0.45;
+}
+.bitd-alt.cohort-dialog .choice-disabled img {
+  filter: grayscale(1);
+}
+.bitd-alt.cohort-dialog .cohort-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+.bitd-alt.cohort-dialog .cohort-text label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+.bitd-alt.cohort-dialog .cohort-text input {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #999;
+  border-radius: 3px;
+  font-size: 1em;
 }
 
 /*# sourceMappingURL=bitd-alt.css.map */

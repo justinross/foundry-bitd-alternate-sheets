@@ -2,6 +2,7 @@ import { BladesCrewSheet as SystemCrewSheet } from "../../../systems/blades-in-t
 import { Utils, MODULE_ID } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { COHORT_NEW, COHORT_ADD_TYPE, newCohortDialog, addCohortTypeDialog } from "./cohort-upgrades.js";
 
 /**
  * Alternate crew sheet that mirrors the functionality of the system sheet
@@ -182,7 +183,8 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
       // Inject explicit 2-cost cohort upgrades to replace multiple cohort variants from the system packs.
       this._virtualUpgradeSources.clear();
-      const makeVirtual = (id, name, description) => {
+      const counts = this.actor.getFlag(MODULE_ID, "cohortUpgradeCounts") || {};
+      const makeVirtual = (id, name, description, countKey) => {
         const system = {
           description,
           price: 2,
@@ -196,20 +198,23 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
           name,
           img: "icons/svg/sun.svg",
           system,
+          countLabel: counts[id] ? game.i18n.format(countKey, { n: counts[id] }) : "",
         };
         this._virtualUpgradeSources.set(id, virtual);
         return virtual;
       };
       const virtualUpgrades = [
         makeVirtual(
-          "virtual-upgrade-cohort-new",
+          COHORT_NEW,
           "Cohort: New",
-          "Gain a new cohort (costs 2 upgrades)."
+          "Gain a new cohort (costs 2 upgrades).",
+          "bitd-alt.CohortsMade"
         ),
         makeVirtual(
-          "virtual-upgrade-cohort-add-type",
+          COHORT_ADD_TYPE,
           "Cohort: Add Type",
-          "Give an existing cohort an additional type (costs 2 upgrades)."
+          "Give an existing cohort an additional type (costs 2 upgrades).",
+          "bitd-alt.TypesAdded"
         ),
       ];
       filteredSources = [...filteredSources, ...virtualUpgrades];
@@ -235,6 +240,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
             class: manualKey ?? item.system?.class,
             description: Utils.deepCutsDescription(item),
           },
+          countLabel: item.countLabel ?? "",
           ownedId: ownedMatch?.id ?? "",
           owned: Boolean(ownedMatch),
           boxes,
@@ -557,8 +563,11 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       await Profiler.time(
         "crewUpgradeToggle",
         async () => {
-          // Upgrade becomes "active" (owned) only when ALL boxes are checked
-          if (targetValue === max && !ownedItem) {
+          // Cohort upgrades buy a cohort or a type through a dialog, then clear for the next purchase.
+          if (targetValue === max && !ownedItem && [COHORT_NEW, COHORT_ADD_TYPE].includes(sourceId)) {
+            await this._buyCohortUpgrade(sourceId, previousValue);
+          } else if (targetValue === max && !ownedItem) {
+            // Upgrade becomes "active" (owned) only when ALL boxes are checked
             // Fully purchased - create owned item and clear progress
             await this._createOwnedUpgrade(sourceItem, max);
             await Utils.updateCrewUpgradeProgressFlag(this.actor, sourceId, 0);
@@ -591,6 +600,26 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     } finally {
       checkboxList.forEach((el) => el.removeAttribute("disabled"));
     }
+  }
+
+  /**
+   * Open the cohort dialog for a filled cohort upgrade. A purchase clears the boxes and
+   * counts it; cancelling puts the boxes back as they were. Nothing is ever deleted.
+   */
+  async _buyCohortUpgrade(sourceId, previousValue) {
+    const bought = sourceId === COHORT_NEW
+      ? await newCohortDialog(this.actor)
+      : await addCohortTypeDialog(this.actor);
+    if (!bought) {
+      await Utils.updateCrewUpgradeProgressFlag(this.actor, sourceId, previousValue);
+      this.render(false);
+      return;
+    }
+    const count = Number(this.actor.getFlag(MODULE_ID, "cohortUpgradeCounts")?.[sourceId]) || 0;
+    await queueUpdate(() => this.actor.update({
+      [`flags.${MODULE_ID}.crewUpgradeProgress.-=${sourceId}`]: null,
+      [`flags.${MODULE_ID}.cohortUpgradeCounts.${sourceId}`]: count + 1,
+    }));
   }
 
   /**
