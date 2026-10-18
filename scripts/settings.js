@@ -66,6 +66,18 @@ export const registerSystemSettings = function () {
     },
   });
 
+  for (const [key, label] of [["deepCutsHarm", "DeepCutsHarm"], ["deepCutsTrauma", "DeepCutsTrauma"]]) {
+    game.settings.register("bitd-alternate-sheets", key, {
+      name: `bitd-alt.${label}`,
+      hint: `bitd-alt.${label}Hint`,
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: false,
+      onChange: () => Utils._refreshOpenSheets(),
+    });
+  }
+
   game.settings.register(
     "bitd-alternate-sheets",
     "showPronounsInCharacterDirectory",
