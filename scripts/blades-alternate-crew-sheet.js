@@ -233,6 +233,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
           system: {
             ...item.system,
             class: manualKey ?? item.system?.class,
+            description: Utils.deepCutsDescription(item),
           },
           ownedId: ownedMatch?.id ?? "",
           owned: Boolean(ownedMatch),

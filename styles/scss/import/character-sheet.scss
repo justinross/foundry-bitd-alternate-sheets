@@ -548,6 +548,21 @@
               font-size: 0.8em;
               margin-top: 5px;
             }
+
+            .load-rigging {
+              margin: 2px 0 0;
+              font-family: var(--alt-body-font);
+              font-size: 0.7em;
+              color: var(--alt-green);
+            }
+
+            .load-rigging-hint {
+              margin: 0;
+              font-family: var(--alt-body-font);
+              font-size: 0.6em;
+              font-style: italic;
+              color: var(--alt-border-strong);
+            }
           }
         }
 
@@ -771,6 +786,12 @@
                 font-style: italic;
               }
 
+              .rigging-mark {
+                font-size: 0.75em;
+                color: var(--alt-green);
+                margin-left: 4px;
+              }
+
               .item-block {
                 padding: 2px 5px;
                 //padding-left: 5px;
@@ -781,6 +802,25 @@
 
                 &:nth-child(even) {
                   background-color: rgba(0, 0, 0, 0.1);
+                }
+
+                #context-menu {
+                  line-height: normal;
+                  left: 2em;
+                  width: max-content;
+
+                  // Rigging past 2 load: dimmed, inert; the icon's tooltip covers the whole entry
+                  li.context-item.rigging-full {
+                    position: relative;
+                    opacity: 0.5;
+                    cursor: default;
+
+                    .rigging-full-tip::after {
+                      content: "";
+                      position: absolute;
+                      inset: 0;
+                    }
+                  }
                 }
 
                 .checkbox {

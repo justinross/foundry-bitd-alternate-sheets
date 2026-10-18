@@ -226,17 +226,47 @@ export class BladesAlternateActorSheet extends BladesSheet {
     d.render(true);
   }
 
-  itemContextMenu = [
-    {
-      name: game.i18n.localize("BITD.TitleDeleteItem"),
-      icon: '<i class="fas fa-trash"></i>',
-      callback: (element) => {
-        const itemId = this.getContextMenuElementData(element, "itemId");
-        if (!itemId) return;
-        queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [itemId]));
+  // A getter so the Rigging entries see the current render's Rigging use
+  get itemContextMenu() {
+    const rigged = (element) => Boolean(this.actor.getFlag("bitd-alternate-sheets", `rigged-items.${this.getContextMenuElementData(element, "itemId")}`));
+    const fits = (element) => this._rigging.used + (parseInt(this.getContextMenuElementData(element, "itemLoad")) || 0) <= 2;
+    const setRigged = (element, on) => {
+      const key = `flags.bitd-alternate-sheets.rigged-items.${this.getContextMenuElementData(element, "itemId")}`;
+      queueUpdate(() => this.actor.update(on ? { [key]: true } : deletionUpdate(key)));
+    };
+    return [
+      {
+        name: game.i18n.localize("BITD.TitleDeleteItem"),
+        icon: '<i class="fas fa-trash"></i>',
+        condition: (element) => $(element).hasClass("owned"),
+        callback: (element) => {
+          const itemId = this.getContextMenuElementData(element, "itemId");
+          if (!itemId) return;
+          queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [itemId]));
+        },
       },
-    },
-  ];
+      {
+        name: game.i18n.localize("bitd-alt.Rig"),
+        icon: '<i class="fas fa-toolbox"></i>',
+        condition: (element) => this._rigging && !rigged(element) && fits(element),
+        callback: (element) => setRigged(element, true),
+      },
+      {
+        // Foundry's menu has no disabled entry: dimmed by CSS, does nothing; the tooltip's ::after covers the entry
+        name: game.i18n.format("bitd-alt.RigFull", { used: this._rigging?.used }),
+        icon: `<i class="fas fa-toolbox rigging-full-tip" data-tooltip="${game.i18n.localize("bitd-alt.RigFullTooltip")}"></i>`,
+        classes: "rigging-full",
+        condition: (element) => this._rigging && !rigged(element) && !fits(element),
+        callback: () => { },
+      },
+      {
+        name: game.i18n.localize("bitd-alt.Unrig"),
+        icon: '<i class="fas fa-toolbox"></i>',
+        condition: (element) => this._rigging && rigged(element),
+        callback: (element) => setRigged(element, false),
+      },
+    ];
+  }
 
   itemListContextMenu = [
     {
@@ -745,6 +775,18 @@ export class BladesAlternateActorSheet extends BladesSheet {
       loadout += parseInt(sheetData.system.coins) || 0;
     }
 
+    // Deep Cuts Rigging (crew upgrade): rigged items count 0 load, up to 2 load
+    const rigged = this.actor.getFlag("bitd-alternate-sheets", "rigged-items") || {};
+    const rigging = game.settings.get("blades-in-the-dark", "DeepCutLoad") && Boolean(crewActor?.items.some((i) => Utils.isRigging(i)));
+    let riggedLoad = 0;
+    for (const item of [...my_items, ...all_generic_items]) {
+      item._rigged = rigging && Boolean(rigged[item._id || item.id]);
+      if (item._rigged) riggedLoad += parseInt(item.system?.load) || 0;
+    }
+    this._rigging = rigging && { used: riggedLoad };
+    sheetData.rigging = this._rigging;
+    if (rigging) loadout -= Utils.riggingFreeLoad(equipped, rigged);
+
     //Sanity Check
     if (loadout < 0) {
       loadout = 0;
@@ -1182,7 +1224,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     const contextMenuOptions = { jQuery: false };
     const root = html[0];
 
-    new ContextMenuClass(root, ".item-block.owned", this.itemContextMenu, contextMenuOptions);
+    new ContextMenuClass(root, ".item-block", this.itemContextMenu, contextMenuOptions);
     new ContextMenuClass(root, ".context-items > span", this.itemListContextMenu, contextMenuOptions);
     new ContextMenuClass(root, ".item-list-add", this.itemListContextMenu, { ...contextMenuOptions, eventName: "click" });
     new ContextMenuClass(root, ".context-abilities", this.abilityListContextMenu, contextMenuOptions);
