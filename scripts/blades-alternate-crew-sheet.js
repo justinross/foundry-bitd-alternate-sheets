@@ -27,7 +27,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   async getData(options) {
     const getDataStart = performance.now();
     // Catches crews the setting sweep missed (imports, new tokens) and caps vault coins after a vault drop.
-    if (this.actor.isOwner && !this.actor.pack) await Utils.syncDeepCutsVaults(this.actor);
+    if (this.actor.isOwner && !this.actor.pack) await Utils.syncDeepCuts(this.actor);
     const sheetData = await super.getData(options);
     Utils.ensureAllowEdit(this);
     const persistedUi = await Utils.loadUiState(this);

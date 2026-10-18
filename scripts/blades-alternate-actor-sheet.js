@@ -418,6 +418,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
   /** @override */
   async getData() {
     const getDataStart = performance.now();
+    // Catches characters the setting sweep missed (imports, new tokens).
+    if (this.actor.isOwner && !this.actor.pack) await Utils.syncDeepCuts(this.actor);
     let sheetData = await super.getData();
     Utils.ensureAllowEdit(this);
     const persistedUi = await Utils.loadUiState(this);
@@ -764,7 +766,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
           break;
       }
       const mule = my_abilities.some((a) => Utils.trimClassFromName(a.name) === "Mule");
-      sheetData.load_level = Utils.deepCutsLoadLevel(loadout, mule);
+      const compartments = my_abilities.some((a) => Utils.trimClassFromName(a.name) === "Compartments");
+      sheetData.load_level = Utils.deepCutsLoadLevel(loadout, mule, compartments ? 3 : 0);
     }
     else {
       //Traditional Load

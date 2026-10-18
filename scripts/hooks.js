@@ -52,6 +52,13 @@ export async function registerHooks() {
   // Compendium Cache Invalidation Hooks
   // ========================================
 
+  // DeepCutLoad is the system's setting, so the module syncs owned Compartments from the Setting hooks.
+  for (const hook of ["createSetting", "updateSetting"]) {
+    Hooks.on(hook, (setting) => {
+      if (setting.key === "blades-in-the-dark.DeepCutLoad") Utils.syncDeepCutsWorld();
+    });
+  }
+
   // Invalidate cache when compendiums are updated
   Hooks.on("updateCompendium", (pack, documents, options, userId) => {
     // Determine affected item type based on pack contents
