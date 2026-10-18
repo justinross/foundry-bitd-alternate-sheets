@@ -548,11 +548,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.vice_purveyor_description = await this._resolveDescription("npc", purveyorName);
 
     if (game.settings.get("blades-in-the-dark", "DeepCutLoad")) {
-      // Deep Cut: include Encumbered so mule/overmax can be represented
       sheetData.load_levels = {
         "BITD.Discreet": "BITD.Discreet",
         "BITD.Conspicuous": "BITD.Conspicuous",
-        "BITD.Encumbered": "BITD.Encumbered",
       };
     } else {
       // Traditional Load Levels
@@ -758,14 +756,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
         case "BITD.Conspicuous":
           sheetData.max_load = baseMaxLoad + 6;
           break;
-        case "BITD.Encumbered":
-          sheetData.max_load = baseMaxLoad + 9;
-          break;
         default:
           sheetData.system.selected_load_level = "BITD.Discreet";
           sheetData.max_load = baseMaxLoad + 4;
           break;
       }
+      const mule = my_abilities.some((a) => Utils.trimClassFromName(a.name) === "Mule");
+      sheetData.load_level = Utils.deepCutsLoadLevel(loadout, mule);
     }
     else {
       //Traditional Load
