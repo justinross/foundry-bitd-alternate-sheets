@@ -12,15 +12,29 @@ import { Profiler } from "./profiler.js";
 // Cache key format: "itemType|fromCompendia|fromWorld|allPacks"
 const _compendiumCache = new Map();
 
-// [core, Deep Cuts] values for the Vault crew upgrades
-const DEEP_CUTS_VAULTS = {
+// [core, Deep Cuts] values for items whose numbers Deep Cuts changes, the setting that picks them,
+// and the effect change key they apply to
+const VAULT_SETTING = [MODULE_ID, "deepCutsVault"];
+const DEEP_CUTS_ITEMS = {
   "Vault 1": {
+    type: "crew_upgrade",
+    setting: VAULT_SETTING,
+    key: "vault.max",
     description: ["Adds the Vault providing additional 4 Coin space", "Adds the Vault providing additional 8 Coin space"],
     value: ["4", "8"],
   },
   "Vault 2": {
+    type: "crew_upgrade",
+    setting: VAULT_SETTING,
+    key: "vault.max",
     description: ["Extend the Vault to additional +8 coins", "Extend the Vault to additional +12 coins"],
     value: ["8", "12"],
+  },
+  "(Hu) Compartments": {
+    type: "ability",
+    setting: ["blades-in-the-dark", "DeepCutLoad"],
+    key: "base_max_load",
+    value: ["2", "3"],
   },
 };
 
@@ -100,22 +114,23 @@ export class Utils {
   }
 
   /**
-   * Sets Vault 1 / Vault 2 crew upgrade data to the Deep Cuts sizes when the setting is on,
-   * or back to the core sizes when it is off (only where the Deep Cuts values are present).
+   * Sets Deep Cuts item data (Vault 1 / Vault 2 sizes, Compartments' load bonus) to the Deep Cuts values
+   * when its setting is on, or back to core when it is off (only where the Deep Cuts values are present).
    * @param {object} itemData - Plain item data (e.g. from toObject())
    * @returns {object} The modified itemData
    */
   static applyDeepCutsChanges(itemData) {
-    const vault = itemData?.type === "crew_upgrade" && DEEP_CUTS_VAULTS[itemData.name];
-    if (!vault) return itemData;
-    const on = game.settings.get(MODULE_ID, "deepCutsVault");
+    const entry = DEEP_CUTS_ITEMS[itemData?.name];
+    if (!entry || entry.type !== itemData.type) return itemData;
+    const on = game.settings.get(...entry.setting);
     const change = itemData.effects?.[0]?.changes?.[0];
     const fields = [
-      [itemData.system, "description", vault.description],
-      [change?.key?.endsWith("vault.max") && change, "value", vault.value],
+      [itemData.system, "description", entry.description],
+      [change?.key?.endsWith(entry.key) && change, "value", entry.value],
     ];
-    for (const [target, key, [core, deepCuts]] of fields) {
-      if (target?.[key] === undefined) continue;
+    for (const [target, key, values] of fields) {
+      if (!values || target?.[key] === undefined) continue;
+      const [core, deepCuts] = values;
       if (on) target[key] = deepCuts;
       else if (target[key] === deepCuts) target[key] = core;
     }
@@ -136,21 +151,22 @@ export class Utils {
    * The Deep Cuts load level (p77) reached by the load marked.
    * @param {number} loadout - Load marked
    * @param {boolean} mule - Whether the character has Mule
+   * @param {number} [bonus=0] - Added to every limit (Compartments: 3)
    * @returns {string} A BITD.* lang key
    */
-  static deepCutsLoadLevel(loadout, mule) {
-    const limits = mule ? [6, 8, 10] : [4, 6, 9];
+  static deepCutsLoadLevel(loadout, mule, bonus = 0) {
+    const limits = (mule ? [6, 8, 10] : [4, 6, 9]).map((limit) => limit + bonus);
     const i = limits.findIndex((limit) => loadout <= limit);
     return ["BITD.Discreet", "BITD.Conspicuous", "BITD.Encumbered"][i] ?? "BITD.OverMax";
   }
 
   /**
-   * Brings one crew's owned Vault upgrades in line with the deepCutsVault setting,
+   * Brings one actor's owned Deep Cuts items (Vaults, Compartments) in line with their settings,
    * then caps the vault coins at the (possibly lower) vault max. Writes only what differs.
-   * @param {Actor} actor - A crew actor the current user may update
+   * @param {Actor} actor - An actor the current user may update
    */
-  static async syncDeepCutsVaults(actor) {
-    for (const item of actor.items.filter((i) => i.type === "crew_upgrade" && DEEP_CUTS_VAULTS[i.name])) {
+  static async syncDeepCuts(actor) {
+    for (const item of actor.items.filter((i) => DEEP_CUTS_ITEMS[i.name]?.type === i.type)) {
       const data = Utils.applyDeepCutsChanges(item.toObject());
       if (data.system.description !== item.system.description) {
         await item.update({ "system.description": data.system.description });
@@ -163,6 +179,17 @@ export class Utils {
     }
     const { value, max } = actor.system.vault ?? {};
     if (Number(value) > Number(max)) await actor.update({ "system.vault.value": Number(max) });
+  }
+
+  /**
+   * Active GM only: syncs every world actor and unlinked token actor with the Deep Cuts settings.
+   */
+  static async syncDeepCutsWorld() {
+    if (!game.user.isActiveGM) return;
+    const tokenActors = game.scenes.contents.flatMap((s) => s.tokens.filter((t) => !t.actorLink).map((t) => t.actor));
+    for (const actor of [...game.actors, ...tokenActors]) {
+      if (actor) await Utils.syncDeepCuts(actor);
+    }
   }
 
   /**
@@ -857,7 +884,7 @@ export class Utils {
         let all_of_type = await Utils.getSourcedItemsByType(type);
         let checked_item = all_of_type.find((item) => item.id == id);
         // toObject keeps the ability's effects (e.g. Mule's load bonus).
-        const data = checked_item.toObject();
+        const data = Utils.applyDeepCutsChanges(checked_item.toObject());
         delete data._id;
         await queueUpdate(() => actor.createEmbeddedDocuments("Item", [data]));
       } else {
