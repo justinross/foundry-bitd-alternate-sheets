@@ -251,13 +251,28 @@ export class Utils {
         await item.update({ "system.description": data.system.description });
       }
       const effect = data.effects?.[0];
-      const current = effect && item.effects.get(effect._id);
-      if (current && JSON.stringify(current.changes) !== JSON.stringify(effect.changes)) {
-        await current.update({ changes: effect.changes });
+      if (!effect) continue;
+      for (const current of [item.effects.get(effect._id), ...Utils.legacyEffectCopies(item)]) {
+        if (current && JSON.stringify(current.changes) !== JSON.stringify(effect.changes)) {
+          await current.update({ changes: effect.changes });
+        }
       }
     }
     const { value, max } = actor.system.vault ?? {};
     if (Number(value) > Number(max)) await actor.update({ "system.vault.value": Number(max) });
+  }
+
+  /**
+   * On v12 (legacy transferral) the actor holds copies of an owned item's effects, and the copies are what apply.
+   * Matched like core: by origin, on token actors by the item's last two uuid parts.
+   * @param {Item} item - An owned item
+   * @returns {ActiveEffect[]} The copies; none on v13
+   */
+  static legacyEffectCopies(item) {
+    const actor = item.parent;
+    if (!CONFIG.ActiveEffect.legacyTransferral || !actor) return [];
+    const key = (uuid) => (actor.isToken ? uuid.split(".").slice(-2).join(".") : uuid);
+    return actor.effects.filter((e) => e.origin && key(e.origin) === key(item.uuid));
   }
 
   /**
