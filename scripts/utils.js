@@ -279,7 +279,7 @@ export class Utils {
    * Active GM only: syncs every world actor and unlinked token actor with the Deep Cuts settings.
    */
   static async syncDeepCutsWorld() {
-    if (!game.user.isActiveGM) return;
+    if (!game.users.activeGM?.isSelf) return;
     const tokenActors = game.scenes.contents.flatMap((s) => s.tokens.filter((t) => !t.actorLink).map((t) => t.actor));
     for (const actor of [...game.actors, ...tokenActors]) {
       if (actor) await Utils.syncDeepCuts(actor);
