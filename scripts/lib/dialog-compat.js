@@ -36,8 +36,10 @@ function supportsDialogV2() {
   return Boolean(dialogV2 && typeof dialogV2.wait === "function");
 }
 
-function escapeHTML(value) {
-  return foundry.utils.escapeHTML?.(value ?? "") ?? value ?? "";
+/** foundry.utils.escapeHTML is v13+; v12 has Handlebars' escape. */
+export function escapeHTML(value) {
+  const text = String(value ?? "");
+  return foundry.utils.escapeHTML?.(text) ?? Handlebars.escapeExpression(text);
 }
 
 function getTextInputHtml(options) {

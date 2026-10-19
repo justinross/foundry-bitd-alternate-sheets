@@ -12,30 +12,7 @@
               {{localize "BITD.CrewXP"}}
               <div class="stripe-tooth-body stress">
                 {{#if (getSetting 'ClockXP')}}
-                <div class="crew-xp-clock">
-                  <div class="crew-xp-clock-controls flex-vertical">
-                    <a class="up-exp-clock" data-tooltip="{{localize 'BITD.AddXP'}}"><i class="fas fa-caret-up"></i></a>
-                    <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i class="fas fa-caret-down"></i></a>
-                  </div>
-                  <div class="crew-xp-clock-wrapper" data-click-disabled="true">
-                    {{{blades-clock-color "system.exp_clock.value" system.exp_clock.size "red" system.exp_clock.value (concat _id "-exp")}}}
-                  </div>
-                  {{#if (gteq system.exp_clock.number 1)}}
-                  <div class="crew-xp-completed-controls flex-vertical">
-                    <a class="add-exp-clock" data-tooltip="{{localize 'BITD.AddXPClock'}}" style="visibility:hidden"><i class="fas fa-angles-up"></i></a>
-                    <a class="minus-exp-clock" data-tooltip="{{localize 'BITD.MinusXPClock'}}"><i class="fas fa-angles-down"></i></a>
-                  </div>
-                  <div class="crew-xp-completed-clocks">
-                    <img src="systems/blades-in-the-dark/themes/red/{{system.exp_clock.size}}clock_{{system.exp_clock.size}}.svg" class="completed-clock-img"/>
-                    <span class="completed-clock-count">x{{system.exp_clock.number}}</span>
-                  </div>
-                  {{/if}}
-                  <select class="exp-clock-size" data-tooltip="{{localize 'bitd-alt.XPClockSize'}}">
-                    <option value="4" {{#if (eq system.exp_clock.size 4)}}selected{{/if}}>4</option>
-                    <option value="6" {{#if (eq system.exp_clock.size 6)}}selected{{/if}}>6</option>
-                    <option value="8" {{#if (eq system.exp_clock.size 8)}}selected{{/if}}>8</option>
-                  </select>
-                </div>
+                {{> "modules/bitd-alternate-sheets/templates/parts/xp-clock.html" kind="crew" clock=system.exp_clock}}
                 {{else}}
                 {{#multiboxes system.experience}}
                 <input type="radio" id="crew-{{_id}}-experience-0" name="system.experience" value="0" dtype="Radio"

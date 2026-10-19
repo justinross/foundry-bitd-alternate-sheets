@@ -904,16 +904,6 @@
               background-color: #f00;
             }
 
-            // Undo the playbook select look for the small XP clock size picker.
-            select.exp-clock-size {
-              margin-left: 4px;
-              font-family: "Crimson Text", serif;
-              font-size: 13px;
-              text-transform: none;
-              border: 1px solid currentColor;
-              background-color: transparent;
-            }
-
             &::after {
               content: "";
               background: $lightgray;
@@ -1035,14 +1025,8 @@
               background: $lightgray;
               font-size: 1.2em;
 
-              .experience {
-                justify-content: flex-start;
-                align-items: center;
-                margin-top: 0.5rem;
-
-                .flex-vertical:first-child {
-                  margin-right: 6px;
-                }
+              .xp-track {
+                margin: 0.5rem 0 0.25rem;
               }
 
               p {

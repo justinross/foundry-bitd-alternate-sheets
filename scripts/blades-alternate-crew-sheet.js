@@ -386,7 +386,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
     // NOTE: Clock controls are handled globally by bindClockHandlers() in hooks.js; linked clocks bind on themselves
     Utils.bindStandingToggles(this, html);
-    Utils.bindExpClockSize(this, html);
+    Utils.bindExpClock(this, html);
     Utils.bindAllowEditToggle(this, html);
 
     html.find('[data-action="smart-item-selector"]').click((e) => Utils.handleSmartItemSelector(e, this.actor));

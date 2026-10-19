@@ -1523,7 +1523,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     //this could probably be cleaner. Numbers instead of text would be fine, but not much easier, really.
     Utils.bindStandingToggles(this, html);
-    Utils.bindExpClockSize(this, html);
+    Utils.bindExpClock(this, html);
 
     // One outside-click handler per sheet, on the sheet's own document. PopOut! moves the sheet to another window without re-rendering, so a click on a popup box rebinds it there.
     const bindOutsideClick = (doc) => {
