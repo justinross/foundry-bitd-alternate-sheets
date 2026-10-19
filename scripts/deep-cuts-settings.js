@@ -43,8 +43,9 @@ export async function saveDeepCutsSettings(data) {
     }
   }
   if (reload) {
-    const SettingsConfig = foundry.applications.settings?.SettingsConfig ?? globalThis.SettingsConfig;
-    await SettingsConfig.reloadConfirm({ world: true });
+    // v12's SettingsConfig is a bare global, not a globalThis property.
+    const Config = foundry.applications.settings?.SettingsConfig ?? SettingsConfig;
+    await Config.reloadConfirm({ world: true });
   }
 }
 
