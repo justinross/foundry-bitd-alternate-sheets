@@ -1,4 +1,4 @@
-import { openFormDialog } from "./lib/dialog-compat.js";
+import { escapeHTML as esc, openFormDialog } from "./lib/dialog-compat.js";
 import { queueUpdate } from "./lib/update-queue.js";
 
 export const COHORT_NEW = "virtual-upgrade-cohort-new";
@@ -32,7 +32,6 @@ export const addableGangTypes = (cohort) => GANG_TYPES.filter((t) => !cohortType
 export const hasBloodBrothers = (actor) =>
   actor.items.some((i) => i.type === "crew_ability" && /blood brothers/i.test(i.name ?? ""));
 
-const esc = (v) => foundry.utils.escapeHTML(String(v ?? ""));
 const L = (key, data) => (data ? game.i18n.format(`bitd-alt.${key}`, data) : game.i18n.localize(`bitd-alt.${key}`));
 const gangLabel = (t) => game.i18n.localize(`BITD.GangType${t}`);
 
