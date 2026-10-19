@@ -26,6 +26,7 @@ export const preloadHandlebarsTemplates = function () {
     // "modules/bitd-alternate-sheets/templates/parts/factions.html",
     "modules/bitd-alternate-sheets/templates/parts/active-effects.html",
     "modules/bitd-alternate-sheets/templates/parts/identity-header.html",
+    "modules/bitd-alternate-sheets/templates/parts/xp-clock.html",
   ];
 
   // Load the template parts

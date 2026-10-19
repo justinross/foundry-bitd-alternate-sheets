@@ -1,6 +1,21 @@
 import { Utils } from "./utils.js";
 
 export const registerHandlebarsHelpers = function () {
+  // Transparent click targets over the XP clock image: one wedge per segment, clockwise from 12 o'clock like the system's clock art.
+  Handlebars.registerHelper("xp-clock-wedges", function (size) {
+    const n = Number(size) || 0;
+    const r = 47;
+    const at = (i) => {
+      const a = (2 * Math.PI * i) / n - Math.PI / 2;
+      return `${(50 + r * Math.cos(a)).toFixed(2)} ${(50 + r * Math.sin(a)).toFixed(2)}`;
+    };
+    let paths = "";
+    for (let i = 0; i < n; i++) {
+      paths += `<path data-tick="${i + 1}" d="M50 50L${at(i)}A${r} ${r} 0 0 1 ${at(i + 1)}Z"/>`;
+    }
+    return new Handlebars.SafeString(`<svg class="xp-wedges" viewBox="0 0 100 100" aria-hidden="true">${paths}</svg>`);
+  });
+
   Handlebars.registerHelper("or", function (arg1, arg2) {
     if (typeof arg1 == "string") {
       arg1 = arg1.length > 0;

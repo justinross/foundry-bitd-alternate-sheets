@@ -1,0 +1,17 @@
+<div class="xp-track {{kind}}">
+  <div class="xp-clock-hit" tabindex="0" role="slider" aria-label="{{localize 'bitd-alt.XPClock'}}" aria-valuemin="0" aria-valuenow="{{clock.value}}" aria-valuemax="{{clock.size}}" data-tooltip="{{localize 'bitd-alt.XPClockHint'}}">
+    <img class="xp-clock-img" src="systems/blades-in-the-dark/themes/red/{{clock.size}}clock_{{clock.value}}.svg" alt="">
+    {{{xp-clock-wedges clock.size}}}
+  </div>
+  {{#if (gteq clock.number 1)}}
+  <div class="xp-banked" tabindex="0" role="button" aria-label="{{localize 'bitd-alt.XPFullClocks'}}: {{clock.number}}" data-tooltip="{{localize 'bitd-alt.XPFullClocksHint'}}">
+    <img class="xp-full" src="systems/blades-in-the-dark/themes/red/{{clock.size}}clock_{{clock.size}}.svg" alt="">
+    <span class="xp-count">×{{clock.number}}</span>
+  </div>
+  {{/if}}
+  <div class="xp-size" role="group" aria-label="{{localize 'bitd-alt.XPClockSize'}}" data-tooltip="{{localize 'bitd-alt.XPClockSize'}}">
+    <button type="button" data-size="4" aria-pressed="{{#if (eq clock.size 4)}}true{{else}}false{{/if}}">4</button>
+    <button type="button" data-size="6" aria-pressed="{{#if (eq clock.size 6)}}true{{else}}false{{/if}}">6</button>
+    <button type="button" data-size="8" aria-pressed="{{#if (eq clock.size 8)}}true{{else}}false{{/if}}">8</button>
+  </div>
+</div>

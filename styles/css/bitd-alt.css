@@ -1279,23 +1279,137 @@
   font-size: 0.85em;
   line-height: 1.2em;
 }
-.blades-alt select.exp-clock-size {
-  appearance: none;
-  width: auto;
-  height: auto;
-  padding: 0 4px;
-  font-family: "Crimson Text", serif;
-  font-size: 13px;
-  line-height: 1.2;
-  text-align: center;
-  background-color: transparent;
-  color: inherit;
-  border: 1px solid currentColor;
-  border-radius: 3px;
+.blades-alt .xp-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-style: normal;
+  --xp-ink: #191813;
+  --xp-on-fg: white;
+}
+.blades-alt .xp-track .xp-clock-hit {
+  position: relative;
+  flex: none;
+  line-height: 0;
+  border-radius: 50%;
   cursor: pointer;
 }
-.blades-alt select.exp-clock-size option {
-  color: #191813;
+.blades-alt .xp-track .xp-clock-hit:focus-visible {
+  outline: 2px solid #cc0000;
+  outline-offset: 2px;
+}
+.blades-alt .xp-track .xp-clock-img {
+  display: block;
+  width: 46px;
+  height: 46px;
+  border: 0;
+}
+.blades-alt .xp-track .xp-wedges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.blades-alt .xp-track .xp-wedges path {
+  fill: transparent;
+  cursor: pointer;
+}
+.blades-alt .xp-track .xp-wedges path:hover {
+  fill: rgba(204, 0, 0, 0.35);
+}
+.blades-alt .xp-track .xp-banked {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border-radius: 4px;
+  cursor: context-menu;
+}
+.blades-alt .xp-track .xp-banked:focus-visible {
+  outline: 2px solid #cc0000;
+  outline-offset: 2px;
+}
+.blades-alt .xp-track .xp-full {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 0;
+}
+.blades-alt .xp-track .xp-count {
+  font-family: Kirsty, serif;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--xp-ink);
+}
+.blades-alt .xp-track .xp-size {
+  display: inline-flex;
+  flex: none;
+  border: 1px solid var(--xp-ink);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.blades-alt .xp-track .xp-size button {
+  all: unset;
+  box-sizing: border-box;
+  min-width: 26px;
+  padding: 5px 6px 4px;
+  font-family: "Crimson Text", serif;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  color: var(--xp-ink);
+  cursor: pointer;
+}
+.blades-alt .xp-track .xp-size button + button {
+  border-left: 1px solid var(--xp-ink);
+}
+.blades-alt .xp-track .xp-size button:hover {
+  background: rgba(128, 128, 128, 0.35);
+}
+.blades-alt .xp-track .xp-size button[aria-pressed=true] {
+  background: var(--xp-ink);
+  color: var(--xp-on-fg);
+}
+.blades-alt .xp-track .xp-size button:focus-visible {
+  outline: 2px solid #cc0000;
+  outline-offset: -2px;
+}
+.blades-alt .xp-track.char .xp-size {
+  margin-left: auto;
+}
+.blades-alt .xp-track.crew {
+  width: max-content;
+  gap: 3px;
+  --xp-ink: white;
+  --xp-on-fg: #191813;
+}
+.blades-alt .xp-track.crew .xp-clock-hit {
+  background: #888;
+  padding: 3px;
+}
+.blades-alt .xp-track.crew .xp-wedges {
+  inset: 3px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+}
+.blades-alt .xp-track.crew .xp-clock-img {
+  width: 36px;
+  height: 36px;
+}
+.blades-alt .xp-track.crew .xp-banked {
+  gap: 2px;
+}
+.blades-alt .xp-track.crew .xp-full {
+  width: 24px;
+  height: 24px;
+}
+.blades-alt .xp-track.crew .xp-count {
+  font-size: 16px;
+}
+.blades-alt .xp-track.crew .xp-size button {
+  font-size: 12px;
+  min-width: 18px;
+  padding: 3px 3px 2px;
 }
 .blades-alt.actor.sheet.crew {
   min-width: 940px;
@@ -2517,14 +2631,6 @@
   align-items: flex-start;
   width: 100%;
 }
-.blades-alt.actor.sheet.crew .portrait-xp .crew-xp-clock {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.blades-alt.actor.sheet.crew .portrait-xp .crew-xp-clock .black-label {
-  min-width: 80px;
-}
 .blades-alt.actor.sheet.crew .portrait-xp .portrait-xp-track {
   width: 100%;
   flex: 0 0 auto;
@@ -2776,58 +2882,10 @@
 .blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body > input:checked + label.radio-toggle {
   background-image: url("assets/teeth/xptooth-red.png");
 }
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock {
+.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .xp-track.crew {
   position: absolute;
   top: -0.75em;
   right: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 1px;
-}
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-clock-controls,
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls {
-  font-size: 16px;
-  display: flex;
-  flex-direction: column;
-  padding: 0 2px;
-}
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-clock-controls a,
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls a {
-  cursor: pointer;
-  color: white;
-}
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-clock-controls a:hover,
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls a:hover {
-  color: #cc0000;
-}
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-controls {
-  font-size: 14px;
-}
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-clocks {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-clocks .completed-clock-img {
-  height: 40px;
-  width: 40px;
-  min-width: 40px;
-  min-height: 40px;
-  flex-shrink: 0;
-  border: none;
-  background-color: #888;
-  border-radius: 50%;
-  padding: 5px;
-  box-sizing: content-box;
-}
-.blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .stress-bar.full-bar .stripe-tooth-body .crew-xp-clock .crew-xp-completed-clocks .completed-clock-count {
-  position: absolute;
-  font-family: Kirsty, serif;
-  font-size: 18px;
-  color: white;
-  text-shadow: 1px 1px 2px black, -1px -1px 2px black;
 }
 .blades-alt.actor.sheet.crew .crew-upper-frame .character-portrait .stress-trauma-box .trauma-box {
   padding: 0 0 2px;
@@ -4260,14 +4318,6 @@
   border: none;
   background-color: #f00;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook select.exp-clock-size {
-  margin-left: 4px;
-  font-family: "Crimson Text", serif;
-  font-size: 13px;
-  text-transform: none;
-  border: 1px solid currentColor;
-  background-color: transparent;
-}
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook::after {
   content: "";
   background: #bbb;
@@ -4361,13 +4411,8 @@
   background: #bbb;
   font-size: 1.2em;
 }
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .xp-notes .experience {
-  justify-content: flex-start;
-  align-items: center;
-  margin-top: 0.5rem;
-}
-.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .xp-notes .experience .flex-vertical:first-child {
-  margin-right: 6px;
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .xp-notes .xp-track {
+  margin: 0.5rem 0 0.25rem;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .xp-notes p {
   line-height: 1em;
@@ -4956,202 +5001,6 @@ i.nullifier:hover {
 
 .linkedClock .blades-clock.clock-12 *:nth-child(25),
 .blades-clock-container .blades-clock.clock-12 *:nth-child(25) {
-  transform: rotate(330deg) skewY(120deg);
-}
-
-.crew-xp-clock-wrapper {
-  flex-shrink: 0;
-  position: relative;
-  background-color: #888;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-}
-
-.crew-xp-clock .blades-clock.clock-4 {
-  width: 40px;
-  height: 40px;
-}
-
-.crew-xp-clock .blades-clock.clock-4 *:nth-child(3) {
-  transform: rotate(0deg) skewY(180deg);
-}
-
-.crew-xp-clock .blades-clock.clock-4 *:nth-child(5) {
-  transform: rotate(90deg) skewY(180deg);
-}
-
-.crew-xp-clock .blades-clock.clock-4 *:nth-child(7) {
-  transform: rotate(180deg) skewY(180deg);
-}
-
-.crew-xp-clock .blades-clock.clock-4 *:nth-child(9) {
-  transform: rotate(270deg) skewY(180deg);
-}
-
-.crew-xp-clock .blades-clock.clock-6 {
-  width: 40px;
-  height: 40px;
-}
-
-.crew-xp-clock .blades-clock.clock-6 *:nth-child(3) {
-  transform: rotate(0deg) skewY(150deg);
-}
-
-.crew-xp-clock .blades-clock.clock-6 *:nth-child(5) {
-  transform: rotate(60deg) skewY(150deg);
-}
-
-.crew-xp-clock .blades-clock.clock-6 *:nth-child(7) {
-  transform: rotate(120deg) skewY(150deg);
-}
-
-.crew-xp-clock .blades-clock.clock-6 *:nth-child(9) {
-  transform: rotate(180deg) skewY(150deg);
-}
-
-.crew-xp-clock .blades-clock.clock-6 *:nth-child(11) {
-  transform: rotate(240deg) skewY(150deg);
-}
-
-.crew-xp-clock .blades-clock.clock-6 *:nth-child(13) {
-  transform: rotate(300deg) skewY(150deg);
-}
-
-.crew-xp-clock .blades-clock.clock-8 {
-  width: 40px;
-  height: 40px;
-}
-
-.crew-xp-clock .blades-clock.clock-8 *:nth-child(3) {
-  transform: rotate(0deg) skewY(135deg);
-}
-
-.crew-xp-clock .blades-clock.clock-8 *:nth-child(5) {
-  transform: rotate(45deg) skewY(135deg);
-}
-
-.crew-xp-clock .blades-clock.clock-8 *:nth-child(7) {
-  transform: rotate(90deg) skewY(135deg);
-}
-
-.crew-xp-clock .blades-clock.clock-8 *:nth-child(9) {
-  transform: rotate(135deg) skewY(135deg);
-}
-
-.crew-xp-clock .blades-clock.clock-8 *:nth-child(11) {
-  transform: rotate(180deg) skewY(135deg);
-}
-
-.crew-xp-clock .blades-clock.clock-8 *:nth-child(13) {
-  transform: rotate(225deg) skewY(135deg);
-}
-
-.crew-xp-clock .blades-clock.clock-8 *:nth-child(15) {
-  transform: rotate(270deg) skewY(135deg);
-}
-
-.crew-xp-clock .blades-clock.clock-8 *:nth-child(17) {
-  transform: rotate(315deg) skewY(135deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 {
-  width: 40px;
-  height: 40px;
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(3) {
-  transform: rotate(0deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(5) {
-  transform: rotate(36deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(7) {
-  transform: rotate(72deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(9) {
-  transform: rotate(108deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(11) {
-  transform: rotate(144deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(13) {
-  transform: rotate(180deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(15) {
-  transform: rotate(216deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(17) {
-  transform: rotate(252deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(19) {
-  transform: rotate(288deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-10 *:nth-child(21) {
-  transform: rotate(324deg) skewY(126deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 {
-  width: 40px;
-  height: 40px;
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(3) {
-  transform: rotate(0deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(5) {
-  transform: rotate(30deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(7) {
-  transform: rotate(60deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(9) {
-  transform: rotate(90deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(11) {
-  transform: rotate(120deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(13) {
-  transform: rotate(150deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(15) {
-  transform: rotate(180deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(17) {
-  transform: rotate(210deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(19) {
-  transform: rotate(240deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(21) {
-  transform: rotate(270deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(23) {
-  transform: rotate(300deg) skewY(120deg);
-}
-
-.crew-xp-clock .blades-clock.clock-12 *:nth-child(25) {
   transform: rotate(330deg) skewY(120deg);
 }
 

@@ -900,15 +900,91 @@ export class Utils {
   }
 
   /**
-   * Bind the Deep Cuts XP clock size picker (4/6/8 segments).
+   * Click on XP clock segment `tick` (1-based): fill up to it, or clear it when it is the top filled one. Filling the last segment banks a full clock.
+   * @param {{size: number, value: number, number: number}} expClock
+   * @param {number} tick
+   * @returns {{value: number, number: number}}
+   */
+  static tickExpClock({ size, value, number }, tick) {
+    number = Number(number) || 0;
+    if (tick === Number(value)) return { value: tick - 1, number };
+    if (tick >= size) return { value: 0, number: number + 1 };
+    return { value: tick, number };
+  }
+
+  /**
+   * One xp up or down. Up rolls over into a full clock; down at 0 takes a full clock back.
+   * @param {{size: number, value: number, number: number}} expClock
+   * @param {1|-1} delta
+   * @returns {{value: number, number: number}}
+   */
+  static stepExpClock({ size, value, number }, delta) {
+    const xp = Math.max(0, (Number(number) || 0) * size + (Number(value) || 0) + delta);
+    return { value: xp % size, number: Math.floor(xp / size) };
+  }
+
+  /**
+   * Spend one full XP clock.
+   * @param {{value: number, number: number}} expClock
+   * @returns {{value: number, number: number}}
+   */
+  static spendExpClock({ value, number }) {
+    return { value, number: Math.max(0, (Number(number) || 0) - 1) };
+  }
+
+  /**
+   * Bind the Deep Cuts XP clock: click a segment, right-click or arrows to step, spend full clocks, pick the size (4/6/8).
    * @param {DocumentSheet} sheet
    * @param {JQuery} html
    */
-  static bindExpClockSize(sheet, html) {
-    html.find("select.exp-clock-size").off("change").on("change", async (ev) => {
-      ev.stopPropagation();
-      const clock = Utils.resizeExpClock(sheet.actor.system.exp_clock, Number(ev.currentTarget.value));
-      await queueUpdate(() => sheet.actor.update({ "system.exp_clock": clock }));
+  static bindExpClock(sheet, html) {
+    const track = html.find(".xp-track");
+    if (!track.length) return;
+    const clock = () => sheet.actor.system.exp_clock;
+    // Read the clock when the queued update runs, so fast repeated clicks or keys each build on the last.
+    const save = (next) => queueUpdate(() => sheet.actor.update({ "system.exp_clock": next(clock()) }));
+    const hit = track.find(".xp-clock-hit");
+    // Keyboard steps re-render the sheet (once per queued update); put focus back on the redrawn control.
+    // ponytail: a short time window, not focus tracking; renders within 1.5s of a key press while focus is lost get it back.
+    const recent = sheet._xpFocus && Date.now() - sheet._xpFocus.at < 1500;
+    const doc = track[0].ownerDocument; // PopOut! may move the sheet to another window
+    if (recent && (!doc.activeElement || doc.activeElement === doc.body)) track.find(sheet._xpFocus.sel)[0]?.focus({ preventScroll: true });
+    const KEYS = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 };
+
+    hit.on("click", "[data-tick]", (ev) => {
+      ev.preventDefault();
+      const tick = Number(ev.currentTarget.dataset.tick);
+      save((c) => Utils.tickExpClock(c, tick));
+    });
+    hit.on("contextmenu", (ev) => {
+      ev.preventDefault();
+      save((c) => Utils.stepExpClock(c, -1));
+    });
+    hit.on("keydown", (ev) => {
+      const delta = KEYS[ev.key];
+      if (!delta) return;
+      ev.preventDefault();
+      sheet._xpFocus = { sel: ".xp-clock-hit", at: Date.now() };
+      save((c) => Utils.stepExpClock(c, delta));
+    });
+
+    const banked = track.find(".xp-banked");
+    banked.on("contextmenu", (ev) => {
+      ev.preventDefault();
+      save(Utils.spendExpClock);
+    });
+    banked.on("keydown", (ev) => {
+      if (ev.key !== "Delete" && ev.key !== "Backspace") return;
+      ev.preventDefault();
+      sheet._xpFocus = { sel: Number(clock().number) > 1 ? ".xp-banked" : ".xp-clock-hit", at: Date.now() };
+      save(Utils.spendExpClock);
+    });
+
+    track.find(".xp-size").on("click", "[data-size]", (ev) => {
+      ev.preventDefault();
+      const size = Number(ev.currentTarget.dataset.size);
+      if (size === Number(clock().size)) return;
+      save((c) => Utils.resizeExpClock(c, size));
     });
   }
 
