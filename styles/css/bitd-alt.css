@@ -5287,4 +5287,22 @@ i.nullifier:hover {
   font-size: 1em;
 }
 
+.bitd-deep-cuts-config fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.bitd-deep-cuts-config fieldset > legend {
+  font-weight: bold;
+}
+.bitd-deep-cuts-config .form-group > label {
+  line-height: normal;
+}
+.bitd-deep-cuts-config .bitd-dc-note {
+  margin: 0;
+}
+.bitd-deep-cuts-config .bitd-dc-note .fa-rotate-right {
+  color: var(--color-level-warning, #ee9b3a);
+}
+
 /*# sourceMappingURL=bitd-alt.css.map */

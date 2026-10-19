@@ -1,0 +1,17 @@
+<div class="standard-form scrollable">
+  {{#each groups as |group|}}
+  <fieldset>
+    <legend>{{localize group.legend}}</legend>
+    <p class="hint bitd-dc-note">{{#if group.reload}}<i class="fa-solid fa-rotate-right" inert></i> {{/if}}{{localize group.note}}</p>
+    {{#each group.toggles as |toggle|}}
+    <div class="form-group">
+      <label for="bitd-dc-{{toggle.name}}">{{localize toggle.label}}</label>
+      <div class="form-fields">
+        <input type="checkbox" name="{{toggle.name}}" id="bitd-dc-{{toggle.name}}" {{checked toggle.value}}>
+      </div>
+      <p class="hint">{{localize toggle.hint}}</p>
+    </div>
+    {{/each}}
+  </fieldset>
+  {{/each}}
+</div>

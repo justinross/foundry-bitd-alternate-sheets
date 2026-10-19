@@ -1,6 +1,16 @@
 import { Utils } from "./utils.js";
+import { DeepCutsSettings } from "./deep-cuts-settings.js";
 
 export const registerSystemSettings = function () {
+  game.settings.registerMenu("bitd-alternate-sheets", "deepCutsMenu", {
+    name: "bitd-alt.DeepCuts",
+    label: "bitd-alt.DeepCutsSettings",
+    hint: "bitd-alt.DeepCutsMenuHint",
+    icon: "fa-solid fa-scissors",
+    type: DeepCutsSettings,
+    restricted: true,
+  });
+
   game.settings.register("bitd-alternate-sheets", "populateFromCompendia", {
     name: "Load Compendium Objects",
     hint: "Include Compendium Playbooks, NPCs, Items, and Abilities When Auto-Populating Playbooks",
@@ -53,11 +63,11 @@ export const registerSystemSettings = function () {
     },
   });
 
+  // The Deep Cuts toggles live in the Deep Cuts Settings window, not on the settings page.
   game.settings.register("bitd-alternate-sheets", "deepCutsVault", {
-    name: "Use Deep Cuts Vault Capacity",
-    hint: "Deep Cuts uses higher sizes for the Vault X crew upgrades. Crews that already own them are updated when this changes.",
+    name: "bitd-alt.DeepCutsVault",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: false,
     onChange: async () => {
@@ -69,9 +79,8 @@ export const registerSystemSettings = function () {
   for (const [key, label] of [["deepCutsHarm", "DeepCutsHarm"], ["deepCutsTrauma", "DeepCutsTrauma"]]) {
     game.settings.register("bitd-alternate-sheets", key, {
       name: `bitd-alt.${label}`,
-      hint: `bitd-alt.${label}Hint`,
       scope: "world",
-      config: true,
+      config: false,
       type: Boolean,
       default: false,
       onChange: () => Utils._refreshOpenSheets(),

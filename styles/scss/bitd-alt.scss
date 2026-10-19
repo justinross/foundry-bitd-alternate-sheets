@@ -256,3 +256,29 @@
     }
   }
 }
+
+// Deep Cuts Settings window
+.bitd-deep-cuts-config {
+  fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  fieldset > legend {
+    font-weight: bold;
+  }
+
+  // A long label wraps to tight lines, not input-height ones.
+  .form-group > label {
+    line-height: normal;
+  }
+
+  .bitd-dc-note {
+    margin: 0;
+
+    .fa-rotate-right {
+      color: var(--color-level-warning, #ee9b3a);
+    }
+  }
+}
