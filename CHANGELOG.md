@@ -1,29 +1,31 @@
 # Changelog
 
-## 1.0.21
+## 1.1.0
 
 ### New
-- **Buy cohorts on the crew sheet.** Fill both boxes of "Cohort: New" or "Cohort: Add Type" and a dialog walks you through the new gang, expert or type.
-- **Resist or Indulge prompt.** Click an attribute to choose a Resist roll or an Indulge Vice roll. Turn on "Prompt for Resist or Indulge" in the module settings.
-- **Deep Cuts support.** Turn each part on in the new Deep Cuts Settings window (Configure Settings → Alternate Sheets → Deep Cuts Settings). It holds the system's Deep Cuts settings and this module's in one place, each with the rule it changes and its Deep Cuts page.
-  - XP: Deep Cuts experience clocks and Edge on the character sheet. Pick a 4, 6 or 8 segment XP clock on character and crew sheets. Click a segment to fill the clock up to it and right-click to remove one; full clocks show as one clock with a count, and right-clicking it spends one. (PR #159)
-  - Load: Discreet and Conspicuous levels, carried Coin counts as load, and Mule and Compartments use the Deep Cuts numbers.
-  - Rigging: with a crew that has Rigging, right-click an item to rig it. Up to 2 load of rigged items is free.
-  - Harm: any number of level 1 harms, a mark for toughed-out harm, and a Scar field.
-  - Trauma: mark a trauma invoked this session, or remove it.
-  - Vaults: Vault 1 holds 8 Coin and Vault 2 holds 12 more. (PR #161)
+- Buy cohorts from the crew sheet's "Cohort: New" and "Cohort: Add Type" upgrades.
+- Optional Resist or Indulge prompt when clicking an attribute (module setting).
+- Deep Cuts Settings window: every Deep Cuts option, system and module, in one place, with the rule each one changes and its page.
+- Deep Cuts support:
+  - XP clocks (4, 6 or 8 segments) and Edge. Click the clock to tick it. (PR #159)
+  - Discreet/Conspicuous load, Coin as load, Mule and Compartments.
+  - Rigging: right-click an item to rig it.
+  - Harm: unlimited level 1 harm, toughed-out harm and a Scar field.
+  - Trauma: mark a condition invoked, or remove it.
+  - Vault sizes: 8 and 12 Coin. (PR #161)
 
 ### Misc layout and bug fixes
-- PopOut! sheets work like sheets in the main window (Issue #71). Two limits remain: right-click menus there only close when you pick an entry or right-click again, and a few older dialogs open in the main window.
-- Teeth change once per click. Stress, heat, action dots and the like no longer double-change, and right-click no longer changes them.
-- The crew sheet looks closer to the system sheet (Issue #144): full-size Rep, Heat and Wanted, and a tidier Cohorts tab. It now opens 940 wide.
-- The load count shows load above 10.
-- Items with zero load no longer add load (Issue #157, PR #158).
-- The "Training: Personal Exp" crew upgrade is back (PR #160).
-- An empty alias no longer blanks the name in the sidebar (Issue #146, PR #162).
+- Foundry v12 fixes.
+- PopOut! sheets work like the main window (Issue #71).
+- Teeth change once per click; right-click no longer changes them.
+- Crew sheet: system-size Rep, Heat and Wanted, and a tidier Cohorts tab (Issue #144).
+- Load count shows load above 10.
+- Zero-load items no longer add load (Issue #157, PR #158).
+- "Training: Personal Exp" crew upgrade is back (PR #160).
+- Empty alias no longer blanks the sidebar name (Issue #146, PR #162).
 - XP clues no longer show HTML tags (Issue #72).
-- The card chooser fills its custom text box on Foundry v12.
-- When a vault gets smaller, Coin above its size is removed instead of hidden.
+- Card chooser fills its text box on Foundry v12.
+- Shrinking a vault removes Coin above its size.
 
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
