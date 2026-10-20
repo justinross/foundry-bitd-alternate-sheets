@@ -85,6 +85,14 @@
         text-decoration: underline;
         font-family: Kirsty, serif;
       }
+      // Deep Cuts harm
+      .harm.toughed-out {
+        text-decoration: line-through;
+        opacity: 0.7;
+      }
+      &.scar {
+        background-color: var(--alt-dark);
+      }
     }
   }
 }

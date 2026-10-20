@@ -11,7 +11,7 @@
     <span class="identity-subtitle section-text">
         {{#each owner.items as |item id|}}
         {{#if (eq item.type "crew_type")}}
-        &bull; <span class="crew-type-text" data-tooltip="{{item.system.description}}">{{item.name}}</span>
+        &bull; <span class="crew-type-text" data-tooltip="{{clean-html item.system.description}}">{{item.name}}</span>
         {{/if}}
         {{/each}}
     </span>

@@ -512,6 +512,138 @@
                     z-index: 1;
                   }
                 }
+
+                // Deep Cuts harm: no Effect column, level 1 grows, scar under the grid
+                .character-harm.deep-cuts {
+                  grid-template-columns: 1em repeat(5, 1fr) 1fr;
+                  grid-template-rows: 1.6em 1.6em 1.6em auto auto auto;
+                  grid-template-areas:
+                    "empty header-harm header-harm header-harm header-harm header-harm header-healing"
+                    "rownum3 heavy heavy heavy heavy heavy healing"
+                    "rownum2 medium1 medium1 medium1 medium2 medium2 healing"
+                    "rownum1 light light light light light healing"
+                    "scar scar scar scar scar scar scar"
+                    "armor armor armor armor armor armor armor";
+
+                  // Tough as Nails: level 3 splits like level 2
+                  &.nails {
+                    grid-template-areas:
+                      "empty header-harm header-harm header-harm header-harm header-harm header-healing"
+                      "rownum3 heavy1 heavy1 heavy1 heavy2 heavy2 healing"
+                      "rownum2 medium1 medium1 medium1 medium2 medium2 healing"
+                      "rownum1 light light light light light healing"
+                      "scar scar scar scar scar scar scar"
+                      "armor armor armor armor armor armor armor";
+
+                    .heavy1 { grid-area: heavy1; }
+                    .heavy2 { grid-area: heavy2; }
+                  }
+
+                  // Dark lines between levels 3 and 2 (and the gap above level 1); the level-1 list draws its own,
+                  // so the row's extra height (the healing clock is taller than a shrunk list) shows no dark band
+                  .grid-lines {
+                    grid-area: 2 / 2 / 4 / 7;
+                    height: calc(100% + 1px);
+                    align-self: start;
+                  }
+
+                  .harm-slot {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 10;
+
+                    input[type="text"] {
+                      padding-right: 1.6em;
+                    }
+
+                    .tough-it-out {
+                      position: absolute;
+                      right: 0.3em;
+                      top: 50%;
+                      transform: translateY(-50%);
+                      z-index: 11;
+                      font-size: 0.7em;
+                      color: var(--alt-border-strong);
+                      opacity: 0.5;
+
+                      &:hover {
+                        opacity: 1;
+                      }
+
+                      &.active {
+                        color: var(--alt-red);
+                        opacity: 1;
+                      }
+                    }
+
+                    &.toughed-out input[type="text"] {
+                      text-decoration: line-through;
+                      text-decoration-color: var(--alt-red-dark);
+                      text-decoration-thickness: 2px;
+                      color: var(--alt-border-strong);
+                    }
+                  }
+
+                  .harm-light-list {
+                    grid-area: light;
+                    align-self: start;
+                    width: 100%;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 1px;
+                    background-color: $almost_black;
+                    z-index: 10;
+
+                    .harm-slot {
+                      flex: 1 1 30%; // 3 per line
+                      height: 1.6em; // em: shrinks with the text
+
+                      &.add input[type="text"] {
+                        background-color: var(--alt-light);
+                        font-style: italic;
+                      }
+                    }
+
+                    // Keep level 1 within two lines: more cells per line, smaller text; past the last step it grows
+                    &.shrink-1 {
+                      font-size: 0.85em;
+
+                      .harm-slot {
+                        flex-basis: 22%; // 4 per line
+                      }
+                    }
+
+                    &.shrink-2 {
+                      font-size: 0.72em;
+
+                      .harm-slot {
+                        flex-basis: 18%; // 5 per line
+                      }
+                    }
+                  }
+
+                  .scar {
+                    grid-area: scar;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4em;
+                    margin-top: 4px;
+
+                    label {
+                      background-color: var(--alt-dark);
+                      color: var(--alt-ink-light);
+                      padding: 0 0.6em;
+                      line-height: 1.6em;
+                    }
+
+                    input[type="text"] {
+                      flex: 1;
+                      height: 1.6em;
+                    }
+                  }
+                }
               }
             }
           }
@@ -547,6 +679,21 @@
               font-family: Kirsty, serif;
               font-size: 0.8em;
               margin-top: 5px;
+            }
+
+            .load-rigging {
+              margin: 2px 0 0;
+              font-family: var(--alt-body-font);
+              font-size: 0.7em;
+              color: var(--alt-green);
+            }
+
+            .load-rigging-hint {
+              margin: 0;
+              font-family: var(--alt-body-font);
+              font-size: 0.6em;
+              font-style: italic;
+              color: var(--alt-border-strong);
             }
           }
         }
@@ -591,6 +738,33 @@
 
               .add_trauma {
                 font-size: 1em;
+              }
+
+              // Deep Cuts trauma: bolt for invoked this session, x to recover
+              &.deep-cuts .trauma-item {
+                .trauma-invoke,
+                .trauma-clear {
+                  font-size: 0.75em;
+                  margin: 0 0.25em;
+                  color: var(--alt-border-strong);
+
+                  &:hover {
+                    color: var(--alt-red);
+                    opacity: 1;
+                  }
+                }
+
+                .trauma-clear {
+                  opacity: 0.6;
+                }
+
+                &.invoked {
+                  color: var(--alt-red-dark);
+
+                  .trauma-invoke {
+                    color: var(--alt-red);
+                  }
+                }
               }
             }
           }
@@ -761,6 +935,12 @@
                 font-style: italic;
               }
 
+              .rigging-mark {
+                font-size: 0.75em;
+                color: var(--alt-green);
+                margin-left: 4px;
+              }
+
               .item-block {
                 padding: 2px 5px;
                 //padding-left: 5px;
@@ -771,6 +951,25 @@
 
                 &:nth-child(even) {
                   background-color: rgba(0, 0, 0, 0.1);
+                }
+
+                #context-menu {
+                  line-height: normal;
+                  left: 2em;
+                  width: max-content;
+
+                  // Rigging past 2 load: dimmed, inert; the icon's tooltip covers the whole entry
+                  li.context-item.rigging-full {
+                    position: relative;
+                    opacity: 0.5;
+                    cursor: default;
+
+                    .rigging-full-tip::after {
+                      content: "";
+                      position: absolute;
+                      inset: 0;
+                    }
+                  }
                 }
 
                 .checkbox {
@@ -826,14 +1025,8 @@
               background: $lightgray;
               font-size: 1.2em;
 
-              .experience {
-                justify-content: flex-start;
-                align-items: center;
-                margin-top: 0.5rem;
-
-                .flex-vertical:first-child {
-                  margin-right: 6px;
-                }
+              .xp-track {
+                margin: 0.5rem 0 0.25rem;
               }
 
               p {

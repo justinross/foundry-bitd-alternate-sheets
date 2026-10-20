@@ -3,7 +3,9 @@ import { BladesActiveEffect } from "../../../systems/blades-in-the-dark/module/b
 import { Utils, MODULE_ID, safeUpdate } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
-import { openCrewSelectionDialog, openCardSelectionDialog } from "./lib/dialog-compat.js";
+import { bindClockHandlers } from "./clocks.js";
+import { openCrewSelectionDialog, openCardSelectionDialog, openAttributeRollDialog } from "./lib/dialog-compat.js";
+import { bladesRoll } from "../../../systems/blades-in-the-dark/module/blades-roll.js";
 import { enrichHTML, deletionUpdate } from "./compat.js";
 
 // import { migrateWorld } from "../../../systems/blades-in-the-dark/module/migration.js";
@@ -225,17 +227,47 @@ export class BladesAlternateActorSheet extends BladesSheet {
     d.render(true);
   }
 
-  itemContextMenu = [
-    {
-      name: game.i18n.localize("BITD.TitleDeleteItem"),
-      icon: '<i class="fas fa-trash"></i>',
-      callback: (element) => {
-        const itemId = this.getContextMenuElementData(element, "itemId");
-        if (!itemId) return;
-        queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [itemId]));
+  // A getter so the Rigging entries see the current render's Rigging use
+  get itemContextMenu() {
+    const rigged = (element) => Boolean(this.actor.getFlag("bitd-alternate-sheets", `rigged-items.${this.getContextMenuElementData(element, "itemId")}`));
+    const fits = (element) => this._rigging.used + (parseInt(this.getContextMenuElementData(element, "itemLoad")) || 0) <= 2;
+    const setRigged = (element, on) => {
+      const key = `flags.bitd-alternate-sheets.rigged-items.${this.getContextMenuElementData(element, "itemId")}`;
+      queueUpdate(() => this.actor.update(on ? { [key]: true } : deletionUpdate(key)));
+    };
+    return [
+      {
+        name: game.i18n.localize("BITD.TitleDeleteItem"),
+        icon: '<i class="fas fa-trash"></i>',
+        condition: (element) => $(element).hasClass("owned"),
+        callback: (element) => {
+          const itemId = this.getContextMenuElementData(element, "itemId");
+          if (!itemId) return;
+          queueUpdate(() => this.actor.deleteEmbeddedDocuments("Item", [itemId]));
+        },
       },
-    },
-  ];
+      {
+        name: game.i18n.localize("bitd-alt.Rig"),
+        icon: '<i class="fas fa-toolbox"></i>',
+        condition: (element) => this._rigging && !rigged(element) && fits(element),
+        callback: (element) => setRigged(element, true),
+      },
+      {
+        // Foundry's menu has no disabled entry: dimmed by CSS, does nothing; the tooltip's ::after covers the entry
+        name: game.i18n.format("bitd-alt.RigFull", { used: this._rigging?.used }),
+        icon: `<i class="fas fa-toolbox rigging-full-tip" data-tooltip="${game.i18n.localize("bitd-alt.RigFullTooltip")}"></i>`,
+        classes: "rigging-full",
+        condition: (element) => this._rigging && !rigged(element) && !fits(element),
+        callback: () => { },
+      },
+      {
+        name: game.i18n.localize("bitd-alt.Unrig"),
+        icon: '<i class="fas fa-toolbox"></i>',
+        condition: (element) => this._rigging && rigged(element),
+        callback: (element) => setRigged(element, false),
+      },
+    ];
+  }
 
   itemListContextMenu = [
     {
@@ -417,6 +449,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
   /** @override */
   async getData() {
     const getDataStart = performance.now();
+    // Catches characters the setting sweep missed (imports, new tokens).
+    if (this.actor.isOwner && !this.actor.pack) await Utils.syncDeepCuts(this.actor);
     let sheetData = await super.getData();
     Utils.ensureAllowEdit(this);
     const persistedUi = await Utils.loadUiState(this);
@@ -515,6 +549,16 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     sheetData.trauma_array = trauma_array;
     sheetData.trauma_count = trauma_array.length;
+
+    // Deep Cuts harm and trauma (module settings); extras live in the deepCuts flag
+    const deepCuts = this.actor.getFlag(MODULE_ID, "deepCuts") ?? {};
+    if (game.settings.get(MODULE_ID, "deepCutsHarm")) {
+      const toughAsNails = this.actor.items.some((i) => i.type === "ability" && /Tough as Nails/i.test(i.name));
+      sheetData.dcHarm = Utils.deepCutsHarm(sheetData.system.harm, deepCuts, toughAsNails);
+    }
+    if (game.settings.get(MODULE_ID, "deepCutsTrauma")) {
+      sheetData.dcTrauma = { invoked: deepCuts.invoked ?? {} };
+    }
     // system.acquaintances_array = this.getAcquaintances();
 
     // @todo - fix this. display heritage, background, and vice based on owned objects (original sheet style) or stored string, with priority given to string if not empty and not default value
@@ -547,11 +591,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
     sheetData.vice_purveyor_description = await this._resolveDescription("npc", purveyorName);
 
     if (game.settings.get("blades-in-the-dark", "DeepCutLoad")) {
-      // Deep Cut: include Encumbered so mule/overmax can be represented
       sheetData.load_levels = {
         "BITD.Discreet": "BITD.Discreet",
         "BITD.Conspicuous": "BITD.Conspicuous",
-        "BITD.Encumbered": "BITD.Encumbered",
       };
     } else {
       // Traditional Load Levels
@@ -651,6 +693,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
 
       ability._progress = progress;
+      ability._description = Utils.deepCutsDescription(ability);
       ability._progressKey = abilityKey;
       ability._ownedId = ownedAbilityId || "";
     }
@@ -712,6 +755,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let my_abilities = sheetData.items.filter(
       (ability) => ability.type == "ability"
     );
+    for (const ability of my_abilities) ability.system.description = Utils.deepCutsDescription(ability);
     sheetData.my_abilities = my_abilities;
 
     // Calculate Load
@@ -737,12 +781,26 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     }
 
+    // Deep Cuts: each Coin carried counts as 1 load
+    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
+      loadout += parseInt(sheetData.system.coins) || 0;
+    }
+
+    // Deep Cuts Rigging (crew upgrade): rigged items count 0 load, up to 2 load
+    const rigged = this.actor.getFlag("bitd-alternate-sheets", "rigged-items") || {};
+    const rigging = game.settings.get("blades-in-the-dark", "DeepCutLoad") && Boolean(crewActor?.items.some((i) => Utils.isRigging(i)));
+    let riggedLoad = 0;
+    for (const item of [...my_items, ...all_generic_items]) {
+      item._rigged = rigging && Boolean(rigged[item._id || item.id]);
+      if (item._rigged) riggedLoad += parseInt(item.system?.load) || 0;
+    }
+    this._rigging = rigging && { used: riggedLoad };
+    sheetData.rigging = this._rigging;
+    if (rigging) loadout -= Utils.riggingFreeLoad(equipped, rigged);
+
     //Sanity Check
     if (loadout < 0) {
       loadout = 0;
-    }
-    if (loadout > 10) {
-      loadout = 10;
     }
 
     sheetData.loadout = loadout;
@@ -757,14 +815,14 @@ export class BladesAlternateActorSheet extends BladesSheet {
         case "BITD.Conspicuous":
           sheetData.max_load = baseMaxLoad + 6;
           break;
-        case "BITD.Encumbered":
-          sheetData.max_load = baseMaxLoad + 9;
-          break;
         default:
           sheetData.system.selected_load_level = "BITD.Discreet";
           sheetData.max_load = baseMaxLoad + 4;
           break;
       }
+      const mule = my_abilities.some((a) => Utils.trimClassFromName(a.name) === "Mule");
+      const compartments = my_abilities.some((a) => Utils.trimClassFromName(a.name) === "Compartments");
+      sheetData.load_level = Utils.deepCutsLoadLevel(loadout, mule, compartments ? 3 : 0);
     }
     else {
       //Traditional Load
@@ -1040,8 +1098,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
     if (type === "label") {
-      const labelID = $(target).attr("for");
-      target = document.getElementById(labelID);
+      target = target.control;
     }
 
     if (!target) return;
@@ -1096,8 +1153,45 @@ export class BladesAlternateActorSheet extends BladesSheet {
   /* -------------------------------------------- */
 
   /** @override */
+  async close(options) {
+    $(this._outsideClickDoc).off(`click.${this.appId}`);
+    return super.close(options);
+  }
+
+  /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+
+    // Override attribute label clicks (not action/skill clicks) to show
+    // our dialog with Resist Roll and Indulge Vice options.
+    if (game.settings.get("bitd-alternate-sheets", "promptAttributeRoll")) {
+      html.find(".attribute-label.roll-die-attribute").off("click").on("click", async (event) => {
+        event.preventDefault();
+        const attributeName = event.currentTarget?.dataset?.rollAttribute;
+        if (!attributeName) return;
+
+        const attributeLabel = game.i18n.localize(this.actor.system.attributes[attributeName]?.label ?? attributeName);
+        const result = await openAttributeRollDialog({
+          title: `${game.i18n.localize("BITD.Roll")} ${attributeLabel}`,
+          resistLabel: game.i18n.localize("bitd-alt.ResistRoll"),
+          indulgeLabel: game.i18n.localize("bitd-alt.IndulgeVice"),
+          modifierLabel: game.i18n.localize("bitd-alt.Modifier"),
+          rollLabel: game.i18n.localize("BITD.Roll"),
+          cancelLabel: game.i18n.localize("bitd-alt.Cancel"),
+          notesLabel: game.i18n.localize("BITD.Notes") + ":",
+        });
+        if (!result) return;
+
+        if (result.rollType === "indulgeVice") {
+          const rollData = this.actor.getRollData();
+          const viceDice = Math.max(0, (rollData?.dice_amount?.["BITD.Vice"] ?? 0) + result.modifier);
+          const stress = this.actor.system.stress.value;
+          await bladesRoll(viceDice, "BITD.Vice", "", "", result.note, stress);
+        } else {
+          await this.actor.rollAttribute(attributeName, result.modifier, "", "", result.note);
+        }
+      });
+    }
 
     this.addTermTooltips(html);
 
@@ -1146,7 +1240,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     const contextMenuOptions = { jQuery: false };
     const root = html[0];
 
-    new ContextMenuClass(root, ".item-block.owned", this.itemContextMenu, contextMenuOptions);
+    new ContextMenuClass(root, ".item-block", this.itemContextMenu, contextMenuOptions);
     new ContextMenuClass(root, ".context-items > span", this.itemListContextMenu, contextMenuOptions);
     new ContextMenuClass(root, ".item-list-add", this.itemListContextMenu, { ...contextMenuOptions, eventName: "click" });
     new ContextMenuClass(root, ".context-abilities", this.abilityListContextMenu, contextMenuOptions);
@@ -1157,7 +1251,7 @@ export class BladesAlternateActorSheet extends BladesSheet {
     html.find('*[contenteditable="true"]').on("paste", (e) => {
       e.preventDefault();
       let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-      document.execCommand("insertText", false, text);
+      e.currentTarget.ownerDocument.execCommand("insertText", false, text);
     });
 
     // Prevent multi-line edits in inline fields (Bio, Name, etc.)
@@ -1174,14 +1268,15 @@ export class BladesAlternateActorSheet extends BladesSheet {
       await this.clearLoad();
     });
 
-    // NOTE: Clock controls are handled globally by setupGlobalClockHandlers() in hooks.js
+    // Clocks bind on the sheet too, so they still work when PopOut! moves it to another window
+    bindClockHandlers(html[0]);
 
     // Use namespaced events with .off() to prevent handler stacking on re-render
     html.find("input.radio-toggle, label.radio-toggle")
-      .off("click.radioToggle mousedown.radioToggle")
-      .on("click.radioToggle", (e) => e.preventDefault())
+      .off("click mousedown contextmenu")
+      .on("click.radioToggle contextmenu.radioToggle", (e) => e.preventDefault())
       .on("mousedown.radioToggle", (e) => {
-        this._onRadioToggle(e);
+        if (e.button === 0) this._onRadioToggle(e);
       });
 
     html.find(".inline-input").on("keyup", async (ev) => {
@@ -1428,21 +1523,30 @@ export class BladesAlternateActorSheet extends BladesSheet {
 
     //this could probably be cleaner. Numbers instead of text would be fine, but not much easier, really.
     Utils.bindStandingToggles(this, html);
+    Utils.bindExpClock(this, html);
 
-    $(document).click((ev) => {
-      let render = false;
-      if (!$(ev.target).closest(".coins-box").length) {
-        html.find(".coins-box").removeClass("open");
-        this.coins_open = false;
-      }
-      if (!$(ev.target).closest(".harm-box").length) {
-        html.find(".harm-box").removeClass("open");
-        this.harm_open = false;
-      }
-      if (!$(ev.target).closest(".load-box").length) {
-        html.find(".load-box").removeClass("open");
-        this.load_open = false;
-      }
+    // One outside-click handler per sheet, on the sheet's own document. PopOut! moves the sheet to another window without re-rendering, so a click on a popup box rebinds it there.
+    const bindOutsideClick = (doc) => {
+      $(this._outsideClickDoc).off(`click.${this.appId}`);
+      this._outsideClickDoc = doc;
+      $(doc).on(`click.${this.appId}`, (ev) => {
+        if (!$(ev.target).closest(".coins-box").length) {
+          html.find(".coins-box").removeClass("open");
+          this.coins_open = false;
+        }
+        if (!$(ev.target).closest(".harm-box").length) {
+          html.find(".harm-box").removeClass("open");
+          this.harm_open = false;
+        }
+        if (!$(ev.target).closest(".load-box").length) {
+          html.find(".load-box").removeClass("open");
+          this.load_open = false;
+        }
+      });
+    };
+    bindOutsideClick(html[0].ownerDocument);
+    html.on("click", ".coins-box, .harm-box, .load-box", (ev) => {
+      if (ev.currentTarget.ownerDocument !== this._outsideClickDoc) bindOutsideClick(ev.currentTarget.ownerDocument);
     });
 
     html.find(".coins-box").click(async (ev) => {
@@ -1457,6 +1561,36 @@ export class BladesAlternateActorSheet extends BladesSheet {
         html.find(".harm-box").toggleClass("open");
         this.harm_open = !this.harm_open;
       }
+    });
+
+    // Deep Cuts harm: any harm input writes the whole grid (level 1 closes gaps); the fist toggles toughed out
+    const dcHarm = html.find(".character-harm.deep-cuts");
+    const tough = () => this.actor.getFlag(MODULE_ID, "deepCuts")?.tough ?? [];
+    dcHarm.find(".harm-slot input").on("change", (ev) => {
+      ev.stopPropagation();
+      const values = (sel) => dcHarm.find(sel).map((_, i) => i.value).get();
+      const update = Utils.deepCutsHarmUpdate({ light: values(".harm-light-list input"), medium: values(".harm-slot.medium input"), heavy: values(".harm-slot.heavy input") }, tough());
+      queueUpdate(() => this.actor.update(update));
+    });
+    dcHarm.find(".tough-it-out").click((ev) => {
+      game.tooltip.deactivate(); // the re-render removes the icon, which would leave its tooltip up
+      const key = ev.currentTarget.dataset.tough;
+      const next = tough().includes(key) ? tough().filter((k) => k !== key) : [...tough(), key];
+      queueUpdate(() => this.actor.update({ [`flags.${MODULE_ID}.deepCuts.tough`]: next }));
+    });
+
+    // Deep Cuts trauma: the bolt marks a condition invoked this session; the x removes it (and its box)
+    const traumaKey = (ev) => {
+      game.tooltip.deactivate();
+      return ev.currentTarget.closest(".trauma-item").dataset.trauma;
+    };
+    html.find(".trauma-invoke").click((ev) => {
+      const key = `flags.${MODULE_ID}.deepCuts.invoked.${traumaKey(ev)}`;
+      queueUpdate(() => this.actor.update({ [key]: !foundry.utils.getProperty(this.actor, key) }));
+    });
+    html.find(".trauma-clear").click((ev) => {
+      const t = traumaKey(ev);
+      queueUpdate(() => this.actor.update({ [`system.trauma.list.${t}`]: false, [`flags.${MODULE_ID}.deepCuts.invoked.${t}`]: false }));
     });
 
     html.find(".load-box").click((ev) => {

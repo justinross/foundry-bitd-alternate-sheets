@@ -139,19 +139,6 @@ nav {
   margin-right: 0;
 }
 
-#heat-wanted {
-
-  .small-teeth {
-    height: 20px;
-
-    label {
-      height: 100%;
-      width: 100%;
-      cursor: default;
-    }
-  }
-}
-
 .experience-clues-container {
   width: 340px;
   font-size: 12px;
@@ -198,16 +185,62 @@ nav {
 
   .label-stripe {
     margin-bottom: 0px;
+
+    .item-sheet-open {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 0.9em;
+    }
+
+    .item-control {
+      margin-left: 6px;
+    }
+  }
+
+  // Quality over scale in the stripe
+  .cohort-qs {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 0.7em;
+    line-height: 1.05;
+    flex: 0 0 auto;
+    margin-right: 6px;
   }
 
   .cohort-body {
     >div {
-      margin-bottom: 10px;
+      margin-bottom: 4px;
+      padding: 0 8px;
+    }
+
+    // One harm row: image box as tall as the cells, one border grid, flush with the stripe
+    >.flex-horizontal:first-child {
+      align-items: stretch;
+      border: 2px solid var(--alt-dark);
+      border-top: none;
+      margin-bottom: 6px;
+      padding: 0;
+
+      >img {
+        flex: 0 0 2.25rem;
+        width: 2.25rem;
+        height: auto;
+        padding: 4px;
+        box-sizing: border-box;
+        object-fit: contain;
+        border: none;
+        border-right: 2px solid var(--alt-dark);
+        background: var(--alt-mid);
+      }
     }
   }
 
   .cohort-block-harm {
     justify-content: space-around;
+    flex: 1;
+    align-items: stretch;
+    margin: 0;
 
     input[type="radio"] {
       display: none;
@@ -220,10 +253,43 @@ nav {
     }
 
     label {
-      border: 2px solid $almost_black;
-      border-top: none;
-      padding: 5px;
+      flex: 1 0 0;
+      min-height: 2rem;
+      padding: 2px 4px;
+      border: none;
+      border-left: 2px solid var(--alt-dark);
+
+      &:first-of-type {
+        border-left: none;
+      }
     }
+  }
+}
+
+// Purchase counter under the Cohort: New / Add Type rows
+.crew-choice .cohort-upgrade-count {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 0 6px;
+  border-radius: var(--alt-radius-sm);
+  background: var(--alt-panel-bg);
+  border: 1px solid var(--alt-border);
+  font-family: var(--alt-body-font);
+  font-size: 0.85em;
+  color: var(--alt-red-dark);
+}
+
+// Cohorts tab: a "Cohorts" title bar with the + at its right
+.crew-cohorts header.full-bar.cohorts-header {
+  @include full-bar-header(var(--alt-dark), var(--alt-ink-light));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 6px;
+  margin-bottom: 0.5em;
+
+  .add-item {
+    color: inherit;
   }
 }
 
@@ -542,12 +608,19 @@ header {
   flex: 0 0 auto;
 }
 
+// Space between the last heat tooth and Wanted, as on the system sheet
+.heat-wanted-row .big-teeth {
+  padding-right: 10px;
+}
+
+// Teeth sizes match the system crew sheet
 .big-teeth,
 .rep-turf-row .crew-reputation {
-  @include teeth-track(35px,
-    12px,
+  @include teeth-track(50px,
+    17px,
     "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-red.png",
-    "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png"
+    "/systems/blades-in-the-dark/styles/assets/teeth/stresstooth-halfgrey.png",
+    5px
   );
 }
 
@@ -556,10 +629,11 @@ header {
 }
 
 .small-teeth {
-  @include teeth-track(35px,
-    12px,
+  @include teeth-track(50px,
+    17px,
     "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-red.png",
-    "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png"
+    "/systems/blades-in-the-dark/styles/assets/teeth/shorttooth-grey.png",
+    5px
   );
 }
 
@@ -612,16 +686,6 @@ header {
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-
-  .crew-xp-clock {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    .black-label {
-      min-width: 80px;
-    }
-  }
 
   .portrait-xp-track {
     width: 100%;
@@ -688,7 +752,6 @@ header {
 }
 
 .coins-grid .vault-group {
-  // 12 boxes + 11 gaps + two grouping offsets (5th and 9th)
   width: calc(12 * var(--coin-size) + 11 * var(--coin-gap) + 20px + 12px);
 }
 
@@ -710,9 +773,62 @@ header {
   margin-left: 12px;
 }
 
-.coins-grid .vault-group .crew-coins label:nth-of-type(5),
-.coins-grid .vault-group .crew-coins label:nth-of-type(9) {
+// Visually group vault boxes in fours by default
+.coins-grid .vault-group .crew-coins label:nth-of-type(4n + 1):not(:first-of-type) {
   margin-left: 10px;
+}
+
+// Deep Cuts has larger vaults, so now group by vault and use multiple lines
+// to prevent overflowing off the end of the sheet. One group per Vault upgrade
+// The base 4 coins is only a single row and needs no override.
+.coins-grid .vault-group .crew-coins.deep-cuts {
+  &:has(> label:nth-of-type(8):last-of-type),
+  &:has(> label:nth-of-type(12):last-of-type),
+  &:has(> label:nth-of-type(20):last-of-type) {
+    display: grid;
+    justify-content: start;
+
+    // Replaces the default groups-of-4 spacing; each layout sets its own block gap
+    > label {
+      margin-left: 0;
+    }
+  }
+
+  &:has(> label:nth-of-type(8):last-of-type) {
+    grid-template-columns: repeat(4, auto);
+  }
+
+  &:has(> label:nth-of-type(12):last-of-type) {
+    grid-template-columns: repeat(8, auto);
+
+    > label:nth-of-type(5) {
+      margin-left: 10px;
+    }
+
+    // make it wrap to row 2 under Vault 2
+    > label:nth-of-type(9) {
+      grid-column-start: 5;
+      margin-left: 10px;
+    }
+  }
+
+  // adjut ordering so Vault 2 lands right of Vault 1
+  &:has(> label:nth-of-type(20):last-of-type) {
+    > label:nth-of-type(-n + 4),
+    > label:nth-of-type(n + 9):nth-of-type(-n + 14) {
+      grid-row: 1;
+    }
+
+    > label:nth-of-type(n + 5):nth-of-type(-n + 8),
+    > label:nth-of-type(n + 15) {
+      grid-row: 2;
+    }
+
+    > label:nth-of-type(9),
+    > label:nth-of-type(15) {
+      margin-left: 10px;
+    }
+  }
 }
 
 .hold-tier-row {
@@ -867,62 +983,10 @@ header {
             $gap: -1px);
 
           // Crew XP clock positioning - floats above without affecting layout
-          .crew-xp-clock {
+          .xp-track.crew {
             position: absolute;
             top: -0.75em; // Relative to font size for better scaling
             right: 0;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-
-            .crew-xp-clock-controls,
-            .crew-xp-completed-controls {
-              font-size: 16px;
-              display: flex;
-              flex-direction: column;
-              padding: 0 2px;
-
-              a {
-                cursor: pointer;
-                color: white;
-                &:hover {
-                  color: $red;
-                }
-              }
-            }
-
-            .crew-xp-completed-controls {
-              font-size: 14px;
-            }
-
-            .crew-xp-completed-clocks {
-              position: relative;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              flex-shrink: 0;
-
-              .completed-clock-img {
-                height: 40px;
-                width: 40px;
-                min-width: 40px;
-                min-height: 40px;
-                flex-shrink: 0;
-                border: none;
-                background-color: #888;
-                border-radius: 50%;
-                padding: 5px; // Match wrapper's padding
-                box-sizing: content-box;
-              }
-
-              .completed-clock-count {
-                position: absolute;
-                font-family: Kirsty, serif;
-                font-size: 18px;
-                color: white;
-                text-shadow: 1px 1px 2px black, -1px -1px 2px black; // Ensure readability
-              }
-            }
           }
         }
       }

@@ -340,3 +340,164 @@ td {
   font-size: 0.85em;
   line-height: 1.2em;
 }
+
+// Deep Cuts XP clock: the system's brush clock is the control, full clocks show as one clock and a count, a 4 · 6 · 8 size picker.
+.xp-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-style: normal;
+  --xp-ink: #{$almost_black};
+  --xp-on-fg: white;
+
+  .xp-clock-hit {
+    position: relative;
+    flex: none;
+    line-height: 0;
+    border-radius: 50%;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $red;
+      outline-offset: 2px;
+    }
+  }
+
+  .xp-clock-img {
+    display: block;
+    width: 46px;
+    height: 46px;
+    border: 0;
+  }
+
+  // One transparent wedge per segment over the image; hover tints the wedge a click would fill.
+  .xp-wedges {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+
+    path {
+      fill: transparent;
+      cursor: pointer;
+
+      &:hover {
+        fill: rgba(204, 0, 0, 0.35);
+      }
+    }
+  }
+
+  .xp-banked {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    border-radius: 4px;
+    cursor: context-menu;
+
+    &:focus-visible {
+      outline: 2px solid $red;
+      outline-offset: 2px;
+    }
+  }
+
+  .xp-full {
+    display: block;
+    width: 30px;
+    height: 30px;
+    border: 0;
+  }
+
+  .xp-count {
+    font-family: Kirsty, serif;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--xp-ink);
+  }
+
+  .xp-size {
+    display: inline-flex;
+    flex: none;
+    border: 1px solid var(--xp-ink);
+    border-radius: 3px;
+    overflow: hidden;
+
+    button {
+      all: unset;
+      box-sizing: border-box;
+      min-width: 26px;
+      padding: 5px 6px 4px;
+      font-family: "Crimson Text", serif;
+      font-size: 14px;
+      line-height: 1;
+      text-align: center;
+      color: var(--xp-ink);
+      cursor: pointer;
+
+      & + button {
+        border-left: 1px solid var(--xp-ink);
+      }
+
+      &:hover {
+        background: rgba(128, 128, 128, 0.35);
+      }
+
+      &[aria-pressed="true"] {
+        background: var(--xp-ink);
+        color: var(--xp-on-fg);
+      }
+
+      &:focus-visible {
+        outline: 2px solid $red;
+        outline-offset: -2px;
+      }
+    }
+  }
+
+  &.char .xp-size {
+    margin-left: auto;
+  }
+
+  // Crew sheet: on the black Crew XP bar.
+  &.crew {
+    width: max-content;
+    gap: 3px;
+    --xp-ink: white;
+    --xp-on-fg: #{$almost_black};
+
+    .xp-clock-hit {
+      background: #888;
+      padding: 3px;
+    }
+
+    .xp-wedges {
+      inset: 3px;
+      width: calc(100% - 6px);
+      height: calc(100% - 6px);
+    }
+
+    .xp-clock-img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .xp-banked {
+      gap: 2px;
+    }
+
+    .xp-full {
+      width: 24px;
+      height: 24px;
+    }
+
+    .xp-count {
+      font-size: 16px;
+    }
+
+    .xp-size button {
+      font-size: 12px;
+      min-width: 18px;
+      padding: 3px 3px 2px;
+    }
+  }
+}

@@ -46,7 +46,7 @@ export class BladesAlternateClassSheet extends BaseItemSheet {
       .find("input.radio-toggle, label.radio-toggle")
       .click((e) => e.preventDefault());
     html.find("input.radio-toggle, label.radio-toggle").mousedown((e) => {
-      this._onRadioToggle(e);
+      if (e.button === 0) this._onRadioToggle(e);
     });
     html.find(".debug-toggle").click(async (ev) => {
 
@@ -95,8 +95,7 @@ export class BladesAlternateClassSheet extends BaseItemSheet {
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
     if (type == "label") {
-      let labelID = $(target).attr("for");
-      target = $(`#${labelID}`).get(0);
+      target = target.control;
     }
     if (target.checked) {
       //find the next lowest-value input with the same name and click that one instead

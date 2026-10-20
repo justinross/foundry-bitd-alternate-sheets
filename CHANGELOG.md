@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.1.0
+
+### New
+- Buy cohorts from the crew sheet's "Cohort: New" and "Cohort: Add Type" upgrades.
+- Optional Resist or Indulge prompt when clicking an attribute (module setting).
+- Deep Cuts Settings window: every Deep Cuts option, system and module, in one place, with the rule each one changes and its page.
+- Deep Cuts support:
+  - XP clocks (4, 6 or 8 segments) and Edge. Click the clock to tick it. (PR #159)
+  - Discreet/Conspicuous load, Coin as load, Mule and Compartments.
+  - Rigging: right-click an item to rig it.
+  - Harm: unlimited level 1 harm, toughed-out harm and a Scar field.
+  - Trauma: mark a condition invoked, or remove it.
+  - Vault sizes: 8 and 12 Coin. (PR #161)
+
+### Misc layout and bug fixes
+- Foundry v12 fixes.
+- PopOut! sheets work like the main window (Issue #71).
+- Teeth change once per click; right-click no longer changes them.
+- Crew sheet: system-size Rep, Heat and Wanted, and a tidier Cohorts tab (Issue #144).
+- Load count shows load above 10.
+- Zero-load items no longer add load (Issue #157, PR #158).
+- "Training: Personal Exp" crew upgrade is back (PR #160).
+- Empty alias no longer blanks the sidebar name (Issue #146, PR #162).
+- XP clues no longer show HTML tags (Issue #72).
+- Card chooser fills its text box on Foundry v12.
+- Shrinking a vault removes Coin above its size.
+
 ## 1.0.20
 - Fixed Issue #145 by removing unused clock styling. Fixed by PR #149.
 - Partially fixed Issue #144 by fixing the Deep Cuts crew sheet XP display. Fixed by PR #150.

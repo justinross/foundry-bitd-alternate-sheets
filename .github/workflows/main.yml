@@ -70,3 +70,17 @@ jobs:
           artifacts: "./module.json, ./module.zip"
           tag: ${{ github.event.release.tag_name }}
           body: ${{ github.event.release.body }}
+
+      # Publish this version to the Foundry package registry
+      - name: Publish to Foundry registry
+        if: ${{ !github.event.release.prerelease }}
+        env:
+          FOUNDRY_RELEASE_TOKEN: ${{ secrets.FOUNDRY_RELEASE_TOKEN }}
+          VERSION: ${{ steps.get_version.outputs.version-without-v }}
+          MANIFEST: https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/module.json
+          NOTES: ${{ github.event.release.html_url }}
+        run: |
+          jq -n --argjson compat "$(jq '.compatibility' module.json)" \
+            '{id: "bitd-alternate-sheets", release: {version: env.VERSION, manifest: env.MANIFEST, notes: env.NOTES, compatibility: $compat}}' |
+          curl --fail-with-body -sS -X POST https://foundryvtt.com/_api/packages/release_version/ \
+            -H "Content-Type: application/json" -H "Authorization: $FOUNDRY_RELEASE_TOKEN" -d @-

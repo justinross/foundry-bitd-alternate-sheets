@@ -1,7 +1,7 @@
 import { registerDiceSoNiceChanges } from "./dice-so-nice.js";
 import { Patch } from "./patches.js";
 import { Utils } from "./utils.js";
-import { replaceClockLinks, setupGlobalClockHandlers } from "./clocks.js";
+import { replaceClockLinks, bindClockHandlers } from "./clocks.js";
 import { getChatMessageRenderHook } from "./compat.js";
 
 export async function registerHooks() {
@@ -42,7 +42,7 @@ export async function registerHooks() {
 
     // Set up global event delegation for clock interactivity
     // This enables clocks to work in journals, chat, and other contexts
-    setupGlobalClockHandlers();
+    bindClockHandlers();
 
     // Pre-cache common item types for faster initial sheet renders
     Utils._preCacheCommonTypes();
@@ -51,6 +51,13 @@ export async function registerHooks() {
   // ========================================
   // Compendium Cache Invalidation Hooks
   // ========================================
+
+  // DeepCutLoad is the system's setting, so the module syncs owned Compartments from the Setting hooks.
+  for (const hook of ["createSetting", "updateSetting"]) {
+    Hooks.on(hook, (setting) => {
+      if (setting.key === "blades-in-the-dark.DeepCutLoad") Utils.syncDeepCutsWorld();
+    });
+  }
 
   // Invalidate cache when compendiums are updated
   Hooks.on("updateCompendium", (pack, documents, options, userId) => {

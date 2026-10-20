@@ -22,13 +22,13 @@
           <div class="load-box {{#if load_open}}open{{/if}} pointer">
             <div class="mini-view">
               <div class="placeholder"></div><span
-                class="load-amounts label-text {{#if (eq loadout max_load)}}at-max{{else if (gt loadout max_load)}}over-max{{/if}}">{{loadout}}/{{max_load}}</span>
+                class="load-amounts label-text {{#if (eq loadout max_load)}}at-max{{else if (gt loadout max_load)}}over-max{{/if}}"{{#if load_level}} data-tooltip="{{localize load_level}}"{{/if}}>{{loadout}}/{{max_load}}</span>
             </div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/load.html"}}</div>
           </div>
           <div class="harm-box {{#if harm_open}}open{{/if}} pointer">
             <div class="mini-view harm{{#if (or system.harm.light.one system.harm.light.two)}}-1{{/if}}{{#if
-              (or system.harm.medium.one system.harm.medium.two)}}-2{{/if}}{{#if system.harm.heavy.one}}-3{{/if}}">
+              (or system.harm.medium.one system.harm.medium.two)}}-2{{/if}}{{#if (or system.harm.heavy.one dcHarm.heavy.[1].value)}}-3{{/if}}">
               <div class="placeholder"></div>
             </div>
             <div class="full-view">{{> "modules/bitd-alternate-sheets/templates/parts/harm.html" actor=actor}}</div>
@@ -52,11 +52,15 @@
             </div>
           </header>
           <div class="trauma-box">
-            <div class="trauma-list count-{{ownedTraumas.length}}">
+            <div class="trauma-list count-{{ownedTraumas.length}}{{#if dcTrauma}} deep-cuts{{/if}}">
               {{#if (gt trauma_count 0)}}
               {{#each trauma_array as |trauma index|}}
+              {{#if ../dcTrauma}}
+              <div class="trauma-item{{#if (lookup ../dcTrauma.invoked trauma)}} invoked{{/if}}" data-trauma="{{trauma}}"><a class="trauma-invoke" data-tooltip="{{#if (lookup ../dcTrauma.invoked trauma)}}{{localize 'bitd-alt.TraumaInvoked'}}{{else}}{{localize 'bitd-alt.TraumaInvoke'}}{{/if}}"><i class="fa-solid fa-bolt"></i></a>{{localize (concat 'BITD.Trauma' (upper-first trauma))}}<a class="trauma-clear" data-tooltip="{{localize 'bitd-alt.TraumaClear' trauma=(localize (concat 'BITD.Trauma' (upper-first trauma)))}}"><i class="fa-solid fa-xmark"></i></a></div>
+              {{else}}
               <div class="trauma-item" data-trauma="{{trauma}}">{{localize (concat 'BITD.Trauma' (upper-first trauma))}}
               </div>
+              {{/if}}
               {{/each}}
               {{else}}
               <em>{{localize system.trauma.name}}</em>
@@ -246,32 +250,12 @@
               }}
               <div class="section-body">
                 {{#if (getSetting 'ClockXP')}}
-                <div class="flex-horizontal experience">
-                  <div class="flex-vertical" style="font-size: 18px">
-                    <a class="up-exp-clock" data-tooltip="{{localize 'BITD.AddXP'}}"><i class="fas fa-caret-up"></i></a>
-                    <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i class="fas fa-caret-down"></i></a>
-                  </div>
-                  <img src="systems/blades-in-the-dark/themes/{{system.exp_clock.color}}/{{system.exp_clock.size}}clock_{{system.exp_clock.value}}.svg" height="45" width="45" style="border-style: none"/>
-                  {{#if (gteq system.exp_clock.number 1)}}
-                  <div class="flex-vertical" style="font-size: 16px">
-                    <a class="add-exp-clock" data-tooltip="{{localize 'BITD.MinusXPClock'}}" style="visibility:hidden"><i class="fas fa-angles-up"></i></a>
-                    <a class="minus-exp-clock" data-tooltip="{{localize 'BITD.MinusXPClock'}}"><i class="fas fa-angles-down"></i></a>
-                  </div>
-                  {{#if (lteq system.exp_clock.number 10)}}
-                  {{#times_from 1 system.exp_clock.number}}
-                  <img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock 6-6.svg" height="45" width="45" style="border-style: none"/>
-                  {{/times_from}}
-                  {{else}}
-                  <img src="systems/blades-in-the-dark/styles/assets/progressclocks-svg/Progress Clock 6-6.svg" height="45" width="45" style="border-style: none"/>
-                  <p style="font-family: Kirsty, serif; font-size: 24px">x {{system.exp_clock.number}}</p>
-                  {{/if}}
-                  {{/if}}
-                </div>
+                {{> "modules/bitd-alternate-sheets/templates/parts/xp-clock.html" kind="char" clock=system.exp_clock}}
                 {{/if}}
                 <ul>
                   <li>{{localize "BITD.ClassExpClue1"}}</li>
                   <p>{{localize "BITD.ClassExpClueDescription"}}</p>
-                  <li>{{selected_playbook.system.experience_clues}}</li>
+                  <li>{{clean-html selected_playbook.system.experience_clues}}</li>
                   <li>{{localize "BITD.ClassExpClue2"}}</li>
                   <li>{{localize "BITD.ClassExpClue3"}}</li>
                 </ul>

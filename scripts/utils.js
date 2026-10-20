@@ -12,6 +12,41 @@ import { Profiler } from "./profiler.js";
 // Cache key format: "itemType|fromCompendia|fromWorld|allPacks"
 const _compendiumCache = new Map();
 
+// [core, Deep Cuts] values for items whose numbers Deep Cuts changes, the setting that picks them,
+// and the effect change key they apply to
+const VAULT_SETTING = [MODULE_ID, "deepCutsVault"];
+const DEEP_CUTS_ITEMS = {
+  "Vault 1": {
+    type: "crew_upgrade",
+    setting: VAULT_SETTING,
+    key: "vault.max",
+    description: ["Adds the Vault providing additional 4 Coin space", "Adds the Vault providing additional 8 Coin space"],
+    value: ["4", "8"],
+  },
+  "Vault 2": {
+    type: "crew_upgrade",
+    setting: VAULT_SETTING,
+    key: "vault.max",
+    description: ["Extend the Vault to additional +8 coins", "Extend the Vault to additional +12 coins"],
+    value: ["8", "12"],
+  },
+  "(Hu) Compartments": {
+    type: "ability",
+    setting: ["blades-in-the-dark", "DeepCutLoad"],
+    key: "base_max_load",
+    value: ["2", "3"],
+  },
+};
+
+// Deep Cuts text (p77, p113) for abilities whose load numbers Deep Cuts changes
+const DEEP_CUTS_LOAD_TEXT = {
+  "(C) Mule": "Your load limits are higher. Discreet: 6. Conspicuous: 8. Encumbered at 9. Max: 10.",
+  "(Hu) Compartments": "Your items are built-in to your frame and may recess beneath panels out of sight. Your load limits are +3, and you can carry heavy items while discreet.",
+};
+
+// Deep Cuts text for every crew's Rigging upgrade
+const DEEP_CUTS_RIGGING_TEXT = "Carry 2 free load of a particular class of item, including a **heavy** item while your load is discreet, if you wish.";
+
 export class Utils {
   /**
    * Generate a cache key that incorporates current settings
@@ -79,6 +114,176 @@ export class Utils {
       }
     }
     return items;
+  }
+
+  /**
+   * Sets Deep Cuts item data (Vault 1 / Vault 2 sizes, Compartments' load bonus) to the Deep Cuts values
+   * when its setting is on, or back to core when it is off (only where the Deep Cuts values are present).
+   * @param {object} itemData - Plain item data (e.g. from toObject())
+   * @returns {object} The modified itemData
+   */
+  static applyDeepCutsChanges(itemData) {
+    const entry = DEEP_CUTS_ITEMS[itemData?.name];
+    if (!entry || entry.type !== itemData.type) return itemData;
+    const on = game.settings.get(...entry.setting);
+    const change = itemData.effects?.[0]?.changes?.[0];
+    const fields = [
+      [itemData.system, "description", entry.description],
+      [change?.key?.endsWith(entry.key) && change, "value", entry.value],
+    ];
+    for (const [target, key, values] of fields) {
+      if (!values || target?.[key] === undefined) continue;
+      const [core, deepCuts] = values;
+      if (on) target[key] = deepCuts;
+      else if (target[key] === deepCuts) target[key] = core;
+    }
+    return itemData;
+  }
+
+  /**
+   * An ability's description, with the Deep Cuts text when the system's Deep Cuts load setting is on.
+   * @param {object} item - Item or item data with name and system.description
+   * @returns {string}
+   */
+  static deepCutsDescription(item) {
+    const text = game.settings.get("blades-in-the-dark", "DeepCutLoad") && (DEEP_CUTS_LOAD_TEXT[item.name] ?? (Utils.isRigging(item) && DEEP_CUTS_RIGGING_TEXT));
+    return text || item.system.description;
+  }
+
+  /**
+   * Whether an item is a crew's Rigging upgrade (Assassin, Bravos, Cult, Hawker, Thief, Smuggler Rigging).
+   * @param {object} item - Item or item data with name and type
+   * @returns {boolean}
+   */
+  static isRigging(item) {
+    return item?.type === "crew_upgrade" && / Rigging$/.test(item.name);
+  }
+
+  /**
+   * The load Deep Cuts Rigging frees: the carried rigged items' load, up to 2.
+   * @param {object} equipped - The equipped-items flag
+   * @param {object} rigged - The rigged-items flag (item id: true)
+   * @returns {number}
+   */
+  static riggingFreeLoad(equipped, rigged) {
+    const load = Object.keys(rigged).reduce((sum, id) => sum + (parseInt(equipped?.[id]?.load) || 0), 0);
+    return Math.min(load, 2);
+  }
+
+  /**
+   * The Deep Cuts level-1 harm size step, by count: up to 5 full size, 6-7 at 85%, 8 or more at 72%.
+   * @param {number} count - Level-1 harms
+   * @returns {string} A class for the level-1 list
+   */
+  static harmShrink(count) {
+    return count >= 8 ? "shrink-2" : count >= 6 ? "shrink-1" : "";
+  }
+
+  /**
+   * Deep Cuts harm (p73) for the sheet. Core harm fields hold the slots core has; the deepCuts flag
+   * holds level 1 past two (light), the Tough as Nails level 3 (heavy2), the scar, and the
+   * toughed-out marks ("level:name").
+   * @param {object} harm - system.harm
+   * @param {object} flag - The deepCuts flag
+   * @param {boolean} toughAsNails - Whether the character has Tough as Nails
+   * @returns {{light: object[], medium: object[], heavy: object[], scar: string, shrink: string}}
+   */
+  static deepCutsHarm(harm, flag, toughAsNails) {
+    const tough = flag?.tough ?? [];
+    const slot = (level) => (value) => ({ value: value ?? "", tough: Boolean(value) && tough.includes(`${level}:${value}`) });
+    const light = [harm.light.one, harm.light.two, ...(flag?.light ?? [])].filter(Boolean).map(slot(1));
+    const heavy = toughAsNails ? [harm.heavy.one, flag?.heavy2] : [harm.heavy.one];
+    return {
+      light,
+      medium: [harm.medium.one, harm.medium.two].map(slot(2)),
+      heavy: heavy.map(slot(3)),
+      scar: flag?.scar ?? "",
+      shrink: Utils.harmShrink(light.length),
+    };
+  }
+
+  /**
+   * The actor update for Deep Cuts harm typed on the sheet: level 1 fills the core slots first, the
+   * rest goes to the flag; toughed-out marks whose harm is gone are dropped.
+   * @param {{light: string[], medium: string[], heavy: string[]}} values - Inputs per level; heavy[1] only with Tough as Nails
+   * @param {string[]} tough - Current toughed-out marks
+   * @returns {object}
+   */
+  static deepCutsHarmUpdate({ light, medium, heavy }, tough = []) {
+    const flag = `flags.${MODULE_ID}.deepCuts`;
+    const l = light.map((v) => v.trim()).filter(Boolean);
+    const present = [...l.map((v) => `1:${v}`), ...medium.map((v) => `2:${v}`), ...heavy.map((v) => `3:${v}`)];
+    const update = {
+      "system.harm.light.one": l[0] ?? "",
+      "system.harm.light.two": l[1] ?? "",
+      "system.harm.medium.one": medium[0],
+      "system.harm.medium.two": medium[1],
+      "system.harm.heavy.one": heavy[0],
+      [`${flag}.light`]: l.slice(2),
+      [`${flag}.tough`]: tough.filter((t) => present.includes(t)),
+    };
+    if (heavy.length > 1) update[`${flag}.heavy2`] = heavy[1];
+    return update;
+  }
+
+  /**
+   * The Deep Cuts load level (p77) reached by the load marked.
+   * @param {number} loadout - Load marked
+   * @param {boolean} mule - Whether the character has Mule
+   * @param {number} [bonus=0] - Added to every limit (Compartments: 3)
+   * @returns {string} A BITD.* lang key
+   */
+  static deepCutsLoadLevel(loadout, mule, bonus = 0) {
+    const limits = (mule ? [6, 8, 10] : [4, 6, 9]).map((limit) => limit + bonus);
+    const i = limits.findIndex((limit) => loadout <= limit);
+    return ["BITD.Discreet", "BITD.Conspicuous", "BITD.Encumbered"][i] ?? "BITD.OverMax";
+  }
+
+  /**
+   * Brings one actor's owned Deep Cuts items (Vaults, Compartments) in line with their settings,
+   * then caps the vault coins at the (possibly lower) vault max. Writes only what differs.
+   * @param {Actor} actor - An actor the current user may update
+   */
+  static async syncDeepCuts(actor) {
+    for (const item of actor.items.filter((i) => DEEP_CUTS_ITEMS[i.name]?.type === i.type)) {
+      const data = Utils.applyDeepCutsChanges(item.toObject());
+      if (data.system.description !== item.system.description) {
+        await item.update({ "system.description": data.system.description });
+      }
+      const effect = data.effects?.[0];
+      if (!effect) continue;
+      for (const current of [item.effects.get(effect._id), ...Utils.legacyEffectCopies(item)]) {
+        if (current && JSON.stringify(current.changes) !== JSON.stringify(effect.changes)) {
+          await current.update({ changes: effect.changes });
+        }
+      }
+    }
+    const { value, max } = actor.system.vault ?? {};
+    if (Number(value) > Number(max)) await actor.update({ "system.vault.value": Number(max) });
+  }
+
+  /**
+   * On v12 (legacy transferral) the actor holds copies of an owned item's effects, and the copies are what apply.
+   * Matched like core: by origin, on token actors by the item's last two uuid parts.
+   * @param {Item} item - An owned item
+   * @returns {ActiveEffect[]} The copies; none on v13
+   */
+  static legacyEffectCopies(item) {
+    const actor = item.parent;
+    if (!CONFIG.ActiveEffect.legacyTransferral || !actor) return [];
+    const key = (uuid) => (actor.isToken ? uuid.split(".").slice(-2).join(".") : uuid);
+    return actor.effects.filter((e) => e.origin && key(e.origin) === key(item.uuid));
+  }
+
+  /**
+   * Active GM only: syncs every world actor and unlinked token actor with the Deep Cuts settings.
+   */
+  static async syncDeepCutsWorld() {
+    if (!game.users.activeGM?.isSelf) return;
+    const tokenActors = game.scenes.contents.flatMap((s) => s.tokens.filter((t) => !t.actorLink).map((t) => t.actor));
+    for (const actor of [...game.actors, ...tokenActors]) {
+      if (actor) await Utils.syncDeepCuts(actor);
+    }
   }
 
   /**
@@ -630,7 +835,7 @@ export class Utils {
     });
   }
 
-  // NOTE: bindClockControls removed - clock handling now done globally via setupGlobalClockHandlers() in hooks.js
+  // NOTE: bindClockControls removed - clock handling now done globally via bindClockHandlers() in hooks.js
 
   /**
    * Ensure a sheet has a local allow_edit flag initialized.
@@ -680,6 +885,106 @@ export class Utils {
       acquaintances[idx].standing = nextStanding;
 
       await queueUpdate(() => sheet.actor.update({ system: { acquaintances } }));
+    });
+  }
+
+  /**
+   * Resizes the XP clock, turning ticks that no longer fit into full clocks so no xp is lost.
+   * @param {{value: number, number: number}} expClock - Current system.exp_clock
+   * @param {number} size - New segment count
+   * @returns {{size: number, value: number, number: number}}
+   */
+  static resizeExpClock({ value, number }, size) {
+    const xp = Number(value) || 0;
+    return { size, value: xp % size, number: (Number(number) || 0) + Math.floor(xp / size) };
+  }
+
+  /**
+   * Click on XP clock segment `tick` (1-based): fill up to it, or clear it when it is the top filled one. Filling the last segment banks a full clock.
+   * @param {{size: number, value: number, number: number}} expClock
+   * @param {number} tick
+   * @returns {{value: number, number: number}}
+   */
+  static tickExpClock({ size, value, number }, tick) {
+    number = Number(number) || 0;
+    if (tick === Number(value)) return { value: tick - 1, number };
+    if (tick >= size) return { value: 0, number: number + 1 };
+    return { value: tick, number };
+  }
+
+  /**
+   * One xp up or down. Up rolls over into a full clock; down at 0 takes a full clock back.
+   * @param {{size: number, value: number, number: number}} expClock
+   * @param {1|-1} delta
+   * @returns {{value: number, number: number}}
+   */
+  static stepExpClock({ size, value, number }, delta) {
+    const xp = Math.max(0, (Number(number) || 0) * size + (Number(value) || 0) + delta);
+    return { value: xp % size, number: Math.floor(xp / size) };
+  }
+
+  /**
+   * Spend one full XP clock.
+   * @param {{value: number, number: number}} expClock
+   * @returns {{value: number, number: number}}
+   */
+  static spendExpClock({ value, number }) {
+    return { value, number: Math.max(0, (Number(number) || 0) - 1) };
+  }
+
+  /**
+   * Bind the Deep Cuts XP clock: click a segment, right-click or arrows to step, spend full clocks, pick the size (4/6/8).
+   * @param {DocumentSheet} sheet
+   * @param {JQuery} html
+   */
+  static bindExpClock(sheet, html) {
+    const track = html.find(".xp-track");
+    if (!track.length) return;
+    const clock = () => sheet.actor.system.exp_clock;
+    // Read the clock when the queued update runs, so fast repeated clicks or keys each build on the last.
+    const save = (next) => queueUpdate(() => sheet.actor.update({ "system.exp_clock": next(clock()) }));
+    const hit = track.find(".xp-clock-hit");
+    // Keyboard steps re-render the sheet (once per queued update); put focus back on the redrawn control.
+    // ponytail: a short time window, not focus tracking; renders within 1.5s of a key press while focus is lost get it back.
+    const recent = sheet._xpFocus && Date.now() - sheet._xpFocus.at < 1500;
+    const doc = track[0].ownerDocument; // PopOut! may move the sheet to another window
+    if (recent && (!doc.activeElement || doc.activeElement === doc.body)) track.find(sheet._xpFocus.sel)[0]?.focus({ preventScroll: true });
+    const KEYS = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 };
+
+    hit.on("click", "[data-tick]", (ev) => {
+      ev.preventDefault();
+      const tick = Number(ev.currentTarget.dataset.tick);
+      save((c) => Utils.tickExpClock(c, tick));
+    });
+    hit.on("contextmenu", (ev) => {
+      ev.preventDefault();
+      save((c) => Utils.stepExpClock(c, -1));
+    });
+    hit.on("keydown", (ev) => {
+      const delta = KEYS[ev.key];
+      if (!delta) return;
+      ev.preventDefault();
+      sheet._xpFocus = { sel: ".xp-clock-hit", at: Date.now() };
+      save((c) => Utils.stepExpClock(c, delta));
+    });
+
+    const banked = track.find(".xp-banked");
+    banked.on("contextmenu", (ev) => {
+      ev.preventDefault();
+      save(Utils.spendExpClock);
+    });
+    banked.on("keydown", (ev) => {
+      if (ev.key !== "Delete" && ev.key !== "Backspace") return;
+      ev.preventDefault();
+      sheet._xpFocus = { sel: Number(clock().number) > 1 ? ".xp-banked" : ".xp-clock-hit", at: Date.now() };
+      save(Utils.spendExpClock);
+    });
+
+    track.find(".xp-size").on("click", "[data-size]", (ev) => {
+      ev.preventDefault();
+      const size = Number(ev.currentTarget.dataset.size);
+      if (size === Number(clock().size)) return;
+      save((c) => Utils.resizeExpClock(c, size));
     });
   }
 
@@ -748,13 +1053,10 @@ export class Utils {
       if (state) {
         let all_of_type = await Utils.getSourcedItemsByType(type);
         let checked_item = all_of_type.find((item) => item.id == id);
-        let added_item = await queueUpdate(() => actor.createEmbeddedDocuments("Item", [
-          {
-            type: checked_item.type,
-            name: checked_item.name,
-            system: checked_item.system,
-          },
-        ]));
+        // toObject keeps the ability's effects (e.g. Mule's load bonus).
+        const data = Utils.applyDeepCutsChanges(checked_item.toObject());
+        delete data._id;
+        await queueUpdate(() => actor.createEmbeddedDocuments("Item", [data]));
       } else {
         const ownedDoc = actor.getEmbeddedDocument("Item", id);
         if (ownedDoc) {

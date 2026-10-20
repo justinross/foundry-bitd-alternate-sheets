@@ -69,7 +69,7 @@
   @include meta.load-css("./import/general-styles");
 
   &.actor.sheet.crew {
-    min-width: 900px;
+    min-width: 940px;
     min-height: 275px;
     @include meta.load-css("./import/crew-sheet");
   }
@@ -123,5 +123,162 @@
 
   i {
     font-size: 10px;
+  }
+}
+
+// Cohort dialogs (New Cohort, Add Cohort Type). Dialogs sit outside .blades-alt, so variables need fallbacks.
+.bitd-alt.cohort-dialog {
+  .dialog-instructions {
+    margin: 0 0 0.5rem;
+    font-style: italic;
+  }
+
+  .dialog-step {
+    margin: 0.35rem 0 0.15rem;
+    font-size: 1em;
+    font-family: var(--alt-accent-font, Kirsty, serif);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+  }
+
+  .cohort-cards {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 3), 1fr);
+    gap: 0.35rem;
+    margin-bottom: 0.25rem;
+    padding: 4px;
+  }
+
+  .cohort-card {
+    position: relative;
+    display: block;
+    cursor: pointer;
+
+    > input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      padding: 0.3rem;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background: rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+
+      img {
+        width: 32px;
+        height: 32px;
+        border: none;
+        margin-bottom: 0.15rem;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+    }
+
+    > input:checked + .card-content {
+      border-color: #800000;
+      background: rgba(128, 0, 0, 0.15);
+      box-shadow: 0 0 8px #800000;
+    }
+
+    > input:focus-visible + .card-content {
+      outline: 2px solid #800000;
+    }
+  }
+
+  .card-label {
+    font-weight: bold;
+    font-size: 0.85em;
+    text-align: center;
+    word-break: break-word;
+    line-height: 1.2;
+  }
+
+  .card-sub {
+    font-size: 0.72em;
+    line-height: 1.15;
+    opacity: 0.8;
+    text-align: center;
+  }
+
+  .card-reason {
+    font-size: 0.7em;
+    line-height: 1.15;
+    font-style: italic;
+    color: var(--alt-amber, #e07f1a);
+    text-align: center;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  .choice-disabled {
+    cursor: not-allowed;
+
+    .card-content > :not(.card-reason) {
+      opacity: 0.45;
+    }
+
+    img {
+      filter: grayscale(1);
+    }
+  }
+
+  .cohort-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+
+    label {
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      border: 1px solid #999;
+      border-radius: 3px;
+      font-size: 1em;
+    }
+  }
+}
+
+// Deep Cuts Settings window
+.bitd-deep-cuts-config {
+  fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  fieldset > legend {
+    font-weight: bold;
+  }
+
+  // A long label wraps to tight lines, not input-height ones.
+  .form-group > label {
+    line-height: normal;
+  }
+
+  .bitd-dc-note {
+    margin: 0;
+
+    .fa-rotate-right {
+      color: var(--color-level-warning, #ee9b3a);
+    }
   }
 }

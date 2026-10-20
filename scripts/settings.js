@@ -1,6 +1,16 @@
 import { Utils } from "./utils.js";
+import { DeepCutsSettings } from "./deep-cuts-settings.js";
 
 export const registerSystemSettings = function () {
+  game.settings.registerMenu("bitd-alternate-sheets", "deepCutsMenu", {
+    name: "bitd-alt.DeepCuts",
+    label: "bitd-alt.DeepCutsSettings",
+    hint: "bitd-alt.DeepCutsMenuHint",
+    icon: "fa-solid fa-scissors",
+    type: DeepCutsSettings,
+    restricted: true,
+  });
+
   game.settings.register("bitd-alternate-sheets", "populateFromCompendia", {
     name: "Load Compendium Objects",
     hint: "Include Compendium Playbooks, NPCs, Items, and Abilities When Auto-Populating Playbooks",
@@ -53,6 +63,30 @@ export const registerSystemSettings = function () {
     },
   });
 
+  // The Deep Cuts toggles live in the Deep Cuts Settings window, not on the settings page.
+  game.settings.register("bitd-alternate-sheets", "deepCutsVault", {
+    name: "bitd-alt.DeepCutsVault",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+    onChange: async () => {
+      await Utils.syncDeepCutsWorld();
+      Utils._refreshOpenSheets();
+    },
+  });
+
+  for (const [key, label] of [["deepCutsHarm", "DeepCutsHarm"], ["deepCutsTrauma", "DeepCutsTrauma"]]) {
+    game.settings.register("bitd-alternate-sheets", key, {
+      name: `bitd-alt.${label}`,
+      scope: "world",
+      config: false,
+      type: Boolean,
+      default: false,
+      onChange: () => Utils._refreshOpenSheets(),
+    });
+  }
+
   game.settings.register(
     "bitd-alternate-sheets",
     "showPronounsInCharacterDirectory",
@@ -82,6 +116,15 @@ export const registerSystemSettings = function () {
   game.settings.register("bitd-alternate-sheets", "showClearLoadButton", {
     name: "Show Clear Load Button to Players",
     hint: "Show the Clear Load button to players in the load popout. GMs always see it.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register("bitd-alternate-sheets", "promptAttributeRoll", {
+    name: "bitd-alt.PromptAttributeRoll",
+    hint: "bitd-alt.PromptAttributeRollHint",
     scope: "world",
     config: true,
     type: Boolean,

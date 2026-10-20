@@ -2,6 +2,7 @@ import { BladesCrewSheet as SystemCrewSheet } from "../../../systems/blades-in-t
 import { Utils, MODULE_ID } from "./utils.js";
 import { Profiler } from "./profiler.js";
 import { queueUpdate } from "./lib/update-queue.js";
+import { COHORT_NEW, COHORT_ADD_TYPE, newCohortDialog, addCohortTypeDialog } from "./cohort-upgrades.js";
 
 /**
  * Alternate crew sheet that mirrors the functionality of the system sheet
@@ -15,7 +16,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: [...new Set([...baseClasses, "blades-alt"])],
       template: "modules/bitd-alternate-sheets/templates/crew-sheet.html",
-      width: 900,
+      width: 940,
       height: 940,
       tabs: [
         { navSelector: ".tabs", contentSelector: ".tab-content", initial: "turfs" },
@@ -26,6 +27,8 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   /** @override */
   async getData(options) {
     const getDataStart = performance.now();
+    // Catches crews the setting sweep missed (imports, new tokens) and caps vault coins after a vault drop.
+    if (this.actor.isOwner && !this.actor.pack) await Utils.syncDeepCuts(this.actor);
     const sheetData = await super.getData(options);
     Utils.ensureAllowEdit(this);
     const persistedUi = await Utils.loadUiState(this);
@@ -62,6 +65,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       crewTypeName
     );
     sheetData.collapsedSections = this.collapsedSections;
+    sheetData.deepCutsVault = game.settings.get(MODULE_ID, "deepCutsVault");
 
     // Notes content - use system.description for compatibility with base system sheets
     // Migrate from old flag storage if needed (append to preserve both)
@@ -179,7 +183,8 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
       // Inject explicit 2-cost cohort upgrades to replace multiple cohort variants from the system packs.
       this._virtualUpgradeSources.clear();
-      const makeVirtual = (id, name, description) => {
+      const counts = this.actor.getFlag(MODULE_ID, "cohortUpgradeCounts") || {};
+      const makeVirtual = (id, name, description, countKey) => {
         const system = {
           description,
           price: 2,
@@ -193,20 +198,23 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
           name,
           img: "icons/svg/sun.svg",
           system,
+          countLabel: counts[id] ? game.i18n.format(countKey, { n: counts[id] }) : "",
         };
         this._virtualUpgradeSources.set(id, virtual);
         return virtual;
       };
       const virtualUpgrades = [
         makeVirtual(
-          "virtual-upgrade-cohort-new",
+          COHORT_NEW,
           "Cohort: New",
-          "Gain a new cohort (costs 2 upgrades)."
+          "Gain a new cohort (costs 2 upgrades).",
+          "bitd-alt.CohortsMade"
         ),
         makeVirtual(
-          "virtual-upgrade-cohort-add-type",
+          COHORT_ADD_TYPE,
           "Cohort: Add Type",
-          "Give an existing cohort an additional type (costs 2 upgrades)."
+          "Give an existing cohort an additional type (costs 2 upgrades).",
+          "bitd-alt.TypesAdded"
         ),
       ];
       filteredSources = [...filteredSources, ...virtualUpgrades];
@@ -224,17 +232,21 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
         return {
           id: item.id,
           _id: item.id,
+          type: item.type,
           name: item.name,
           img: item.img,
           system: {
             ...item.system,
             class: manualKey ?? item.system?.class,
+            description: Utils.deepCutsDescription(item),
           },
+          countLabel: item.countLabel ?? "",
           ownedId: ownedMatch?.id ?? "",
           owned: Boolean(ownedMatch),
           boxes,
         };
       })
+      .map((choice) => Utils.applyDeepCutsChanges(choice))
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -244,10 +256,10 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
 
     // Use namespaced events with .off() to prevent handler stacking on re-render
     html.find("input.radio-toggle, label.radio-toggle")
-      .off("click.radioToggle mousedown.radioToggle")
-      .on("click.radioToggle", (e) => e.preventDefault())
+      .off("click mousedown contextmenu")
+      .on("click.radioToggle contextmenu.radioToggle", (e) => e.preventDefault())
       .on("mousedown.radioToggle", (e) => {
-        this._onRadioToggle(e);
+        if (e.button === 0) this._onRadioToggle(e);
       });
 
     // Minimize/expand toggle
@@ -317,7 +329,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     html.find('*[contenteditable="true"]').on("paste", (e) => {
       e.preventDefault();
       let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-      document.execCommand("insertText", false, text);
+      e.currentTarget.ownerDocument.execCommand("insertText", false, text);
     });
 
     // Prevent multi-line edits in inline fields (Name, Lair, etc.)
@@ -372,8 +384,9 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       ]));
     });
 
-    // NOTE: Clock controls are handled globally by setupGlobalClockHandlers() in hooks.js
+    // NOTE: Clock controls are handled globally by bindClockHandlers() in hooks.js; linked clocks bind on themselves
     Utils.bindStandingToggles(this, html);
+    Utils.bindExpClock(this, html);
     Utils.bindAllowEditToggle(this, html);
 
     html.find('[data-action="smart-item-selector"]').click((e) => Utils.handleSmartItemSelector(e, this.actor));
@@ -495,6 +508,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
           system: foundry.utils.deepClone(sourceItem.system ?? {}),
           img: sourceItem.img,
         };
+    Utils.applyDeepCutsChanges(data);
 
     const max = this._deriveUpgradeMax(sourceItem);
     if (!data.system) data.system = {};
@@ -549,8 +563,11 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
       await Profiler.time(
         "crewUpgradeToggle",
         async () => {
-          // Upgrade becomes "active" (owned) only when ALL boxes are checked
-          if (targetValue === max && !ownedItem) {
+          // Cohort upgrades buy a cohort or a type through a dialog, then clear for the next purchase.
+          if (targetValue === max && !ownedItem && [COHORT_NEW, COHORT_ADD_TYPE].includes(sourceId)) {
+            await this._buyCohortUpgrade(sourceId, previousValue);
+          } else if (targetValue === max && !ownedItem) {
+            // Upgrade becomes "active" (owned) only when ALL boxes are checked
             // Fully purchased - create owned item and clear progress
             await this._createOwnedUpgrade(sourceItem, max);
             await Utils.updateCrewUpgradeProgressFlag(this.actor, sourceId, 0);
@@ -586,6 +603,26 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
   }
 
   /**
+   * Open the cohort dialog for a filled cohort upgrade. A purchase clears the boxes and
+   * counts it; cancelling puts the boxes back as they were. Nothing is ever deleted.
+   */
+  async _buyCohortUpgrade(sourceId, previousValue) {
+    const bought = sourceId === COHORT_NEW
+      ? await newCohortDialog(this.actor)
+      : await addCohortTypeDialog(this.actor);
+    if (!bought) {
+      await Utils.updateCrewUpgradeProgressFlag(this.actor, sourceId, previousValue);
+      this.render(false);
+      return;
+    }
+    const count = Number(this.actor.getFlag(MODULE_ID, "cohortUpgradeCounts")?.[sourceId]) || 0;
+    await queueUpdate(() => this.actor.update({
+      [`flags.${MODULE_ID}.crewUpgradeProgress.-=${sourceId}`]: null,
+      [`flags.${MODULE_ID}.cohortUpgradeCounts.${sourceId}`]: count + 1,
+    }));
+  }
+
+  /**
    * Re-render any open character sheets belonging to members of this crew.
    * Called after crew upgrades change, since some upgrades affect crew members
    * (e.g., Steady adds stress boxes to scoundrels).
@@ -614,8 +651,7 @@ export class BladesAlternateCrewSheet extends SystemCrewSheet {
     let type = event.target.tagName.toLowerCase();
     let target = event.target;
     if (type === "label") {
-      const labelID = $(target).attr("for");
-      target = document.getElementById(labelID);
+      target = target.control;
     }
 
     if (!target) return;

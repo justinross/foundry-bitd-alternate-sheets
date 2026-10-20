@@ -12,25 +12,7 @@
               {{localize "BITD.CrewXP"}}
               <div class="stripe-tooth-body stress">
                 {{#if (getSetting 'ClockXP')}}
-                <div class="crew-xp-clock">
-                  <div class="crew-xp-clock-controls flex-vertical">
-                    <a class="up-exp-clock" data-tooltip="{{localize 'BITD.AddXP'}}"><i class="fas fa-caret-up"></i></a>
-                    <a class="down-exp-clock" data-tooltip="{{localize 'BITD.MinusXP'}}"><i class="fas fa-caret-down"></i></a>
-                  </div>
-                  <div class="crew-xp-clock-wrapper" data-click-disabled="true">
-                    {{{blades-clock-color "system.exp_clock.value" system.exp_clock.size "red" system.exp_clock.value (concat _id "-exp")}}}
-                  </div>
-                  {{#if (gteq system.exp_clock.number 1)}}
-                  <div class="crew-xp-completed-controls flex-vertical">
-                    <a class="add-exp-clock" data-tooltip="{{localize 'BITD.AddXPClock'}}" style="visibility:hidden"><i class="fas fa-angles-up"></i></a>
-                    <a class="minus-exp-clock" data-tooltip="{{localize 'BITD.MinusXPClock'}}"><i class="fas fa-angles-down"></i></a>
-                  </div>
-                  <div class="crew-xp-completed-clocks">
-                    <img src="systems/blades-in-the-dark/themes/red/{{system.exp_clock.size}}clock_{{system.exp_clock.size}}.svg" class="completed-clock-img"/>
-                    <span class="completed-clock-count">x{{system.exp_clock.number}}</span>
-                  </div>
-                  {{/if}}
-                </div>
+                {{> "modules/bitd-alternate-sheets/templates/parts/xp-clock.html" kind="crew" clock=system.exp_clock}}
                 {{else}}
                 {{#multiboxes system.experience}}
                 <input type="radio" id="crew-{{_id}}-experience-0" name="system.experience" value="0" dtype="Radio"
@@ -222,7 +204,7 @@
                 <div class="coin-group vault-group">
                   <div class="gray-label coins-label vault-label">{{localize "BITD.Vault"}}</div>
                   <div id="crew-{{_id}}-coins-vault" class="crew-coins-vault">
-                    <div class="crew-coins coins coins-vault">
+                    <div class="crew-coins coins coins-vault{{#if deepCutsVault}} deep-cuts{{/if}}">
                       {{#multiboxes system.vault.value}}
                       <input type="radio" id="crew-{{_id}}-coins-vault-0" name="system.vault.value" value="0"
                         checked="checked">
@@ -350,14 +332,12 @@
       </div>
 
       <div id="crew-{{_id}}-cohorts" class="crew-cohorts tab grow-two flex-vertical" data-tab="cohorts">
-        <div class="label-stripe flex-horizontal add-item-row">
-          <p><a class="add-item" data-item-type="cohort"><i class="fas fa-plus-square"></i></a></p>
-        </div>
+        <header class="full-bar cohorts-header"><span>{{localize "BITD.Cohorts"}}</span><a class="add-item" data-item-type="cohort" data-tooltip="{{localize 'bitd-alt.AddCohort'}}"><i class="fas fa-plus-square"></i></a></header>
         <div class="cohorts flex-horizontal">
           {{#each items as |item id|}}
           {{#if (eq item.type "cohort")}}
 
-          {{> "systems/blades-in-the-dark/templates/parts/cohort-block.html" item=item}}
+          {{> "modules/bitd-alternate-sheets/templates/parts/cohort-block.html"}}
 
           {{/if}}
           {{/each}}
