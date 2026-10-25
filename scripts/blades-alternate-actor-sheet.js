@@ -781,9 +781,11 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     }
 
-    // Deep Cuts: each Coin carried counts as 1 load
-    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad')) {
-      loadout += parseInt(sheetData.system.coins) || 0;
+    // Deep Cuts: each Coin carried counts as 1 load. Carried Coin is its own count; a job can haul more than the character owns.
+    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad') && game.settings.get("bitd-alternate-sheets", "deepCutsCoinLoad")) {
+      const carried = Math.max(0, parseInt(this.actor.getFlag("bitd-alternate-sheets", "coin-carried")) || 0);
+      loadout += carried;
+      sheetData.coinCarried = { value: carried };
     }
 
     // Deep Cuts Rigging (crew upgrade): rigged items count 0 load, up to 2 load
@@ -923,13 +925,13 @@ export class BladesAlternateActorSheet extends BladesSheet {
   }
 
   async clearLoad() {
-    // No-op check: skip if no equipped-items flag exists
-    const currentFlag = this.actor.getFlag("bitd-alternate-sheets", "equipped-items");
-    if (!currentFlag) return;
+    // No-op check: skip when nothing is equipped and no Coin is carried
+    const keys = ["equipped-items", "coin-carried"].filter((key) => this.actor.getFlag("bitd-alternate-sheets", key) !== undefined);
+    if (!keys.length) return;
 
     await queueUpdate(async () => {
       await this.actor.update(
-        deletionUpdate("flags.bitd-alternate-sheets.equipped-items")
+        Object.assign({}, ...keys.map((key) => deletionUpdate(`flags.bitd-alternate-sheets.${key}`)))
       );
     });
   }

@@ -76,6 +76,15 @@ export const registerSystemSettings = function () {
     },
   });
 
+  game.settings.register("bitd-alternate-sheets", "deepCutsCoinLoad", {
+    name: "bitd-alt.DeepCutsCoinLoad",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true,
+    onChange: () => Utils._refreshOpenSheets(),
+  });
+
   for (const [key, label] of [["deepCutsHarm", "DeepCutsHarm"], ["deepCutsTrauma", "DeepCutsTrauma"]]) {
     game.settings.register("bitd-alternate-sheets", key, {
       name: `bitd-alt.${label}`,

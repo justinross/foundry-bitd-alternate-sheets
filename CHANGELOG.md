@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### New
+- Deep Cuts: a "Coin carried" box in the general items header sets how much Coin you take on a score. Only carried Coin counts as load, and it can be more than you own. Clear Load resets it to 0. A new "Coin Counts as Load" option in the Deep Cuts Settings window turns Coin load off. (Issue #164)
+
 ## 1.1.0
 
 ### New

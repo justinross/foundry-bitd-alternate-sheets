@@ -13,7 +13,7 @@ const GROUPS = [
     namespace: "bitd-alternate-sheets",
     legend: "bitd-alt.DeepCutsModuleGroup",
     note: "bitd-alt.DeepCutsModuleNote",
-    keys: ["deepCutsVault", "deepCutsHarm", "deepCutsTrauma"],
+    keys: ["deepCutsVault", "deepCutsCoinLoad", "deepCutsHarm", "deepCutsTrauma"],
   },
 ];
 

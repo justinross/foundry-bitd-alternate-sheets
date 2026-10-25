@@ -1018,6 +1018,24 @@
 
             .all-items {
               grid-area: all-items;
+
+              .coin-carried-header {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 6px;
+
+                .coin-carried-count {
+                  width: 3em;
+                  height: 1.3em;
+                  padding: 0 2px;
+                  font-size: 0.9em;
+                  line-height: normal;
+                  text-align: center;
+                  background: $almost_white;
+                  color: $almost_black;
+                }
+              }
             }
 
             .xp-notes {
