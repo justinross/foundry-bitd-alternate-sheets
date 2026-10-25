@@ -4406,6 +4406,22 @@
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .all-items {
   grid-area: all-items;
 }
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .all-items .coin-carried-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .all-items .coin-carried-header .coin-carried-count {
+  width: 3em;
+  height: 1.3em;
+  padding: 0 2px;
+  font-size: 0.9em;
+  line-height: normal;
+  text-align: center;
+  background: #eeefff;
+  color: #191813;
+}
 .blades-alt.actor.sheet.pc .sheet-wrapper .tab-space .tab-content .tab .playbook .xp-notes {
   grid-area: xp-notes;
   background: #bbb;
