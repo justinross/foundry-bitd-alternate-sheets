@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.2
 
 ### Fixes
 - Coin carried is a core rule, not a Deep Cuts one. The Coin carried box now always shows in the general items header and counts as load with either load type. The "Coin Counts as Load" option is gone.
