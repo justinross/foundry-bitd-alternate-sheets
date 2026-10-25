@@ -781,12 +781,9 @@ export class BladesAlternateActorSheet extends BladesSheet {
       }
     }
 
-    // Deep Cuts: each Coin carried counts as 1 load. Carried Coin is its own count; a job can haul more than the character owns.
-    if (game.settings.get('blades-in-the-dark', 'DeepCutLoad') && game.settings.get("bitd-alternate-sheets", "deepCutsCoinLoad")) {
-      const carried = Math.max(0, parseInt(this.actor.getFlag("bitd-alternate-sheets", "coin-carried")) || 0);
-      loadout += carried;
-      sheetData.coinCarried = { value: carried };
-    }
+    // Each Coin carried counts as 1 load (core p42). Carried Coin is its own count; a job can haul more than the character owns.
+    sheetData.coinCarried = Math.max(0, parseInt(this.actor.getFlag("bitd-alternate-sheets", "coin-carried")) || 0);
+    loadout += sheetData.coinCarried;
 
     // Deep Cuts Rigging (crew upgrade): rigged items count 0 load, up to 2 load
     const rigged = this.actor.getFlag("bitd-alternate-sheets", "rigged-items") || {};

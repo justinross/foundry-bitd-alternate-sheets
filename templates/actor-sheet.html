@@ -235,14 +235,10 @@
               </div>
             </section>
             <section class="all-items item-list">
-              {{#if coinCarried}}
               <header class="full-bar coin-carried-header" data-tooltip="{{localize 'bitd-alt.CoinCarriedTooltip'}}">
                 <label for="character-{{actor._id}}-coin-carried">{{localize "bitd-alt.CoinCarried"}}</label>
-                <input type="number" class="coin-carried-count" id="character-{{actor._id}}-coin-carried" name="flags.bitd-alternate-sheets.coin-carried" value="{{coinCarried.value}}" min="0" step="1" data-dtype="Number">
+                <input type="number" class="coin-carried-count" id="character-{{actor._id}}-coin-carried" name="flags.bitd-alternate-sheets.coin-carried" value="{{coinCarried}}" min="0" step="1" data-dtype="Number">
               </header>
-              {{else}}
-              <header class="full-bar">&nbsp;</header>
-              {{/if}}
               {{#each generic_items as |item index|}}
               {{#with ../actor as |actor|}}
               {{> "modules/bitd-alternate-sheets/templates/parts/item.html" actor=actor item=item
