@@ -3188,13 +3188,17 @@
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper a.filter-toggle {
   margin-left: 5px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper a.filter-toggle.active i {
   color: #cc0000;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .section-block {
   position: relative;
+}
+.blades-alt.actor.sheet.pc .sheet-wrapper .section-block > header.full-bar {
+  display: flex;
+  align-items: center;
 }
 .blades-alt.actor.sheet.pc .sheet-wrapper .section-block .collapse-toggle {
   color: white;

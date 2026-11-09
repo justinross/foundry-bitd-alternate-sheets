@@ -45,7 +45,7 @@
 
     a.filter-toggle {
       margin-left: 5px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
 
       &.active i {
         color: $red;
@@ -54,6 +54,12 @@
 
     .section-block {
       position: relative;
+
+      // Center the label and the filter/add icons vertically in the bar.
+      > header.full-bar {
+        display: flex;
+        align-items: center;
+      }
 
       .collapse-toggle {
         color: white;

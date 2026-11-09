@@ -850,13 +850,8 @@ export class BladesAlternateActorSheet extends BladesSheet {
     const acquaintanceList = Array.isArray(sheetData.system.acquaintances)
       ? sheetData.system.acquaintances
       : [];
-    const filteredAcqs = this.showFilteredAcquaintances
-      ? acquaintanceList.filter((acq) => {
-        const standing = (acq?.standing ?? "").toString().trim().toLowerCase();
-        return standing === "friend" || standing === "rival";
-      })
-      : acquaintanceList;
-    sheetData.display_acquaintances = filteredAcqs;
+    // The acquaintance filter has no button, so ignore any saved filter state.
+    sheetData.display_acquaintances = acquaintanceList;
 
     Profiler.log("ActorSheet.getData", {
       duration: performance.now() - getDataStart,
